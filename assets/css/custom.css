@@ -1,0 +1,95 @@
+/* 悬浮TOC样式 */
+.toc.side {
+    position: fixed;
+    top: 5rem;
+    width: 20rem;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    background: var(--entry);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+/* 右侧TOC */
+.toc.side.right {
+    right: 2rem;
+}
+
+/* 左侧TOC */
+.toc.side.left {
+    left: 2rem;
+}
+
+/* 当前阅读位置高亮 */
+.toc.side a.active {
+    color: var(--primary);
+    font-weight: 500;
+    border-left: 2px solid var(--primary);
+    margin-left: -0.5rem;
+    padding-left: 0.3rem;
+}
+
+.toc.side details {
+    border: none;
+}
+
+.toc.side summary {
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+.toc.side .inner {
+    padding: 0.5rem;
+}
+
+.toc.side ul {
+    list-style-type: none;
+    padding-left: 1rem;
+}
+
+.toc.side a {
+    color: var(--secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: block;
+    padding: 0.2rem 0;
+}
+
+.toc.side a:hover {
+    color: var(--primary);
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 1400px) {
+    .toc.side {
+        display: none;
+    }
+}
+
+/* 暗色主题适配 */
+[theme="dark"] .toc.side {
+    background: var(--entry);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 滚动条美化 */
+.toc.side::-webkit-scrollbar {
+    width: 6px;
+}
+
+.toc.side::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc.side::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.toc.side::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}

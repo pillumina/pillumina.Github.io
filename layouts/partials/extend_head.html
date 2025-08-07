@@ -1,0 +1,111 @@
+{{ if or .Params.math .Site.Params.math }}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
+<!-- The loading of KaTeX is deferred to speed up page rendering -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY" crossorigin="anonymous"></script>
+<!-- To automatically render math in text elements, include the auto-render extension: -->
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
+    onload="renderMathInElement(document.body);"></script>
+
+<!-- for inline -->>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    renderMathInElement(document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+        ]
+    });
+});
+</script>
+{{ end }}
+
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script>
+const config = {
+    startOnLoad:true,
+    theme: 'neutral',
+    themeVariables: {
+        lineColor: "#0f0f0f"  
+    },
+    flowchart: {
+        useMaxWidth:false,
+        htmlLabels:true
+        }
+};
+mermaid.initialize(config);
+window.onload = () => {
+    window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
+}
+</script>
+
+<!-- 自定义样式 -->
+{{ $custom := resources.Get "css/custom.css" }}
+{{ $custom_style := $custom | resources.Minify | resources.Fingerprint }}
+<link rel="stylesheet" href="{{ $custom_style.RelPermalink }}" integrity="{{ $custom_style.Data.Integrity }}">
+
+<!-- TOC阅读进度跟踪 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 获取所有标题元素
+    const headers = document.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
+    // 获取所有TOC链接
+    const tocLinks = document.querySelectorAll('.toc a');
+    
+    if (headers.length === 0 || tocLinks.length === 0) return;
+
+    // 创建标题位置映射
+    const headerPositions = {};
+    headers.forEach(header => {
+        headerPositions[header.id] = header.offsetTop;
+    });
+
+    // 获取当前激活的标题
+    function getActiveHeader() {
+        const scrollPosition = window.scrollY + 100; // 添加偏移量以提前触发
+        
+        let activeId = '';
+        for (const [id, position] of Object.entries(headerPositions)) {
+            if (scrollPosition >= position) {
+                activeId = id;
+            } else {
+                break;
+            }
+        }
+        return activeId;
+    }
+
+    // 更新TOC高亮
+    function updateTocHighlight() {
+        const activeId = getActiveHeader();
+        
+        // 移除所有active类
+        tocLinks.forEach(link => {
+            link.classList.remove('active');
+        });
+        
+        // 添加active类到当前标题的链接
+        if (activeId) {
+            const activeLink = document.querySelector(`.toc a[href="#${activeId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+    }
+
+    // 监听滚动事件
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(function() {
+                updateTocHighlight();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    // 初始化高亮
+    updateTocHighlight();
+});
+</script>

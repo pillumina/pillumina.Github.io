@@ -1,0 +1,146 @@
+baseURL : 'https://example.org/'
+languageCode : 'en-us'
+title : 'CctoctoFX'
+theme : 'papermod'
+
+enableInlineShortcodes: true
+enableRobotsTXT: true
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+enableEmoji: true
+pygmentsUseClasses: true
+mainsections: ["posts", "archives"]
+
+pagination:
+  disableAliases: false
+  pagerSize: 5
+
+minify:
+  disableXML: true
+  minifyOutput: true
+
+
+languages:
+  en:
+    languageName: "English"
+    weight: 1
+    taxonomies:
+      category: categories
+      tag: tags
+      series: series
+    menu:
+      main:
+        - name: Archive
+          url: archives
+          weight: 5
+        - name: Search
+          url: search/
+          weight: 10
+        - name: AI Infra
+          url: posts/aiinfra
+          weight: 20
+        - name: Social
+          url: social
+        - name: Programming
+          url: posts/programming
+        - name: Study
+          url: open_courses
+
+
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # necessary for search
+
+params:
+  TocSide: 'left'
+  assets:
+    disableHLJS: true # to disable highlight.js
+    # disableFingerprinting: true
+    favicon: "/favicon.ico"
+    favicon16x16: "/favicon-16x16.png"
+    favicon32x32: "/favicon-32x32.png"
+    apple_touch_icon: "/apple-touch-icon.png"
+    # safari_pinned_tab: "/safari-pinned-tab.svg"
+
+  label:
+    text:
+    icon: /apple-touch-icon.png
+    iconHeight: 
+
+  math: true
+  profileMode:
+    enabled: false # needs to be explicitly set
+
+  homeInfoParams:
+    Title: CctoctoFX (Yuxiao Huang)
+    Content: |
+      Hey there! I’m a software engineer obsessed with untangling complex systems.
+      My playground includes:
+        - ⚙️  Software architecture (scaling the unscalable),
+        - 🧠 LLM training/inference (squeezing speed from silicon),
+        - 📈 Economic systems &  🌍 geopolitics (decoding money & power).
+
+      - I drop occasional deep dives & spicy takes here—whether it’s CUDA hacks, distributed systems war stories, or how AI reshapes global trade.
+
+      - No fluff, just signal. Join the conversation!
+ 
+    imageUrl: "imgs/icon_head.png"
+    imageTitle: profile
+    imageWidth: 150
+    imageHeight: 150
+
+
+  env: production
+  author: Me
+  defaultTheme: light
+  images: ["imgs/icon_head.png"]
+  displayFullLangName: true
+  ShowRssButtonInSectionTermList: true
+  ShowAllPagesInArchive: true
+  ShowPageNums: true
+  ShowShareButtons: true
+  ShowReadingTime: true
+  ShowToc: true
+  TocOpen: true
+  ShowBreadCrumbs: true
+  ShowPostNavLinks: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  UseHugoToc: true
+  disableScrollToTop: false
+  
+
+  socialIcons: # optional
+    - name: "email"
+      url: "derios1230@gmail.com"
+    - name: "github"
+      url: "https://github.com/pillumina"
+    - name: "gitea"
+      url: "https://gitee.com/pillumina"
+
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    # limit: 10 # refer: https://www.fusejs.io/api/methods.html#search
+    keys: ["title", "permalink", "summary", "content"]
+
+markup:
+  defaultMarkdownHandler: goldmark
+  goldmark:
+    renderer:
+      unsafe: true
+      hardWraps: true
+  highlight:
+    codeFences: true
+    lineNos: true
+    style: darcula
+    noClasses: false
+
+
