@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Kubernetes &amp; Docker on CctoctoFX</title>
-    <link>http://localhost:63119/posts/programming/cloud-computing/</link>
+    <link>http://localhost:64667/posts/programming/cloud-computing/</link>
     <description>Recent content in Kubernetes &amp; Docker on CctoctoFX</description>
     <image>
       <title>CctoctoFX</title>
-      <url>http://localhost:63119/imgs/icon_head.png</url>
-      <link>http://localhost:63119/imgs/icon_head.png</link>
+      <url>http://localhost:64667/imgs/icon_head.png</url>
+      <link>http://localhost:64667/imgs/icon_head.png</link>
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
     <lastBuildDate>Thu, 29 Apr 2021 11:22:18 +0800</lastBuildDate>
-    <atom:link href="http://localhost:63119/posts/programming/cloud-computing/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:64667/posts/programming/cloud-computing/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Kubernetes Operator Development History</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-operator-dev/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-operator-dev/</link>
       <pubDate>Thu, 29 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-operator-dev/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-operator-dev/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;本文旨在记录对中间件、编排组件容器化部署后，实现kubernetes扩展组件Controller的过程。&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;third-parties&#34;&gt;Third-Parties&lt;/h2&gt;
@@ -55,9 +55,9 @@
     </item>
     <item>
       <title>Kubernetes ConfigMap 热更新</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-config-update/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-config-update/</link>
       <pubDate>Sat, 24 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-config-update/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-config-update/</guid>
       <description>&lt;p&gt;&lt;em&gt;注：如果对kubernetes的基本概念不太清楚，建议先过一下基本的资源类型再阅读此文&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;先随便给个例子:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -156,9 +156,9 @@
     </item>
     <item>
       <title>Kubernetes Developement</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-template/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-template/</link>
       <pubDate>Wed, 21 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-template/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-template/</guid>
       <description>&lt;h2 id=&#34;资源模板&#34;&gt;资源模板&lt;/h2&gt;
 &lt;h3 id=&#34;statefulset举例&#34;&gt;&lt;code&gt;statefulset&lt;/code&gt;举例&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -365,9 +365,9 @@
     </item>
     <item>
       <title>Kubernetes Handbook (Schedule)</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-advance-schedule/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-advance-schedule/</link>
       <pubDate>Fri, 09 Apr 2021 10:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-advance-schedule/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-advance-schedule/</guid>
       <description>&lt;h2 id=&#34;内容涵盖&#34;&gt;内容涵盖&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;使用节点污点和pod容忍度阻止pod调度到特定节点&lt;/li&gt;
@@ -441,9 +441,9 @@
     </item>
     <item>
       <title>Docker Fundamentals: AUFS</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-aufs/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-aufs/</link>
       <pubDate>Tue, 06 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-aufs/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-aufs/</guid>
       <description>&lt;p&gt;AUFS是一种Union File System，所谓的UnionFS实际上就是把不同物理位置的目录合并mount到同一个目录当中。一种典型的UnionFS的应用，就是把一张CD/DVD和一个硬盘目录联合mount在一起，然后你就可以对这个只读的CD/DVD上的文件进行修改。&lt;/p&gt;
 &lt;p&gt;AUFS又叫做Another UnionFS，后面改成Alternative UnionFS，然后又变成Advance UnionFS&amp;hellip;..当然名字的改变叫啥不重要，本质还是没变的。2006年Junjiro Okajima开发了AUFS，完全重写了早期的UnionFS 1.X，主要目的是为了可靠性和性能，再引入一些新的功能，例如可写分支的负载均衡。不过很有意思的是，AUFS的性能比UnionFS 1.X好很多，后面UnionFS 2.x就抄AUFS的功能，而AUFS本身却没有合入到Linux主线，因为代码量太大质量也不好。虽然后面Junjiro不断提升代码质量，不断提交但是还是被Linus拒绝了。所以哪怕是今天AUFS也没进到Linux里，虽然质量已经可以了。&lt;/p&gt;
 &lt;p&gt;不过一些发行版比如：Ubuntu 10.04，Debian6.0都支持AUFS，所以也还好。我在Ubuntu 14.04演示一下例子。&lt;/p&gt;
@@ -505,9 +505,9 @@
     </item>
     <item>
       <title>Docker Fundamentals: Cgroup</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-cgroup/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-cgroup/</link>
       <pubDate>Mon, 05 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-cgroup/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-cgroup/</guid>
       <description>&lt;p&gt;Linux Namespace的技术解决了环境隔离的问题，不过这是虚拟化最基本的一步，我们另外需要解决&lt;strong&gt;对计算机资源使用上的隔离&lt;/strong&gt;。说人话，就是虽然Namespace把我关到一个特定的环境，但是里面进程使用的CPU、内存、磁盘等计算资源实际上没有被限制。这个问题的解决，就要用到CGroup技术。&lt;/p&gt;
 &lt;p&gt;Linux CGroup全称是Linux Control Group，也是其内核的一个功能，用于限制、控制和分离一个进程group的资源。最早这个项目是2006年由谷歌的工程师发起的，最开始名称是process containers（工程容器），后面觉得内核中容器这个名词被用烂了，就改名为cgroup。&lt;/p&gt;
 &lt;p&gt;CGroup可以让你对系统中运行的进程的用户组分配资源-CPU时间、系统内存、网络带宽亦或者是这些的组合。同时，也可以监控你配置的cgroup，拒绝cgroup访问某些资源。主要提供的功能如下：&lt;/p&gt;
@@ -573,9 +573,9 @@
     </item>
     <item>
       <title>Docker Fundamentals: Namespace</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-namespace/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-namespace/</link>
       <pubDate>Thu, 01 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-namespace/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-namespace/</guid>
       <description>&lt;p&gt;容器技术出现已经很久，只不过Docker容器平台的出现它变火了。Docker是第一个让容器能在不同机器之间移植的系统，它简化了打包应用的流程，也简化了打包应用的库和各种依赖。思考下整个OS的file system能直接被打包成一个简单的可移植的包，一开始的时候概念上还是很有趣的。&lt;/p&gt;
 &lt;p&gt;有时候我认为自己的阅读比较碎片化(&lt;del&gt;short-term memory越来越少&lt;/del&gt;)，所以我想把之前学习容器知识的一些基础技术再整理出来，也算是给自己学习的反馈。这个基础系列从Linux Namespace开始，后续会陆续介绍比如cgroup、aufs、devicemapper等技术。&lt;/p&gt;
 &lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
@@ -637,9 +637,9 @@
     </item>
     <item>
       <title>Kubernetes Handbook (Start &amp; Pod)</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-basic/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-basic/</link>
       <pubDate>Wed, 31 Mar 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-basic/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-basic/</guid>
       <description>&lt;h2 id=&#34;使用minikube构建本地单节点k8s集群&#34;&gt;使用minikube构建本地单节点k8s集群&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;minikube ssh&lt;/li&gt;
@@ -684,9 +684,9 @@
     </item>
     <item>
       <title>Docker Cheat Sheet</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-basic/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-basic/</link>
       <pubDate>Tue, 30 Mar 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-basic/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-basic/</guid>
       <description>&lt;h2 id=&#34;books&#34;&gt;Books&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://pepa.holla.cz/wp-content/uploads/2016/10/Docker-in-Action.pdf&#34;&gt;Docker in Action (English ver.)&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://yeasy.gitbook.io/docker_practice/&#34;&gt;Docker入门到实践(中文)&lt;/a&gt;&lt;/p&gt;

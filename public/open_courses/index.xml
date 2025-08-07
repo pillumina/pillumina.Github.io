@@ -2,30 +2,30 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Open Courses on CctoctoFX</title>
-    <link>http://localhost:63119/open_courses/</link>
+    <link>http://localhost:64667/open_courses/</link>
     <description>Recent content in Open Courses on CctoctoFX</description>
     <image>
       <title>CctoctoFX</title>
-      <url>http://localhost:63119/imgs/icon_head.png</url>
-      <link>http://localhost:63119/imgs/icon_head.png</link>
+      <url>http://localhost:64667/imgs/icon_head.png</url>
+      <link>http://localhost:64667/imgs/icon_head.png</link>
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
     <lastBuildDate>Wed, 28 Apr 2021 11:40:12 +0800</lastBuildDate>
-    <atom:link href="http://localhost:63119/open_courses/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:64667/open_courses/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Algorithms Design and Analysis</title>
-      <link>http://localhost:63119/open_courses/cmu-15451/</link>
+      <link>http://localhost:64667/open_courses/cmu-15451/</link>
       <pubDate>Wed, 28 Apr 2021 11:40:12 +0800</pubDate>
-      <guid>http://localhost:63119/open_courses/cmu-15451/</guid>
+      <guid>http://localhost:64667/open_courses/cmu-15451/</guid>
       <description>&lt;h2 id=&#34;syllabus&#34;&gt;Syllabus&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;http://www.cs.cmu.edu/~15451-s21/schedule.html&#34;&gt;course syllabus&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     <item>
       <title>Parallel and Sequential Data Structures and Algorithms</title>
-      <link>http://localhost:63119/open_courses/cmu-15210/</link>
+      <link>http://localhost:64667/open_courses/cmu-15210/</link>
       <pubDate>Wed, 28 Apr 2021 10:40:12 +0800</pubDate>
-      <guid>http://localhost:63119/open_courses/cmu-15210/</guid>
+      <guid>http://localhost:64667/open_courses/cmu-15210/</guid>
       <description>&lt;h2 id=&#34;syllabus&#34;&gt;Syllabus&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.cs.cmu.edu/~15210/syllabus.html&#34;&gt;course syllabus&lt;/a&gt;&lt;/p&gt;</description>
     </item>

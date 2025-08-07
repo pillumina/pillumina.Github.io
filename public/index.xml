@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>CctoctoFX</title>
-    <link>http://localhost:63119/</link>
+    <link>http://localhost:64667/</link>
     <description>Recent content on CctoctoFX</description>
     <image>
       <title>CctoctoFX</title>
-      <url>http://localhost:63119/imgs/icon_head.png</url>
-      <link>http://localhost:63119/imgs/icon_head.png</link>
+      <url>http://localhost:64667/imgs/icon_head.png</url>
+      <link>http://localhost:64667/imgs/icon_head.png</link>
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
     <lastBuildDate>Thu, 07 Aug 2025 17:10:12 +0800</lastBuildDate>
-    <atom:link href="http://localhost:63119/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:64667/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>[LLM4RL] 异步RL框架: Slime</title>
-      <link>http://localhost:63119/posts/aiinfra/02-slime/</link>
+      <link>http://localhost:64667/posts/aiinfra/02-slime/</link>
       <pubDate>Thu, 07 Aug 2025 17:10:12 +0800</pubDate>
-      <guid>http://localhost:63119/posts/aiinfra/02-slime/</guid>
+      <guid>http://localhost:64667/posts/aiinfra/02-slime/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;&lt;a href=&#34;https://github.com/THUDM/slime&#34;&gt;https://github.com/THUDM/slime&lt;/a&gt;&lt;br&gt;
 一个异步实现但是非完全异步的RL框架&lt;/p&gt;&lt;/blockquote&gt;
@@ -83,9 +83,9 @@
     </item>
     <item>
       <title>[LLM4RL] 异步RL框架: Areal</title>
-      <link>http://localhost:63119/posts/aiinfra/03-areal/</link>
+      <link>http://localhost:64667/posts/aiinfra/03-areal/</link>
       <pubDate>Thu, 07 Aug 2025 14:40:12 +0800</pubDate>
-      <guid>http://localhost:63119/posts/aiinfra/03-areal/</guid>
+      <guid>http://localhost:64667/posts/aiinfra/03-areal/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;&lt;a href=&#34;https://github.com/inclusionAI/AReaL&#34;&gt;https://github.com/inclusionAI/AReaL&lt;/a&gt;&lt;br&gt;
 纯异步RL方案&lt;/p&gt;&lt;/blockquote&gt;
@@ -168,9 +168,9 @@
     </item>
     <item>
       <title>昇腾超节点CloudMatrix384论文拆解</title>
-      <link>http://localhost:63119/posts/aiinfra/01-ascend-cloudmatrix/</link>
+      <link>http://localhost:64667/posts/aiinfra/01-ascend-cloudmatrix/</link>
       <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
-      <guid>http://localhost:63119/posts/aiinfra/01-ascend-cloudmatrix/</guid>
+      <guid>http://localhost:64667/posts/aiinfra/01-ascend-cloudmatrix/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;6.19发布的CloudMatrix384论文拆解，从宏观到基础概念&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;核心指标和计算方式&#34;&gt;核心指标和计算方式&lt;/h2&gt;
@@ -281,9 +281,9 @@
     </item>
     <item>
       <title>Kubernetes Operator Development History</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-operator-dev/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-operator-dev/</link>
       <pubDate>Thu, 29 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-operator-dev/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-operator-dev/</guid>
       <description>&lt;blockquote&gt;
 &lt;p&gt;本文旨在记录对中间件、编排组件容器化部署后，实现kubernetes扩展组件Controller的过程。&lt;/p&gt;&lt;/blockquote&gt;
 &lt;h2 id=&#34;third-parties&#34;&gt;Third-Parties&lt;/h2&gt;
@@ -321,25 +321,25 @@
     </item>
     <item>
       <title>Algorithms Design and Analysis</title>
-      <link>http://localhost:63119/open_courses/cmu-15451/</link>
+      <link>http://localhost:64667/open_courses/cmu-15451/</link>
       <pubDate>Wed, 28 Apr 2021 11:40:12 +0800</pubDate>
-      <guid>http://localhost:63119/open_courses/cmu-15451/</guid>
+      <guid>http://localhost:64667/open_courses/cmu-15451/</guid>
       <description>&lt;h2 id=&#34;syllabus&#34;&gt;Syllabus&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;http://www.cs.cmu.edu/~15451-s21/schedule.html&#34;&gt;course syllabus&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     <item>
       <title>Parallel and Sequential Data Structures and Algorithms</title>
-      <link>http://localhost:63119/open_courses/cmu-15210/</link>
+      <link>http://localhost:64667/open_courses/cmu-15210/</link>
       <pubDate>Wed, 28 Apr 2021 10:40:12 +0800</pubDate>
-      <guid>http://localhost:63119/open_courses/cmu-15210/</guid>
+      <guid>http://localhost:64667/open_courses/cmu-15210/</guid>
       <description>&lt;h2 id=&#34;syllabus&#34;&gt;Syllabus&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.cs.cmu.edu/~15210/syllabus.html&#34;&gt;course syllabus&lt;/a&gt;&lt;/p&gt;</description>
     </item>
     <item>
       <title>Kubernetes ConfigMap 热更新</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-config-update/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-config-update/</link>
       <pubDate>Sat, 24 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-config-update/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-config-update/</guid>
       <description>&lt;p&gt;&lt;em&gt;注：如果对kubernetes的基本概念不太清楚，建议先过一下基本的资源类型再阅读此文&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;先随便给个例子:&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -438,9 +438,9 @@
     </item>
     <item>
       <title>Kubernetes Developement</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-template/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-template/</link>
       <pubDate>Wed, 21 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-template/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-template/</guid>
       <description>&lt;h2 id=&#34;资源模板&#34;&gt;资源模板&lt;/h2&gt;
 &lt;h3 id=&#34;statefulset举例&#34;&gt;&lt;code&gt;statefulset&lt;/code&gt;举例&lt;/h3&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -647,9 +647,9 @@
     </item>
     <item>
       <title>Kubernetes Handbook (Schedule)</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-advance-schedule/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-advance-schedule/</link>
       <pubDate>Fri, 09 Apr 2021 10:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-advance-schedule/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-advance-schedule/</guid>
       <description>&lt;h2 id=&#34;内容涵盖&#34;&gt;内容涵盖&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;使用节点污点和pod容忍度阻止pod调度到特定节点&lt;/li&gt;
@@ -723,9 +723,9 @@
     </item>
     <item>
       <title>Profiling a Go Service in Production</title>
-      <link>http://localhost:63119/posts/programming/golang/go-profiling/</link>
+      <link>http://localhost:64667/posts/programming/golang/go-profiling/</link>
       <pubDate>Wed, 07 Apr 2021 11:25:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/go-profiling/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/go-profiling/</guid>
       <description>&lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://jvns.ca/blog/2017/09/24/profiling-go-with-pprof/&#34;&gt;Julia Evans: Profiling Go programs with pprof&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://www.freecodecamp.org/news/how-i-investigated-memory-leaks-in-go-using-pprof-on-a-large-codebase-4bec4325e192/&#34;&gt;How I investigated memory leaks in Go using pprof on a large codebase&lt;/a&gt;&lt;/p&gt;
@@ -740,9 +740,9 @@
     </item>
     <item>
       <title>Docker Fundamentals: AUFS</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-aufs/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-aufs/</link>
       <pubDate>Tue, 06 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-aufs/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-aufs/</guid>
       <description>&lt;p&gt;AUFS是一种Union File System，所谓的UnionFS实际上就是把不同物理位置的目录合并mount到同一个目录当中。一种典型的UnionFS的应用，就是把一张CD/DVD和一个硬盘目录联合mount在一起，然后你就可以对这个只读的CD/DVD上的文件进行修改。&lt;/p&gt;
 &lt;p&gt;AUFS又叫做Another UnionFS，后面改成Alternative UnionFS，然后又变成Advance UnionFS&amp;hellip;..当然名字的改变叫啥不重要，本质还是没变的。2006年Junjiro Okajima开发了AUFS，完全重写了早期的UnionFS 1.X，主要目的是为了可靠性和性能，再引入一些新的功能，例如可写分支的负载均衡。不过很有意思的是，AUFS的性能比UnionFS 1.X好很多，后面UnionFS 2.x就抄AUFS的功能，而AUFS本身却没有合入到Linux主线，因为代码量太大质量也不好。虽然后面Junjiro不断提升代码质量，不断提交但是还是被Linus拒绝了。所以哪怕是今天AUFS也没进到Linux里，虽然质量已经可以了。&lt;/p&gt;
 &lt;p&gt;不过一些发行版比如：Ubuntu 10.04，Debian6.0都支持AUFS，所以也还好。我在Ubuntu 14.04演示一下例子。&lt;/p&gt;
@@ -804,9 +804,9 @@
     </item>
     <item>
       <title>(转)程序员如何把控自己的职业</title>
-      <link>http://localhost:63119/posts/programming/programmer-career/</link>
+      <link>http://localhost:64667/posts/programming/programmer-career/</link>
       <pubDate>Mon, 05 Apr 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/programmer-career/</guid>
+      <guid>http://localhost:64667/posts/programming/programmer-career/</guid>
       <description>&lt;p&gt;&lt;em&gt;&lt;strong&gt;这篇文章摘自陈皓（左耳朵耗子）的blog（2020/08/07上传），其中很多观点击中了我内心的想法，或许可以在我遇到方向性问题的时候给我提醒。&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;这篇文章的主要内容主要是我今年3月份在腾讯做的直播，主要是想让一些技术人员对世界有一个大体的认识，并且在这个认识下能够有一个好的方法成就自己。而不是在一脸蒙圈的状态下随波逐流，而日益迷茫和焦虑。直播完后，腾讯方面把我的直播形成文字的形式发了出来，我觉得我可以再做一个精编版。所以，有了这篇文章，希望对大家有帮助。&lt;/p&gt;
 &lt;p&gt;对我来说，在我二十多年的工作经历来看，期间经历了很多技术的更新换代，整个技术模式、业务模式也是一直变来变去，我们这群老程序员成长中所经历的技术比今天的程序员玩的还更杂更多。我罗列一下我学过的，而且还被淘汰掉的技术，大家先感受一下。&lt;/p&gt;
@@ -867,9 +867,9 @@
     </item>
     <item>
       <title>Docker Fundamentals: Cgroup</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-cgroup/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-cgroup/</link>
       <pubDate>Mon, 05 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-cgroup/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-cgroup/</guid>
       <description>&lt;p&gt;Linux Namespace的技术解决了环境隔离的问题，不过这是虚拟化最基本的一步，我们另外需要解决&lt;strong&gt;对计算机资源使用上的隔离&lt;/strong&gt;。说人话，就是虽然Namespace把我关到一个特定的环境，但是里面进程使用的CPU、内存、磁盘等计算资源实际上没有被限制。这个问题的解决，就要用到CGroup技术。&lt;/p&gt;
 &lt;p&gt;Linux CGroup全称是Linux Control Group，也是其内核的一个功能，用于限制、控制和分离一个进程group的资源。最早这个项目是2006年由谷歌的工程师发起的，最开始名称是process containers（工程容器），后面觉得内核中容器这个名词被用烂了，就改名为cgroup。&lt;/p&gt;
 &lt;p&gt;CGroup可以让你对系统中运行的进程的用户组分配资源-CPU时间、系统内存、网络带宽亦或者是这些的组合。同时，也可以监控你配置的cgroup，拒绝cgroup访问某些资源。主要提供的功能如下：&lt;/p&gt;
@@ -935,9 +935,9 @@
     </item>
     <item>
       <title>Docker Fundamentals: Namespace</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-namespace/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-namespace/</link>
       <pubDate>Thu, 01 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-namespace/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-namespace/</guid>
       <description>&lt;p&gt;容器技术出现已经很久，只不过Docker容器平台的出现它变火了。Docker是第一个让容器能在不同机器之间移植的系统，它简化了打包应用的流程，也简化了打包应用的库和各种依赖。思考下整个OS的file system能直接被打包成一个简单的可移植的包，一开始的时候概念上还是很有趣的。&lt;/p&gt;
 &lt;p&gt;有时候我认为自己的阅读比较碎片化(&lt;del&gt;short-term memory越来越少&lt;/del&gt;)，所以我想把之前学习容器知识的一些基础技术再整理出来，也算是给自己学习的反馈。这个基础系列从Linux Namespace开始，后续会陆续介绍比如cgroup、aufs、devicemapper等技术。&lt;/p&gt;
 &lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
@@ -999,9 +999,9 @@
     </item>
     <item>
       <title>Go编程模式：Visitor（k8s）</title>
-      <link>http://localhost:63119/posts/programming/design-pattern/go-visitor/</link>
+      <link>http://localhost:64667/posts/programming/design-pattern/go-visitor/</link>
       <pubDate>Wed, 31 Mar 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/design-pattern/go-visitor/</guid>
+      <guid>http://localhost:64667/posts/programming/design-pattern/go-visitor/</guid>
       <description>&lt;h2 id=&#34;概述&#34;&gt;概述&lt;/h2&gt;
 &lt;p&gt;最近在看kubernetes的&lt;code&gt;kubectl&lt;/code&gt;部分源码，记录一下其中用到的visitor编程模式(实际上&lt;code&gt;kubectl&lt;/code&gt;主要用到了builder和visitor)。visitor模式是将&lt;strong&gt;算法和操作对象结构分离&lt;/strong&gt;的一种方法。换句话说，这样的分离能够在不修改对象结构的情况下向原有对象新增操作，是符合开闭原则的。这个文章以一些例子去讨论&lt;code&gt;kubectl&lt;/code&gt;中到底如何玩的。&lt;/p&gt;
 &lt;h2 id=&#34;从一个例子出发&#34;&gt;从一个例子出发&lt;/h2&gt;
@@ -1099,9 +1099,9 @@
     </item>
     <item>
       <title>Kubernetes Handbook (Start &amp; Pod)</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/k8s-basic/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/k8s-basic/</link>
       <pubDate>Wed, 31 Mar 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/k8s-basic/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/k8s-basic/</guid>
       <description>&lt;h2 id=&#34;使用minikube构建本地单节点k8s集群&#34;&gt;使用minikube构建本地单节点k8s集群&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;minikube ssh&lt;/li&gt;
@@ -1146,9 +1146,9 @@
     </item>
     <item>
       <title>Docker Cheat Sheet</title>
-      <link>http://localhost:63119/posts/programming/cloud-computing/docker-basic/</link>
+      <link>http://localhost:64667/posts/programming/cloud-computing/docker-basic/</link>
       <pubDate>Tue, 30 Mar 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/cloud-computing/docker-basic/</guid>
+      <guid>http://localhost:64667/posts/programming/cloud-computing/docker-basic/</guid>
       <description>&lt;h2 id=&#34;books&#34;&gt;Books&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://pepa.holla.cz/wp-content/uploads/2016/10/Docker-in-Action.pdf&#34;&gt;Docker in Action (English ver.)&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://yeasy.gitbook.io/docker_practice/&#34;&gt;Docker入门到实践(中文)&lt;/a&gt;&lt;/p&gt;
@@ -1692,9 +1692,9 @@
     </item>
     <item>
       <title>Life of an HTTP request in a Go server</title>
-      <link>http://localhost:63119/posts/programming/golang/lifecycle-of-http/</link>
+      <link>http://localhost:64667/posts/programming/golang/lifecycle-of-http/</link>
       <pubDate>Sat, 20 Feb 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/lifecycle-of-http/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/lifecycle-of-http/</guid>
       <description>&lt;p&gt;这篇文章的启发是我在阅读Go的http源码时获得的，之前对这块缺乏深入的了解，这篇文章会结合源码讨论包括典型http request的路由，还会涉及到一些并发和中间件的issue。&lt;/p&gt;
 &lt;p&gt;我们先从一个简单的go server谈起，下面的代码从https://gobyexample.com/http-servers 截取：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
@@ -1760,9 +1760,9 @@
     </item>
     <item>
       <title>IaaS vs PaaS vs SaaS</title>
-      <link>http://localhost:63119/posts/programming/iaas-paas-diff/</link>
+      <link>http://localhost:64667/posts/programming/iaas-paas-diff/</link>
       <pubDate>Tue, 16 Feb 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/iaas-paas-diff/</guid>
+      <guid>http://localhost:64667/posts/programming/iaas-paas-diff/</guid>
       <description>&lt;p&gt;如果你在考虑将你的在线电子业务转移到云上，下面三个名词会经常遇到：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;IaaS&lt;/li&gt;
@@ -1796,18 +1796,18 @@
     </item>
     <item>
       <title>Go编程模式：Pipeline</title>
-      <link>http://localhost:63119/posts/programming/design-pattern/go-pipeline/</link>
+      <link>http://localhost:64667/posts/programming/design-pattern/go-pipeline/</link>
       <pubDate>Wed, 03 Feb 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/design-pattern/go-pipeline/</guid>
+      <guid>http://localhost:64667/posts/programming/design-pattern/go-pipeline/</guid>
       <description>&lt;h2 id=&#34;概述&#34;&gt;概述&lt;/h2&gt;
 &lt;p&gt;这篇文章介绍Go编程里的Pipeline模式。如果是对Unix/Linux命令行熟悉的人会知道，Pipeline其实就是把每个命令拼接起来完成一个组合功能的技术。当下诸如流式处理，函数式编程，以及应用Gateway对微服务进行简单API编排，其实都受pipeline技术方式的影响。换句话说，这种技术能够很容易得把代码按照&lt;code&gt;单一职责&lt;/code&gt;的原则拆分成多个&lt;code&gt;高内聚低耦合&lt;/code&gt;的小模块，然后拼装起来去完成比较复杂的功能。&lt;/p&gt;
 &lt;p&gt;​&lt;/p&gt;</description>
     </item>
     <item>
       <title>(转)别让自己墙了自己</title>
-      <link>http://localhost:63119/posts/programming/do-not-wall/</link>
+      <link>http://localhost:64667/posts/programming/do-not-wall/</link>
       <pubDate>Mon, 01 Feb 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/do-not-wall/</guid>
+      <guid>http://localhost:64667/posts/programming/do-not-wall/</guid>
       <description>&lt;p&gt;&lt;em&gt;&lt;strong&gt;这篇文章摘自陈皓（左耳朵耗子）的blog（2019/12/01上传），作为给自己的提醒。&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;这一两周与几个朋友聊天，有年轻的90后，也有大叔级的70后，这些人在我看来都是很有能力的人，但是一些喜好过于强烈，让我不经意地回顾了我工作20年来身边的人，有发展得好的，也有发展的不好的，有些人是很可惜的，因为限制他们的不是其它人，也不是环境，而是自己，所以，很想写下这篇文章。（注：这篇文章可能会是一篇说教的文章，所以，可能会让你看着犯困，所以，我会尽量地短一些，而且尽可能多讲故事，少道理，这里的故事，全是真实发生的）&lt;/p&gt;
 &lt;h2 id=&#34;几个故事&#34;&gt;几个故事&lt;/h2&gt;
@@ -1861,9 +1861,9 @@
     </item>
     <item>
       <title>(转)工程师应该如何高效学习</title>
-      <link>http://localhost:63119/posts/programming/how-to-learn/</link>
+      <link>http://localhost:64667/posts/programming/how-to-learn/</link>
       <pubDate>Mon, 01 Feb 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/how-to-learn/</guid>
+      <guid>http://localhost:64667/posts/programming/how-to-learn/</guid>
       <description>&lt;p&gt;&lt;code&gt;此文转自曹春晖blog，也用于自己学习的一些参考&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://xargin.com/every-arch-will-finally-become-shit/&#34;&gt;博客地址&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;阅读书籍&#34;&gt;阅读书籍&lt;/h2&gt;
@@ -1883,9 +1883,9 @@
     </item>
     <item>
       <title>A Million WebSocket and Go</title>
-      <link>http://localhost:63119/posts/programming/golang/websocket/</link>
+      <link>http://localhost:64667/posts/programming/golang/websocket/</link>
       <pubDate>Sat, 16 Jan 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/websocket/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/websocket/</guid>
       <description>&lt;p&gt;&lt;em&gt;这篇文章是我研究高负载网络服务器架构看到的的一个有趣的story，添加了我自身学习websocket的感受和记录，希望我能在飞机落地前写完:-)&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;preface&#34;&gt;Preface&lt;/h2&gt;
 &lt;p&gt;我们先描述一个问题作为讨论的中心：用户邮件的存储方法。&lt;/p&gt;
@@ -1912,9 +1912,9 @@
     </item>
     <item>
       <title>fasthttp对性能的优化压榨</title>
-      <link>http://localhost:63119/posts/programming/golang/fasthttp/</link>
+      <link>http://localhost:64667/posts/programming/golang/fasthttp/</link>
       <pubDate>Sun, 10 Jan 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/fasthttp/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/fasthttp/</guid>
       <description>&lt;p&gt;&lt;em&gt;最近在看网络模型和go net的源码，以及各web框架例如fasthttp, weaver, gnet(更轻量)源码。fasthttp在github上已经写上了一个go开发的best practices &lt;a href=&#34;https://github.com/valyala/fasthttp#fasthttp-best-practices&#34;&gt;examples&lt;/a&gt;,这里我也记录一些在源码中看到的一些技巧&lt;/em&gt;&lt;/p&gt;
 &lt;h3 id=&#34;byte-buffer的tricks&#34;&gt;&lt;code&gt;[]byte&lt;/code&gt; buffer的tricks&lt;/h3&gt;
 &lt;p&gt;下面的一些tricks在fasthttp中被使用，自己的代码也可以用&lt;/p&gt;
@@ -1961,18 +1961,18 @@
     </item>
     <item>
       <title>[源码分析]sync pool</title>
-      <link>http://localhost:63119/posts/programming/golang/sync-pool/</link>
+      <link>http://localhost:64667/posts/programming/golang/sync-pool/</link>
       <pubDate>Fri, 01 Jan 2021 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/sync-pool/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/sync-pool/</guid>
       <description>&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;- 当多个goroutine都需要创建同一个对象，如果gorountine数过多，导致对象的创建数目剧增，进而导致GC压力增大，形成“并发大-占用内存大-GC缓慢-并发处理能力弱-并发更大”这样的恶性循环
 - 在这个时候，需要一个对象池，每个goroutine不再自己单独创建对象，而是从对象池中取出一个对象（如果池中已有）
 &lt;/code&gt;&lt;/pre&gt;</description>
     </item>
     <item>
       <title>[自建轮]高性能Goroutine Pool</title>
-      <link>http://localhost:63119/posts/programming/golang/goroutine-pool/</link>
+      <link>http://localhost:64667/posts/programming/golang/goroutine-pool/</link>
       <pubDate>Wed, 30 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/goroutine-pool/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/goroutine-pool/</guid>
       <description>&lt;h1 id=&#34;高性能goroutine-pool&#34;&gt;高性能Goroutine Pool&lt;/h1&gt;
 &lt;p&gt;go调度器没有限制对goroutine的数量，在goroutine瞬时大规模爆发的场景下来不及复用goroutine从而导致大量goroutine被创建，会导致大量的系统资源占用，尝试池化。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;go调度器本身不应该对goroutine数量有限制，因为语言层面无法界定需要限制多少，毕竟程序跑在不同性能的环境，在并发规模不太大的场景做限制甚至会降低性能，原生支持限制goroutine数量无疑是得不偿失的。如果只是中等规模和比较小规模的并发场景其实pool的性能并没有优势&lt;/code&gt;&lt;/p&gt;
@@ -3032,17 +3032,17 @@
     </item>
     <item>
       <title>Possible Memory Leak</title>
-      <link>http://localhost:63119/posts/programming/golang/memory-leak/</link>
+      <link>http://localhost:64667/posts/programming/golang/memory-leak/</link>
       <pubDate>Fri, 25 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/memory-leak/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/memory-leak/</guid>
       <description>&lt;p&gt;实际上对于一个有GC的语言，我们不必太多关心内存泄漏的问题，因为程序的runtime帮我们很好地额回收不再使用的内存。但是，我们还是得了解一些特殊的场景，这些场景会产生暂时性或者永久性的内存泄漏。&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;待开坑...&lt;/code&gt;&lt;/p&gt;</description>
     </item>
     <item>
       <title>Close Channels Gracefully</title>
-      <link>http://localhost:63119/posts/programming/golang/channel-graceful/</link>
+      <link>http://localhost:64667/posts/programming/golang/channel-graceful/</link>
       <pubDate>Thu, 24 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/channel-graceful/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/channel-graceful/</guid>
       <description>&lt;h2 id=&#34;优雅地关闭通道&#34;&gt;优雅地关闭通道&lt;/h2&gt;
 &lt;h3 id=&#34;场景一m个接收者和一个发送者发送者通过关闭用来传输数据的通道来传递发送结束信号&#34;&gt;场景一：M个接收者和一个发送者。发送者通过关闭用来传输数据的通道来传递发送结束信号&lt;/h3&gt;
 &lt;p&gt;这是最简单的一种情形。当发送者欲结束发送，让它关闭用来传输数据的通道即可。&lt;/p&gt;
@@ -3159,9 +3159,9 @@
     </item>
     <item>
       <title>Channels Concurrency Work-Around</title>
-      <link>http://localhost:63119/posts/programming/golang/channels/</link>
+      <link>http://localhost:64667/posts/programming/golang/channels/</link>
       <pubDate>Tue, 22 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/channels/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/channels/</guid>
       <description>&lt;p&gt;记录了一些channels常见的场景，以及自己的一些感受：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
@@ -3245,9 +3245,9 @@
     </item>
     <item>
       <title>Black Magic</title>
-      <link>http://localhost:63119/posts/programming/black-magic/</link>
+      <link>http://localhost:64667/posts/programming/black-magic/</link>
       <pubDate>Sun, 20 Dec 2020 12:40:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/black-magic/</guid>
+      <guid>http://localhost:64667/posts/programming/black-magic/</guid>
       <description>&lt;p&gt;&lt;code&gt;阅读到的一些方便、有趣的技巧或者ideas的随手记录，后续考虑对相关话题专门开坑&lt;/code&gt;&lt;/p&gt;
 &lt;h2 id=&#34;一行代码画出专业的论文图&#34;&gt;一行代码画出专业的论文图&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://github.com/garrettj403/SciencePlots&#34;&gt;SciencePlots&lt;/a&gt;&lt;/p&gt;
@@ -3268,9 +3268,9 @@
     </item>
     <item>
       <title>书单记录</title>
-      <link>http://localhost:63119/posts/programming/links/</link>
+      <link>http://localhost:64667/posts/programming/links/</link>
       <pubDate>Sat, 19 Dec 2020 12:40:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/links/</guid>
+      <guid>http://localhost:64667/posts/programming/links/</guid>
       <description>&lt;p&gt;&lt;code&gt;这个post为记录目前正在阅读与研究的section&lt;/code&gt;&lt;/p&gt;
 &lt;h3 id=&#34;go语言设计&#34;&gt;Go语言设计&lt;/h3&gt;
 &lt;p&gt;&lt;a href=&#34;https://draveness.me/golang/&#34;&gt;Go语言设计与实现&lt;/a&gt;&lt;/p&gt;
@@ -3308,9 +3308,9 @@
     </item>
     <item>
       <title>Golang TDD</title>
-      <link>http://localhost:63119/posts/programming/golang/go-testing/</link>
+      <link>http://localhost:64667/posts/programming/golang/go-testing/</link>
       <pubDate>Sat, 19 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/go-testing/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/go-testing/</guid>
       <description>&lt;h2 id=&#34;preface&#34;&gt;Preface&lt;/h2&gt;
 &lt;p&gt;本文整理golang编码的单元测试常用示例，以及TDD的简要流程。&lt;/p&gt;
 &lt;h2 id=&#34;单元测试基础&#34;&gt;单元测试基础&lt;/h2&gt;
@@ -3378,9 +3378,9 @@
     </item>
     <item>
       <title>Golang并发调度</title>
-      <link>http://localhost:63119/posts/programming/golang/schedualing/</link>
+      <link>http://localhost:64667/posts/programming/golang/schedualing/</link>
       <pubDate>Thu, 17 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/schedualing/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/schedualing/</guid>
       <description>&lt;p&gt;&lt;em&gt;性能提升不会凭空出现，它总是伴随着代码复杂度的上升。&lt;/em&gt;&lt;br&gt;
 &lt;em&gt;The performance improvement does not materialize from the air, it comes with code complexity increase.&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;&lt;em&gt;&amp;ndash; Dmitry Vyukov&lt;/em&gt;&lt;/p&gt;
@@ -3396,9 +3396,9 @@
     </item>
     <item>
       <title>Python类自定义</title>
-      <link>http://localhost:63119/posts/programming/python/python-functionality/</link>
+      <link>http://localhost:64667/posts/programming/python/python-functionality/</link>
       <pubDate>Mon, 14 Dec 2020 16:20:29 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/python/python-functionality/</guid>
+      <guid>http://localhost:64667/posts/programming/python/python-functionality/</guid>
       <description>&lt;h2 id=&#34;python类关键字&#34;&gt;python类关键字&lt;/h2&gt;
 &lt;h3 id=&#34;__init__-vs-__new__&#34;&gt;&lt;code&gt;__init__&lt;/code&gt; vs &lt;code&gt;__new__&lt;/code&gt;&lt;/h3&gt;
 &lt;p&gt;&lt;code&gt;__init__&lt;/code&gt;为初始化方法，&lt;code&gt;__new__&lt;/code&gt;为真正的构造函数。&lt;/p&gt;
@@ -3445,9 +3445,9 @@ Hello, world.
     </item>
     <item>
       <title>BDD: Ginkgo测试框架</title>
-      <link>http://localhost:63119/posts/programming/golang/bdd-testing-framework/</link>
+      <link>http://localhost:64667/posts/programming/golang/bdd-testing-framework/</link>
       <pubDate>Fri, 04 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/bdd-testing-framework/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/bdd-testing-framework/</guid>
       <description>&lt;h2 id=&#34;preface&#34;&gt;Preface&lt;/h2&gt;
 &lt;p&gt;BDD和TDD都是test case first的实现，无非是把后者的test改成前者的behavior。在TDD中，关注的核心点是function，即认为程序最基本单元是function，其test case可以认为是unit test，TDD和unit test的区别是TDD强调测试和开发结合而成的工作流: 写test case -&amp;gt; 写代码 -&amp;gt; 通过测试，继续写更多测试，写一次循环。&lt;/p&gt;
 &lt;p&gt;而BDD比TDD更关注高层的行为，而不是函数级别的行为，也就是在BDD中，不会强调函数的功能正确，这是unit test应该做的事。BDD更关注user story，即用户在特定场景，与软件交互发生的行为，这个behavior指的就是高层模块的行为。&lt;/p&gt;
@@ -3477,9 +3477,9 @@ Hello, world.
     </item>
     <item>
       <title>Golang内存管理</title>
-      <link>http://localhost:63119/posts/programming/golang/memory-management/</link>
+      <link>http://localhost:64667/posts/programming/golang/memory-management/</link>
       <pubDate>Wed, 02 Dec 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/memory-management/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/memory-management/</guid>
       <description>&lt;h1 id=&#34;设计原则&#34;&gt;设计原则&lt;/h1&gt;
 &lt;p&gt;现在我们来看 Go 中另一重要的关键组件：内存分配器。&lt;/p&gt;
 &lt;p&gt;Go 的内存分配器基于 Thread-Cache Malloc (tcmalloc) ，tcmalloc 为每个线程实现了一个本地缓存， 区分了小对象（小于 32kb）和大对象分配两种分配类型，其管理的内存单元称为 span。&lt;/p&gt;
@@ -3502,9 +3502,9 @@ Hello, world.
     </item>
     <item>
       <title>Golang逃逸分析</title>
-      <link>http://localhost:63119/posts/programming/golang/golang-escape-analysis/</link>
+      <link>http://localhost:64667/posts/programming/golang/golang-escape-analysis/</link>
       <pubDate>Mon, 23 Nov 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/golang/golang-escape-analysis/</guid>
+      <guid>http://localhost:64667/posts/programming/golang/golang-escape-analysis/</guid>
       <description>&lt;p&gt;&lt;em&gt;&lt;strong&gt;问题： golang函数传参是不是应该和c一样，尽量不要直接传结构体，而是要传结构体指针？&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;h2 id=&#34;逃逸分析&#34;&gt;逃逸分析&lt;/h2&gt;
 &lt;p&gt;逃逸分析指的是，在计算机语言编译器优化原理中，分析指针动态范围的方法，和编译器优化原理的指针分析和外形分析相关联。当变量（或者对象）在方法中被分配后，其指针有可能被返回或者被全局引用，这种现象就是指针（或引用）的逃逸（Escape）。&lt;/p&gt;
@@ -3548,9 +3548,9 @@ Hello, world.
     </item>
     <item>
       <title>Design Pattern: Overview</title>
-      <link>http://localhost:63119/posts/programming/design-pattern/design-pattern/</link>
+      <link>http://localhost:64667/posts/programming/design-pattern/design-pattern/</link>
       <pubDate>Wed, 11 Nov 2020 11:22:18 +0800</pubDate>
-      <guid>http://localhost:63119/posts/programming/design-pattern/design-pattern/</guid>
+      <guid>http://localhost:64667/posts/programming/design-pattern/design-pattern/</guid>
       <description>&lt;h1 id=&#34;design-pattern&#34;&gt;Design pattern&lt;/h1&gt;
 &lt;h2 id=&#34;builder-pattern&#34;&gt;Builder Pattern&lt;/h2&gt;
 &lt;h3 id=&#34;scenariobuild-complicated-object&#34;&gt;scenario：build complicated object&lt;/h3&gt;
