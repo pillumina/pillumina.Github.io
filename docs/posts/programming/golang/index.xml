@@ -94,9 +94,9 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;&lt;p&gt;追踪请求的生命周期我们从&lt;code&gt;http.ListenAndServe&lt;/code&gt;这个方法开始，下面的图示说明了这一层的调用关系:&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;diagram&#34; loading=&#34;lazy&#34; src=&#34;https://eli.thegreenplace.net/images/2021/http-request-listenandserve.png&#34;&gt;&lt;/p&gt;
-&lt;p&gt;这里实际上&lt;code&gt;inlined&lt;/code&gt;了一些代码，因为初始的代码有很多其他的细节不好追踪。&lt;/p&gt;
-&lt;p&gt;主要的flow其实和我们预期的一致：&lt;code&gt;ListenAndServe&lt;/code&gt;方法对你一个目标地址监听一个TCP端口，而后循环不断接受新的连接。每一个连接，它会起一个新的goroutine去serve，serve的具体操作是:&lt;/p&gt;</description>
+&lt;p&gt;&lt;img alt=&#34;diagram&#34; loading=&#34;lazy&#34; src=&#34;https://eli.thegreenplace.net/images/2021/http-request-listenandserve.png&#34; data-zoomable&gt;
+&lt;/p&gt;
+&lt;p&gt;这里实际上&lt;code&gt;inlined&lt;/code&gt;了一些代码，因为初始的代码有很多其他的细节不好追踪。&lt;/p&gt;</description>
     </item>
     <item>
       <title>A Million WebSocket and Go</title>

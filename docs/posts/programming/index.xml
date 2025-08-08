@@ -105,7 +105,8 @@
 &lt;li&gt;&lt;strong&gt;On-Premise&lt;/strong&gt;: 企业内部部署&lt;/li&gt;
 &lt;/ol&gt;
 &lt;p&gt;下面是一个图解：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;breakdown&#34; loading=&#34;lazy&#34; src=&#34;https://www.bigcommerce.com/blog/wp-content/uploads/2018/10/saas-vs-paas-vs-iaas-breakdown.jpg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;breakdown&#34; loading=&#34;lazy&#34; src=&#34;https://www.bigcommerce.com/blog/wp-content/uploads/2018/10/saas-vs-paas-vs-iaas-breakdown.jpg&#34; data-zoomable&gt;
+&lt;/p&gt;
 &lt;h3 id=&#34;saas-paas-iaas-举例&#34;&gt;SaaS, PaaS, IaaS 举例&lt;/h3&gt;
 &lt;p&gt;大多数的业务一般使用SaaS以及IaaS云计算服务模型的组合，此外有很多业务会鼓励开发者使用PaaS去构建应用。&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;SaaS举例&lt;/strong&gt;： BigCommerce, Google Apps, Salesforce, Dropbox, MailChimp, ZenDesk, DocuSign, Slack, Hubspot.&lt;/p&gt;
@@ -204,11 +205,14 @@
 &lt;p&gt;SciencePlots是一个依附于Matplotlib的扩展包，可以通过pip一键安装：&lt;/p&gt;
 &lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;pip install SciencePlots
 &lt;/code&gt;&lt;/pre&gt;&lt;p&gt;然后我们在画图时，只需要一句&lt;code&gt;with.plt.style.context([&#39;science&#39;]):&lt;/code&gt;，就可以画出非常美观且专业的图：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;plot1&#34; loading=&#34;lazy&#34; src=&#34;https://pic1.zhimg.com/80/v2-90ced58bd948b48122c7c49f6dd3aeb8_1440w.jpg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;plot1&#34; loading=&#34;lazy&#34; src=&#34;https://pic1.zhimg.com/80/v2-90ced58bd948b48122c7c49f6dd3aeb8_1440w.jpg&#34; data-zoomable&gt;
+&lt;/p&gt;
 &lt;p&gt;你还可以加一个选项&lt;code&gt;with.plt.style.context([&#39;science&#39;,&#39;ieee&#39;]):&lt;/code&gt;，就能画出IEEE格式的图：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;plot-ieee&#34; loading=&#34;lazy&#34; src=&#34;https://pic3.zhimg.com/80/v2-65a94e294409928599dc91745f01662e_1440w.jpg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;plot-ieee&#34; loading=&#34;lazy&#34; src=&#34;https://pic3.zhimg.com/80/v2-65a94e294409928599dc91745f01662e_1440w.jpg&#34; data-zoomable&gt;
+&lt;/p&gt;
 &lt;p&gt;甚至是超美的散点图：&lt;/p&gt;
-&lt;p&gt;&lt;img alt=&#34;plot-scatter&#34; loading=&#34;lazy&#34; src=&#34;https://pic4.zhimg.com/80/v2-db5c1cc749638e5bfba236fa9acdb4ff_1440w.jpg&#34;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;plot-scatter&#34; loading=&#34;lazy&#34; src=&#34;https://pic4.zhimg.com/80/v2-db5c1cc749638e5bfba236fa9acdb4ff_1440w.jpg&#34; data-zoomable&gt;
+&lt;/p&gt;
 &lt;p&gt;还有很多自定义的图像风格，保证节约我们的画图时间&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;这个包默认会调用latex来画图，如果不想用latex（也不是完全需要），可以在context里写一个属性&amp;rsquo;nolatex&amp;rsquo;即可。不然如果没有安装latex或latex路径配置有问题，则会报错。&lt;/p&gt;&lt;/blockquote&gt;</description>
