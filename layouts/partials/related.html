@@ -1,0 +1,58 @@
+{{/* 定义相关性索引配置 */}}
+{{- $related_indices := slice (dict "name" "tags" "weight" 100) (dict "name" "date" "weight" 10) }}
+
+{{/* 获取相关文章 */}}
+{{- $related := where .Site.RegularPages "Params.tags" "intersect" .Params.tags | first 5 }}
+
+{{/* 获取同系列文章 */}}
+{{- $series := where .Site.RegularPages "Params.series" "intersect" .Params.series | first 5 }}
+
+{{- if or $series $related }}
+<div class="related-posts">
+    {{/* 同系列文章 */}}
+    {{- with .Params.series }}
+    {{- $series_name := index . 0 }}
+    {{- with $series }}
+    <div class="related-series">
+        <h3>同系列文章</h3>
+        <ul>
+            {{- range . }}
+            {{- if ne .RelPermalink $.RelPermalink }}
+            <li>
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                <span class="meta">
+                    {{ .Date.Format "2006-01-02" }}
+                    · {{ .ReadingTime }} min read
+                </span>
+            </li>
+            {{- end }}
+            {{- end }}
+        </ul>
+    </div>
+    {{- end }}
+    {{- end }}
+
+    {{/* 相关标签文章 */}}
+    {{- with .Params.tags }}
+    {{- with $related }}
+    <div class="related-tags">
+        <h3>相关文章</h3>
+        <ul>
+            {{- range . }}
+            {{- if ne .RelPermalink $.RelPermalink }}
+            <li>
+                <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                <span class="meta">
+                    {{ .Date.Format "2006-01-02" }}
+                    · {{ .ReadingTime }} min read
+                    · Tags: {{ delimit .Params.tags ", " }}
+                </span>
+            </li>
+            {{- end }}
+            {{- end }}
+        </ul>
+    </div>
+    {{- end }}
+    {{- end }}
+</div>
+{{- end }}

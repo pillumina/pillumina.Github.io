@@ -1,8 +1,8 @@
 ---
 title: "[LLM4RL] 异步RL框架: Areal"
 date: 2025-08-07T14:40:12+08:00
-TocOpen: true   # 默认展开TOC
-TocSide: true   # 启用侧边悬浮TOC
+tags: ["framework", "LLM", "RL"]
+series: ["llm4rl"]
 ---
 
 > https://github.com/inclusionAI/AReaL

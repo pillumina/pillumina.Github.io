@@ -11,11 +11,35 @@
     <loc>https://pillumina.github.io/</loc>
     <lastmod>2025-08-07T17:10:12+08:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/framework/</loc>
+    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/llm/</loc>
+    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/llm4rl/</loc>
+    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/posts/</loc>
+    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/rl/</loc>
+    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/</loc>
+    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/</loc>
     <lastmod>2025-08-07T17:10:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/03-areal/</loc>
     <lastmod>2025-08-07T14:40:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/aiinfra/</loc>
+    <lastmod>2025-08-07T10:40:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/ascend/</loc>
+    <lastmod>2025-08-07T10:40:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/01-ascend-cloudmatrix/</loc>
     <lastmod>2025-08-07T10:40:12+08:00</lastmod>
@@ -149,10 +173,6 @@
   </url><url>
     <loc>https://pillumina.github.io/search/</loc>
   </url><url>
-    <loc>https://pillumina.github.io/series/</loc>
-  </url><url>
     <loc>https://pillumina.github.io/social/</loc>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/</loc>
   </url>
 </urlset>

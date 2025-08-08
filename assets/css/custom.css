@@ -132,3 +132,59 @@
     cursor: zoom-out;
     z-index: 999;
 }
+
+/* 相关文章样式 */
+.related-posts {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.related-posts h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.related-posts ul {
+    list-style: none;
+    padding: 0;
+}
+
+.related-posts li {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--entry);
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.related-posts li:hover {
+    transform: translateX(5px);
+}
+
+.related-posts a {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.related-posts .meta {
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.related-series {
+    margin-bottom: 3rem;
+}
+
+.related-tags {
+    margin-bottom: 3rem;
+}
+
+.related-content {
+    margin-bottom: 2rem;
+}

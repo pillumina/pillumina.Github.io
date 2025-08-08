@@ -11,6 +11,42 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
+    <lastBuildDate>Thu, 07 Aug 2025 17:10:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Framework</title>
+      <link>https://pillumina.github.io/tags/framework/</link>
+      <pubDate>Thu, 07 Aug 2025 17:10:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/framework/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>LLM</title>
+      <link>https://pillumina.github.io/tags/llm/</link>
+      <pubDate>Thu, 07 Aug 2025 17:10:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/llm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RL</title>
+      <link>https://pillumina.github.io/tags/rl/</link>
+      <pubDate>Thu, 07 Aug 2025 17:10:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/rl/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>AIInfra</title>
+      <link>https://pillumina.github.io/tags/aiinfra/</link>
+      <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/aiinfra/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Ascend</title>
+      <link>https://pillumina.github.io/tags/ascend/</link>
+      <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/ascend/</guid>
+      <description></description>
+    </item>
   </channel>
 </rss>

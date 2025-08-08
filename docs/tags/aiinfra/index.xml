@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>AIInfra on CctoctoFX</title>
+    <link>https://pillumina.github.io/tags/aiinfra/</link>
+    <description>Recent content in AIInfra on CctoctoFX</description>
+    <image>
+      <title>CctoctoFX</title>
+      <url>https://pillumina.github.io/imgs/icon_head.png</url>
+      <link>https://pillumina.github.io/imgs/icon_head.png</link>
+    </image>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 07 Aug 2025 10:40:12 +0800</lastBuildDate>
+    <atom:link href="https://pillumina.github.io/tags/aiinfra/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>昇腾超节点CloudMatrix384论文拆解</title>
+      <link>https://pillumina.github.io/posts/aiinfra/01-ascend-cloudmatrix/</link>
+      <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/01-ascend-cloudmatrix/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;6.19发布的CloudMatrix384论文拆解，从宏观到基础概念&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h2 id=&#34;核心指标和计算方式&#34;&gt;核心指标和计算方式&lt;/h2&gt;
+&lt;h3 id=&#34;tpot-time-per-output-token&#34;&gt;&lt;strong&gt;TPOT (Time Per Output Token)&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;公式&lt;/strong&gt;： $$TPOT= \frac{Decode总耗时}{生成Token数量}$$&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;测量方式&lt;/strong&gt;： 从第一个输出Token开始计时，到生成结束（含MoE通信/KV读取）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;为什么重要&lt;/strong&gt;： 直接决定用户体验（如Chatbot响应速度），论文要求 &lt;strong&gt;&amp;lt;50ms&lt;/strong&gt;（严格模式&amp;lt;15ms）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;深层意义&lt;/strong&gt;： 反映&lt;strong&gt;系统通信+计算综合能力&lt;/strong&gt;，EP320下TPOT=42ms证明UB网络突破MoE通信墙&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;计算效率-tokenss-per-tflops&#34;&gt;&lt;strong&gt;计算效率 (Tokens/s per TFLOPS)&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;公式&lt;/strong&gt;： $$计算效率=\frac {吞吐量(tokens/s)} {NPU峰值算力(TFLOPS)}$$​&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;论文数据&lt;/strong&gt;：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;阶段&lt;/th&gt;
+          &lt;th&gt;值&lt;/th&gt;
+          &lt;th&gt;对比基准&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Prefill&lt;/td&gt;
+          &lt;td&gt;4.45&lt;/td&gt;
+          &lt;td&gt;超NVIDIA H100+SGLang(3.8)&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;Decode&lt;/td&gt;
+          &lt;td&gt;1.29&lt;/td&gt;
+          &lt;td&gt;超NVIDIA H800+DeepSeek(0.9)&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;为什么重要&lt;/strong&gt;： 揭示&lt;strong&gt;硬件利用率&lt;/strong&gt;，1.0以上表明软硬件协同极致优化&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;深层意义&lt;/strong&gt;： Decode阶段1.29 → 昇腾910的Cube引擎利用率达 &lt;strong&gt;86%&lt;/strong&gt;（传统GPU仅60%)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;缓存访问延迟-kv-cache-access-latency&#34;&gt;&lt;strong&gt;缓存访问延迟 (KV Cache Access Latency)&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;公式&lt;/strong&gt;： $$延迟=TMMU_{查询}+TUB_{传输}+TDRAM_{读取}​$$&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;论文数据&lt;/strong&gt;：&lt;/li&gt;
+&lt;/ul&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;场景&lt;/th&gt;
+          &lt;th&gt;延迟&lt;/th&gt;
+          &lt;th&gt;对比传统&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;本地HBM命中&lt;/td&gt;
+          &lt;td&gt;0.2μs&lt;/td&gt;
+          &lt;td&gt;-&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;远程DRAM访问(UB)&lt;/td&gt;
+          &lt;td&gt;1.5μs&lt;/td&gt;
+          &lt;td&gt;&amp;gt;10μs (PCIe+IB)&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;为什么重要&lt;/strong&gt;： 长上下文推理中&lt;strong&gt;70%时间花在KV缓存访问&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;深层意义&lt;/strong&gt;： UB统一内存将远程访问性能提升至&lt;strong&gt;近本地水平&lt;/strong&gt;，支撑百万Token上下文。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;专家并行扩展性-ep-degree&#34;&gt;&lt;strong&gt;专家并行扩展性 (EP Degree)&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;定义&lt;/strong&gt;：单个MoE层可分布的专家数量&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;论文突破&lt;/strong&gt;：&lt;strong&gt;EP320&lt;/strong&gt;（每个昇腾Die托管1个专家）&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;支撑公式&lt;/strong&gt;： $$可扩展性=\frac {UB总带宽}{单个专家通信需求}$$ $$EPmax=\frac {384×392GB/s} {8B/token×10^6token/s}=320$$&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;为什么重要&lt;/strong&gt;： EP&amp;gt;100时传统网络崩溃，EP320证明UB突破通信可扩展性极限&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;int8量化收益&#34;&gt;&lt;strong&gt;INT8量化收益&lt;/strong&gt;&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;公式&lt;/strong&gt;：$$ 加速比=\frac {FP16吞吐}{INT8吞吐}×精度保持率$$&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;论文数据&lt;/strong&gt;：
+&lt;ul&gt;
+&lt;li&gt;吞吐提升：&lt;strong&gt;1.8倍&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;精度损失：&lt;strong&gt;&amp;lt;0.5%&lt;/strong&gt;（16个基准测试）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;为什么重要&lt;/strong&gt;： Decode阶段&lt;strong&gt;内存带宽减少50%&lt;/strong&gt;，解决NPU的“内存墙”问题&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&#34;qa辅助理解&#34;&gt;QA辅助理解&lt;/h3&gt;
+&lt;h4 id=&#34;为什么用tpot而非qps&#34;&gt;&lt;strong&gt;为什么用TPOT而非QPS？&lt;/strong&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;TPOT剥离Batch Size影响，&lt;strong&gt;纯粹衡量单次生成效率&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;更直观反映SLA（用户感知的延迟）&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;为什么强调计算效率而非绝对吞吐&#34;&gt;&lt;strong&gt;为什么强调计算效率而非绝对吞吐？&lt;/strong&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;排除工艺优势（7nm vs 5nm），&lt;strong&gt;聚焦架构创新价值&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;1.29 tokens/s/TFLOPS → 证明UB+LEP设计优于NVLink+GPU&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;为什么测量远程dram访问延迟&#34;&gt;&lt;strong&gt;为什么测量远程DRAM访问延迟？&lt;/strong&gt;&lt;/h4&gt;
+&lt;ul&gt;
+&lt;li&gt;验证&lt;strong&gt;内存池化&lt;/strong&gt;的实际效果，这是打破“内存墙”的核心&lt;/li&gt;
+&lt;li&gt;1.5μs延迟 → 实现“全集群如单机”的硬件基础&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;超节点架构&#34;&gt;超节点架构&lt;/h2&gt;
+&lt;h3 id=&#34;三级网络平面的物理隔离&#34;&gt;三级网络平面的物理隔离&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;硬件隔离原理&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

@@ -1,6 +1,8 @@
 ---
 title: "[LLM4RL] 异步RL框架: Slime"
 date: 2025-08-07T17:10:12+08:00
+tags: ["framework", "LLM", "RL"]
+series: ["llm4rl"]
 ---
 
 > https://github.com/THUDM/slime
