@@ -11,7 +11,7 @@ if [ $# -eq 1  ]
 fi
 
 # Build the project. 
-hugo -d docs
+hugo --gc --minify -d docs
 
 # Add changes to git.
 git add .
