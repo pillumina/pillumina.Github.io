@@ -1,0 +1,54 @@
+<!-- 阅读进度条 -->
+<div class="reading-progress-bar"></div>
+
+<!-- 图片灯箱依赖 -->
+<script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.6/dist/medium-zoom.min.js"></script>
+
+<script>
+// 阅读进度条
+document.addEventListener('DOMContentLoaded', function() {
+    const progressBar = document.querySelector('.reading-progress-bar');
+    if (!progressBar) return;
+
+    // 获取文章内容区域
+    const article = document.querySelector('.post-single');
+    if (!article) return;
+
+    // 计算阅读进度
+    function updateProgress() {
+        const rect = article.getBoundingClientRect();
+        const contentHeight = rect.height;
+        const windowHeight = window.innerHeight;
+        const scrollTop = window.scrollY || window.pageYOffset;
+        
+        // 计算阅读百分比
+        const scrolled = (scrollTop / (contentHeight - windowHeight)) * 100;
+        progressBar.style.width = `${Math.min(100, Math.max(0, scrolled))}%`;
+    }
+
+    // 监听滚动事件，使用 requestAnimationFrame 优化性能
+    let ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(function() {
+                updateProgress();
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+
+    // 初始化进度条
+    updateProgress();
+});
+
+// 图片灯箱
+document.addEventListener('DOMContentLoaded', function() {
+    // 对文章内容中的所有图片应用灯箱效果
+    mediumZoom('article img:not(.nozoom)', {
+        margin: 24,
+        background: 'var(--theme)',
+        scrollOffset: 0,
+    });
+});
+</script>

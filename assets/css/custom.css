@@ -93,3 +93,42 @@
 .toc.side::-webkit-scrollbar-thumb:hover {
     background: var(--secondary);
 }
+
+/* 阅读进度条 */
+.reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--primary);
+    z-index: 999;
+    transition: width 0.2s ease;
+}
+
+/* 图片灯箱 */
+.medium-zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--theme);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 998;
+}
+
+.medium-zoom-overlay.medium-zoom--opened {
+    opacity: 0.98;
+}
+
+.medium-zoom-image {
+    cursor: zoom-in;
+}
+
+.medium-zoom-image.medium-zoom-image--opened {
+    position: relative;
+    cursor: zoom-out;
+    z-index: 999;
+}
