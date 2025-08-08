@@ -2,22 +2,22 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>Programming on CctoctoFX</title>
-    <link>http://localhost:64667/posts/programming/</link>
+    <link>http://localhost:52669/posts/programming/</link>
     <description>Recent content in Programming on CctoctoFX</description>
     <image>
       <title>CctoctoFX</title>
-      <url>http://localhost:64667/imgs/icon_head.png</url>
-      <link>http://localhost:64667/imgs/icon_head.png</link>
+      <url>http://localhost:52669/imgs/icon_head.png</url>
+      <link>http://localhost:52669/imgs/icon_head.png</link>
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
     <lastBuildDate>Mon, 05 Apr 2021 12:40:29 +0800</lastBuildDate>
-    <atom:link href="http://localhost:64667/posts/programming/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="http://localhost:52669/posts/programming/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>(转)程序员如何把控自己的职业</title>
-      <link>http://localhost:64667/posts/programming/programmer-career/</link>
+      <link>http://localhost:52669/posts/programming/programmer-career/</link>
       <pubDate>Mon, 05 Apr 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:64667/posts/programming/programmer-career/</guid>
+      <guid>http://localhost:52669/posts/programming/programmer-career/</guid>
       <description>&lt;p&gt;&lt;em&gt;&lt;strong&gt;这篇文章摘自陈皓（左耳朵耗子）的blog（2020/08/07上传），其中很多观点击中了我内心的想法，或许可以在我遇到方向性问题的时候给我提醒。&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;这篇文章的主要内容主要是我今年3月份在腾讯做的直播，主要是想让一些技术人员对世界有一个大体的认识，并且在这个认识下能够有一个好的方法成就自己。而不是在一脸蒙圈的状态下随波逐流，而日益迷茫和焦虑。直播完后，腾讯方面把我的直播形成文字的形式发了出来，我觉得我可以再做一个精编版。所以，有了这篇文章，希望对大家有帮助。&lt;/p&gt;
 &lt;p&gt;对我来说，在我二十多年的工作经历来看，期间经历了很多技术的更新换代，整个技术模式、业务模式也是一直变来变去，我们这群老程序员成长中所经历的技术比今天的程序员玩的还更杂更多。我罗列一下我学过的，而且还被淘汰掉的技术，大家先感受一下。&lt;/p&gt;
@@ -78,9 +78,9 @@
     </item>
     <item>
       <title>IaaS vs PaaS vs SaaS</title>
-      <link>http://localhost:64667/posts/programming/iaas-paas-diff/</link>
+      <link>http://localhost:52669/posts/programming/iaas-paas-diff/</link>
       <pubDate>Tue, 16 Feb 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:64667/posts/programming/iaas-paas-diff/</guid>
+      <guid>http://localhost:52669/posts/programming/iaas-paas-diff/</guid>
       <description>&lt;p&gt;如果你在考虑将你的在线电子业务转移到云上，下面三个名词会经常遇到：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;IaaS&lt;/li&gt;
@@ -114,9 +114,9 @@
     </item>
     <item>
       <title>(转)别让自己墙了自己</title>
-      <link>http://localhost:64667/posts/programming/do-not-wall/</link>
+      <link>http://localhost:52669/posts/programming/do-not-wall/</link>
       <pubDate>Mon, 01 Feb 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:64667/posts/programming/do-not-wall/</guid>
+      <guid>http://localhost:52669/posts/programming/do-not-wall/</guid>
       <description>&lt;p&gt;&lt;em&gt;&lt;strong&gt;这篇文章摘自陈皓（左耳朵耗子）的blog（2019/12/01上传），作为给自己的提醒。&lt;/strong&gt;&lt;/em&gt;&lt;/p&gt;
 &lt;p&gt;这一两周与几个朋友聊天，有年轻的90后，也有大叔级的70后，这些人在我看来都是很有能力的人，但是一些喜好过于强烈，让我不经意地回顾了我工作20年来身边的人，有发展得好的，也有发展的不好的，有些人是很可惜的，因为限制他们的不是其它人，也不是环境，而是自己，所以，很想写下这篇文章。（注：这篇文章可能会是一篇说教的文章，所以，可能会让你看着犯困，所以，我会尽量地短一些，而且尽可能多讲故事，少道理，这里的故事，全是真实发生的）&lt;/p&gt;
 &lt;h2 id=&#34;几个故事&#34;&gt;几个故事&lt;/h2&gt;
@@ -170,9 +170,9 @@
     </item>
     <item>
       <title>(转)工程师应该如何高效学习</title>
-      <link>http://localhost:64667/posts/programming/how-to-learn/</link>
+      <link>http://localhost:52669/posts/programming/how-to-learn/</link>
       <pubDate>Mon, 01 Feb 2021 12:40:29 +0800</pubDate>
-      <guid>http://localhost:64667/posts/programming/how-to-learn/</guid>
+      <guid>http://localhost:52669/posts/programming/how-to-learn/</guid>
       <description>&lt;p&gt;&lt;code&gt;此文转自曹春晖blog，也用于自己学习的一些参考&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&#34;https://xargin.com/every-arch-will-finally-become-shit/&#34;&gt;博客地址&lt;/a&gt;&lt;/p&gt;
 &lt;h2 id=&#34;阅读书籍&#34;&gt;阅读书籍&lt;/h2&gt;
@@ -192,9 +192,9 @@
     </item>
     <item>
       <title>Black Magic</title>
-      <link>http://localhost:64667/posts/programming/black-magic/</link>
+      <link>http://localhost:52669/posts/programming/black-magic/</link>
       <pubDate>Sun, 20 Dec 2020 12:40:29 +0800</pubDate>
-      <guid>http://localhost:64667/posts/programming/black-magic/</guid>
+      <guid>http://localhost:52669/posts/programming/black-magic/</guid>
       <description>&lt;p&gt;&lt;code&gt;阅读到的一些方便、有趣的技巧或者ideas的随手记录，后续考虑对相关话题专门开坑&lt;/code&gt;&lt;/p&gt;
 &lt;h2 id=&#34;一行代码画出专业的论文图&#34;&gt;一行代码画出专业的论文图&lt;/h2&gt;
 &lt;p&gt;&lt;a href=&#34;https://github.com/garrettj403/SciencePlots&#34;&gt;SciencePlots&lt;/a&gt;&lt;/p&gt;
@@ -215,9 +215,9 @@
     </item>
     <item>
       <title>书单记录</title>
-      <link>http://localhost:64667/posts/programming/links/</link>
+      <link>http://localhost:52669/posts/programming/links/</link>
       <pubDate>Sat, 19 Dec 2020 12:40:29 +0800</pubDate>
-      <guid>http://localhost:64667/posts/programming/links/</guid>
+      <guid>http://localhost:52669/posts/programming/links/</guid>
       <description>&lt;p&gt;&lt;code&gt;这个post为记录目前正在阅读与研究的section&lt;/code&gt;&lt;/p&gt;
 &lt;h3 id=&#34;go语言设计&#34;&gt;Go语言设计&lt;/h3&gt;
 &lt;p&gt;&lt;a href=&#34;https://draveness.me/golang/&#34;&gt;Go语言设计与实现&lt;/a&gt;&lt;/p&gt;
