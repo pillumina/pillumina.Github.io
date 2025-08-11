@@ -11,8 +11,30 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Fri, 08 Aug 2025 15:05:12 +0800</lastBuildDate>
+    <lastBuildDate>Sun, 10 Aug 2025 15:05:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MoE环游记：2、深入负载均衡</title>
+      <link>https://pillumina.github.io/posts/llmtheory/2-moe/</link>
+      <pubDate>Sun, 10 Aug 2025 15:05:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/llmtheory/2-moe/</guid>
+      <description>&lt;p&gt;在上一篇文章中，我们介绍了MoE的一个几何诠释，旨在通过Dense模型的最佳逼近出发来推导和理解MoE。同时在文末我们也说了，给出MoE的计算公式仅仅是开始，训练一个实际有效的MoE模型还有很多细节补，比如本文要讨论的负载均衡（Load Balance）问题。&lt;/p&gt;
+&lt;p&gt;负载均衡，即&amp;quot;不患寡而患不均&amp;quot;，说白了就是让每个Expert都在干活，并且都在干尽可能一样多的活，避免某些Expert浪费算力。负载均衡既是充分利用训练算力的需求，也是尽可能发挥MoE大参数量潜力的需求。&lt;/p&gt;
+&lt;h2 id=&#34;问题分析&#34;&gt;问题分析&lt;/h2&gt;
+&lt;p&gt;我们知道，MoE的基本形式是 $$ \boldsymbol{y} = \sum_{i\in \mathop{\text{argtop}}_k \boldsymbol{\rho}} \rho_i \boldsymbol{e}_i $$ 对于传统MoE，$\boldsymbol{\rho}$是一个概率分布（Router），$\boldsymbol{e}_i=\boldsymbol{v}_i$，$\boldsymbol{v}_i$是一个小型FFN（Expert）的输出；而对于我们上一篇推导的几何MoE，$\boldsymbol{\rho}$没有归一化的要求，它预测的是Expert的模长，而$\boldsymbol{e}_i=\boldsymbol{v}_i/\Vert\boldsymbol{v}_i\Vert$预测的是Expert的方向。&lt;/p&gt;
+&lt;p&gt;不管哪种格式的MoE，实际表现都差不多，只是理解视角的不同。但要注意，虽然MoE的公式给人的感觉是&amp;quot;每遇到一个Token，就去找相应的Expert来计算&amp;quot;，但实际训练时其实是反过来的：先给每个Expert分配好相应的算力，然后将Token分配（Route）到所属的Expert中并行计算，这也就为什么负责打分的$\boldsymbol{\rho}$被称为Router。&lt;/p&gt;
+&lt;p&gt;这样一来，如果Expert的分配不均衡，就可能出现如下局面：某些Expert（Dead Expert）几乎一直闲置，浪费算力；某些Expert要处理的Token太多，根本忙不过来，只能Token Drop（即放弃处理部分Token）。从理论上来说，出现Dead Expert意味着MoE没有达到预期的参数量，即花了大参数量的显存，结果只训出来小参数量的效果。&lt;/p&gt;
+&lt;p&gt;所以，不管是从训练还是性能角度看，我们都希望保证Expert的负载均衡。&lt;/p&gt;
+&lt;h2 id=&#34;辅助损失auxiliary-loss&#34;&gt;辅助损失（Auxiliary Loss）&lt;/h2&gt;
+&lt;p&gt;促进负载均衡的常规思路是添加与之相关的损失函数，我们通常称之为&amp;quot;Aux Loss（Auxiliary Loss）&amp;quot;，目前主流用的Aux Loss最早可以追溯到2020年的&lt;a href=&#34;https://papers.cool/arxiv/2006.16668&#34;&gt;《GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding》&lt;/a&gt;。&lt;/p&gt;
+&lt;p&gt;介绍Aux Loss之前，我们需要先引入一些新概念。首先，我们已经提到对于一般的MoE来说，$\boldsymbol{\rho}$未必是概率分布，我们将归一化的$\boldsymbol{\rho}$记为$\boldsymbol{p}=[p_1,p_2,\cdots,p_n]$，以及它Top-$k$版为$\boldsymbol{f}=[f_1,f_2,\cdots,f_n]$，其中 $$ p_i = \frac{\rho_i}{\sum_{i=1}^n \rho_i},\qquad f_i = \begin{cases}1/k, &amp;amp; i\in \mathop{\text{argtop}}_k \boldsymbol{\rho} \ 0, &amp;amp; i\not\in \mathop{\text{argtop}}_k \boldsymbol{\rho}\end{cases} $$ 接着我们定义$\boldsymbol{P}=\mathbb{E}[\boldsymbol{p}],\boldsymbol{F}=\mathbb{E}[\boldsymbol{f}]$，这里的$\mathbb{E}$是指对所有样本的所有Token做平均。不难看出，$\boldsymbol{F}$就是Expert当前的负载分布，而$\boldsymbol{P}$则相当于$\boldsymbol{F}$的一个光滑近似。&lt;/p&gt;
+&lt;p&gt;有了这些记号，我们就可以写出Aux Loss为：&lt;br&gt;
+
+$$ 
+\mathcal{L}_{\text{aux}} = \boldsymbol{F}\cdot \boldsymbol{P} = \sum_{i=1}^n F_i P_i \tag{1}
+$$
+&lt;/p&gt;</description>
+    </item>
     <item>
       <title>MoE环游记：1、从几何意义出发</title>
       <link>https://pillumina.github.io/posts/llmtheory/1-moe/</link>
