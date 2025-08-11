@@ -32,20 +32,23 @@ languages:
     menu:
       main:
         - name: Archive
-          url: archives
+          url: /archives/
           weight: 5
         - name: Search
-          url: search/
+          url: /search/
           weight: 10
         - name: AI Infra
-          url: posts/aiinfra
+          url: /posts/aiinfra/
           weight: 20
+        - name: Thoery
+          url: /posts/llmtheory/
+          weight: 30
         - name: Social
-          url: social
+          url: /social/
         - name: Programming
-          url: posts/programming
+          url: /posts/programming/
         - name: Study
-          url: open_courses
+          url: /open_courses/
 
 
 outputs:
@@ -137,6 +140,20 @@ markup:
     renderer:
       unsafe: true
       hardWraps: true
+    parser:
+      attribute:
+        block: true
+        title: true
+      autoHeadingID: true
+      autoHeadingIDType: github
+    extensions:
+      definitionList: true
+      footnote: true
+      linkify: true
+      strikethrough: true
+      table: true
+      taskList: true
+      typographer: true
   highlight:
     codeFences: true
     lineNos: true

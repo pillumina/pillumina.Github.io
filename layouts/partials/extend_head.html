@@ -1,21 +1,81 @@
 {{ if or .Params.math .Site.Params.math }}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css" integrity="sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ" crossorigin="anonymous">
-<!-- The loading of KaTeX is deferred to speed up page rendering -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js" integrity="sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY" crossorigin="anonymous"></script>
-<!-- To automatically render math in text elements, include the auto-render extension: -->
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js" integrity="sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR" crossorigin="anonymous"
-    onload="renderMathInElement(document.body);"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
-<!-- for inline -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    renderMathInElement(document.body, {
-        delimiters: [
+(function() {
+  function getArticleRoot() {
+    return document.querySelector('.post-content') || document.querySelector('.post-single') || document.body;
+  }
+  function hasUnrenderedMath(html) {
+    // 粗略检测仍存在的数学定界符（已排除 code/pre 由 ignoredTags 控制）
+    return /\$\$[\s\S]+?\$\$|\\\(|\\\)|\\\[|\\\]/.test(html);
+  }
+  function loadMathJaxOnce(root) {
+    if (window.__mathjaxLoaded) return;
+    window.__mathjaxLoaded = true;
+    window.MathJax = {
+      tex: {
+        inlineMath: [["$","$"],["\\(","\\)"]],
+        displayMath: [["$$","$$"],["\\[","\\]"]],
+        processEscapes: true
+      },
+      options: {
+        skipHtmlTags: ["script","noscript","style","textarea","pre","code","tt"],
+        ignoreHtmlClass: 'no-math'
+      }
+    };
+    var s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js';
+    s.defer = true;
+    s.onload = function() {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise([root]).catch(function(e){console.warn('MathJax typeset error', e)});
+      }
+    };
+    document.head.appendChild(s);
+  }
+  function renderAll() {
+    try {
+      if (typeof renderMathInElement === 'function') {
+        const root = getArticleRoot();
+        renderMathInElement(root, {
+          delimiters: [
             {left: "$$", right: "$$", display: true},
-            {left: "$", right: "$", display: false}
-        ]
-    });
-});
+            {left: "$", right: "$", display: false},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "\\(", right: "\\)", display: false}
+          ],
+          throwOnError: false,
+          strict: false,
+          trust: true,
+          ignoredTags: ["script","noscript","style","textarea","pre","code","tt"],
+          ignoredClasses: ["no-math"],
+          macros: {
+            "\\boldsymbol": "\\mathbf{#1}",
+            "\\bm": "\\mathbf{#1}"
+          }
+        });
+        // 若仍检测到未渲染的数学表达式，则回退到 MathJax
+        setTimeout(function(){
+          if (hasUnrenderedMath(root.innerHTML)) {
+            loadMathJaxOnce(root);
+          }
+        }, 200);
+      }
+    } catch (e) {
+      console.warn("KaTeX render error:", e);
+    }
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    renderAll();
+    setTimeout(renderAll, 200);
+  });
+  window.addEventListener('load', function() {
+    setTimeout(renderAll, 0);
+  });
+})();
 </script>
 {{ end }}
 
