@@ -1,6 +1,6 @@
 ---
 title: "AI Infra：颠覆性创新，还是经典工程范式的华丽转身？"
-date: 2025-08-14T10:05:12+08:00
+date: 2025-08-01T10:05:12+08:00
 tags: ["AIInfra"]
 categories: ["Thinking"]
 ---

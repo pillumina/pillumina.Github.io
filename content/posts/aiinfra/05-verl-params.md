@@ -1,8 +1,8 @@
 ---
 title: "[VeRL] 参数速览"
 date: 2025-08-14T10:20:12+08:00
-tags: ["framework", "LLM", "RL"]
-series: ["rl4llm"]
+tags: ["framework", "verl"]
+series: ["verl"]
 ---
 
 > VeRL框架的参数众多，基于当前（2025.8.5）主线分支整理，附带了相关的理解，一些描述不一定完全正确，供学习参考。

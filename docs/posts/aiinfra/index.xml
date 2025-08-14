@@ -11,8 +11,17 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 14 Aug 2025 10:20:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 14 Aug 2025 11:30:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/posts/aiinfra/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[VeRL] AgentLoop源码走读</title>
+      <link>https://pillumina.github.io/posts/aiinfra/09-verl-agentloop/</link>
+      <pubDate>Thu, 14 Aug 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/09-verl-agentloop/</guid>
+      <description>&lt;p&gt;最近 RL sys 圈子的吴锡斌老师在 verl 上设计了将 rollout 与 tool 调用解耦的 AgentLoop，实现了自由灵活的 mutli-turn RL。在每个 AgentLoop 内部，rollout engine 只对外提供一个 token-in-token-out 的接口，而 tool 调用则通过 &lt;code&gt;ToolAgentLoop&lt;/code&gt; 来实现。我个人比较喜欢这样解耦的设计，同时，AgentLoop 的代码结构也比较清晰。我个人学习了一次整个代码后，觉着 AgentLoop 的设计甚是不错，但是 &lt;code&gt;ActorRolloutRefWorker&lt;/code&gt; 的历史包袱还是很重。&lt;/p&gt;
+&lt;p&gt;本文简单分析了 agent loop 的源码，并给出了一些自己的看法。&lt;/p&gt;
+&lt;p&gt;如果我们把整个 &lt;code&gt;ActorRolloutRefWorker&lt;/code&gt; 当做一个 &lt;code&gt;sgl.Engine&lt;/code&gt; 的话，AgentLoop 里面包装的两层 &lt;code&gt;AsyncSGLangServer&lt;/code&gt; 和 &lt;code&gt;AsyncLLMServerManager&lt;/code&gt;。&lt;code&gt;AsyncSGLangServer&lt;/code&gt; 相当于在 &lt;code&gt;sgl.Engine&lt;/code&gt; 上包装了 &lt;code&gt;fastapi&lt;/code&gt; 成了 server，而 &lt;code&gt;AsyncLLMServerManager&lt;/code&gt; 是在 server 上包了一层 router 做 load balance，相当于 sglang 的 router。这两层设计都是合理的，主要麻烦的是 &lt;code&gt;ActorRolloutRefWorker&lt;/code&gt;，层层调用，最后一共经过 7 个 class 才调到 &lt;code&gt;sgl.Engine&lt;/code&gt;，最近 verl 团队也在致力于对这块 worker class 的重构，敬请期待。最后，&lt;code&gt;AgentLoopManager&lt;/code&gt;，&lt;code&gt;AgentLoopWorker&lt;/code&gt; 和 &lt;code&gt;AgentLoop&lt;/code&gt; 这三层，我觉得 &lt;code&gt;AgentLoopWorker&lt;/code&gt; 可能未必有必要，其他两层挺合理的。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>[VeRL] 参数速览</title>
       <link>https://pillumina.github.io/posts/aiinfra/05-verl-params/</link>
@@ -55,59 +64,45 @@
 &lt;p&gt;当样本长度差异很大时，按样本数量划分批次可能导致不同批次的计算量极不均衡，而基于 token 总数来控制 batch size 是一种平衡每个 batch 训练时间的方案。&lt;/p&gt;</description>
     </item>
     <item>
-      <title>AI Infra：颠覆性创新，还是经典工程范式的华丽转身？</title>
-      <link>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</link>
-      <pubDate>Thu, 14 Aug 2025 10:05:12 +0800</pubDate>
-      <guid>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</guid>
-      <description>&lt;p&gt;近期看到一些关于传统基础设施（Traditional Infrastructure）与人工智能基础设施（AI Infrastructure，尤其大模型领域）差异的评论。其核心观点直指两者间的巨大鸿沟：许多精于网络、计算、存储等传统领域的工程师，在面对GPU集群、KV Cache管理、3D并行等全新概念时，常感过往经验难以直接套用，甚至产生踏入一个全然不同技术体系的“割裂感”。&lt;/p&gt;
-&lt;p&gt;这些看法颇具代表性，精准捕捉了工程师初探AI Infra时的普遍印象：&lt;strong&gt;陌生、高门槛、范式迥异&lt;/strong&gt;。本文旨在分享我对此的一些初步思考：AI Infra究竟是颠覆传统的全新体系，抑或是既有Infra经验在智能时代的一次深度演化？&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;（&lt;em&gt;免责声明：本文纯属个人观点，旨在抛砖引玉，欢迎指正谬误！&lt;/em&gt;）&lt;/p&gt;&lt;/blockquote&gt;
-&lt;p&gt;&lt;strong&gt;我的核心论点：AI Infra并非平地起高楼，它实质上是传统Infra工程智慧在新场景下的重构与系统性延展。&lt;/strong&gt;&lt;/p&gt;
-&lt;h3 id=&#34;表象差异新术语与新挑战带来的视觉冲击&#34;&gt;表象差异：新术语与新挑战带来的“视觉冲击”&lt;/h3&gt;
-&lt;p&gt;乍看之下，AI Infra与传统Infra确实分野明显：&lt;/p&gt;
+      <title>[SGLang] 后端代码速览</title>
+      <link>https://pillumina.github.io/posts/aiinfra/06-sglang-backend/</link>
+      <pubDate>Wed, 13 Aug 2025 10:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/06-sglang-backend/</guid>
+      <description>&lt;p&gt;本文档为开发者提供 SGLang 后端代码的代码梳理，按照一个请求从输入到最后输出的顺序进行讲解。下图简要介绍了这一流程：&lt;/p&gt;
+&lt;div style=&#34;text-align: center; width: 100%; margin: 0 auto;&#34;&gt;
+    &lt;img src=&#34;https://github.com/zhaochenyang20/Awesome-ML-SYS-Tutorial/raw/main/sglang/code-walk-through/sglang-architecture.svg&#34; alt=&#34;SGLang 架构图&#34; style=&#34;width: 100%; height: auto;&#34;&gt;
+&lt;/div&gt;
+&lt;p&gt;具体而言，请求的处理过程如下：&lt;/p&gt;
 &lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;核心任务不同：&lt;/strong&gt; 传统Infra聚焦于处理海量Web请求（毫秒级、无状态）、保障数据持久化存储、实现分布式服务协调。而AI Infra（尤以大模型为甚）则围绕&lt;strong&gt;GPU驱动的模型训练/推理&lt;/strong&gt;、&lt;strong&gt;KV Cache的高效管理&lt;/strong&gt;、&lt;strong&gt;百亿/千亿级参数的分布式执行框架&lt;/strong&gt;展开。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;请求形态迥异：&lt;/strong&gt; Web请求追求瞬时响应（毫秒级）、天然无状态。大模型（LLM）推理则常承载&lt;strong&gt;持续的会话交互&lt;/strong&gt;（秒级乃至更长，随上下文窗口扩展而递增），需&lt;strong&gt;动态维护细粒度的Token级状态&lt;/strong&gt;（KV Cache）。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;技术栈迭代：&lt;/strong&gt; 熟悉的Kubernetes + Docker堆栈旁，涌现出GPU硬件抽象、vLLM、DeepSpeed、FlashAttention、Triton、NCCL等&lt;strong&gt;专为AI设计、名号“高深”的组件&lt;/strong&gt;。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;由此观之，认为传统经验难以直接迁移，确有其表象依据。但这仅仅是“水面之上的冰山”，远非其底层基石。&lt;/p&gt;
-&lt;h3 id=&#34;本质共性工程核心挑战的永恒回归&#34;&gt;本质共性：工程核心挑战的永恒回归&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;拨开“AI专属”的面纱，工程实践的核心命题依然如故：系统设计与资源调度的精妙艺术。&lt;/strong&gt; 我们面临的，仍是那些传统Infra领域中反复锤炼的同类问题，只是约束条件和优化目标发生了变化：&lt;/p&gt;
+&lt;li&gt;
+&lt;p&gt;用户启动 Server ，初始化 FastAPI App、TokenizerManager、DetokenizerManager 和 Scheduler，每个组件运行各自的无限事件循环（infinite event loop）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;用户向 FastAPI Server 发送 &lt;code&gt;/v1/chat/completions&lt;/code&gt; 请求，Server 通过 &lt;code&gt;v1_chat_completions&lt;/code&gt; endpoint 将请求转发到 TokenizerManager。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;v1_chat_completions&lt;/code&gt; 函数将请求转换为 &lt;code&gt;ChatCompletionRequest&lt;/code&gt;，再转换为 &lt;code&gt;GenerateReqInput&lt;/code&gt;，并调用 TokenizerManager 的 &lt;code&gt;generate_request&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;TokenizerManager 对请求进行 tokenization，并以 Python 对象（&lt;code&gt;pyobj&lt;/code&gt;）形式将其转发给 Scheduler，同时调用 TokenizerManager 的 &lt;code&gt;_wait_one_response&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Scheduler 在事件循环 &lt;code&gt;event_loop_normal&lt;/code&gt; 中处理请求：&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;资源调度：&lt;/strong&gt; 核心资源从CPU/内存/磁盘IO，&lt;strong&gt;转向了更稀缺、更昂贵的GPU显存与算力&lt;/strong&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;负载处理：&lt;/strong&gt; 承载对象从HTTP资源请求，&lt;strong&gt;变为密集的Prompt请求与大规模训练任务&lt;/strong&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;核心目标：&lt;/strong&gt; 高效、稳定、低成本地协调跨节点资源的核心诉求&lt;strong&gt;丝毫未变&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;Scheduler 通过 &lt;code&gt;recv_requests&lt;/code&gt; 接收请求，调用 &lt;code&gt;process_input_requests&lt;/code&gt; 处理输入，通过 &lt;code&gt;handle_generate_request&lt;/code&gt; 管理生成请求的逻辑，并将其加入 &lt;code&gt;waiting_queue&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;从 &lt;code&gt;waiting_queue&lt;/code&gt; 中，Scheduler 使用 &lt;code&gt;get_next_batch_to_run&lt;/code&gt; 为即将处理的请求创建 &lt;code&gt;ScheduleBatch&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;Scheduler 执行 &lt;code&gt;run_batch&lt;/code&gt; 函数，将 &lt;code&gt;ScheduleBatch&lt;/code&gt; 转换为 &lt;code&gt;ModelWorkerBatch&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;Scheduler 调用 TpModelWorker 的 &lt;code&gt;forward_batch_generation&lt;/code&gt;，等待 &lt;code&gt;logits_output&lt;/code&gt; 和 &lt;code&gt;next_token_ids&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;TpModelWorker 初始化 &lt;code&gt;ForwardBatch&lt;/code&gt;，将其转发至 ModelRunner，并等待 &lt;code&gt;logits_output&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;ModelRunner 处理 &lt;code&gt;ForwardBatch&lt;/code&gt;，调用 &lt;code&gt;forward_extend&lt;/code&gt; 执行模型的前向计算（forward pass）。&lt;/li&gt;
+&lt;li&gt;模型通过 &lt;code&gt;AttentionBackend&lt;/code&gt; 加速生成 logits，返回给 ModelRunner，进而返回给 TpModelWorker。&lt;/li&gt;
+&lt;li&gt;TpModelWorker 从 ModelRunner 接收 &lt;code&gt;logits_output&lt;/code&gt;，调用 ModelRunner 的 &lt;code&gt;sample&lt;/code&gt; 方法生成 &lt;code&gt;next_token_ids&lt;/code&gt;，并将其发送回 Scheduler。&lt;/li&gt;
+&lt;li&gt;Scheduler 通过 &lt;code&gt;process_batch_result&lt;/code&gt; 处理批次结果，使用 &lt;code&gt;tree_cache.cache_finished_req(req)&lt;/code&gt; 缓存请求，并通过 &lt;code&gt;check_finished&lt;/code&gt; 验证完成状态。对于未完成的请求，Scheduler 继续其事件循环，直到这个请求满足结束条件；对于已完成的请求，则转发到 Scheduler 的 &lt;code&gt;stream_output&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;在 &lt;code&gt;stream_output&lt;/code&gt; 函数中，Scheduler 处理输出，将其包装成 &lt;code&gt;BatchTokenIDOut&lt;/code&gt;，并发送给 DetokenizerManager。&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;概念的映射：经典范式的AI实践&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;这种延续性，清晰地体现在关键概念的对应关系上：&lt;/p&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th&gt;传统 Infra 概念&lt;/th&gt;
-          &lt;th&gt;AI Infra 对应实践&lt;/th&gt;
-          &lt;th&gt;核心思想应用&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;数据分片 (Data Sharding)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;&lt;strong&gt;数据并行 (Data Parallelism)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;数据集拆分，多副本并行处理&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;负载均衡 (Load Balancer)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;&lt;strong&gt;MoE Router (Mixture of Experts)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;动态分配请求（Token）至专家网络，避免热点&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;操作系统分页 (OS Paging)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;&lt;strong&gt;vLLM KV Cache Paging&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;虚拟化显存空间，高效管理请求状态&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;&lt;strong&gt;以vLLM为例：&lt;/strong&gt; 其核心创新在于将&lt;strong&gt;操作系统经典的内存管理机制（分页、交换）&lt;/strong&gt;，创造性地应用于管理LLM推理中关键的&lt;strong&gt;KV Cache状态&lt;/strong&gt;。它如同为LLM定制了一个“显存操作系统”，管理“进程”（推理请求）和“内存页”（KV Cache Blocks），极致优化昂贵显存的利用率。这绝非凭空创造，而是&lt;strong&gt;经典系统原理在特定约束下的卓越应用&lt;/strong&gt;。&lt;/p&gt;</description>
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;DetokenizerManager 在其事件循环中接收 &lt;code&gt;BatchTokenIDOut&lt;/code&gt;，处理后生成 &lt;code&gt;BatchStrOut&lt;/code&gt; 并返回给 TokenizerManager。&lt;/p&gt;</description>
     </item>
     <item>
       <title>[RL4LLM] 异步RL框架: Slime</title>
@@ -374,6 +369,186 @@
 &lt;h2 id=&#34;超节点架构&#34;&gt;超节点架构&lt;/h2&gt;
 &lt;h3 id=&#34;三级网络平面的物理隔离&#34;&gt;三级网络平面的物理隔离&lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;硬件隔离原理&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>[VeRL] Multi-Turn RL训练源码走读（2）</title>
+      <link>https://pillumina.github.io/posts/aiinfra/08-verl-multiturn-2/</link>
+      <pubDate>Sun, 03 Aug 2025 17:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/08-verl-multiturn-2/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;在 Part 1 中，我们介绍了 verl 的初始化过程，我们进一步介绍 verl 的训练过程，包括rollout部分、make experience部分以及training部分。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;在 GRPO 中，单个 step 包含四个阶段：load data -&amp;gt; rollout -&amp;gt; make experience -&amp;gt; update model。区别于前一节的详述，本节会使用伪代码结合源码的方式进行阐述。&lt;/p&gt;
+&lt;pre class=&#34;mermaid&#34;&gt;
+  flowchart LR
+subgraph W2[&amp;#34;Initialize&amp;#34;]
+WP[Process Data] --&amp;gt; A
+direction TB D1[Data Prepare] --&amp;gt; A
+A[TaskRunner] --&amp;gt; B1[RayPPOTrainer]
+B1 --&amp;gt; Workers
+
+    subgraph Workers[&amp;#34;Workers&amp;#34;]
+        direction TB
+                WA[ActorRolloutWorker] --&amp;gt; WD[FSDP Engine]
+        WB[CriticWorker] --&amp;gt; WD
+        WC[RewardModelWorker] --&amp;gt; WD
+        WD --&amp;gt; WE[SGLang Engine]
+    end
+    
+    Workers --&amp;gt; C1[Hybrid Engine]
+end 
+
+subgraph W3[&amp;#34;Train Loop&amp;#34;]
+    direction TB
+    E[DataLoader] --&amp;gt; RolloutBox
+    
+    subgraph RolloutBox[&amp;#34;Rollout&amp;#34;]
+        F1[Prepare Data] --&amp;gt; F2[SGLang Async Rollout]
+        F2 --&amp;gt; F3[Multi-turn Chat Process]
+    end
+    
+    RolloutBox --&amp;gt; ExpBox
+    
+    subgraph ExpBox[&amp;#34;Make Experience&amp;#34;]
+        G1[Recompute Log Probs] --&amp;gt; G2[Compute Reward]
+        G2 --&amp;gt; G3[Compute Advantage]
+    end
+    
+    ExpBox --&amp;gt; UpdateBox
+    
+    subgraph UpdateBox[&amp;#34;Train The Model&amp;#34;]
+        H1[Load FSDP Model Weight] --&amp;gt; H2[Compute Gradient]
+        H2 --&amp;gt; H3[Weights Update]
+        H3 --&amp;gt; H4[Sync Weights]
+    end
+    
+    UpdateBox --&amp;gt; E
+end
+
+W2 --&amp;gt; W3
+&lt;/pre&gt;
+
+&lt;h2 id=&#34;数据加载与预处理&#34;&gt;数据加载与预处理&lt;/h2&gt;
+&lt;p&gt;verl 通过 &lt;code&gt;DataProto&lt;/code&gt; 和 &lt;code&gt;RLHFDataset&lt;/code&gt; 来实现数据处理。具体来说，在 &lt;a href=&#34;https://github.com/volcengine/verl/blob/76f63cffa5081564d8fea93a1cb3ce8bd5bdcc39/verl/trainer/main_ppo.py#L193&#34;&gt;&lt;code&gt;main_ppo.py&lt;/code&gt;&lt;/a&gt; 中，我们观察这个函数：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>[VeRL] Multi-Turn RL训练源码走读（1）</title>
+      <link>https://pillumina.github.io/posts/aiinfra/07-verl-multiturn-1/</link>
+      <pubDate>Sun, 03 Aug 2025 15:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/07-verl-multiturn-1/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;该part主要聚焦相关模块初始化部分&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;还是以 verl 出发，分析其 end to end mutli-turn RL 训练的全过程。整体上，我希望覆盖所有重要的 class 以及函数，更细粒度的代码不再展开。&lt;/p&gt;
+&lt;p&gt;为了前后内容的一致性，基于 &lt;a href=&#34;https://github.com/volcengine/verl/commit/76f63cffa5081564d8fea93a1cb3ce8bd5bdcc39&#34;&gt;76f63cffa5&lt;/a&gt; 的 commit 进行分析。&lt;/p&gt;
+&lt;p&gt;虽然本文以分析 verl 的代码为主，写完之后我才意识到，系统设计问题是非常通用的。诸如“log probs 重计算”，“Rollout Engine 显存管理”等等系统设计，是各大 RL 框架都需要考虑的核心问题。&lt;/p&gt;
+&lt;p&gt;此外因为最近在学习SGLang的实现，本文的推理后端选择的是SGLang展开分析。&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;整个训练的示意图如下，我们会具体展开每个部分。&lt;/p&gt;
+&lt;pre class=&#34;mermaid&#34;&gt;
+  flowchart LR
+subgraph W2[&amp;#34;Initialize&amp;#34;]
+WP[Process Data] --&amp;gt; A
+direction TB D1[Data Prepare] --&amp;gt; A
+A[TaskRunner] --&amp;gt; B1[RayPPOTrainer]
+B1 --&amp;gt; Workers
+
+    subgraph Workers[&amp;#34;Workers&amp;#34;]
+        direction TB
+                WA[ActorRolloutWorker] --&amp;gt; WD[FSDP Engine]
+        WB[CriticWorker] --&amp;gt; WD
+        WC[RewardModelWorker] --&amp;gt; WD
+        WD --&amp;gt; WE[SGLang Engine]
+    end
+    
+    Workers --&amp;gt; C1[Hybrid Engine]
+end
+
+subgraph W3[&amp;#34;Train Loop&amp;#34;]
+    direction TB
+    E[DataLoader] --&amp;gt; RolloutBox
+    
+    subgraph RolloutBox[&amp;#34;Rollout&amp;#34;]
+        F1[Prepare Data] --&amp;gt; F2[SGLang Async Rollout]
+        F2 --&amp;gt; F3[Multi-turn Chat Process]
+    end
+    
+    RolloutBox --&amp;gt; ExpBox
+    
+    subgraph ExpBox[&amp;#34;Make Experience&amp;#34;]
+        G1[Recompute Log Probs] --&amp;gt; G2[Compute Reward]
+        G2 --&amp;gt; G3[Compute Advantage]
+    end
+    
+    ExpBox --&amp;gt; UpdateBox
+    
+    subgraph UpdateBox[&amp;#34;Train The Model&amp;#34;]
+        H1[Load FSDP Model Weight] --&amp;gt; H2[Compute Gradient]
+        H2 --&amp;gt; H3[Weights Update]
+        H3 --&amp;gt; H4[Sync Weights]
+    end
+    
+    UpdateBox --&amp;gt; E
+end
+
+W2 --&amp;gt; W3
+&lt;/pre&gt;
+
+&lt;h2 id=&#34;数据预处理&#34;&gt;&lt;strong&gt;数据预处理&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;以 &lt;a href=&#34;https://huggingface.co/datasets/openai/gsm8k&#34;&gt;GSM8K&lt;/a&gt; 为例，预处理脚本是 &lt;code&gt;examples/data_preprocess/gsm8k_multiturn_w_tool.py&lt;/code&gt;。整个脚本只做了经典的 huggingface datasets mapping，核心逻辑如下：&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>AI Infra：颠覆性创新，还是经典工程范式的华丽转身？</title>
+      <link>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</link>
+      <pubDate>Fri, 01 Aug 2025 10:05:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</guid>
+      <description>&lt;p&gt;近期看到一些关于传统基础设施（Traditional Infrastructure）与人工智能基础设施（AI Infrastructure，尤其大模型领域）差异的评论。其核心观点直指两者间的巨大鸿沟：许多精于网络、计算、存储等传统领域的工程师，在面对GPU集群、KV Cache管理、3D并行等全新概念时，常感过往经验难以直接套用，甚至产生踏入一个全然不同技术体系的“割裂感”。&lt;/p&gt;
+&lt;p&gt;这些看法颇具代表性，精准捕捉了工程师初探AI Infra时的普遍印象：&lt;strong&gt;陌生、高门槛、范式迥异&lt;/strong&gt;。本文旨在分享我对此的一些初步思考：AI Infra究竟是颠覆传统的全新体系，抑或是既有Infra经验在智能时代的一次深度演化？&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;（&lt;em&gt;免责声明：本文纯属个人观点，旨在抛砖引玉，欢迎指正谬误！&lt;/em&gt;）&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;我的核心论点：AI Infra并非平地起高楼，它实质上是传统Infra工程智慧在新场景下的重构与系统性延展。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;表象差异新术语与新挑战带来的视觉冲击&#34;&gt;表象差异：新术语与新挑战带来的“视觉冲击”&lt;/h3&gt;
+&lt;p&gt;乍看之下，AI Infra与传统Infra确实分野明显：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;核心任务不同：&lt;/strong&gt; 传统Infra聚焦于处理海量Web请求（毫秒级、无状态）、保障数据持久化存储、实现分布式服务协调。而AI Infra（尤以大模型为甚）则围绕&lt;strong&gt;GPU驱动的模型训练/推理&lt;/strong&gt;、&lt;strong&gt;KV Cache的高效管理&lt;/strong&gt;、&lt;strong&gt;百亿/千亿级参数的分布式执行框架&lt;/strong&gt;展开。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;请求形态迥异：&lt;/strong&gt; Web请求追求瞬时响应（毫秒级）、天然无状态。大模型（LLM）推理则常承载&lt;strong&gt;持续的会话交互&lt;/strong&gt;（秒级乃至更长，随上下文窗口扩展而递增），需&lt;strong&gt;动态维护细粒度的Token级状态&lt;/strong&gt;（KV Cache）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;技术栈迭代：&lt;/strong&gt; 熟悉的Kubernetes + Docker堆栈旁，涌现出GPU硬件抽象、vLLM、DeepSpeed、FlashAttention、Triton、NCCL等&lt;strong&gt;专为AI设计、名号“高深”的组件&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;由此观之，认为传统经验难以直接迁移，确有其表象依据。但这仅仅是“水面之上的冰山”，远非其底层基石。&lt;/p&gt;
+&lt;h3 id=&#34;本质共性工程核心挑战的永恒回归&#34;&gt;本质共性：工程核心挑战的永恒回归&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;拨开“AI专属”的面纱，工程实践的核心命题依然如故：系统设计与资源调度的精妙艺术。&lt;/strong&gt; 我们面临的，仍是那些传统Infra领域中反复锤炼的同类问题，只是约束条件和优化目标发生了变化：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;资源调度：&lt;/strong&gt; 核心资源从CPU/内存/磁盘IO，&lt;strong&gt;转向了更稀缺、更昂贵的GPU显存与算力&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;负载处理：&lt;/strong&gt; 承载对象从HTTP资源请求，&lt;strong&gt;变为密集的Prompt请求与大规模训练任务&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;核心目标：&lt;/strong&gt; 高效、稳定、低成本地协调跨节点资源的核心诉求&lt;strong&gt;丝毫未变&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;概念的映射：经典范式的AI实践&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这种延续性，清晰地体现在关键概念的对应关系上：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;传统 Infra 概念&lt;/th&gt;
+          &lt;th&gt;AI Infra 对应实践&lt;/th&gt;
+          &lt;th&gt;核心思想应用&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;数据分片 (Data Sharding)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;数据并行 (Data Parallelism)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;数据集拆分，多副本并行处理&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;负载均衡 (Load Balancer)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;MoE Router (Mixture of Experts)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;动态分配请求（Token）至专家网络，避免热点&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;操作系统分页 (OS Paging)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;vLLM KV Cache Paging&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;虚拟化显存空间，高效管理请求状态&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;以vLLM为例：&lt;/strong&gt; 其核心创新在于将&lt;strong&gt;操作系统经典的内存管理机制（分页、交换）&lt;/strong&gt;，创造性地应用于管理LLM推理中关键的&lt;strong&gt;KV Cache状态&lt;/strong&gt;。它如同为LLM定制了一个“显存操作系统”，管理“进程”（推理请求）和“内存页”（KV Cache Blocks），极致优化昂贵显存的利用率。这绝非凭空创造，而是&lt;strong&gt;经典系统原理在特定约束下的卓越应用&lt;/strong&gt;。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

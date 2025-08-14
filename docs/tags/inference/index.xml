@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Inference on CctoctoFX</title>
+    <link>https://pillumina.github.io/tags/inference/</link>
+    <description>Recent content in Inference on CctoctoFX</description>
+    <image>
+      <title>CctoctoFX</title>
+      <url>https://pillumina.github.io/imgs/icon_head.png</url>
+      <link>https://pillumina.github.io/imgs/icon_head.png</link>
+    </image>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 13 Aug 2025 10:30:12 +0800</lastBuildDate>
+    <atom:link href="https://pillumina.github.io/tags/inference/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[SGLang] 后端代码速览</title>
+      <link>https://pillumina.github.io/posts/aiinfra/06-sglang-backend/</link>
+      <pubDate>Wed, 13 Aug 2025 10:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/06-sglang-backend/</guid>
+      <description>&lt;p&gt;本文档为开发者提供 SGLang 后端代码的代码梳理，按照一个请求从输入到最后输出的顺序进行讲解。下图简要介绍了这一流程：&lt;/p&gt;
+&lt;div style=&#34;text-align: center; width: 100%; margin: 0 auto;&#34;&gt;
+    &lt;img src=&#34;https://github.com/zhaochenyang20/Awesome-ML-SYS-Tutorial/raw/main/sglang/code-walk-through/sglang-architecture.svg&#34; alt=&#34;SGLang 架构图&#34; style=&#34;width: 100%; height: auto;&#34;&gt;
+&lt;/div&gt;
+&lt;p&gt;具体而言，请求的处理过程如下：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;用户启动 Server ，初始化 FastAPI App、TokenizerManager、DetokenizerManager 和 Scheduler，每个组件运行各自的无限事件循环（infinite event loop）。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;用户向 FastAPI Server 发送 &lt;code&gt;/v1/chat/completions&lt;/code&gt; 请求，Server 通过 &lt;code&gt;v1_chat_completions&lt;/code&gt; endpoint 将请求转发到 TokenizerManager。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;code&gt;v1_chat_completions&lt;/code&gt; 函数将请求转换为 &lt;code&gt;ChatCompletionRequest&lt;/code&gt;，再转换为 &lt;code&gt;GenerateReqInput&lt;/code&gt;，并调用 TokenizerManager 的 &lt;code&gt;generate_request&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;TokenizerManager 对请求进行 tokenization，并以 Python 对象（&lt;code&gt;pyobj&lt;/code&gt;）形式将其转发给 Scheduler，同时调用 TokenizerManager 的 &lt;code&gt;_wait_one_response&lt;/code&gt; 方法。&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Scheduler 在事件循环 &lt;code&gt;event_loop_normal&lt;/code&gt; 中处理请求：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Scheduler 通过 &lt;code&gt;recv_requests&lt;/code&gt; 接收请求，调用 &lt;code&gt;process_input_requests&lt;/code&gt; 处理输入，通过 &lt;code&gt;handle_generate_request&lt;/code&gt; 管理生成请求的逻辑，并将其加入 &lt;code&gt;waiting_queue&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;从 &lt;code&gt;waiting_queue&lt;/code&gt; 中，Scheduler 使用 &lt;code&gt;get_next_batch_to_run&lt;/code&gt; 为即将处理的请求创建 &lt;code&gt;ScheduleBatch&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;Scheduler 执行 &lt;code&gt;run_batch&lt;/code&gt; 函数，将 &lt;code&gt;ScheduleBatch&lt;/code&gt; 转换为 &lt;code&gt;ModelWorkerBatch&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;Scheduler 调用 TpModelWorker 的 &lt;code&gt;forward_batch_generation&lt;/code&gt;，等待 &lt;code&gt;logits_output&lt;/code&gt; 和 &lt;code&gt;next_token_ids&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;TpModelWorker 初始化 &lt;code&gt;ForwardBatch&lt;/code&gt;，将其转发至 ModelRunner，并等待 &lt;code&gt;logits_output&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;ModelRunner 处理 &lt;code&gt;ForwardBatch&lt;/code&gt;，调用 &lt;code&gt;forward_extend&lt;/code&gt; 执行模型的前向计算（forward pass）。&lt;/li&gt;
+&lt;li&gt;模型通过 &lt;code&gt;AttentionBackend&lt;/code&gt; 加速生成 logits，返回给 ModelRunner，进而返回给 TpModelWorker。&lt;/li&gt;
+&lt;li&gt;TpModelWorker 从 ModelRunner 接收 &lt;code&gt;logits_output&lt;/code&gt;，调用 ModelRunner 的 &lt;code&gt;sample&lt;/code&gt; 方法生成 &lt;code&gt;next_token_ids&lt;/code&gt;，并将其发送回 Scheduler。&lt;/li&gt;
+&lt;li&gt;Scheduler 通过 &lt;code&gt;process_batch_result&lt;/code&gt; 处理批次结果，使用 &lt;code&gt;tree_cache.cache_finished_req(req)&lt;/code&gt; 缓存请求，并通过 &lt;code&gt;check_finished&lt;/code&gt; 验证完成状态。对于未完成的请求，Scheduler 继续其事件循环，直到这个请求满足结束条件；对于已完成的请求，则转发到 Scheduler 的 &lt;code&gt;stream_output&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;在 &lt;code&gt;stream_output&lt;/code&gt; 函数中，Scheduler 处理输出，将其包装成 &lt;code&gt;BatchTokenIDOut&lt;/code&gt;，并发送给 DetokenizerManager。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;DetokenizerManager 在其事件循环中接收 &lt;code&gt;BatchTokenIDOut&lt;/code&gt;，处理后生成 &lt;code&gt;BatchStrOut&lt;/code&gt; 并返回给 TokenizerManager。&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

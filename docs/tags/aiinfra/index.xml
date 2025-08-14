@@ -11,63 +11,8 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 14 Aug 2025 10:05:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 07 Aug 2025 10:40:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/aiinfra/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>AI Infra：颠覆性创新，还是经典工程范式的华丽转身？</title>
-      <link>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</link>
-      <pubDate>Thu, 14 Aug 2025 10:05:12 +0800</pubDate>
-      <guid>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</guid>
-      <description>&lt;p&gt;近期看到一些关于传统基础设施（Traditional Infrastructure）与人工智能基础设施（AI Infrastructure，尤其大模型领域）差异的评论。其核心观点直指两者间的巨大鸿沟：许多精于网络、计算、存储等传统领域的工程师，在面对GPU集群、KV Cache管理、3D并行等全新概念时，常感过往经验难以直接套用，甚至产生踏入一个全然不同技术体系的“割裂感”。&lt;/p&gt;
-&lt;p&gt;这些看法颇具代表性，精准捕捉了工程师初探AI Infra时的普遍印象：&lt;strong&gt;陌生、高门槛、范式迥异&lt;/strong&gt;。本文旨在分享我对此的一些初步思考：AI Infra究竟是颠覆传统的全新体系，抑或是既有Infra经验在智能时代的一次深度演化？&lt;/p&gt;
-&lt;blockquote&gt;
-&lt;p&gt;（&lt;em&gt;免责声明：本文纯属个人观点，旨在抛砖引玉，欢迎指正谬误！&lt;/em&gt;）&lt;/p&gt;&lt;/blockquote&gt;
-&lt;p&gt;&lt;strong&gt;我的核心论点：AI Infra并非平地起高楼，它实质上是传统Infra工程智慧在新场景下的重构与系统性延展。&lt;/strong&gt;&lt;/p&gt;
-&lt;h3 id=&#34;表象差异新术语与新挑战带来的视觉冲击&#34;&gt;表象差异：新术语与新挑战带来的“视觉冲击”&lt;/h3&gt;
-&lt;p&gt;乍看之下，AI Infra与传统Infra确实分野明显：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;strong&gt;核心任务不同：&lt;/strong&gt; 传统Infra聚焦于处理海量Web请求（毫秒级、无状态）、保障数据持久化存储、实现分布式服务协调。而AI Infra（尤以大模型为甚）则围绕&lt;strong&gt;GPU驱动的模型训练/推理&lt;/strong&gt;、&lt;strong&gt;KV Cache的高效管理&lt;/strong&gt;、&lt;strong&gt;百亿/千亿级参数的分布式执行框架&lt;/strong&gt;展开。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;请求形态迥异：&lt;/strong&gt; Web请求追求瞬时响应（毫秒级）、天然无状态。大模型（LLM）推理则常承载&lt;strong&gt;持续的会话交互&lt;/strong&gt;（秒级乃至更长，随上下文窗口扩展而递增），需&lt;strong&gt;动态维护细粒度的Token级状态&lt;/strong&gt;（KV Cache）。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;技术栈迭代：&lt;/strong&gt; 熟悉的Kubernetes + Docker堆栈旁，涌现出GPU硬件抽象、vLLM、DeepSpeed、FlashAttention、Triton、NCCL等&lt;strong&gt;专为AI设计、名号“高深”的组件&lt;/strong&gt;。&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;由此观之，认为传统经验难以直接迁移，确有其表象依据。但这仅仅是“水面之上的冰山”，远非其底层基石。&lt;/p&gt;
-&lt;h3 id=&#34;本质共性工程核心挑战的永恒回归&#34;&gt;本质共性：工程核心挑战的永恒回归&lt;/h3&gt;
-&lt;p&gt;&lt;strong&gt;拨开“AI专属”的面纱，工程实践的核心命题依然如故：系统设计与资源调度的精妙艺术。&lt;/strong&gt; 我们面临的，仍是那些传统Infra领域中反复锤炼的同类问题，只是约束条件和优化目标发生了变化：&lt;/p&gt;
-&lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;资源调度：&lt;/strong&gt; 核心资源从CPU/内存/磁盘IO，&lt;strong&gt;转向了更稀缺、更昂贵的GPU显存与算力&lt;/strong&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;负载处理：&lt;/strong&gt; 承载对象从HTTP资源请求，&lt;strong&gt;变为密集的Prompt请求与大规模训练任务&lt;/strong&gt;。&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;核心目标：&lt;/strong&gt; 高效、稳定、低成本地协调跨节点资源的核心诉求&lt;strong&gt;丝毫未变&lt;/strong&gt;。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;p&gt;&lt;strong&gt;概念的映射：经典范式的AI实践&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;这种延续性，清晰地体现在关键概念的对应关系上：&lt;/p&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th&gt;传统 Infra 概念&lt;/th&gt;
-          &lt;th&gt;AI Infra 对应实践&lt;/th&gt;
-          &lt;th&gt;核心思想应用&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;数据分片 (Data Sharding)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;&lt;strong&gt;数据并行 (Data Parallelism)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;数据集拆分，多副本并行处理&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;负载均衡 (Load Balancer)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;&lt;strong&gt;MoE Router (Mixture of Experts)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;动态分配请求（Token）至专家网络，避免热点&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td&gt;&lt;strong&gt;操作系统分页 (OS Paging)&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;&lt;strong&gt;vLLM KV Cache Paging&lt;/strong&gt;&lt;/td&gt;
-          &lt;td&gt;虚拟化显存空间，高效管理请求状态&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;&lt;strong&gt;以vLLM为例：&lt;/strong&gt; 其核心创新在于将&lt;strong&gt;操作系统经典的内存管理机制（分页、交换）&lt;/strong&gt;，创造性地应用于管理LLM推理中关键的&lt;strong&gt;KV Cache状态&lt;/strong&gt;。它如同为LLM定制了一个“显存操作系统”，管理“进程”（推理请求）和“内存页”（KV Cache Blocks），极致优化昂贵显存的利用率。这绝非凭空创造，而是&lt;strong&gt;经典系统原理在特定约束下的卓越应用&lt;/strong&gt;。&lt;/p&gt;</description>
-    </item>
     <item>
       <title>昇腾超节点CloudMatrix384论文拆解</title>
       <link>https://pillumina.github.io/posts/aiinfra/01-ascend-cloudmatrix/</link>
@@ -180,6 +125,61 @@
 &lt;h2 id=&#34;超节点架构&#34;&gt;超节点架构&lt;/h2&gt;
 &lt;h3 id=&#34;三级网络平面的物理隔离&#34;&gt;三级网络平面的物理隔离&lt;/h3&gt;
 &lt;p&gt;&lt;strong&gt;硬件隔离原理&lt;/strong&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>AI Infra：颠覆性创新，还是经典工程范式的华丽转身？</title>
+      <link>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</link>
+      <pubDate>Fri, 01 Aug 2025 10:05:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</guid>
+      <description>&lt;p&gt;近期看到一些关于传统基础设施（Traditional Infrastructure）与人工智能基础设施（AI Infrastructure，尤其大模型领域）差异的评论。其核心观点直指两者间的巨大鸿沟：许多精于网络、计算、存储等传统领域的工程师，在面对GPU集群、KV Cache管理、3D并行等全新概念时，常感过往经验难以直接套用，甚至产生踏入一个全然不同技术体系的“割裂感”。&lt;/p&gt;
+&lt;p&gt;这些看法颇具代表性，精准捕捉了工程师初探AI Infra时的普遍印象：&lt;strong&gt;陌生、高门槛、范式迥异&lt;/strong&gt;。本文旨在分享我对此的一些初步思考：AI Infra究竟是颠覆传统的全新体系，抑或是既有Infra经验在智能时代的一次深度演化？&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;（&lt;em&gt;免责声明：本文纯属个人观点，旨在抛砖引玉，欢迎指正谬误！&lt;/em&gt;）&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;我的核心论点：AI Infra并非平地起高楼，它实质上是传统Infra工程智慧在新场景下的重构与系统性延展。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;表象差异新术语与新挑战带来的视觉冲击&#34;&gt;表象差异：新术语与新挑战带来的“视觉冲击”&lt;/h3&gt;
+&lt;p&gt;乍看之下，AI Infra与传统Infra确实分野明显：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;核心任务不同：&lt;/strong&gt; 传统Infra聚焦于处理海量Web请求（毫秒级、无状态）、保障数据持久化存储、实现分布式服务协调。而AI Infra（尤以大模型为甚）则围绕&lt;strong&gt;GPU驱动的模型训练/推理&lt;/strong&gt;、&lt;strong&gt;KV Cache的高效管理&lt;/strong&gt;、&lt;strong&gt;百亿/千亿级参数的分布式执行框架&lt;/strong&gt;展开。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;请求形态迥异：&lt;/strong&gt; Web请求追求瞬时响应（毫秒级）、天然无状态。大模型（LLM）推理则常承载&lt;strong&gt;持续的会话交互&lt;/strong&gt;（秒级乃至更长，随上下文窗口扩展而递增），需&lt;strong&gt;动态维护细粒度的Token级状态&lt;/strong&gt;（KV Cache）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;技术栈迭代：&lt;/strong&gt; 熟悉的Kubernetes + Docker堆栈旁，涌现出GPU硬件抽象、vLLM、DeepSpeed、FlashAttention、Triton、NCCL等&lt;strong&gt;专为AI设计、名号“高深”的组件&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;由此观之，认为传统经验难以直接迁移，确有其表象依据。但这仅仅是“水面之上的冰山”，远非其底层基石。&lt;/p&gt;
+&lt;h3 id=&#34;本质共性工程核心挑战的永恒回归&#34;&gt;本质共性：工程核心挑战的永恒回归&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;拨开“AI专属”的面纱，工程实践的核心命题依然如故：系统设计与资源调度的精妙艺术。&lt;/strong&gt; 我们面临的，仍是那些传统Infra领域中反复锤炼的同类问题，只是约束条件和优化目标发生了变化：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;资源调度：&lt;/strong&gt; 核心资源从CPU/内存/磁盘IO，&lt;strong&gt;转向了更稀缺、更昂贵的GPU显存与算力&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;负载处理：&lt;/strong&gt; 承载对象从HTTP资源请求，&lt;strong&gt;变为密集的Prompt请求与大规模训练任务&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;核心目标：&lt;/strong&gt; 高效、稳定、低成本地协调跨节点资源的核心诉求&lt;strong&gt;丝毫未变&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;概念的映射：经典范式的AI实践&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这种延续性，清晰地体现在关键概念的对应关系上：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;传统 Infra 概念&lt;/th&gt;
+          &lt;th&gt;AI Infra 对应实践&lt;/th&gt;
+          &lt;th&gt;核心思想应用&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;数据分片 (Data Sharding)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;数据并行 (Data Parallelism)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;数据集拆分，多副本并行处理&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;负载均衡 (Load Balancer)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;MoE Router (Mixture of Experts)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;动态分配请求（Token）至专家网络，避免热点&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;操作系统分页 (OS Paging)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;vLLM KV Cache Paging&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;虚拟化显存空间，高效管理请求状态&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;以vLLM为例：&lt;/strong&gt; 其核心创新在于将&lt;strong&gt;操作系统经典的内存管理机制（分页、交换）&lt;/strong&gt;，创造性地应用于管理LLM推理中关键的&lt;strong&gt;KV Cache状态&lt;/strong&gt;。它如同为LLM定制了一个“显存操作系统”，管理“进程”（推理请求）和“内存页”（KV Cache Blocks），极致优化昂贵显存的利用率。这绝非凭空创造，而是&lt;strong&gt;经典系统原理在特定约束下的卓越应用&lt;/strong&gt;。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>
