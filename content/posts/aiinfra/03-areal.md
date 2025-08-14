@@ -1,8 +1,8 @@
 ---
-title: "[LLM4RL] 异步RL框架: Areal"
+title: "[RL4LLM] 异步RL框架: Areal"
 date: 2025-08-07T14:40:12+08:00
 tags: ["framework", "LLM", "RL"]
-series: ["llm4rl"]
+series: ["rl4llm"]
 ---
 
 > https://github.com/inclusionAI/AReaL

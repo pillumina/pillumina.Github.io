@@ -11,10 +11,106 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 07 Aug 2025 17:10:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 14 Aug 2025 10:20:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/posts/aiinfra/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>[LLM4RL] 异步RL框架: Slime</title>
+      <title>[VeRL] 参数速览</title>
+      <link>https://pillumina.github.io/posts/aiinfra/05-verl-params/</link>
+      <pubDate>Thu, 14 Aug 2025 10:20:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/05-verl-params/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;VeRL框架的参数众多，基于当前（2025.8.5）主线分支整理，附带了相关的理解，一些描述不一定完全正确，供学习参考。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h2 id=&#34;batch-size&#34;&gt;Batch Size&lt;/h2&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;参数名称&lt;/th&gt;
+          &lt;th&gt;详细解释&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;data.train_batch_size&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;作用&lt;/strong&gt;：定义了单次训练发送给 Rollout Engine 的样本数量，也即这是在每个 PPO 迭代开始时，从训练数据集中采样的提示 （Prompt）数量。&lt;br&gt;&lt;br&gt;&lt;strong&gt;详细解释&lt;/strong&gt;：这个值是 RL 训练中的基本样本数量。例如，设置为 1024 意味着在一次迭代中会：&lt;br&gt;1. 从数据集中随机抽取 1024 个 prompt。&lt;br&gt; 2. 将这 1024 个 prompt 发送给当前的 Rollout Engine 中，从而得到 1024 组完整的 trajectories（prompt, response）。&lt;br&gt;3. 接下来，这 1024 个 trajectories 进行经验计算（make experience），后续用于 Actor 和 Critic 模型的更新。&lt;br&gt;&lt;br&gt;&lt;strong&gt;影响与权衡&lt;/strong&gt;：影响总共训练的样本量。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;data.val_batch_size&lt;/code&gt; （Deprecated)&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;作用&lt;/strong&gt;：在 Validation 阶段使用的批次大小。&lt;br&gt;&lt;br&gt;&lt;strong&gt;详细解释&lt;/strong&gt;：这与 &lt;code&gt;train_batch_size&lt;/code&gt; 类似，但仅用于评估模型性能，不参与训练。如果设置为 &lt;code&gt;null&lt;/code&gt;，会使用验证集的大小作为默认值。Note: 已经deprecated，推荐设置为 null。此时，整个 validation dataset 一次性发给 SGLang engines，自行进行内存管理。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;actor_rollout_ref.actor.ppo_mini_batch_size&lt;/code&gt; &lt;br&gt; &lt;code&gt;critic.ppo_mini_batch_size&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;作用&lt;/strong&gt;：定义了 PPO 训练更新中的 mini-batch 大小。&lt;br&gt;&lt;br&gt;&lt;strong&gt;详细解释&lt;/strong&gt;：&lt;code&gt;data.train_batch_size&lt;/code&gt; 收集到的全部经验数据将被分割成多个 mini-batch，每块的大小就是 &lt;code&gt;ppo_mini_batch_size&lt;/code&gt;。模型每处理完一个 mini-batch，才会进行一次参数更新。&lt;br&gt;例如，如果 &lt;code&gt;train_batch_size = 1024&lt;/code&gt;，&lt;code&gt;ppo_mini_batch_size = 256&lt;/code&gt;，那么在一个 PPO Epoch 中，模型会进行 &lt;code&gt;1024 / 256 = 4&lt;/code&gt; 次参数更新。&lt;br&gt;&lt;br&gt;&lt;strong&gt;影响与权衡&lt;/strong&gt;：增大 mini-batch，单次更新的梯度更稳定，但更新频率更低，更新次数减少。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu&lt;/code&gt; &lt;br&gt; &lt;code&gt;critic.ppo_micro_batch_size_per_gpu&lt;/code&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;作用&lt;/strong&gt;：定义了在单个 GPU 上进行一次 forward/backward 的数据大小。&lt;br&gt;&lt;br&gt;&lt;strong&gt;详细解释&lt;/strong&gt;：这是实现梯度累积的核心参数。mini-batch 会被再次切分为若干个 micro-batch。例如，在单卡上，&lt;code&gt;ppo_mini_batch_size = 256&lt;/code&gt;，&lt;code&gt;ppo_micro_batch_size_per_gpu = 32&lt;/code&gt;，那么梯度累积的步数就是 &lt;code&gt;256 / 32 = 8&lt;/code&gt;。这意味着模型会运行 8 次 forward 得到 loss，然后 backward 的到 gradient。每次处理 32 个样本，直到累积完整个 mini-batch 计算出的梯度。此时，使用累积的总梯度，对模型参数进行一次更新（&lt;code&gt;optimizer.step()&lt;/code&gt;）。这个值必须根据显存大小来严格调整，是防止 OOM 的关键。&lt;br&gt;&lt;br&gt;&lt;strong&gt;影响与权衡&lt;/strong&gt;：增大此值，减少了梯度累积的次数，可以提高训练的吞吐量，增大显存消耗。&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;code&gt;actor_rollout_ref.actor.ppo_micro_batch_size&lt;/code&gt; &lt;br&gt; &lt;code&gt;critic.ppo_micro_batch_size&lt;/code&gt;（Deprecated)&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;作用&lt;/strong&gt;：已弃用，被 &lt;code&gt;per_gpu&lt;/code&gt; 版本取代，因为它能更好地适应分布式训练环境。&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id=&#34;dynamic-batch-size&#34;&gt;Dynamic Batch Size&lt;/h2&gt;
+&lt;p&gt;当样本长度差异很大时，按样本数量划分批次可能导致不同批次的计算量极不均衡，而基于 token 总数来控制 batch size 是一种平衡每个 batch 训练时间的方案。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>AI Infra：颠覆性创新，还是经典工程范式的华丽转身？</title>
+      <link>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</link>
+      <pubDate>Thu, 14 Aug 2025 10:05:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</guid>
+      <description>&lt;p&gt;近期看到一些关于传统基础设施（Traditional Infrastructure）与人工智能基础设施（AI Infrastructure，尤其大模型领域）差异的评论。其核心观点直指两者间的巨大鸿沟：许多精于网络、计算、存储等传统领域的工程师，在面对GPU集群、KV Cache管理、3D并行等全新概念时，常感过往经验难以直接套用，甚至产生踏入一个全然不同技术体系的“割裂感”。&lt;/p&gt;
+&lt;p&gt;这些看法颇具代表性，精准捕捉了工程师初探AI Infra时的普遍印象：&lt;strong&gt;陌生、高门槛、范式迥异&lt;/strong&gt;。本文旨在分享我对此的一些初步思考：AI Infra究竟是颠覆传统的全新体系，抑或是既有Infra经验在智能时代的一次深度演化？&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;（&lt;em&gt;免责声明：本文纯属个人观点，旨在抛砖引玉，欢迎指正谬误！&lt;/em&gt;）&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;&lt;strong&gt;我的核心论点：AI Infra并非平地起高楼，它实质上是传统Infra工程智慧在新场景下的重构与系统性延展。&lt;/strong&gt;&lt;/p&gt;
+&lt;h3 id=&#34;表象差异新术语与新挑战带来的视觉冲击&#34;&gt;表象差异：新术语与新挑战带来的“视觉冲击”&lt;/h3&gt;
+&lt;p&gt;乍看之下，AI Infra与传统Infra确实分野明显：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;核心任务不同：&lt;/strong&gt; 传统Infra聚焦于处理海量Web请求（毫秒级、无状态）、保障数据持久化存储、实现分布式服务协调。而AI Infra（尤以大模型为甚）则围绕&lt;strong&gt;GPU驱动的模型训练/推理&lt;/strong&gt;、&lt;strong&gt;KV Cache的高效管理&lt;/strong&gt;、&lt;strong&gt;百亿/千亿级参数的分布式执行框架&lt;/strong&gt;展开。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;请求形态迥异：&lt;/strong&gt; Web请求追求瞬时响应（毫秒级）、天然无状态。大模型（LLM）推理则常承载&lt;strong&gt;持续的会话交互&lt;/strong&gt;（秒级乃至更长，随上下文窗口扩展而递增），需&lt;strong&gt;动态维护细粒度的Token级状态&lt;/strong&gt;（KV Cache）。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;技术栈迭代：&lt;/strong&gt; 熟悉的Kubernetes + Docker堆栈旁，涌现出GPU硬件抽象、vLLM、DeepSpeed、FlashAttention、Triton、NCCL等&lt;strong&gt;专为AI设计、名号“高深”的组件&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;由此观之，认为传统经验难以直接迁移，确有其表象依据。但这仅仅是“水面之上的冰山”，远非其底层基石。&lt;/p&gt;
+&lt;h3 id=&#34;本质共性工程核心挑战的永恒回归&#34;&gt;本质共性：工程核心挑战的永恒回归&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;拨开“AI专属”的面纱，工程实践的核心命题依然如故：系统设计与资源调度的精妙艺术。&lt;/strong&gt; 我们面临的，仍是那些传统Infra领域中反复锤炼的同类问题，只是约束条件和优化目标发生了变化：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;资源调度：&lt;/strong&gt; 核心资源从CPU/内存/磁盘IO，&lt;strong&gt;转向了更稀缺、更昂贵的GPU显存与算力&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;负载处理：&lt;/strong&gt; 承载对象从HTTP资源请求，&lt;strong&gt;变为密集的Prompt请求与大规模训练任务&lt;/strong&gt;。&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;核心目标：&lt;/strong&gt; 高效、稳定、低成本地协调跨节点资源的核心诉求&lt;strong&gt;丝毫未变&lt;/strong&gt;。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;概念的映射：经典范式的AI实践&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;这种延续性，清晰地体现在关键概念的对应关系上：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th&gt;传统 Infra 概念&lt;/th&gt;
+          &lt;th&gt;AI Infra 对应实践&lt;/th&gt;
+          &lt;th&gt;核心思想应用&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;数据分片 (Data Sharding)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;数据并行 (Data Parallelism)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;数据集拆分，多副本并行处理&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;负载均衡 (Load Balancer)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;MoE Router (Mixture of Experts)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;动态分配请求（Token）至专家网络，避免热点&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td&gt;&lt;strong&gt;操作系统分页 (OS Paging)&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;&lt;strong&gt;vLLM KV Cache Paging&lt;/strong&gt;&lt;/td&gt;
+          &lt;td&gt;虚拟化显存空间，高效管理请求状态&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;&lt;strong&gt;以vLLM为例：&lt;/strong&gt; 其核心创新在于将&lt;strong&gt;操作系统经典的内存管理机制（分页、交换）&lt;/strong&gt;，创造性地应用于管理LLM推理中关键的&lt;strong&gt;KV Cache状态&lt;/strong&gt;。它如同为LLM定制了一个“显存操作系统”，管理“进程”（推理请求）和“内存页”（KV Cache Blocks），极致优化昂贵显存的利用率。这绝非凭空创造，而是&lt;strong&gt;经典系统原理在特定约束下的卓越应用&lt;/strong&gt;。&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>[RL4LLM] 异步RL框架: Slime</title>
       <link>https://pillumina.github.io/posts/aiinfra/02-slime/</link>
       <pubDate>Thu, 07 Aug 2025 17:10:12 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/02-slime/</guid>
@@ -82,7 +178,7 @@
 &lt;p&gt;rollout 负责采样、奖励、过滤，支持多种采样/奖励/过滤策略。&lt;/p&gt;</description>
     </item>
     <item>
-      <title>[LLM4RL] 异步RL框架: Areal</title>
+      <title>[RL4LLM] 异步RL框架: Areal</title>
       <link>https://pillumina.github.io/posts/aiinfra/03-areal/</link>
       <pubDate>Thu, 07 Aug 2025 14:40:12 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/03-areal/</guid>
