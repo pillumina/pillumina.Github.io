@@ -895,23 +895,540 @@ def async_training_step(self):
     value_data = self.critic_wg.compute_values(rollout_data)
 ```
 
-## 9. 总结
+## 9. Ray集群中的物理数据流动
 
-### 9.1 核心优势
+### 9.1 Ray集群物理架构
+
+#### 9.1.1 集群组成
+
+```mermaid
+graph TB
+    subgraph "Head Node (主节点)"
+        A[Ray Head Process]
+        B[Object Store]
+        C[GCS - Global Control Service]
+        D[Driver Process<br/>控制流]
+    end
+    
+    subgraph "Worker Node 1"
+        E[Ray Worker Process 1]
+        F[Object Store 1]
+        G[ActorRolloutWorker 1]
+        H[ActorRolloutWorker 2]
+    end
+    
+    subgraph "Worker Node 2"
+        I[Ray Worker Process 2]
+        J[Object Store 2]
+        K[CriticWorker 1]
+        L[CriticWorker 2]
+    end
+    
+    subgraph "Worker Node 3"
+        M[Ray Worker Process 3]
+        N[Object Store 3]
+        O[ReferenceWorker 1]
+        P[ReferenceWorker 2]
+    end
+    
+    A -.->|心跳| E
+    A -.->|心跳| I
+    A -.->|心跳| M
+    
+    D -->|远程调用| G
+    D -->|远程调用| H
+    D -->|远程调用| K
+    D -->|远程调用| L
+    D -->|远程调用| O
+    D -->|远程调用| P
+    
+    B -.->|数据共享| F
+    B -.->|数据共享| J
+    B -.->|数据共享| N
+    
+    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style D fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style G fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style K fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+    style O fill:#607D8B,stroke:#37474F,stroke-width:2px,color:#fff
+```
+
+#### 9.1.2 Ray集群启动过程
+
+```python
+# 1. 启动Head节点
+ray start --head --port=6379 --dashboard-host=0.0.0.0 --dashboard-port=8265
+
+# 2. 启动Worker节点
+ray start --address='head_node_ip:6379'
+
+# 3. 在Driver中初始化集群
+import ray
+ray.init(address='ray://head_node_ip:10001')
+
+# 4. 创建WorkerGroup
+resource_pool = RayResourcePool(
+    process_on_nodes=[4, 4, 4],  # 每个节点4个进程
+    use_gpu=True,
+    max_colocate_count=1
+)
+
+# 5. 启动Worker进程
+actor_rollout_wg = RayWorkerGroup(
+    resource_pool=resource_pool,
+    ray_cls_with_init=RayClassWithInitArgs(ActorRolloutWorker, config)
+)
+```
+
+### 9.2 Ray Object Store 核心概念
+
+在深入理解DataProto的物理传输过程之前，我们需要先了解Ray集群中的Object Store机制，这是数据在节点间传输的基础设施。
+
+#### 9.2.1 Object Store 概述
+
+**Object Store**是Ray分布式系统的核心组件，用于在集群节点间高效地存储和共享数据。它基于Apache Arrow的Plasma实现，提供了高性能的分布式内存存储。
+
+```mermaid
+graph TB
+    subgraph "Head Node"
+        A[HeadStore<br/>Plasma Store] --> B[共享内存池]
+        A --> C[元数据管理]
+        A --> D[对象引用表]
+    end
+    
+    subgraph "Worker Node"
+        E[WorkerStore<br/>Plasma Store] --> F[本地内存池]
+        E --> G[本地缓存]
+        E --> H[磁盘溢出]
+    end
+    
+    A -.->|网络传输| E
+    
+    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style E fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+```
+
+**核心组件：**
+- **HeadStore**：Head节点上的Object Store，存储全局共享数据，管理元数据和对象引用
+- **WorkerStore**：Worker节点上的Object Store，存储本地计算数据，提供快速数据访问
+
+**工作原理：**
+1. **数据存储**：通过`ray.put()`将数据存储到Object Store，返回ObjectRef
+2. **数据获取**：通过`ray.get(ObjectRef)`从Object Store读取数据
+3. **内存管理**：自动管理内存使用，支持磁盘溢出和垃圾回收
+
+#### 9.2.2 Object Store 在verl中的作用
+
+```python
+# Object Store基本操作示例
+import ray
+
+# 1. 存储DataProto到Object Store
+data_proto = DataProto.from_dict(tensors={"input_ids": torch.randn(256, 512)})
+object_ref = ray.put(data_proto)  # 存储到本地Object Store
+
+# 2. 发送ObjectRef到远程Worker
+@ray.remote
+def worker_function(ref):
+    data = ray.get(ref)  # 从Object Store获取数据
+    return process_data(data)
+
+# 3. 执行远程调用
+future = worker_function.remote(object_ref)
+result = ray.get(future)
+```
+
+**关键特性：**
+- **序列化优化**：自动处理DataProto的序列化和反序列化
+- **内存共享**：支持跨进程和跨节点的内存共享
+- **网络传输**：自动处理网络传输和错误恢复
+- **性能优化**：支持数据压缩和缓存机制
+
+### 9.3 DataProto的物理传输过程
+
+#### 9.3.1 序列化与网络传输
+
+```mermaid
+sequenceDiagram
+    participant D as Driver
+    participant H as HeadStore
+    participant W as Worker
+    participant WS as WorkerStore
+    participant A as Actor
+    
+    D->>D: 创建DataProto
+    Note over D: batch_size=256
+    
+    D->>D: DataProto序列化
+    Note over D: TensorDict序列化
+    
+    D->>H: 存储序列化数据
+    Note over H: 生成ObjectRef
+    
+    D->>W: 发送ObjectRef
+    Note over W: 方法调用
+    
+    W->>H: 获取序列化数据
+    H->>W: 返回数据块
+    
+    W->>W: DataProto反序列化
+    Note over W: 重建TensorDict
+    
+    W->>A: 调用generate_sequences
+    A->>A: 模型推理计算
+    
+    A->>A: 创建结果DataProto
+    A->>W: 返回结果
+    
+    W->>W: 结果序列化
+    W->>WS: 存储结果
+    
+    W->>D: 返回ObjectRef
+    D->>WS: 获取结果数据
+    D->>D: 结果反序列化
+```
+
+#### 9.3.2 数据序列化细节
+
+```python
+# DataProto的序列化过程
+def __getstate__(self):
+    """序列化DataProto"""
+    import io
+    buffer = io.BytesIO()
+    
+    # 1. 序列化TensorDict
+    if self.batch is not None:
+        batch_to_save = self.batch.contiguous().consolidate()
+        torch.save(batch_to_save, buffer)
+    
+    # 2. 序列化numpy数组和meta_info
+    buffer_bytes = buffer.getvalue()
+    return buffer_bytes, self.non_tensor_batch, self.meta_info
+
+def __setstate__(self, data):
+    """反序列化DataProto"""
+    import io
+    batch_deserialized_bytes, non_tensor_batch, meta_info = data
+    
+    # 1. 反序列化TensorDict
+    batch_deserialized = io.BytesIO(initial_bytes=batch_deserialized_bytes)
+    batch = torch.load(batch_deserialized, map_location="cpu")
+    
+    # 2. 重建DataProto
+    self.batch = batch
+    self.non_tensor_batch = non_tensor_batch
+    self.meta_info = meta_info
+```
+
+### 9.4 分布式数据流动架构
+
+#### 9.4.1 多节点数据分发
+
+```mermaid
+graph TD
+    subgraph "Head Node"
+        A[Driver Process] --> B[DataProto创建]
+        B --> C[序列化]
+        C --> D[Object Store]
+    end
+    
+    subgraph "Worker Node 1"
+        E[Worker Process 1] --> F[ActorRolloutWorker 1]
+        E --> G[ActorRolloutWorker 2]
+    end
+    
+    subgraph "Worker Node 2"
+        H[Worker Process 2] --> I[CriticWorker 1]
+        H --> J[CriticWorker 2]
+    end
+    
+    subgraph "Worker Node 3"
+        K[Worker Process 3] --> L[ReferenceWorker 1]
+        K --> M[ReferenceWorker 2]
+    end
+    
+    D -.->|网络传输| E
+    D -.->|网络传输| H
+    D -.->|网络传输| K
+    
+    E --> N[Object Store 1]
+    H --> O[Object Store 2]
+    K --> P[Object Store 3]
+    
+    N -.->|结果收集| D
+    O -.->|结果收集| D
+    P -.->|结果收集| D
+    
+    style A fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style D fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style F fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style I fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+    style L fill:#607D8B,stroke:#37474F,stroke-width:2px,color:#fff
+```
+
+#### 9.4.2 数据并行分发过程
+
+```python
+# 实际的数据分发过程
+def dispatch_dp_compute_data_proto(worker_group, *args, **kwargs):
+    """DataProto数据并行分发"""
+    world_size = worker_group.world_size  # 例如：8个worker
+    
+    # 1. 自动填充
+    data_proto = args[0]  # 原始DataProto，batch_size=250
+    padded_data, pad_size = pad_dataproto_to_divisor(data_proto, world_size)
+    # 现在padded_data的batch_size=256 (填充了6个样本)
+    
+    # 2. 分割数据
+    chunks = padded_data.chunk(chunks=world_size)
+    # 每个chunk的batch_size=32
+    
+    # 3. 分发到各个worker
+    futures = []
+    for i, worker in enumerate(worker_group.workers):
+        chunk = chunks[i]
+        # 序列化chunk并通过Ray发送
+        future = worker.generate_sequences.remote(chunk)
+        futures.append(future)
+    
+    return futures
+
+# 在物理层面的实际传输
+def physical_data_transfer_example():
+    """展示物理层面的数据传输"""
+    
+    # 原始数据大小
+    batch_size = 250
+    seq_len = 512
+    vocab_size = 32000
+    
+    # 计算数据大小
+    prompt_ids_size = batch_size * seq_len * 4  # int32, bytes
+    attention_mask_size = batch_size * seq_len * 4  # int32, bytes
+    tensor_data_size = prompt_ids_size + attention_mask_size  # ~2MB
+    
+    # 序列化开销
+    serialization_overhead = tensor_data_size * 0.1  # 约10%开销
+    
+    # 网络传输
+    network_bandwidth = 10 * 1024 * 1024  # 10Gbps
+    transfer_time = (tensor_data_size + serialization_overhead) / network_bandwidth
+    
+    print(f"数据大小: {tensor_data_size / 1024 / 1024:.2f} MB")
+    print(f"序列化开销: {serialization_overhead / 1024 / 1024:.2f} MB")
+    print(f"传输时间: {transfer_time * 1000:.2f} ms")
+```
+
+### 9.5 内存管理与对象存储
+
+#### 9.5.1 Ray Object Store架构
+
+```mermaid
+graph TB
+    subgraph "Head Node Object Store"
+        A[Plasma Store] --> B[内存池]
+        A --> C[共享内存]
+        A --> D[磁盘存储]
+    end
+    
+    subgraph "Worker Node Object Store"
+        E[Plasma Store] --> F[本地内存池]
+        E --> G[本地共享内存]
+        E --> H[本地磁盘缓存]
+    end
+    
+    A -.->|网络传输| E
+    
+    subgraph "数据生命周期"
+        I[创建DataProto] --> J[序列化]
+        J --> K[存储到Object Store]
+        K --> L[生成ObjectRef]
+        L --> M[发送到Worker]
+        M --> N[Worker反序列化]
+        N --> O[计算处理]
+        O --> P[结果序列化]
+        P --> Q[存储结果]
+        Q --> R[返回ObjectRef]
+    end
+    
+    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style E fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style I fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style O fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+```
+
+#### 9.5.2 内存优化策略
+
+```python
+# 内存优化示例
+class MemoryOptimizedDataProto:
+    def __init__(self):
+        self.object_refs = {}  # 缓存ObjectRef
+        
+    def send_to_worker(self, data_proto, worker_id):
+        """优化的数据传输"""
+        
+        # 1. 检查是否已有缓存
+        cache_key = f"{worker_id}_{hash(data_proto)}"
+        if cache_key in self.object_refs:
+            return self.object_refs[cache_key]
+        
+        # 2. 序列化并存储
+        object_ref = ray.put(data_proto)
+        self.object_refs[cache_key] = object_ref
+        
+        # 3. 发送到worker
+        return object_ref
+    
+    def cleanup_cache(self):
+        """清理缓存"""
+        for ref in self.object_refs.values():
+            ray.delete(ref)
+        self.object_refs.clear()
+```
+
+### 9.6 网络拓扑与性能优化
+
+#### 9.6.1 网络拓扑图
+
+```mermaid
+graph TB
+    subgraph "数据中心网络"
+        A[Head Node<br/>10Gbps] --> B[Top of Rack Switch]
+        B --> C[Worker Node 1<br/>10Gbps]
+        B --> D[Worker Node 2<br/>10Gbps]
+        B --> E[Worker Node 3<br/>10Gbps]
+        B --> F[Worker Node 4<br/>10Gbps]
+    end
+    
+    subgraph "节点内部"
+        C --> G[GPU 0]
+        C --> H[GPU 1]
+        C --> I[GPU 2]
+        C --> J[GPU 3]
+    end
+    
+    subgraph "数据流动路径"
+        K[Driver] --> L[序列化]
+        L --> M[网络传输]
+        M --> N[Worker接收]
+        N --> O[反序列化]
+        O --> P[GPU计算]
+        P --> Q[结果序列化]
+        Q --> R[网络返回]
+        R --> S[Driver接收]
+    end
+    
+    style A fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+    style C fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style G fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
+    style K fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+```
+
+#### 9.6.2 性能监控
+
+```python
+# 性能监控示例
+import time
+import psutil
+import ray
+
+class PerformanceMonitor:
+    def __init__(self):
+        self.metrics = {}
+        
+    def monitor_data_transfer(self, data_proto, worker_id):
+        """监控数据传输性能"""
+        start_time = time.time()
+        
+        # 记录内存使用
+        memory_before = psutil.virtual_memory().used
+        
+        # 执行数据传输
+        object_ref = ray.put(data_proto)
+        result = ray.get(worker_id.generate_sequences.remote(object_ref))
+        
+        end_time = time.time()
+        memory_after = psutil.virtual_memory().used
+        
+        # 记录指标
+        transfer_time = end_time - start_time
+        memory_used = memory_after - memory_before
+        data_size = len(data_proto.batch) * data_proto.batch.batch_size[0] * 4  # 估算大小
+        
+        self.metrics[f"transfer_{worker_id}"] = {
+            "time": transfer_time,
+            "memory": memory_used,
+            "data_size": data_size,
+            "throughput": data_size / transfer_time
+        }
+        
+        return result
+    
+    def get_performance_report(self):
+        """生成性能报告"""
+        total_time = sum(m["time"] for m in self.metrics.values())
+        total_data = sum(m["data_size"] for m in self.metrics.values())
+        avg_throughput = total_data / total_time if total_time > 0 else 0
+        
+        return {
+            "total_transfer_time": total_time,
+            "total_data_transferred": total_data,
+            "average_throughput": avg_throughput,
+            "worker_metrics": self.metrics
+        }
+```
+
+### 9.7 故障处理与容错
+
+#### 9.7.1 故障恢复机制
+
+```mermaid
+graph TD
+    A[Worker故障检测] --> B{故障类型}
+    B -->|网络故障| C[重试机制]
+    B -->|进程崩溃| D[重启Worker]
+    B -->|内存不足| E[数据重新分发]
+    
+    C --> F[指数退避重试]
+    D --> G[重新初始化模型]
+    E --> H[调整batch_size]
+    
+    F --> I[检查恢复状态]
+    G --> I
+    H --> I
+    
+    I --> J{恢复成功?}
+    J -->|是| K[继续训练]
+    J -->|否| L[故障转移]
+    
+    L --> M[切换到备用Worker]
+    M --> K
+    
+    style A fill:#FF5722,stroke:#D84315,stroke-width:2px,color:#fff
+    style C fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
+    style D fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
+    style K fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
+```
+
+## 10. 总结
+
+### 10.1 核心优势
 
 1. **架构清晰**: 控制流与计算流分离，职责明确
 2. **高度可扩展**: 支持多种计算后端和并行策略
 3. **开发友好**: 单进程控制流便于调试和开发
 4. **性能优异**: 异步执行和内存优化提升训练效率
 
-### 9.2 技术特点
+### 10.2 技术特点
 
 - **DataProto协议**: 统一的数据交换接口
 - **Dispatch模式**: 灵活的数据分发策略
 - **异步执行**: 支持非阻塞的分布式计算
 - **内存优化**: 高效的内存管理和复用机制
 
-### 9.3 应用场景
+### 10.3 应用场景
 
 - **大规模RL训练**: 支持多节点、多GPU训练
 - **算法研究**: 便于实现和测试新的RL算法
