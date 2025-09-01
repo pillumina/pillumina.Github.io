@@ -34,7 +34,7 @@
 &lt;p&gt;Verl 是一个基于 HybridFlow 论文的开源强化学习训练框架，专门为大语言模型的后训练优化而设计。其核心创新在于将控制流和计算流分离，通过 DataProto 协议实现高效的数据交换。&lt;/p&gt;
 &lt;h2 id=&#34;2-dataproto-核心架构&#34;&gt;2. DataProto 核心架构&lt;/h2&gt;
 &lt;h3 id=&#34;21-数据结构设计&#34;&gt;2.1 数据结构设计&lt;/h3&gt;
-&lt;p&gt;DataProto 是 verl 框架中用于数据交换的核心协议，基于 PyTorch 的 TensorDict 构建：&lt;/p&gt;
+&lt;p&gt;DataProto 是 verl 框架中用于数据交换的核心协议，所有在 Worker 之间流转的数据，都被统一封装在一个名为 DataProto 的数据结构中。它不仅仅是一个字典，更承载着 RLHF 流程中所有的信息演变, 基于 PyTorch 的 TensorDict 构建：&lt;/p&gt;
 &lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
 &lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
 &lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1

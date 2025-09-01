@@ -25,7 +25,7 @@ Verl 是一个基于 HybridFlow 论文的开源强化学习训练框架，专门
 
 ### 2.1 数据结构设计
 
-DataProto 是 verl 框架中用于数据交换的核心协议，基于 PyTorch 的 TensorDict 构建：
+DataProto 是 verl 框架中用于数据交换的核心协议，所有在 Worker 之间流转的数据，都被统一封装在一个名为 DataProto 的数据结构中。它不仅仅是一个字典，更承载着 RLHF 流程中所有的信息演变, 基于 PyTorch 的 TensorDict 构建：
 
 ```python
 @dataclass
@@ -178,6 +178,18 @@ graph LR
 ```
 
 ## 5. 数据流动机制
+在我们追踪 DataProto 在各个 Worker 之间的旅程之前，我们有必要先回答一个更根本的问题：第一个 DataProto 对象是如何诞生的？
+
+在 veRL 中，DataProto 的声明周期是：
+
+**Parquet 文件 -> RLHFDataset -> DataLoader -> batch_dict -> DataProto**
+
+Parquet 是 veRL 推荐的数据格式，通常包含 prompt 文本和相关元信息。RLHFDataset 负责读取本地或远程 Parquet 文件，按 max_prompt_length 过滤样本，并应用聊天模板格式化对话。随后，执行分词、填充、截断，将样本转为固定长度的张量。
+
+DataLoader 在 RayPPOTrainer 中创建，将处理后的样本组织成 batch，产出 batch_dict。
+
+此时，DataProto 登场。通过 DataProto.`from_single_dict(batch_dict)`，普通字典被封装为 veRL 内部统一的数据协议，正式进入 RLHF 流程。
+
 
 ### 5.1 完整数据流动图
 
@@ -255,6 +267,30 @@ gantt
     策略梯度更新       :16, 18
     模型参数同步       :18, 20
 ```
+
+
+### 5.3 完整PPO训练角度追踪数据流动
+下面我们将以一次 PPO 迭代为例，用一张 端到端的数据流图 来追踪 DataProto 的演变过程。
+
+![ppo-dp](https://space.keter.top/assets/images/ppo-6cc3e009f22fdb8153c92898f698cf7b.png)
+
+RayPPOTrainer 的 `fit(`) 循环从 `train_dataloader` 中取出一个 `batch_dict`。这个字典通常只包含 `input_ids`、`attention_mask` 等表示 prompt 的基本信息。这些信息被封装成第一个版本的 `DataProto` 对象。
+
+接下来进入到 PPO 的 生成 (Generation) 和 准备 (Preparation) 阶段。这个初生的 DataProto 开始了它的旅程，它被 RayPPOTrainer 依次（或并行地）发送给各个 Worker，每经过一个，就会被赋予新的信息。
+
+流经 `RolloutWorker`：`DataProto v1` 被发送去执行 `generate_sequences`。`RolloutWorker` 返回生成的 responses，并将其合并，形成 `DataProto v2`。
+
+`DataProto v`2 被同时发送给 `RewardModelWorker`, `ActorWorker` (执行 `compute_log_prob`), 和 `CriticWorker` (执行 `compute_values`)。
+
+这三个 Worker 并行地完成计算，各自返回自己的结果。`RayPPOTrainer` 将这些结果全部合并，形成了 `DataProto v3`。
+
+此时的 `DataProto v3` 已经包含了计算优势函数所需的所有输入。这个计算通常是轻量级的，因此 `RayPPOTrainer` 会在 Driver 进程本地 直接调用 `compute_advantage` 函数。
+
+`compute_advantage` 函数会计算出 advantages 和 returns，并将其加入到数据中，至此，`DataProto v4` 已经准备好了。
+
+接下来 `DataProto v4` 被最后一次分发，分别发送给 `ActorWorker` 和 `CriticWorker` 的 `update` 方法。
+
+`ActorWorker` 从中取出 advantages, old_log_probs 等信息，计算 PPO 损失并更新自己的权重。`CriticWorker` 从中取出 returns 作为学习目标，计算 MSE 损失并更新自己的权重。它们返回训练过程中的 metrics，标志着 DataProto 在本次迭代中的使命正式完成。
 
 ## 6. Dispatch 模式详解
 
@@ -1325,114 +1361,5 @@ graph TB
     style G fill:#2196F3,stroke:#1565C0,stroke-width:2px,color:#fff
     style K fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
 ```
-
-#### 9.6.2 性能监控
-
-```python
-# 性能监控示例
-import time
-import psutil
-import ray
-
-class PerformanceMonitor:
-    def __init__(self):
-        self.metrics = {}
-        
-    def monitor_data_transfer(self, data_proto, worker_id):
-        """监控数据传输性能"""
-        start_time = time.time()
-        
-        # 记录内存使用
-        memory_before = psutil.virtual_memory().used
-        
-        # 执行数据传输
-        object_ref = ray.put(data_proto)
-        result = ray.get(worker_id.generate_sequences.remote(object_ref))
-        
-        end_time = time.time()
-        memory_after = psutil.virtual_memory().used
-        
-        # 记录指标
-        transfer_time = end_time - start_time
-        memory_used = memory_after - memory_before
-        data_size = len(data_proto.batch) * data_proto.batch.batch_size[0] * 4  # 估算大小
-        
-        self.metrics[f"transfer_{worker_id}"] = {
-            "time": transfer_time,
-            "memory": memory_used,
-            "data_size": data_size,
-            "throughput": data_size / transfer_time
-        }
-        
-        return result
-    
-    def get_performance_report(self):
-        """生成性能报告"""
-        total_time = sum(m["time"] for m in self.metrics.values())
-        total_data = sum(m["data_size"] for m in self.metrics.values())
-        avg_throughput = total_data / total_time if total_time > 0 else 0
-        
-        return {
-            "total_transfer_time": total_time,
-            "total_data_transferred": total_data,
-            "average_throughput": avg_throughput,
-            "worker_metrics": self.metrics
-        }
-```
-
-### 9.7 故障处理与容错
-
-#### 9.7.1 故障恢复机制
-
-```mermaid
-graph TD
-    A[Worker故障检测] --> B{故障类型}
-    B -->|网络故障| C[重试机制]
-    B -->|进程崩溃| D[重启Worker]
-    B -->|内存不足| E[数据重新分发]
-    
-    C --> F[指数退避重试]
-    D --> G[重新初始化模型]
-    E --> H[调整batch_size]
-    
-    F --> I[检查恢复状态]
-    G --> I
-    H --> I
-    
-    I --> J{恢复成功?}
-    J -->|是| K[继续训练]
-    J -->|否| L[故障转移]
-    
-    L --> M[切换到备用Worker]
-    M --> K
-    
-    style A fill:#FF5722,stroke:#D84315,stroke-width:2px,color:#fff
-    style C fill:#FF9800,stroke:#E65100,stroke-width:2px,color:#fff
-    style D fill:#9C27B0,stroke:#6A1B9A,stroke-width:2px,color:#fff
-    style K fill:#4CAF50,stroke:#2E7D32,stroke-width:2px,color:#fff
-```
-
-## 10. 总结
-
-### 10.1 核心优势
-
-1. **架构清晰**: 控制流与计算流分离，职责明确
-2. **高度可扩展**: 支持多种计算后端和并行策略
-3. **开发友好**: 单进程控制流便于调试和开发
-4. **性能优异**: 异步执行和内存优化提升训练效率
-
-### 10.2 技术特点
-
-- **DataProto协议**: 统一的数据交换接口
-- **Dispatch模式**: 灵活的数据分发策略
-- **异步执行**: 支持非阻塞的分布式计算
-- **内存优化**: 高效的内存管理和复用机制
-
-### 10.3 应用场景
-
-- **大规模RL训练**: 支持多节点、多GPU训练
-- **算法研究**: 便于实现和测试新的RL算法
-- **生产部署**: 支持高效的模型训练和推理
-- **框架扩展**: 易于集成新的计算后端和优化策略
 
 Verl 通过 DataProto 和 HybridFlow 设计，成功解决了大规模强化学习训练中的架构挑战，为LLM后训练提供了高效、灵活、可扩展的解决方案。 
