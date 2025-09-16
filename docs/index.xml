@@ -11,8 +11,42 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 25 Aug 2025 11:30:12 +0800</lastBuildDate>
+    <lastBuildDate>Mon, 15 Sep 2025 11:30:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[AIInfra] FlashAttention 深度解析：从数学原理到工程实现</title>
+      <link>https://pillumina.github.io/posts/aiinfra/11-flashattention/</link>
+      <pubDate>Mon, 15 Sep 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/11-flashattention/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;本文从数学原理出发，深入分析FlashAttention的核心思想、算法设计和各版本演进，通过详实的数学推导、直观的流程图表和具体的数值示例，帮助读者真正掌握这一革命性的Attention优化技术。&lt;/p&gt;&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;1-问题的本质传统attention的根本瓶颈&#34;&gt;1. 问题的本质：传统Attention的根本瓶颈&lt;/h2&gt;
+&lt;h3 id=&#34;11-传统attention机制的计算模式&#34;&gt;1.1 传统Attention机制的计算模式&lt;/h3&gt;
+&lt;p&gt;传统的Self-Attention机制遵循如下计算流程：&lt;/p&gt;
+&lt;p&gt;$$&lt;br&gt;
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V&lt;br&gt;
+$$&lt;/p&gt;
+&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;示例场景&lt;/strong&gt;：考虑一个典型的语言模型场景&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;序列长度：$n = 2048$（如GPT-2的上下文长度）&lt;/li&gt;
+&lt;li&gt;特征维度：$d_k = 64$（每个attention head的维度）&lt;/li&gt;
+&lt;li&gt;输入张量形状：$Q, K, V \in \mathbb{R}^{2048 \times 64}$&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;第一步计算注意力得分矩阵&#34;&gt;第一步：计算注意力得分矩阵&lt;/h4&gt;
+&lt;p&gt;$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
+&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
+&lt;h4 id=&#34;第二步softmax归一化&#34;&gt;第二步：Softmax归一化&lt;/h4&gt;
+&lt;p&gt;$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
+&lt;p&gt;Softmax计算需要：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;计算每行的最大值：$m_i = \max_j S_{i,j}$&lt;/li&gt;
+&lt;li&gt;计算指数和：$l_i = \sum_j e^{S_{i,j} - m_i}$&lt;/li&gt;
+&lt;li&gt;归一化：$P_{i,j} = \frac{e^{S_{i,j} - m_i}}{l_i}$&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;这又需要存储另一个 $2048 \times 2048$ 的矩阵。&lt;/p&gt;</description>
+    </item>
     <item>
       <title>[VeRL] DataProto介绍</title>
       <link>https://pillumina.github.io/posts/aiinfra/10-verl-dataproto/</link>
