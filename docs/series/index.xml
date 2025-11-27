@@ -11,19 +11,26 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 15 Sep 2025 11:30:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 20 Nov 2025 11:30:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/series/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Aiinfra</title>
       <link>https://pillumina.github.io/series/aiinfra/</link>
-      <pubDate>Mon, 15 Sep 2025 11:30:12 +0800</pubDate>
+      <pubDate>Thu, 20 Nov 2025 11:30:12 +0800</pubDate>
       <guid>https://pillumina.github.io/series/aiinfra/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Vllm-Ascend</title>
+      <link>https://pillumina.github.io/series/vllm-ascend/</link>
+      <pubDate>Sat, 20 Sep 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/series/vllm-ascend/</guid>
       <description></description>
     </item>
     <item>
       <title>Verl</title>
       <link>https://pillumina.github.io/series/verl/</link>
-      <pubDate>Mon, 25 Aug 2025 11:30:12 +0800</pubDate>
+      <pubDate>Wed, 17 Sep 2025 11:30:12 +0800</pubDate>
       <guid>https://pillumina.github.io/series/verl/</guid>
       <description></description>
     </item>

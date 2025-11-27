@@ -2,28 +2,61 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/aiinfra/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/deterministic/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/rl/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/</loc>
+    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/</loc>
+    <lastmod>2025-09-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/moe/</loc>
+    <lastmod>2025-09-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/vllm-ascend/</loc>
+    <lastmod>2025-09-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/vllm-ascend/</loc>
+    <lastmod>2025-09-20T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/12-verl-sglang-memory/</loc>
+    <lastmod>2025-09-17T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/sglang/</loc>
+    <lastmod>2025-09-17T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/verl/</loc>
+    <lastmod>2025-09-17T11:30:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/verl/</loc>
+    <lastmod>2025-09-17T11:30:12+08:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/11-flashattention/</loc>
     <lastmod>2025-09-15T11:30:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/series/aiinfra/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/flashattention/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/series/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/</loc>
     <lastmod>2025-09-15T11:30:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/10-verl-dataproto/</loc>
@@ -32,16 +65,7 @@
     <loc>https://pillumina.github.io/tags/framework/</loc>
     <lastmod>2025-08-25T11:30:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/series/verl/</loc>
-    <lastmod>2025-08-25T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/verl/</loc>
-    <lastmod>2025-08-25T11:30:12+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/09-verl-agentloop/</loc>
-    <lastmod>2025-08-14T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/sglang/</loc>
     <lastmod>2025-08-14T11:30:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/05-verl-params/</loc>
@@ -57,9 +81,6 @@
     <lastmod>2025-08-13T10:30:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/categories/</loc>
-    <lastmod>2025-08-10T15:05:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/moe/</loc>
     <lastmod>2025-08-10T15:05:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/series/moe%E7%8E%AF%E6%B8%B8%E8%AE%B0/</loc>
@@ -81,9 +102,6 @@
     <lastmod>2025-08-07T17:10:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/llm/</loc>
-    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/rl/</loc>
     <lastmod>2025-08-07T17:10:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/series/rl4llm/</loc>

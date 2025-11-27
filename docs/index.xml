@@ -11,8 +11,108 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 15 Sep 2025 11:30:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 20 Nov 2025 11:30:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[Deterministic RL] deterministic问题的来源和相关工作总结</title>
+      <link>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</link>
+      <pubDate>Thu, 20 Nov 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</guid>
+      <description>&lt;h2 id=&#34;理解llm推理中deterministic问题来源&#34;&gt;理解LLM推理中deterministic问题来源&lt;/h2&gt;
+&lt;p&gt;Wiki上对deterministic算法的定义是:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training &amp;amp; inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在&lt;code&gt;working-in-progress&lt;/code&gt;的工作。&lt;/p&gt;
+&lt;h3 id=&#34;浮点数的非结合性&#34;&gt;浮点数的非结合性&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/&#34;&gt;thinking machines lab针对batch invariant讨论的文章&lt;/a&gt;，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$&lt;br&gt;
+&lt;a href=&#34;https://arxiv.org/abs/2506.09501&#34;&gt;这篇arxiv文章&lt;/a&gt;，则更深入得说明了这个问题：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>[vLLM-Ascend] MC2技术深度解析：从MoE架构到通信融合优化</title>
+      <link>https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/</link>
+      <pubDate>Sat, 20 Sep 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;源码分析依赖&lt;code&gt;vllm-ascend&lt;/code&gt;在&lt;code&gt;2025/9/20&lt;/code&gt;号的&lt;code&gt;main&lt;/code&gt;分支，阅读请注意时效性。&lt;br&gt;
+阅读建议:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;了解MoE基本架构和关键推导&lt;/li&gt;
+&lt;li&gt;初步了解集合通信各原语的含义&lt;/li&gt;
+&lt;li&gt;对通算掩盖这类性能优化有基础的了解&lt;/li&gt;
+&lt;/ul&gt;&lt;/blockquote&gt;
+&lt;h2 id=&#34;概述&#34;&gt;概述&lt;/h2&gt;
+&lt;p&gt;MC2（Merged Compute and Communication）是vLLM Ascend项目中针对昇腾NPU优化的核心技术，专门解决MoE（Mixture of Experts）模型在专家并行推理中的通信瓶颈问题。本文档从MoE架构基础出发，深入分析MC2的设计原理、技术实现和性能优化。&lt;/p&gt;
+&lt;h2 id=&#34;1-moe架构基础与挑战&#34;&gt;1. MoE架构基础与挑战&lt;/h2&gt;
+&lt;h3 id=&#34;11-moe模型基本原理&#34;&gt;1.1 MoE模型基本原理&lt;/h3&gt;
+&lt;h4 id=&#34;111-什么是moe&#34;&gt;1.1.1 什么是MoE？&lt;/h4&gt;
+&lt;p&gt;**MoE(Mixture of Experts)**是一种神经网络架构，通过将模型参数分散到多个&amp;quot;专家&amp;quot;网络中，根据输入动态选择部分专家进行计算。这种架构在保持高模型容量的同时，降低了计算复杂度。&lt;/p&gt;
+&lt;h4 id=&#34;112-moe的数学表达&#34;&gt;1.1.2 MoE的数学表达&lt;/h4&gt;
+&lt;p&gt;给定输入 $\mathbf{x} \in \mathbb{R}^{d}$，MoE层的输出可以表示为：&lt;/p&gt;
+&lt;p&gt;$$&lt;br&gt;
+\mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x})&lt;br&gt;
+$$&lt;/p&gt;
+&lt;p&gt;其中：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;$N$ 是专家总数&lt;/li&gt;
+&lt;li&gt;$E_i(\cdot)$ 是第 $i$ 个专家网络&lt;/li&gt;
+&lt;li&gt;$g_i(\mathbf{x})$ 是门控网络对专家 $i$ 的权重&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id=&#34;113-稀疏激活机制&#34;&gt;1.1.3 稀疏激活机制&lt;/h4&gt;
+&lt;p&gt;为了提高效率，MoE通常采用稀疏激活机制，只选择 Top-K 个专家：&lt;/p&gt;
+&lt;p&gt;$$&lt;br&gt;
+\mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x})&lt;br&gt;
+$$&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/#a1-moe%e8%be%93%e5%87%ba%e5%85%ac%e5%bc%8f%e6%8e%a8%e5%af%bc&#34;&gt;详见附录A.1 MoE输出公式推导&lt;/a&gt;&lt;/p&gt;</description>
+    </item>
+    <item>
+      <title>[VeRL,SGLang] RL训推显存管理优化</title>
+      <link>https://pillumina.github.io/posts/aiinfra/12-verl-sglang-memory/</link>
+      <pubDate>Wed, 17 Sep 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/12-verl-sglang-memory/</guid>
+      <description>&lt;blockquote&gt;
+&lt;p&gt;SGLang团队的博客：https://hebiao064.github.io/rl-memory-management&lt;/p&gt;&lt;/blockquote&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;overview&#34;&gt;Overview&lt;/h2&gt;
+&lt;p&gt;&lt;img alt=&#34;highlevel-rl&#34; loading=&#34;lazy&#34; src=&#34;https://hebiao064.github.io/assets/rl-memory-management/example-flow-diagram.png&#34; data-zoomable&gt;
+&lt;/p&gt;
+&lt;p&gt;上述是简化的在线RL训练流程，隐去了reference和critic model，并且用基础的reward function而非reward model来说明流程。实际上就是policy model存在的training engine和rollout engine上需要进行优化。&lt;/p&gt;
+&lt;p&gt;从简化的PPO流程开始：&lt;/p&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;4
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;5
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;6
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;7
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;8
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;9
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-python&#34; data-lang=&#34;python&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;&lt;span class=&#34;k&#34;&gt;for&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;prompts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;pretrain_batch&lt;/span&gt; &lt;span class=&#34;ow&#34;&gt;in&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;dataloader&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;:&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# Stage 1: Rollout generation (inference)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;generate_sequences&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;prompts&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# Stage 2: Prepare experience&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;reference&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;compute_log_prob&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;reward&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;compute_reward&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;  &lt;span class=&#34;c1&#34;&gt;# Reward function or model&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;compute_advantages&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;,&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;algo_type&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;c1&#34;&gt;# Stage 3: Actor training&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;    &lt;span class=&#34;n&#34;&gt;actor_metrics&lt;/span&gt; &lt;span class=&#34;o&#34;&gt;=&lt;/span&gt; &lt;span class=&#34;n&#34;&gt;actor&lt;/span&gt;&lt;span class=&#34;o&#34;&gt;.&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;update_actor&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;(&lt;/span&gt;&lt;span class=&#34;n&#34;&gt;batch&lt;/span&gt;&lt;span class=&#34;p&#34;&gt;)&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;每一个iter相当于是actor model进行一次rollout再进行training，而veRL因为rollout和training共部署，所以两边可能不用version的actor model是在相同的GPU组上的，这导致了虽然资源共享但是显存管理会变得更复杂。&lt;/p&gt;
+&lt;h2 id=&#34;显存问题&#34;&gt;显存问题&lt;/h2&gt;
+&lt;h3 id=&#34;训练阶段显存&#34;&gt;训练阶段显存&lt;/h3&gt;
+&lt;p&gt;FSDP（fully sharded + full activation checkpointing）下，每个GPU占据显存：&lt;br&gt;
+&lt;img alt=&#34;breakdown-mem&#34; loading=&#34;lazy&#34; src=&#34;https://hebiao064.github.io/assets/rl-memory-management/fsdp_memory_breakdown.png&#34; data-zoomable&gt;
+&lt;/p&gt;
+&lt;p&gt;每个GPU的峰值显存：~48GB&lt;/p&gt;
+&lt;h3 id=&#34;推理阶段显存&#34;&gt;推理阶段显存&lt;/h3&gt;
+&lt;p&gt;During inference, the full model is typically loaded (not sharded):&lt;/p&gt;</description>
+    </item>
     <item>
       <title>[AIInfra] FlashAttention 深度解析：从数学原理到工程实现</title>
       <link>https://pillumina.github.io/posts/aiinfra/11-flashattention/</link>

@@ -11,8 +11,24 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 15 Sep 2025 11:30:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 20 Nov 2025 11:30:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/series/aiinfra/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>[Deterministic RL] deterministic问题的来源和相关工作总结</title>
+      <link>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</link>
+      <pubDate>Thu, 20 Nov 2025 11:30:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</guid>
+      <description>&lt;h2 id=&#34;理解llm推理中deterministic问题来源&#34;&gt;理解LLM推理中deterministic问题来源&lt;/h2&gt;
+&lt;p&gt;Wiki上对deterministic算法的定义是:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;“a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training &amp;amp; inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在&lt;code&gt;working-in-progress&lt;/code&gt;的工作。&lt;/p&gt;
+&lt;h3 id=&#34;浮点数的非结合性&#34;&gt;浮点数的非结合性&lt;/h3&gt;
+&lt;p&gt;&lt;a href=&#34;https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/&#34;&gt;thinking machines lab针对batch invariant讨论的文章&lt;/a&gt;，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$&lt;br&gt;
+&lt;a href=&#34;https://arxiv.org/abs/2506.09501&#34;&gt;这篇arxiv文章&lt;/a&gt;，则更深入得说明了这个问题：&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.&lt;/p&gt;</description>
+    </item>
     <item>
       <title>[AIInfra] FlashAttention 深度解析：从数学原理到工程实现</title>
       <link>https://pillumina.github.io/posts/aiinfra/11-flashattention/</link>
