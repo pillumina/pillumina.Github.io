@@ -18,13 +18,14 @@
       <link>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</link>
       <pubDate>Thu, 20 Nov 2025 11:30:12 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</guid>
-      <description>&lt;h2 id=&#34;理解llm推理中deterministic问题来源&#34;&gt;理解LLM推理中deterministic问题来源&lt;/h2&gt;
+      <description>&lt;h1 id=&#34;理解llm推理中deterministic问题来源&#34;&gt;理解LLM推理中deterministic问题来源&lt;/h1&gt;
 &lt;p&gt;Wiki上对deterministic算法的定义是:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;“a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training &amp;amp; inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在&lt;code&gt;working-in-progress&lt;/code&gt;的工作。&lt;/p&gt;
-&lt;h3 id=&#34;浮点数的非结合性&#34;&gt;浮点数的非结合性&lt;/h3&gt;
-&lt;p&gt;&lt;a href=&#34;https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/&#34;&gt;thinking machines lab针对batch invariant讨论的文章&lt;/a&gt;，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$&lt;br&gt;
+&lt;h2 id=&#34;浮点数的非结合性&#34;&gt;浮点数的非结合性&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/&#34;&gt;thinking machines lab针对batch invariant讨论的文章&lt;/a&gt;，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：&lt;/p&gt;
+$$(a+b)+c \neq a+(b+c) $$&lt;p&gt;&lt;br&gt;
 &lt;a href=&#34;https://arxiv.org/abs/2506.09501&#34;&gt;这篇arxiv文章&lt;/a&gt;，则更深入得说明了这个问题：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.&lt;/p&gt;</description>
@@ -40,10 +41,9 @@
 &lt;h2 id=&#34;1-问题的本质传统attention的根本瓶颈&#34;&gt;1. 问题的本质：传统Attention的根本瓶颈&lt;/h2&gt;
 &lt;h3 id=&#34;11-传统attention机制的计算模式&#34;&gt;1.1 传统Attention机制的计算模式&lt;/h3&gt;
 &lt;p&gt;传统的Self-Attention机制遵循如下计算流程：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;示例场景&lt;/strong&gt;：考虑一个典型的语言模型场景&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;序列长度：$n = 2048$（如GPT-2的上下文长度）&lt;/li&gt;
@@ -51,11 +51,9 @@ $$&lt;/p&gt;
 &lt;li&gt;输入张量形状：$Q, K, V \in \mathbb{R}^{2048 \times 64}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4 id=&#34;第一步计算注意力得分矩阵&#34;&gt;第一步：计算注意力得分矩阵&lt;/h4&gt;
-&lt;p&gt;$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
-&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
+$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
 &lt;h4 id=&#34;第二步softmax归一化&#34;&gt;第二步：Softmax归一化&lt;/h4&gt;
-&lt;p&gt;$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
-&lt;p&gt;Softmax计算需要：&lt;/p&gt;
+$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;p&gt;Softmax计算需要：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;计算每行的最大值：$m_i = \max_j S_{i,j}$&lt;/li&gt;
 &lt;li&gt;计算指数和：$l_i = \sum_j e^{S_{i,j} - m_i}$&lt;/li&gt;

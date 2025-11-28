@@ -18,13 +18,14 @@
       <link>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</link>
       <pubDate>Thu, 20 Nov 2025 11:30:12 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</guid>
-      <description>&lt;h2 id=&#34;理解llm推理中deterministic问题来源&#34;&gt;理解LLM推理中deterministic问题来源&lt;/h2&gt;
+      <description>&lt;h1 id=&#34;理解llm推理中deterministic问题来源&#34;&gt;理解LLM推理中deterministic问题来源&lt;/h1&gt;
 &lt;p&gt;Wiki上对deterministic算法的定义是:&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;“a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”&lt;/p&gt;&lt;/blockquote&gt;
 &lt;p&gt;而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training &amp;amp; inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在&lt;code&gt;working-in-progress&lt;/code&gt;的工作。&lt;/p&gt;
-&lt;h3 id=&#34;浮点数的非结合性&#34;&gt;浮点数的非结合性&lt;/h3&gt;
-&lt;p&gt;&lt;a href=&#34;https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/&#34;&gt;thinking machines lab针对batch invariant讨论的文章&lt;/a&gt;，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$&lt;br&gt;
+&lt;h2 id=&#34;浮点数的非结合性&#34;&gt;浮点数的非结合性&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/&#34;&gt;thinking machines lab针对batch invariant讨论的文章&lt;/a&gt;，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：&lt;/p&gt;
+$$(a+b)+c \neq a+(b+c) $$&lt;p&gt;&lt;br&gt;
 &lt;a href=&#34;https://arxiv.org/abs/2506.09501&#34;&gt;这篇arxiv文章&lt;/a&gt;，则更深入得说明了这个问题：&lt;/p&gt;
 &lt;blockquote&gt;
 &lt;p&gt;Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.&lt;/p&gt;</description>
@@ -50,10 +51,9 @@
 &lt;p&gt;**MoE(Mixture of Experts)**是一种神经网络架构，通过将模型参数分散到多个&amp;quot;专家&amp;quot;网络中，根据输入动态选择部分专家进行计算。这种架构在保持高模型容量的同时，降低了计算复杂度。&lt;/p&gt;
 &lt;h4 id=&#34;112-moe的数学表达&#34;&gt;1.1.2 MoE的数学表达&lt;/h4&gt;
 &lt;p&gt;给定输入 $\mathbf{x} \in \mathbb{R}^{d}$，MoE层的输出可以表示为：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x})&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;其中：&lt;/p&gt;
+$$
+\mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x})
+$$&lt;p&gt;其中：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$N$ 是专家总数&lt;/li&gt;
 &lt;li&gt;$E_i(\cdot)$ 是第 $i$ 个专家网络&lt;/li&gt;
@@ -61,10 +61,10 @@ $$&lt;/p&gt;
 &lt;/ul&gt;
 &lt;h4 id=&#34;113-稀疏激活机制&#34;&gt;1.1.3 稀疏激活机制&lt;/h4&gt;
 &lt;p&gt;为了提高效率，MoE通常采用稀疏激活机制，只选择 Top-K 个专家：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x})&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/#a1-moe%e8%be%93%e5%87%ba%e5%85%ac%e5%bc%8f%e6%8e%a8%e5%af%bc&#34;&gt;详见附录A.1 MoE输出公式推导&lt;/a&gt;&lt;/p&gt;</description>
+$$
+\mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x})
+$$&lt;p&gt;&lt;a href=&#34;https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/#a1-moe%e8%be%93%e5%87%ba%e5%85%ac%e5%bc%8f%e6%8e%a8%e5%af%bc&#34;&gt;详见附录A.1 MoE输出公式推导&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;其中 $\text{Top-K}(\mathbf{x})$ 表示根据门控权重选择的 Top-K 个专家索引。&lt;/p&gt;</description>
     </item>
     <item>
       <title>[VeRL,SGLang] RL训推显存管理优化</title>
@@ -124,10 +124,9 @@ $$&lt;/p&gt;
 &lt;h2 id=&#34;1-问题的本质传统attention的根本瓶颈&#34;&gt;1. 问题的本质：传统Attention的根本瓶颈&lt;/h2&gt;
 &lt;h3 id=&#34;11-传统attention机制的计算模式&#34;&gt;1.1 传统Attention机制的计算模式&lt;/h3&gt;
 &lt;p&gt;传统的Self-Attention机制遵循如下计算流程：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;示例场景&lt;/strong&gt;：考虑一个典型的语言模型场景&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;序列长度：$n = 2048$（如GPT-2的上下文长度）&lt;/li&gt;
@@ -135,11 +134,9 @@ $$&lt;/p&gt;
 &lt;li&gt;输入张量形状：$Q, K, V \in \mathbb{R}^{2048 \times 64}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4 id=&#34;第一步计算注意力得分矩阵&#34;&gt;第一步：计算注意力得分矩阵&lt;/h4&gt;
-&lt;p&gt;$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
-&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
+$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
 &lt;h4 id=&#34;第二步softmax归一化&#34;&gt;第二步：Softmax归一化&lt;/h4&gt;
-&lt;p&gt;$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
-&lt;p&gt;Softmax计算需要：&lt;/p&gt;
+$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;p&gt;Softmax计算需要：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;计算每行的最大值：$m_i = \max_j S_{i,j}$&lt;/li&gt;
 &lt;li&gt;计算指数和：$l_i = \sum_j e^{S_{i,j} - m_i}$&lt;/li&gt;
@@ -330,13 +327,15 @@ $$&lt;/p&gt;
       <description>&lt;p&gt;在上一篇文章中，我们介绍了MoE的一个几何诠释，旨在通过Dense模型的最佳逼近出发来推导和理解MoE。同时在文末我们也说了，给出MoE的计算公式仅仅是开始，训练一个实际有效的MoE模型还有很多细节补，比如本文要讨论的负载均衡（Load Balance）问题。&lt;/p&gt;
 &lt;p&gt;负载均衡，即&amp;quot;不患寡而患不均&amp;quot;，说白了就是让每个Expert都在干活，并且都在干尽可能一样多的活，避免某些Expert浪费算力。负载均衡既是充分利用训练算力的需求，也是尽可能发挥MoE大参数量潜力的需求。&lt;/p&gt;
 &lt;h2 id=&#34;问题分析&#34;&gt;问题分析&lt;/h2&gt;
-&lt;p&gt;我们知道，MoE的基本形式是 $$ \boldsymbol{y} = \sum_{i\in \mathop{\text{argtop}}_k \boldsymbol{\rho}} \rho_i \boldsymbol{e}_i $$ 对于传统MoE，$\boldsymbol{\rho}$是一个概率分布（Router），$\boldsymbol{e}_i=\boldsymbol{v}_i$，$\boldsymbol{v}_i$是一个小型FFN（Expert）的输出；而对于我们上一篇推导的几何MoE，$\boldsymbol{\rho}$没有归一化的要求，它预测的是Expert的模长，而$\boldsymbol{e}_i=\boldsymbol{v}_i/\Vert\boldsymbol{v}_i\Vert$预测的是Expert的方向。&lt;/p&gt;
+&lt;p&gt;我们知道，MoE的基本形式是 &lt;/p&gt;
+$$ \boldsymbol{y} = \sum_{i\in \mathop{\text{argtop}}_k \boldsymbol{\rho}} \rho_i \boldsymbol{e}_i $$&lt;p&gt; 对于传统MoE，$\boldsymbol{\rho}$是一个概率分布（Router），$\boldsymbol{e}_i=\boldsymbol{v}_i$，$\boldsymbol{v}_i$是一个小型FFN（Expert）的输出；而对于我们上一篇推导的几何MoE，$\boldsymbol{\rho}$没有归一化的要求，它预测的是Expert的模长，而$\boldsymbol{e}_i=\boldsymbol{v}_i/\Vert\boldsymbol{v}_i\Vert$预测的是Expert的方向。&lt;/p&gt;
 &lt;p&gt;不管哪种格式的MoE，实际表现都差不多，只是理解视角的不同。但要注意，虽然MoE的公式给人的感觉是&amp;quot;每遇到一个Token，就去找相应的Expert来计算&amp;quot;，但实际训练时其实是反过来的：先给每个Expert分配好相应的算力，然后将Token分配（Route）到所属的Expert中并行计算，这也就为什么负责打分的$\boldsymbol{\rho}$被称为Router。&lt;/p&gt;
 &lt;p&gt;这样一来，如果Expert的分配不均衡，就可能出现如下局面：某些Expert（Dead Expert）几乎一直闲置，浪费算力；某些Expert要处理的Token太多，根本忙不过来，只能Token Drop（即放弃处理部分Token）。从理论上来说，出现Dead Expert意味着MoE没有达到预期的参数量，即花了大参数量的显存，结果只训出来小参数量的效果。&lt;/p&gt;
 &lt;p&gt;所以，不管是从训练还是性能角度看，我们都希望保证Expert的负载均衡。&lt;/p&gt;
 &lt;h2 id=&#34;辅助损失auxiliary-loss&#34;&gt;辅助损失（Auxiliary Loss）&lt;/h2&gt;
 &lt;p&gt;促进负载均衡的常规思路是添加与之相关的损失函数，我们通常称之为&amp;quot;Aux Loss（Auxiliary Loss）&amp;quot;，目前主流用的Aux Loss最早可以追溯到2020年的&lt;a href=&#34;https://papers.cool/arxiv/2006.16668&#34;&gt;《GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding》&lt;/a&gt;。&lt;/p&gt;
-&lt;p&gt;介绍Aux Loss之前，我们需要先引入一些新概念。首先，我们已经提到对于一般的MoE来说，$\boldsymbol{\rho}$未必是概率分布，我们将归一化的$\boldsymbol{\rho}$记为$\boldsymbol{p}=[p_1,p_2,\cdots,p_n]$，以及它Top-$k$版为$\boldsymbol{f}=[f_1,f_2,\cdots,f_n]$，其中 $$ p_i = \frac{\rho_i}{\sum_{i=1}^n \rho_i},\qquad f_i = \begin{cases}1/k, &amp;amp; i\in \mathop{\text{argtop}}_k \boldsymbol{\rho} \ 0, &amp;amp; i\not\in \mathop{\text{argtop}}_k \boldsymbol{\rho}\end{cases} $$ 接着我们定义$\boldsymbol{P}=\mathbb{E}[\boldsymbol{p}],\boldsymbol{F}=\mathbb{E}[\boldsymbol{f}]$，这里的$\mathbb{E}$是指对所有样本的所有Token做平均。不难看出，$\boldsymbol{F}$就是Expert当前的负载分布，而$\boldsymbol{P}$则相当于$\boldsymbol{F}$的一个光滑近似。&lt;/p&gt;
+&lt;p&gt;介绍Aux Loss之前，我们需要先引入一些新概念。首先，我们已经提到对于一般的MoE来说，$\boldsymbol{\rho}$未必是概率分布，我们将归一化的$\boldsymbol{\rho}$记为$\boldsymbol{p}=[p_1,p_2,\cdots,p_n]$，以及它Top-$k$版为$\boldsymbol{f}=[f_1,f_2,\cdots,f_n]$，其中 &lt;/p&gt;
+$$ p_i = \frac{\rho_i}{\sum_{i=1}^n \rho_i},\qquad f_i = \begin{cases}1/k, &amp; i\in \mathop{\text{argtop}}_k \boldsymbol{\rho} \\ 0, &amp; i\not\in \mathop{\text{argtop}}_k \boldsymbol{\rho}\end{cases} $$&lt;p&gt; 接着我们定义$\boldsymbol{P}=\mathbb{E}[\boldsymbol{p}],\boldsymbol{F}=\mathbb{E}[\boldsymbol{f}]$，这里的$\mathbb{E}$是指对所有样本的所有Token做平均。不难看出，$\boldsymbol{F}$就是Expert当前的负载分布，而$\boldsymbol{P}$则相当于$\boldsymbol{F}$的一个光滑近似。&lt;/p&gt;
 &lt;p&gt;有了这些记号，我们就可以写出Aux Loss为：&lt;br&gt;
 
 $$ 
@@ -352,7 +351,8 @@ $$
       <description>&lt;p&gt;MoE（Mixture of Experts）架构的流行自不必多说，近来火出圈的&lt;a href=&#34;https://papers.cool/arxiv/2412.19437&#34;&gt;DeepSeek-V3&lt;/a&gt;便是MoE架构，传言GPT-5也是MoE架构，国内最近出的一些模型（Qwen3系列相关）也有不少用上了MoE。然而，虽然MoE的研究由来已久，但其应用长时间内都不愠不火，大致上是从去年初的&lt;a href=&#34;https://papers.cool/arxiv/2401.04088&#34;&gt;《Mixtral of Experts》&lt;/a&gt;开始，MoE才逐渐吸引大家的注意力，其显著优点是参数量大，但训练和推理成本都显著低。&lt;/p&gt;
 &lt;p&gt;但同时MoE也有一些难题，如训练不稳定、负载不均衡、效果不够好等，这也是它早年没有流行起来的主要原因。不过随着这两年关注度的提升，这些问题在很大程度上已经得到解决，我们在接下来的介绍中会逐一谈到这些内容。&lt;/p&gt;
 &lt;h3 id=&#34;问题定义&#34;&gt;问题定义&lt;/h3&gt;
-&lt;p&gt;我们知道，Transformer模型由Attention层和MLP层组成，MoE替换的是模型中MLP层。MLP层又分FFN（FeedForward Network）和GLU（Gated Linear Unit）两种，主流的是GLU，但简单起见我们还是以FFN为例：$$y=f(xW^{(A)})W^{(B)}$$其中$x\in\mathbb{R}^d$ 是输入向量（行向量），$W^{(A)}\in\mathbb{R}^{d\times{D}}$, $W^{(B)}\in\mathbb{R}^{D\times{d}}$ 是两个参数矩阵，$f$是&lt;code&gt;Element-wise&lt;/code&gt;的激活函数，设$n$是一个能整除$D$的整数，那么上面的FFN可以用分块矩阵等价：&lt;br&gt;
+&lt;p&gt;我们知道，Transformer模型由Attention层和MLP层组成，MoE替换的是模型中MLP层。MLP层又分FFN（FeedForward Network）和GLU（Gated Linear Unit）两种，主流的是GLU，但简单起见我们还是以FFN为例：&lt;/p&gt;
+$$y=f(xW^{(A)})W^{(B)}$$&lt;p&gt;其中$x\in\mathbb{R}^d$ 是输入向量（行向量），$W^{(A)}\in\mathbb{R}^{d\times{D}}$, $W^{(B)}\in\mathbb{R}^{D\times{d}}$ 是两个参数矩阵，$f$是&lt;code&gt;Element-wise&lt;/code&gt;的激活函数，设$n$是一个能整除$D$的整数，那么上面的FFN可以用分块矩阵等价：&lt;br&gt;
 
 $$ \begin{equation}\boldsymbol{y} = f\big(\boldsymbol{x}\begin{bmatrix}\boldsymbol{W}^{(A)}_1 &amp; \boldsymbol{W}^{(A)}_2 &amp; \cdots &amp; \boldsymbol{W}^{(A)}_n\end{bmatrix}\big)\begin{bmatrix}\boldsymbol{W}^{(B)}_1 \\ \boldsymbol{W}^{(B)}_2 \\ \vdots \\ \boldsymbol{W}^{(B)}_n\end{bmatrix} = \sum_{i=1}^n \underbrace{f(\boldsymbol{x}\boldsymbol{W}^{(A)}_i)\boldsymbol{W}^{(B)}_i}_{\boldsymbol{v}_i}\end{equation} $$
 &lt;/p&gt;
@@ -833,8 +833,8 @@ W2 --&amp;gt; W3
 &lt;h2 id=&#34;基础测试&#34;&gt;基础测试&lt;/h2&gt;
 &lt;p&gt;行内公式：$E = mc^2$&lt;/p&gt;
 &lt;p&gt;块级公式：&lt;br&gt;
-$$E = mc^2$$&lt;/p&gt;
-&lt;h2 id=&#34;复杂公式测试&#34;&gt;复杂公式测试&lt;/h2&gt;
+&lt;/p&gt;
+$$E = mc^2$$&lt;h2 id=&#34;复杂公式测试&#34;&gt;复杂公式测试&lt;/h2&gt;
 &lt;h3 id=&#34;原始问题公式1更稳妥写法拆成两条显示公式&#34;&gt;原始问题公式1（更稳妥写法，拆成两条显示公式）&lt;/h3&gt;
 
 $$
@@ -854,10 +854,8 @@ $$
 
 &lt;h2 id=&#34;其他常见latex测试&#34;&gt;其他常见LaTeX测试&lt;/h2&gt;
 &lt;h3 id=&#34;分数和根号&#34;&gt;分数和根号：&lt;/h3&gt;
-&lt;p&gt;$$\frac{\sqrt{x^2 + y^2}}{2}$$&lt;/p&gt;
-&lt;h3 id=&#34;积分&#34;&gt;积分：&lt;/h3&gt;
-&lt;p&gt;$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$&lt;/p&gt;
-&lt;h3 id=&#34;矩阵确保每行使用--换行&#34;&gt;矩阵（确保每行使用 \ 换行）：&lt;/h3&gt;
+$$\frac{\sqrt{x^2 + y^2}}{2}$$&lt;h3 id=&#34;积分&#34;&gt;积分：&lt;/h3&gt;
+$$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$&lt;h3 id=&#34;矩阵确保每行使用--换行&#34;&gt;矩阵（确保每行使用 \ 换行）：&lt;/h3&gt;
 
 $$
 \begin{pmatrix}
@@ -876,7 +874,8 @@ $$
 $$
 
 &lt;h3 id=&#34;求和和乘积&#34;&gt;求和和乘积：&lt;/h3&gt;
-&lt;p&gt;$$\sum_{i=1}^n i = \frac{n(n+1)}{2}$$&lt;/p&gt;</description>
+$$\sum_{i=1}^n i = \frac{n(n+1)}{2}$$$$\prod_{i=1}^n i = n!$$&lt;h3 id=&#34;上下标组合&#34;&gt;上下标组合：&lt;/h3&gt;
+&lt;p&gt;$x^{2^3}$, $x_{i_j}$, $x^{(a)}_{(b)}$&lt;/p&gt;</description>
     </item>
     <item>
       <title>Kubernetes Operator Development History</title>

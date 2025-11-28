@@ -34,10 +34,9 @@
 &lt;p&gt;**MoE(Mixture of Experts)**是一种神经网络架构，通过将模型参数分散到多个&amp;quot;专家&amp;quot;网络中，根据输入动态选择部分专家进行计算。这种架构在保持高模型容量的同时，降低了计算复杂度。&lt;/p&gt;
 &lt;h4 id=&#34;112-moe的数学表达&#34;&gt;1.1.2 MoE的数学表达&lt;/h4&gt;
 &lt;p&gt;给定输入 $\mathbf{x} \in \mathbb{R}^{d}$，MoE层的输出可以表示为：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x})&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;其中：&lt;/p&gt;
+$$
+\mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x})
+$$&lt;p&gt;其中：&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;$N$ 是专家总数&lt;/li&gt;
 &lt;li&gt;$E_i(\cdot)$ 是第 $i$ 个专家网络&lt;/li&gt;
@@ -45,10 +44,10 @@ $$&lt;/p&gt;
 &lt;/ul&gt;
 &lt;h4 id=&#34;113-稀疏激活机制&#34;&gt;1.1.3 稀疏激活机制&lt;/h4&gt;
 &lt;p&gt;为了提高效率，MoE通常采用稀疏激活机制，只选择 Top-K 个专家：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x})&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/#a1-moe%e8%be%93%e5%87%ba%e5%85%ac%e5%bc%8f%e6%8e%a8%e5%af%bc&#34;&gt;详见附录A.1 MoE输出公式推导&lt;/a&gt;&lt;/p&gt;</description>
+$$
+\mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x})
+$$&lt;p&gt;&lt;a href=&#34;https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/#a1-moe%e8%be%93%e5%87%ba%e5%85%ac%e5%bc%8f%e6%8e%a8%e5%af%bc&#34;&gt;详见附录A.1 MoE输出公式推导&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;其中 $\text{Top-K}(\mathbf{x})$ 表示根据门控权重选择的 Top-K 个专家索引。&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

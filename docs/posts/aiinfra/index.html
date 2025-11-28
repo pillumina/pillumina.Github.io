@@ -4,24 +4,20 @@
 <a href=/posts/aiinfra/index.xml title=RSS aria-label=RSS><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" height="23"><path d="M4 11a9 9 0 019 9"/><path d="M4 4a16 16 0 0116 16"/><circle cx="5" cy="19" r="1"/></svg></a></h1></header><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[Deterministic RL] deterministic问题的来源和相关工作总结</h2></header><div class=entry-content><p>理解LLM推理中deterministic问题来源 Wiki上对deterministic算法的定义是:
 “a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”
 而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training & inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在working-in-progress的工作。
-浮点数的非结合性 thinking machines lab针对batch invariant讨论的文章，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$
+浮点数的非结合性 thinking machines lab针对batch invariant讨论的文章，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：
+$$(a+b)+c \neq a+(b+c) $$
 这篇arxiv文章，则更深入得说明了这个问题：
 Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
-...</p></div><footer class=entry-footer><span title='2025-11-20 11:30:12 +0800 CST'>November 20, 2025</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;783 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [Deterministic RL] deterministic问题的来源和相关工作总结" href=https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[vLLM-Ascend] MC2技术深度解析：从MoE架构到通信融合优化</h2></header><div class=entry-content><p>源码分析依赖vllm-ascend在2025/9/20号的main分支，阅读请注意时效性。
+...</p></div><footer class=entry-footer><span title='2025-11-20 11:30:12 +0800 CST'>November 20, 2025</span>&nbsp;·&nbsp;4 min&nbsp;·&nbsp;816 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [Deterministic RL] deterministic问题的来源和相关工作总结" href=https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[vLLM-Ascend] MC2技术深度解析：从MoE架构到通信融合优化</h2></header><div class=entry-content><p>源码分析依赖vllm-ascend在2025/9/20号的main分支，阅读请注意时效性。
 阅读建议:
 了解MoE基本架构和关键推导 初步了解集合通信各原语的含义 对通算掩盖这类性能优化有基础的了解 概述 MC2（Merged Compute and Communication）是vLLM Ascend项目中针对昇腾NPU优化的核心技术，专门解决MoE（Mixture of Experts）模型在专家并行推理中的通信瓶颈问题。本文档从MoE架构基础出发，深入分析MC2的设计原理、技术实现和性能优化。
 1. MoE架构基础与挑战 1.1 MoE模型基本原理 1.1.1 什么是MoE？ **MoE(Mixture of Experts)**是一种神经网络架构，通过将模型参数分散到多个"专家"网络中，根据输入动态选择部分专家进行计算。这种架构在保持高模型容量的同时，降低了计算复杂度。
 1.1.2 MoE的数学表达 给定输入 $\mathbf{x} \in \mathbb{R}^{d}$，MoE层的输出可以表示为：
-$$
-\mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x})
-$$
-其中：
+$$ \mathbf{y} = \text{MoE}(\mathbf{x}) = \sum_{i=1}^{N} g_i(\mathbf{x}) \cdot E_i(\mathbf{x}) $$其中：
 $N$ 是专家总数 $E_i(\cdot)$ 是第 $i$ 个专家网络 $g_i(\mathbf{x})$ 是门控网络对专家 $i$ 的权重 1.1.3 稀疏激活机制 为了提高效率，MoE通常采用稀疏激活机制，只选择 Top-K 个专家：
-$$
-\mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x})
-$$
-详见附录A.1 MoE输出公式推导
-...</p></div><footer class=entry-footer><span title='2025-09-20 11:30:12 +0800 CST'>September 20, 2025</span>&nbsp;·&nbsp;20 min&nbsp;·&nbsp;4250 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [vLLM-Ascend] MC2技术深度解析：从MoE架构到通信融合优化" href=https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[VeRL,SGLang] RL训推显存管理优化</h2></header><div class=entry-content><p>SGLang团队的博客：https://hebiao064.github.io/rl-memory-management
+$$ \mathbf{y} = \sum_{i \in \text{Top-K}(\mathbf{x})} \frac{g_i(\mathbf{x})}{\sum_{j \in \text{Top-K}(\mathbf{x})} g_j(\mathbf{x})} \cdot E_i(\mathbf{x}) $$详见附录A.1 MoE输出公式推导
+其中 $\text{Top-K}(\mathbf{x})$ 表示根据门控权重选择的 Top-K 个专家索引。
+...</p></div><footer class=entry-footer><span title='2025-09-20 11:30:12 +0800 CST'>September 20, 2025</span>&nbsp;·&nbsp;20 min&nbsp;·&nbsp;4189 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [vLLM-Ascend] MC2技术深度解析：从MoE架构到通信融合优化" href=https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[VeRL,SGLang] RL训推显存管理优化</h2></header><div class=entry-content><p>SGLang团队的博客：https://hebiao064.github.io/rl-memory-management
 Overview 上述是简化的在线RL训练流程，隐去了reference和critic model，并且用基础的reward function而非reward model来说明流程。实际上就是policy model存在的training engine和rollout engine上需要进行优化。
 从简化的PPO流程开始：
 1 2 3 4 5 6 7 8 9 for prompts, pretrain_batch in dataloader: # Stage 1: Rollout generation (inference) batch = actor.generate_sequences(prompts) # Stage 2: Prepare experience batch = reference.compute_log_prob(batch) batch = reward.compute_reward(batch) # Reward function or model batch = compute_advantages(batch, algo_type) # Stage 3: Actor training actor_metrics = actor.update_actor(batch) 每一个iter相当于是actor model进行一次rollout再进行training，而veRL因为rollout和training共部署，所以两边可能不用version的actor model是在相同的GPU组上的，这导致了虽然资源共享但是显存管理会变得更复杂。
@@ -30,17 +26,12 @@ Overview 上述是简化的在线RL训练流程，隐去了reference和critic mo
 推理阶段显存 During inference, the full model is typically loaded (not sharded):
 ...</p></div><footer class=entry-footer><span title='2025-09-17 11:30:12 +0800 CST'>September 17, 2025</span>&nbsp;·&nbsp;2 min&nbsp;·&nbsp;404 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [VeRL,SGLang] RL训推显存管理优化" href=https://pillumina.github.io/posts/aiinfra/12-verl-sglang-memory/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[AIInfra] FlashAttention 深度解析：从数学原理到工程实现</h2></header><div class=entry-content><p>本文从数学原理出发，深入分析FlashAttention的核心思想、算法设计和各版本演进，通过详实的数学推导、直观的流程图表和具体的数值示例，帮助读者真正掌握这一革命性的Attention优化技术。
 1. 问题的本质：传统Attention的根本瓶颈 1.1 传统Attention机制的计算模式 传统的Self-Attention机制遵循如下计算流程：
-$$
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
-$$
-让我们用具体数值来理解这个过程的复杂性：
+$$ \text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V $$让我们用具体数值来理解这个过程的复杂性：
 示例场景：考虑一个典型的语言模型场景
-序列长度：$n = 2048$（如GPT-2的上下文长度） 特征维度：$d_k = 64$（每个attention head的维度） 输入张量形状：$Q, K, V \in \mathbb{R}^{2048 \times 64}$ 第一步：计算注意力得分矩阵 $$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$
-这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。
-第二步：Softmax归一化 $$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$
-Softmax计算需要：
+序列长度：$n = 2048$（如GPT-2的上下文长度） 特征维度：$d_k = 64$（每个attention head的维度） 输入张量形状：$Q, K, V \in \mathbb{R}^{2048 \times 64}$ 第一步：计算注意力得分矩阵 $$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。
+第二步：Softmax归一化 $$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$Softmax计算需要：
 计算每行的最大值：$m_i = \max_j S_{i,j}$ 计算指数和：$l_i = \sum_j e^{S_{i,j} - m_i}$ 归一化：$P_{i,j} = \frac{e^{S_{i,j} - m_i}}{l_i}$ 这又需要存储另一个 $2048 \times 2048$ 的矩阵。
-...</p></div><footer class=entry-footer><span title='2025-09-15 11:30:12 +0800 CST'>September 15, 2025</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;2221 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [AIInfra] FlashAttention 深度解析：从数学原理到工程实现" href=https://pillumina.github.io/posts/aiinfra/11-flashattention/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[VeRL] DataProto介绍</h2></header><div class=entry-content><p>Verl DataProto 实现原理与数据流动分析 目录 1. 概述 2. DataProto 核心架构 3. HybridFlow 设计理念 4. 控制流与计算流分离 5. 数据流动机制 6. Dispatch 模式详解 7. 性能优化策略 8. 总结 1. 概述 Verl 是一个基于 HybridFlow 论文的开源强化学习训练框架，专门为大语言模型的后训练优化而设计。其核心创新在于将控制流和计算流分离，通过 DataProto 协议实现高效的数据交换。
+...</p></div><footer class=entry-footer><span title='2025-09-15 11:30:12 +0800 CST'>September 15, 2025</span>&nbsp;·&nbsp;11 min&nbsp;·&nbsp;2204 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [AIInfra] FlashAttention 深度解析：从数学原理到工程实现" href=https://pillumina.github.io/posts/aiinfra/11-flashattention/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[VeRL] DataProto介绍</h2></header><div class=entry-content><p>Verl DataProto 实现原理与数据流动分析 目录 1. 概述 2. DataProto 核心架构 3. HybridFlow 设计理念 4. 控制流与计算流分离 5. 数据流动机制 6. Dispatch 模式详解 7. 性能优化策略 8. 总结 1. 概述 Verl 是一个基于 HybridFlow 论文的开源强化学习训练框架，专门为大语言模型的后训练优化而设计。其核心创新在于将控制流和计算流分离，通过 DataProto 协议实现高效的数据交换。
 2. DataProto 核心架构 2.1 数据结构设计 DataProto 是 verl 框架中用于数据交换的核心协议，所有在 Worker 之间流转的数据，都被统一封装在一个名为 DataProto 的数据结构中。它不仅仅是一个字典，更承载着 RLHF 流程中所有的信息演变, 基于 PyTorch 的 TensorDict 构建：
 1 2 3 4 5 @dataclass class DataProto: batch: TensorDict = None # 张量数据容器 non_tensor_batch: dict = field(default_factory=dict) # 非张量数据 meta_info: dict = field(default_factory=dict) # 元信息 核心特性：
 统一接口: 提供标准化的数据容器，支持张量和非张量数据 设备管理: 自动处理 GPU/CPU 设备间的数据移动 内存优化: 支持分块处理和内存复用 序列化: 支持高效的序列化和反序列化 2.2 数据一致性检查 1 2 3 4 5 6 7 8 9 10 11 12 13 14 def check_consistency(self): """检查 DataProto 的一致性""" if self.batch is not None: assert len(self.batch.batch_size) == 1, "只支持 num_batch_dims=1" if self.non_tensor_batch is not None: for key, val in self.non_tensor_batch.items(): assert isinstance(val, np.ndarray) # 检查批次大小一致性 if self.batch is not None and self.non_tensor_batch is not None: batch_size = self.batch.batch_size[0] for key, val in self.non_tensor_batch.items(): assert val.shape[0] == batch_size 3. HybridFlow 设计理念 3.1 设计动机 传统 RL 系统面临的问题：

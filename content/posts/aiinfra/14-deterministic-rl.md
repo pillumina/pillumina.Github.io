@@ -7,14 +7,14 @@ series: ["aiinfra"]
 ---
 
 
-## 理解LLM推理中deterministic问题来源
+# 理解LLM推理中deterministic问题来源
 
 Wiki上对deterministic算法的定义是:
 >“a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”
 
 而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training & inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在`working-in-progress`的工作。
 
-### 浮点数的非结合性
+## 浮点数的非结合性
 [thinking machines lab针对batch invariant讨论的文章](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/)，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$
 [这篇arxiv文章](https://arxiv.org/abs/2506.09501)，则更深入得说明了这个问题：
 >Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
@@ -24,13 +24,13 @@ Wiki上对deterministic算法的定义是:
 但是尽管这是不一致输出的根本原因，但是并没有回答不确定性源自何处。无法帮助我们去理解：浮点数值为何会以不同的顺序相加、这种情况何时会发生，已经如何避免这种情况。
 
 
-### 为何计算内核不同序add numbers？
+## 为何计算内核不同序add numbers？
 一个常见的假说是“**并发执行随机性 + 浮点运算误差**”。这个假说的核心观点，就是如果并发线程的结束顺序是非确定的，并且数值累加顺序如果依赖于并发线程的结束顺序（例如使用atomic add操作），那么最终数值累加的顺序也是非确定的。
 
-### 什么时候真正需要atomic add？
+## 什么时候真正需要atomic add？
 
 但是问题是，LLM前向的GPU内核实际上很少用atomic add操作。
->简单解释下Atomic Add的含义：PU 会把同一段程序同时扔到很多“小核”（SM）上去跑。这些小核之间天生没有步调一致的机制，谁快谁慢完全看当时心情。于是，如果它们需要把结果写到同一个地方，就会出问题。那atomic add就是，硬件保证所有人的结果最终都会加进去，但谁先谁后、按什么顺序加，完全不保证，因此每次跑出来的累加顺序都可能不一样。
+>简单解释下Atomic Add的含义：GPU 会把同一段程序同时扔到很多“小核”（SM）上去跑。这些小核之间天生没有步调一致的机制，谁快谁慢完全看当时心情。于是，如果它们需要把结果写到同一个地方，就会出问题。那atomic add就是，硬件保证所有人的结果最终都会加进去，但谁先谁后、按什么顺序加，完全不保证，因此每次跑出来的累加顺序都可能不一样。
 >再举个例子，通过torch.sum()对100个数求和，GPU 可以让 100 个小核各读一个数，这一步完全并行。可最后总得把 100 个数合并成 1 个总和。若用原子加，就是让每个小核随便谁先到，就先把它的数塞到同一个累加器里。硬件只负责“不会丢数”，却不负责“按固定顺序加”。于是同样跑两遍，先加谁后加谁可能不同，结果也就可能出现那一点点浮点误差。
 
 
@@ -47,7 +47,7 @@ Wiki上对deterministic算法的定义是:
 但是正向传播里，LLM中根本就没有非得用atomic add的算子，所以结论就是：LLM 的前向推理，跑两次、跑一百次，结果**比特级完全一致**；真正可能“每次不一样”的，只出在反向训练阶段，而且基本就 FlashAttention 一家。（也就是前向是“run-to-run deterministic”的）。
 
 
-### 系统级别批次不变性的缺失（batch invariant）
+## 系统级别批次不变性的缺失（batch invariant）
 
 前向kernel函数的确定性，实际上不等于整个推理服务对外表现确定，也就是还存在额外的**系统级非确定性**。因为真正喂给前向的**张量内容**还可能被其他“外部输入”左右。
 
@@ -60,19 +60,24 @@ LLM 推理里虽然早就把 BatchNorm 踢了出去，却**仍缺“批次不变
 所以针对推理引擎，比如要在kernel层面实现batch invariant才能解决serve层面不确定性的问题。
 
 
-### 和并行策略相关的Reduction不确定性
+## 和并行策略相关的Reduction不确定性
 
 TODO: 通信库的通信算子带来的规约不确定性。
 
+```
+export HCCL_DETERMINISTIC=true
+```
+开启HCCL的规约类算子的确定性计算。
 
-## `Batch Invariant`的相关工作
 
-### `batch invariant ops`
+# `Batch Invariant`的相关工作
+
+## `batch invariant ops`
 
 Thinking Machines Lab发布了`batch invariant`的[部分kernel算子实现](https://github.com/thinking-machines-lab/batch_invariant_ops/tree/main)。
 而从原blog里，提出了三种难度递增的实现。
 
-#### batch invariant的`RMSNorm`
+### batch invariant的`RMSNorm`
 直接让每个Batch元素的reduction顺序固定，不受batch大小影响。
 
 - batch大时，把单个batch元素分配给单个核心，reduction运算在单核心内完成，batch增大时让核心依次处理多个元素，保持reduction策略不变。
@@ -81,13 +86,13 @@ Thinking Machines Lab发布了`batch invariant`的[部分kernel算子实现](htt
 ![batch-inv-rmsnorm](https://pic1.zhimg.com/80/v2-ce80537a575835d21972fe5b063f5bb9_1440w.webp?source=1def8aca)
 
 
-#### batch invariant的矩阵乘法
+### batch invariant的矩阵乘法
 
 将输出张量拆分为2D tiles，每个tile分配给单个核心，reduction在单个核心内部完成。编译固定配置的内核以适配所有形状，虽然会损失20%性能（和cuBLAS相比），但在LLM推理中通常可以接受，因为模型维度（N）比较大，对split-k的需求较低。
 
 ![batch-inv-gemm](https://pic1.zhimg.com/80/v2-7a754f390567bf5c6d92ccf2a4267c0a_1440w.webp?source=1def8aca)
 
-#### batch invariant的注意力计算
+### batch invariant的注意力计算
 
 采用data-parallel策略（沿着Q张量并行，reduction在单核心内完成），更新KV缓存和页表以保证KV布局一致，不受处理token数量的影响。
 
@@ -103,7 +108,9 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 
 
 
-## On-policy RL训练中的训推不一致问题
+
+
+# On-policy RL训练中的训推不一致问题
 
 当讨论on-policy RL训练的时候，[有研究指出](https://fengyao.notion.site/off-policy-rl) train / inference engine之间的不一致也会隐形导致on-policy假设的RL实际变成off-policy。所以当我们追求"真正的" on-policy RL训练时，需要知道：如果不能从两个完全一致的推理请求中获取bitwise相等的结果，那么当然也无法保障训推之间的bitwise一致性。所以基于之前我们对确定性推理实现讨论，直觉上可以知道如果保证了确定性推理，那么通过修改训练这部分stack，也能够实现在bitwise上训推的一致性，从而实现真正的on-policy RL训练。
 
@@ -114,7 +121,7 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 
 后续会分别着重分析这两种解决思路。
 
-### 不一致问题分析
+## 不一致问题分析
 
 [这篇文章](https://fengyao.notion.site/off-policy-rl) 从实验的角度来对rollout-training不一致问题进行了分析，主要得出的结论是，**不同的并行策略**以及**更长的响应长度**会增大二者之间的mismatch，而选择不同的推理后端的影响比较小。
 
@@ -154,9 +161,9 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 
 接下来笔者详细介绍一下，业界针对不一致问题的解决思路和方案。
 
-### 硬对齐训推前反向不同kernel
+## 硬对齐训推前反向不同kernel
 
-#### TorchTitan + vLLM
+### TorchTitan + vLLM
 
 [TorchTitan项目](https://github.com/pytorch/torchtitan/tree/main/torchtitan/experiments/deterministic_vllm_rl)探索了基于vllm的确定性RL的实现，基于vllm的确定性前向实现，补充了vllm operations的反向传播。其具体的实现为：
 - 利用vLLM的`batch invariant`前向实现。
@@ -181,7 +188,7 @@ class FlashAttnWithBackward(torch.autograd.Function):
 ```
 - 提供了torchtitan和vllm侧不同格式的权重转换能力。
 
-#### Slime + SGLang
+### Slime + SGLang
 
 SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，通过定制一系列注意力算子和采样逻辑，也**实现了完全确定性推理**。该实现同时保持与**分块预填充 (chunked prefill)、CUDA Graph、Radix Cache 和非贪婪采样 (non-greedy sampling)** 等关键功能的兼容性。SGLang侧的主要增强工作为:
 - 集成Thinking Machines Lab的批次不变(batch invariant)算子。
@@ -203,20 +210,19 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 详细可以看此[PR](https://github.com/THUDM/slime/pull/370)。
 
 
-### RL算法侧缓解差异（off-policy correction）
+## RL算法侧缓解差异（off-policy correction）
 
-#### Mismatch Importance Sampling 
+### Mismatch Importance Sampling 
 
-##### TIS（截断重要性采样）
+#### TIS（截断重要性采样）
 
-比较早的博客是[(Yao et al.2025)](https://fengyao.notion.site/off-policy-rl)，分析了用重要性采样从算法上缓解训推不一致性的问题。对REINFORCE的梯度表示：$$\mathbb{E}_{a \sim \textcolor{red}{\pi_{\text{sampler}}}(\theta)} [R(a)\cdot \nabla_\theta \log \textcolor{blue}{\pi_{\text{learner}}}(a, \theta)],$$
+比较早的博客是[(Yao et al.2025)](https://fengyao.notion.site/off-policy-rl)，分析了用重要性采样从算法上缓解训推不一致性的问题。对REINFORCE的梯度表示：$$\mathbb{E}_{a \sim \textcolor{red}{\pi_{\text{sampler}}}(\theta)} [R(a)\cdot \nabla_\theta \log \textcolor{blue}{\pi_{\text{learner}}}(a, \theta)],$$ 
+
 转换为：$$\mathbb{E}_{a \sim \textcolor{red}{\pi_{\text{sampler}}}(\theta)} \Bigl[\frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{red}{\pi_{\text{sampler}}}(a, \theta)} \cdot R(a)\cdot \nabla_\theta \log \textcolor{blue}{\pi_{\text{learner}}}(a, \theta)\Bigr].$$
 而后基于比较经典的[TIS方法](https://ionides.github.io/pubs/ionides08-jcgs.pdf)，可以实现更稳定的重要性采样: $$\mathbb{E}_{a \sim \textcolor{red}{\pi_{\text{sampler}}}(\theta)} \Bigl[\underbrace{\min\Bigl(\frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{red}{\pi_{\text{sampler}}}(a, \theta)}, C\Bigr)}_{\text{truncated importance ratio}} \cdot R(a) \cdot \nabla_\theta \log \textcolor{blue}{\pi_{\text{learner}}}(a, \theta)\Bigr],$$
 
 扩展到PPO算法，策略梯度为经典的公式: $$\small{ \mathbb{E}_{a\sim\pi_{\theta_{\mathrm{old}}}} \Bigl[ \nabla_\theta \min\Bigl( \frac{\pi_\theta(a)}{\pi_{\theta_{\mathrm{old}}}(a)}\,\hat A, \;\mathrm{clip}\bigl(\frac{\pi_\theta(a)}{\pi_{\theta_{\mathrm{old}}}(a)},\,1-\epsilon,\,1+\epsilon\bigr)\,\hat A \Bigr) \Bigr]}.$$
-为了提升吞吐，Hybrid RL系统比如veRL使用vLLM这类推理引擎做rollout采样，而后回到训练侧用训练引擎再做一次 $\pi_{\theta old}$的recompute：$$  
-
-\small{ \mathbb{E}_{a\sim\textcolor{red}{\pi_{\text{sampler}}}(\theta_{\mathrm{old}})} \Bigl[ \nabla_\theta \min\Bigl( \frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta_{\mathrm{old}})}\,\hat A, \;\mathrm{clip}\bigl(\frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta_{\mathrm{old}})},\,1-\epsilon,\,1+\epsilon\bigr)\,\hat A \Bigr) \Bigr] }.$$
+为了提升吞吐，Hybrid RL系统比如veRL使用vLLM这类推理引擎做rollout采样，而后回到训练侧用训练引擎再做一次 $\pi_{\theta old}$的recompute：$$ \small{ \mathbb{E}_{a\sim\textcolor{red}{\pi_{\text{sampler}}}(\theta_{\mathrm{old}})} \Bigl[ \nabla_\theta \min\Bigl( \frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta_{\mathrm{old}})}\,\hat A, \;\mathrm{clip}\bigl(\frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta_{\mathrm{old}})},\,1-\epsilon,\,1+\epsilon\bigr)\,\hat A \Bigr) \Bigr] }.$$
 同样的，这种训练和推理的mismatch会出现，那么可以使用TIS进行校准：$$\small{\mathbb{E}_{a\sim\textcolor{red}{\pi_{\mathrm{sampler}}}(\theta_{\mathrm{old}})}\Bigl[\underbrace{\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\theta_{\mathrm{old}})}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\theta_{\mathrm{old}})}, C\Bigr)}_{\text{truncated importance ratio}}\cdot\nabla_{\theta}\,\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}\,\hat{A}, \mathrm{clip}\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}, 1-\epsilon,\;1+\epsilon \Bigr)\,\hat{A}\Bigr)\Bigr]}​$$
 文中也做了一些对比实验，表示此类校准确实能减少训推之间的计算分布差异:
 ![tis-analysis](https://fengyao.notion.site/image/attachment%3A766b9627-d7c4-4f0d-ba10-6eda045390a1%3Agsm8k_int8.png?table=block&id=246721e3-f6c4-803f-b9f1-c1e707b64b02&spaceId=5cbd2ef3-859d-42c5-86d3-a8382485dc0e&width=1420&userId=&cache=v2)
@@ -227,7 +233,7 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 对比下来还是TIS更加稳定，特别是在训推不同量化这种场景下（e.g. FP8/INT8），更加明显。
 
 
-##### 更多的IS变种
+#### 更多的IS变种
 
 更进一步的，前面介绍的字节的[这篇工作](https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda)还是更细致分析了不同IS：
 - Token-level / Sequence-level TIS
@@ -248,7 +254,7 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 
 
 
-##### `VeRL`的rollout correction实现
+#### `VeRL`的rollout correction实现
 
 >建议直接参考[verl rollout correction文档](https://verl.readthedocs.io/en/latest/algo/rollout_corr.html)
 
@@ -278,7 +284,7 @@ actor_rollout_ref:
 而对`bypass_mode`关闭的模式，也就是`decoupled-ppo`模式，会重计算`old_log_prob`，相当于每个`mini batch`都要调用`compute_rollout_correction_and_rejection_mask`计算IS的weight和response make，然后添加到batch中（union），然后正常走正常的流程，比如调用`compute_policy_loss_vanilla`里会处理。
 
 
-##### `Slime`的IS实现
+#### `Slime`的IS实现
 
 >可以参考[合入PR](https://github.com/THUDM/slime/pull/429)，和verl类似，都实现了token/sequence/geometric mean级别的TIS、MIS等校准策略。
 
@@ -289,7 +295,7 @@ actor_rollout_ref:
 - `--train-infer-is-veto-threshold`: Catastrophic token threshold
 
 
-#### Routing Replay
+### Routing Replay
 
 >https://arxiv.org/html/2510.11370v1
 >https://arxiv.org/html/2510.23027v1       RSPO  routing fluctuations
@@ -304,3 +310,25 @@ Rollout Routing Replay 会在模型进行推理时（Rollout 阶段），记录�
 
 
 >需要注意的是, GSPO论文中提到的Routing Replay, 是训练侧old和target策略之间，如果进行token-level的重要性采样，可能导致专家激活模式在新旧策略之间有差异，这种路由波动可能破坏训练稳定性，GSPO因为引入了seq-level的重要性采样，对单个token的专家波动不敏感，可以不需要routing replay（而GRPO不引入routing replay容易训崩）。而上面讨论的routing replay，主要还是解决训推不一致导致的路由波动带来的问题。
+
+
+
+## 值得注意的其他研究
+
+### BF16切换为FP16
+
+有一篇更新的(2025/10/30)的来自Sea AI Lab的文章[Defeating the Training-Inference Mismatch via FP16](https://arxiv.org/html/2510.26788v1) 提出了一个更简单的statement：**我们不需要上面这些复杂的算法修正，只需要把精度从BF16切回FP16，不一致带来的问题就会解决**。
+
+![fp16-bf16](https://arxiv.org/html/2510.26788v1/x1.png)
+
+
+研究认为，虽然FP16和BF16都使用总计16位，单比特分布不一样，尾数项和指数项的差异，导致FP16的精度为BF16的8倍。但带来的trade-off就是FP16能表征的数值范围就小的多，容易会overflow，可能需要额外的技巧比如loss scaling（反向之前把计算得到的loss乘大的缩放因子，反向时用放大了的loss计算梯度，落入fp16可表征的范围，利用梯度更新权重之前把梯度再还原回去）等稳定性技术进行缓解。
+
+文章作者认为，在RL后训练的阶段，模型权重基本已经经过了pre-training，**数值分布相对稳定**，配合loss scalling等技巧fp16可以保证训练稳定。实际上这个是一个非常重要的场景预设，也是这个研究的出发点。因为BF16格式在LLM训练中，被广泛使用的原因，就是其既能够表征FP32的数值范围（指数位都是8），从而在预训练的时候，甚至不需要loss scaling这种增加复杂度的工程实现，也可能做到训练的稳定性，而且显存占用和全精度比也省一半。**这种流行，是建立在pre-training对精度问题的“宽容度”比较高这个前提上的**：
+- 在pre-training阶段，模型在海量的数据上学习通用的统计规律，pre-training过程有很强的鲁棒性，对数值噪声不敏感。
+和pre-training阶段只关心“预测的next token是否准确”相对的，RL post-training更关注的是策略的更新幅度，例如PPO就依赖新旧策略的的ratio，通过限制ratio不要偏离1太远来保证训练稳定，**这对训练时的精度需求就会更为严苛**，如果由于精度表征问题，导致本来有差异的新旧策略，被截断成了ratio=1，那么策略就不更新了。而且针对KL散度约束这种设计到log计算的，精度差异带来的影响会在对数域被放大，那KL算不准，reward model给出奖励信号可能导致模型迅速过拟合到某个错误的pattern上，或者训练非常不稳定。
+
+因此这里的takeaway简单来说，就是在RL场景下，梯度的数值范围通常没有pre-training方差那么大，对梯度的精度要求更高，所谓为了获得比bf16高8倍的精度表征，用fp16 + loss scaling增加的工程成本是值得的。
+
+![offline-analysis](https://arxiv.org/html/2510.26788v1/x2.png)
+

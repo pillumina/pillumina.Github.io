@@ -24,10 +24,9 @@
 &lt;h2 id=&#34;1-问题的本质传统attention的根本瓶颈&#34;&gt;1. 问题的本质：传统Attention的根本瓶颈&lt;/h2&gt;
 &lt;h3 id=&#34;11-传统attention机制的计算模式&#34;&gt;1.1 传统Attention机制的计算模式&lt;/h3&gt;
 &lt;p&gt;传统的Self-Attention机制遵循如下计算流程：&lt;/p&gt;
-&lt;p&gt;$$&lt;br&gt;
-\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V&lt;br&gt;
-$$&lt;/p&gt;
-&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$&lt;p&gt;让我们用具体数值来理解这个过程的复杂性：&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;示例场景&lt;/strong&gt;：考虑一个典型的语言模型场景&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;序列长度：$n = 2048$（如GPT-2的上下文长度）&lt;/li&gt;
@@ -35,11 +34,9 @@ $$&lt;/p&gt;
 &lt;li&gt;输入张量形状：$Q, K, V \in \mathbb{R}^{2048 \times 64}$&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h4 id=&#34;第一步计算注意力得分矩阵&#34;&gt;第一步：计算注意力得分矩阵&lt;/h4&gt;
-&lt;p&gt;$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
-&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
+$$S = \frac{QK^T}{\sqrt{d_k}} \in \mathbb{R}^{2048 \times 2048}$$&lt;p&gt;这一步产生了一个 $2048 \times 2048 = 4,194,304$ 个元素的矩阵，以FP16精度存储需要约8MB内存。&lt;/p&gt;
 &lt;h4 id=&#34;第二步softmax归一化&#34;&gt;第二步：Softmax归一化&lt;/h4&gt;
-&lt;p&gt;$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;/p&gt;
-&lt;p&gt;Softmax计算需要：&lt;/p&gt;
+$$P = \text{softmax}(S) \in \mathbb{R}^{2048 \times 2048}$$&lt;p&gt;Softmax计算需要：&lt;/p&gt;
 &lt;ol&gt;
 &lt;li&gt;计算每行的最大值：$m_i = \max_j S_{i,j}$&lt;/li&gt;
 &lt;li&gt;计算指数和：$l_i = \sum_j e^{S_{i,j} - m_i}$&lt;/li&gt;

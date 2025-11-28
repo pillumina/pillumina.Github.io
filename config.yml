@@ -147,6 +147,11 @@ markup:
       autoHeadingID: true
       autoHeadingIDType: github
     extensions:
+      passthrough:
+        enable: true
+        delimiters:
+          block: [['\[', '\]'], ['$$', '$$']]
+          inline: [['\(', '\)']]
       definitionList: true
       footnote: true
       linkify: true
