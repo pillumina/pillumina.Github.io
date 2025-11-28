@@ -8,7 +8,7 @@
 浮点数的非结合性 thinking machines lab针对batch invariant讨论的文章，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：
 $$(a+b)+c \neq a+(b+c) $$
 这篇arxiv文章，则更深入得说明了这个问题：
-Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
+Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
 ...</p></div><footer class=entry-footer><span title='2025-11-20 11:30:12 +0800 CST'>November 20, 2025</span>&nbsp;·&nbsp;5 min&nbsp;·&nbsp;896 words&nbsp;·&nbsp;Me</footer><a class=entry-link aria-label="post link to [Deterministic RL] deterministic问题的来源和相关工作总结" href=https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/></a></article><article class=post-entry><header class=entry-header><h2 class=entry-hint-parent>[vLLM-Ascend] MC2技术深度解析：从MoE架构到通信融合优化</h2></header><div class=entry-content><p>源码分析依赖vllm-ascend在2025/9/20号的main分支，阅读请注意时效性。
 阅读建议:
 了解MoE基本架构和关键推导 初步了解集合通信各原语的含义 对通算掩盖这类性能优化有基础的了解 概述 MC2（Merged Compute and Communication）是vLLM Ascend项目中针对昇腾NPU优化的核心技术，专门解决MoE（Mixture of Experts）模型在专家并行推理中的通信瓶颈问题。本文档从MoE架构基础出发，深入分析MC2的设计原理、技术实现和性能优化。

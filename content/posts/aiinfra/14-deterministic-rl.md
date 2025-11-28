@@ -17,7 +17,7 @@ Wiki上对deterministic算法的定义是:
 ## 浮点数的非结合性
 [thinking machines lab针对batch invariant讨论的文章](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/)，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$
 [这篇arxiv文章](https://arxiv.org/abs/2506.09501)，则更深入得说明了这个问题：
->Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
+>Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
 
 浮点数通常可用科学计数的表示来表征大/小数，例如格式$mantissa *10^{exponent}$，如果指数项是不同的，也就是文中说的`add at different scales`，那不同累加序导致的精度损失会更加明显，而这种不同scale的累加是最常见的场景。
 
