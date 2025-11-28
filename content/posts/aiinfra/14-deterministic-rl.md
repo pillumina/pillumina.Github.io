@@ -55,7 +55,32 @@ Wiki上对deterministic算法的定义是:
 同一句话，单条跑 μ₁ σ₁，跟 32 条一起跑 μ₃₂ σ₃₂，算出来的隐藏值就不一样，于是最终 token 概率也不同。  
 站在“单条请求”视角：它完全无法预知今晚会不会有 31 个请求来搭伙，所以即使自己 prompt 固定，输出依旧“看运气”——这就是上面所说的**系统级非确定性**。
 
-LLM 推理里虽然早就把 BatchNorm 踢了出去，却**仍缺“批次不变性”（batch invariance）**：同一请求、同一模型权重，只要推理时动态批大小不同，可能会导致`tilesize`不同，导致reduce的计算结果不同。例如，vLLM在不同规模的batch下，把prompt送往不同的batch，而GPU的并行调度器SIMT会把矩阵送往不同的sm、warp，这样计算路径就每次都不一样。
+LLM 推理里虽然早就把 BatchNorm 踢了出去，却**仍缺“批次不变性”（batch invariance）**：同一请求、同一模型权重，只要推理时动态批大小不同，可能会导致`tilesize`不同，导致reduce的计算结果不同。更细节去深究，比如Attention计算时，当kvcache很长的时候，就需要沿着KV维度进行分割：
+- split reduction kernels: Split-KV或者FlashDecoding。
+- 根据batch size动态选择分割数量，会导致不同的reduction顺序。
+
+![reduction-kv](https://pic1.zhimg.com/v2-1ceddd9a15c87eab7bbe0a5b1d506eca_1440w.jpg)
+
+>若不沿着规约维度进行并行，那么只能在batch、head、query维度进行并行，在decoding阶段，query本身就短，除非是大batch，那么gpu的计算内核很多会空转。
+
+再者，内存的访问模式可能也随着batch size的大小而变化，可能导致不同的stride:
+```python
+for ki in range(k_tiles):
+            if A_LARGE or B_LARGE:
+                offs_k = ki * BLOCK_SIZE_K + tl.arange(0, BLOCK_SIZE_K).to(tl.int64)
+            else:
+                offs_k = ki * BLOCK_SIZE_K + tl.arange(0, BLOCK_SIZE_K)
+            a_ptrs = a_ptr + (offs_am[:, None] * stride_am + offs_k[None, :] * stride_ak)
+            b_ptrs = b_ptr + (offs_k[:, None] * stride_bk + offs_bn[None, :] * stride_bn)
+```
+
+M/N不同，可能会引入不同的内存对齐，导致不同的计算顺序:
+
+```python
+offs_am = tl.max_contiguous(tl.multiple_of(offs_am, BLOCK_SIZE_M), BLOCK_SIZE_M)
+offs_bn = tl.max_contiguous(tl.multiple_of(offs_bn, BLOCK_SIZE_N), BLOCK_SIZE_N)
+```
+
 
 所以针对推理引擎，比如要在kernel层面实现batch invariant才能解决serve层面不确定性的问题。
 
