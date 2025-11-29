@@ -28,7 +28,7 @@
 $$(a+b)+c \neq a+(b+c) $$&lt;p&gt;&lt;br&gt;
 &lt;a href=&#34;https://arxiv.org/abs/2506.09501&#34;&gt;这篇arxiv文章&lt;/a&gt;，则更深入得说明了这个问题：&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.&lt;/p&gt;</description>
+&lt;p&gt;Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.&lt;/p&gt;</description>
     </item>
     <item>
       <title>[RL4LLM] 异步RL框架: Slime</title>
