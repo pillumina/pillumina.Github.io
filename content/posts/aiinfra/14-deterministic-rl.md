@@ -4,6 +4,7 @@ title: "[Deterministic RL] 确定性问题的来源 & Reproducible RL"
 date: 2025-11-20T11:30:12+08:00
 tags: ["deterministic","RL"]
 series: ["aiinfra"]
+enableLatexModal: true
 ---
 
 ## 理解LLM推理中deterministic问题来源

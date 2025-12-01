@@ -74,6 +74,7 @@ params:
     iconHeight: 
 
   math: true
+  # enableLatexModal: true
   profileMode:
     enabled: false # needs to be explicitly set
 

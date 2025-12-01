@@ -1,146 +1,210 @@
-/* 悬浮TOC样式 */
-.toc.side {
+/* ==========================================================================
+   悬浮 TOC - 生产级优化版
+   ========================================================================== */
+
+/* 1. CSS 变量集中管理（主题化、响应式、z-index） */
+:root {
+    /* 尺寸变量 */
+    --toc-width: min(22rem, 30vw);
+    --toc-spacing-vertical: 5rem;
+    --toc-max-height: calc(100vh - 7rem);
+    --toc-indent: 0.75rem;
+    --toc-padding: 0.5rem;
+    --toc-border-radius: 8px;
+    
+    /* 层级透明度（暗色模式自动调整） */
+    --toc-opacity-h2: 0.98;
+    --toc-opacity-h3: 0.9;
+    --toc-opacity-h4: 0.85;
+    --toc-opacity-h5: 0.8;
+    --toc-opacity-h6: 0.75;
+    
+    /* z-index 分层（避免冲突） */
+    --z-toc: 100;
+    --z-progress: 999;
+    --z-zoom-overlay: 998;
+    --z-zoom-image: 999;
+    
+    /* 动画时长（统一节奏） */
+    --toc-transition-fast: 0.2s ease;
+    --toc-transition-medium: 0.3s ease;
+  }
+  
+  /* 暗色模式：提高低层级对比度 */
+  [theme="dark"] {
+    --toc-opacity-h4: 0.9;
+    --toc-opacity-h5: 0.85;
+    --toc-opacity-h6: 0.8;
+  }
+  
+  /* 2. 悬浮 TOC - 基础样式（性能优化） */
+  .toc.side {
     position: fixed;
-    top: 5rem;
-    width: 22rem;
-    max-height: calc(100vh - 7rem);
+    top: var(--toc-spacing-vertical);
+    width: var(--toc-width);
+    max-height: var(--toc-max-height);
     overflow-y: auto;
     background: var(--entry);
-    border-radius: 8px;
+    border-radius: var(--toc-border-radius);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    padding: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-/* 右侧TOC */
-.toc.side.right {
-    right: 1.5rem;
-}
-
-/* 左侧TOC */
-.toc.side.left {
-    left: 1.5rem;
-}
-
-/* 当前阅读位置高亮 */
-.toc.side a.active {
+    z-index: var(--z-toc);
+    padding: var(--toc-padding);
+    
+    /* 性能优化：精确过渡 + GPU 加速 */
+    transition: transform var(--toc-transition-medium), opacity var(--toc-transition-medium);
+    will-change: transform;
+    transform: translateZ(0);
+    contain: content;
+    
+    /* 滚动条（Firefox + WebKit） */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  
+  /* 滚动条美化（WebKit 渐进增强） */
+  .toc.side::-webkit-scrollbar { width: 6px; }
+  .toc.side::-webkit-scrollbar-track { background: transparent; }
+  .toc.side::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: calc(var(--toc-border-radius) / 2);
+  }
+  .toc.side::-webkit-scrollbar-thumb:hover { background: var(--secondary); }
+  
+  /* 3. TOC 位置 */
+  .toc.side.right { right: 1.5rem; }
+  .toc.side.left { left: 1.5rem; }
+  
+  /* 4. 当前阅读位置高亮（动画优化） */
+  .toc.side a.active {
     color: var(--primary);
     font-weight: 500;
     border-left: 2px solid var(--primary);
-    margin-left: -0.5rem;
-    padding-left: 0.3rem;
-}
-
-.toc.side details {
-    border: none;
-}
-
-.toc.side summary {
+    margin-left: calc(-1 * var(--toc-padding));
+    padding-left: calc(var(--toc-padding) - 0.2rem);
+    transition: border-left-width var(--toc-transition-fast), padding-left var(--toc-transition-fast);
+  }
+  
+  /* 5. Details/Summary 样式（自定义箭头） */
+  .toc.side details { border: none; }
+  .toc.side summary {
     cursor: pointer;
     margin-bottom: 0.5rem;
-}
-
-.toc.side .inner {
-    padding: 0.5rem;
-}
-
-.toc.side ul {
+    list-style: none; /* 移除默认箭头 */
+    position: relative;
+    padding-left: 1.2rem;
+  }
+  
+  .toc.side summary::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.4rem;
+    width: 0;
+    height: 0;
+    border: 4px solid transparent;
+    border-left-color: currentColor;
+    transition: transform var(--toc-transition-fast);
+  }
+  
+  .toc.side details[open] summary::before { transform: rotate(90deg); }
+  
+  .toc.side .inner { padding: var(--toc-padding); }
+  
+  /* 6. 列表结构（缩进标准化） */
+  .toc.side ul {
     list-style-type: none;
-    font-weight: 400;
-    padding-left: 0.75rem;
+    padding-left: var(--toc-indent);
     margin: 0;
-}
-
-.toc.side a {
+    font-weight: 400;
+  }
+  
+  /* 7. 链接样式（无障碍优化） */
+  .toc.side a {
     color: var(--secondary);
     text-decoration: none;
     font-size: 0.9rem;
     line-height: 1.6;
     display: block;
     padding: 0.15rem 0;
-    white-space: normal;  /*允许换行，由宽度限制*/
-    word-break: break-word;      /* 长单词可断行 */
-}
-
-
-/* 层级字体大小递减 */
-.toc.side ul ul a {              /* h2 */
-    font-size: 0.88rem;
-    color: var(--secondary);
-    opacity: 0.98;
-}
-.toc.side ul ul ul a {          /* h3 */
-    font-size: 0.85rem;
-    color: var(--secondary);
-    opacity: 0.9;
-}
-.toc.side ul ul ul ul a {       /* h4 - 重点优化 */
-    font-size: 0.82rem;
-    color: var(--secondary);
-    opacity: 0.85;
-}
-.toc.side ul ul ul ul ul a {    /* h5 */
-    font-size: 0.78rem;
-    color: var(--secondary);
-    opacity: 0.75;
-}
-.toc.side ul ul ul ul ul ul a { /* h6 */
-    font-size: 0.75rem;
-    color: var(--secondary);
-    opacity: 0.7;
-}
-
-
-.toc.side a:hover {
+    white-space: normal;
+    overflow-wrap: break-word; /* 修复 word-break 废弃问题 */
+    word-break: normal; /* 重置 */
+    transition: background-color var(--toc-transition-fast), transform var(--toc-transition-fast);
+    
+    /* 性能：防止 3D 变换副作用 */
+    backface-visibility: hidden;
+  }
+  
+  /* 悬停效果（背景 + 左移） */
+  .toc.side a:hover {
     color: var(--primary);
-}
-
-/* 响应式设计 */
-@media screen and (max-width: 1400px) {
-    .toc.side {
-        display: none;
-    }
-}
-
-/* 暗色主题适配 */
-[theme="dark"] .toc.side {
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+    border-radius: 4px;
+    padding-left: 0.5rem;
+  }
+  
+  /* 焦点样式（键盘导航） */
+  .toc.side a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* 8. 层级字体/透明度（基于 CSS 变量） */
+  .toc.side ul ul a {              /* h2 */
+    font-size: 0.88rem;
+    opacity: var(--toc-opacity-h2);
+  }
+  .toc.side ul ul ul a {          /* h3 */
+    font-size: 0.85rem;
+    opacity: var(--toc-opacity-h3);
+  }
+  .toc.side ul ul ul ul a {       /* h4 */
+    font-size: 0.82rem;
+    opacity: var(--toc-opacity-h4);
+  }
+  .toc.side ul ul ul ul ul a {    /* h5 */
+    font-size: 0.78rem;
+    opacity: var(--toc-opacity-h5);
+  }
+  .toc.side ul ul ul ul ul ul a { /* h6 */
+    font-size: 0.75rem;
+    opacity: var(--toc-opacity-h6);
+  }
+  
+  /* 9. 响应式设计（容器查询 + 传统媒体查询） */
+  @media screen and (max-width: 87ch) {
+    .toc.side { display: none; }
+  }
+  
+  /* 现代浏览器：容器查询（可选） */
+  .toc-container {
+    container-type: inline-size;
+  }
+  @container (max-width: 60rem) {
+    .toc.side { display: none; }
+  }
+  
+  /* 10. 暗色主题 */
+  [theme="dark"] .toc.side {
     background: var(--entry);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* 滚动条美化 */
-.toc.side::-webkit-scrollbar {
-    width: 6px;
-}
-
-.toc.side::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.toc.side::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 3px;
-}
-
-.toc.side::-webkit-scrollbar-thumb:hover {
-    background: var(--secondary);
-}
-
-/* 阅读进度条 */
-.reading-progress-bar {
+  }
+  
+  /* 11. 阅读进度条 */
+  .reading-progress-bar {
     position: fixed;
     top: 0;
     left: 0;
     width: 0;
     height: 3px;
     background: var(--primary);
-    z-index: 999;
-    transition: width 0.2s ease;
-}
-
-/* 图片灯箱 */
-.medium-zoom-overlay {
+    z-index: var(--z-progress);
+    transition: width var(--toc-transition-fast);
+  }
+  
+  /* 12. 图片灯箱（z-index 变量化） */
+  .medium-zoom-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -148,76 +212,78 @@
     bottom: 0;
     background: var(--theme);
     opacity: 0;
-    transition: opacity 0.3s;
-    z-index: 998;
-}
-
-.medium-zoom-overlay.medium-zoom--opened {
-    opacity: 0.98;
-}
-
-.medium-zoom-image {
+    transition: opacity var(--toc-transition-medium);
+    z-index: var(--z-zoom-overlay);
+  }
+  
+  .medium-zoom-overlay.medium-zoom--opened { opacity: 0.98; }
+  
+  .medium-zoom-image {
     cursor: zoom-in;
-}
-
-.medium-zoom-image.medium-zoom-image--opened {
+  }
+  
+  .medium-zoom-image.medium-zoom-image--opened {
     position: relative;
     cursor: zoom-out;
-    z-index: 999;
-}
-
-/* 相关文章样式 */
-.related-posts {
+    z-index: var(--z-zoom-image);
+  }
+  
+  /* 13. 相关文章（硬件加速 + 动画优化） */
+  .related-posts {
     margin-top: 4rem;
     padding-top: 2rem;
     border-top: 1px solid var(--border);
-}
-
-.related-posts h3 {
+  }
+  
+  .related-posts h3 {
     font-size: 1.4rem;
     margin-bottom: 1rem;
     color: var(--primary);
-}
-
-.related-posts ul {
+  }
+  
+  .related-posts ul {
     list-style: none;
     padding: 0;
-}
-
-.related-posts li {
+  }
+  
+  .related-posts li {
     margin-bottom: 1rem;
     padding: 1rem;
     background: var(--entry);
     border-radius: 8px;
-    transition: transform 0.2s ease;
-}
-
-.related-posts li:hover {
-    transform: translateX(5px);
-}
-
-.related-posts a {
+    transition: transform var(--toc-transition-fast);
+    will-change: transform; /* GPU 加速 */
+    transform: translateZ(0);
+  }
+  
+  .related-posts li:hover { transform: translateX(5px); }
+  
+  .related-posts a {
     color: var(--primary);
     text-decoration: none;
     font-size: 1.1rem;
     font-weight: 500;
     display: block;
     margin-bottom: 0.5rem;
-}
-
-.related-posts .meta {
+  }
+  
+  .related-posts .meta {
     font-size: 0.9rem;
     color: var(--secondary);
-}
-
-.related-series {
-    margin-bottom: 3rem;
-}
-
-.related-tags {
-    margin-bottom: 3rem;
-}
-
-.related-content {
-    margin-bottom: 2rem;
-}
+  }
+  
+  /* 14. 系列/标签/内容间距 */
+  .related-series { margin-bottom: 3rem; }
+  .related-tags { margin-bottom: 3rem; }
+  .related-content { margin-bottom: 2rem; }
+  
+  /* ==========================================================================
+     可访问性：减少动画偏好
+     ========================================================================== */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }

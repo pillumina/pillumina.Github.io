@@ -1,0 +1,233 @@
+/* 悬浮TOC样式 */
+.toc.side {
+    position: fixed;
+    top: 5rem;
+    width: 22rem;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    background: var(--entry);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    padding: 0.5rem;
+    /* transition: all 0.3s ease; */
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    will-change: transform;  /* 提示浏览器做层提升 */
+    transform: translateZ(0); /* 强制 GPU 层 */
+    contain: content;          /* 减少布局范围 */
+}
+
+/* 右侧TOC */
+.toc.side.right {
+    right: 1.5rem;
+}
+
+/* 左侧TOC */
+.toc.side.left {
+    left: 1.5rem;
+}
+
+/* 当前阅读位置高亮 */
+.toc.side a.active {
+    color: var(--primary);
+    font-weight: 500;
+    border-left: 2px solid var(--primary);
+    transition: border-left-width 0.2s ease, padding-left 0.2s ease;
+    margin-left: -0.5rem;
+    padding-left: 0.3rem;
+}
+
+.toc.side details {
+    border: none;
+}
+
+.toc.side summary {
+    cursor: pointer;
+    margin-bottom: 0.5rem;
+}
+
+.toc.side .inner {
+    padding: 0.5rem;
+}
+
+.toc.side ul {
+    list-style-type: none;
+    font-weight: 400;
+    padding-left: 0.75rem;
+    margin: 0;
+}
+
+.toc.side a {
+    color: var(--secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    display: block;
+    padding: 0.15rem 0;
+    white-space: normal;  /*允许换行，由宽度限制*/
+    overflow-wrap: break-word;
+    word-break: normal;  /* 重置 */
+    backface-visibility: hidden;  /* 防止 3D 变换副作用 */
+}
+
+
+/* 层级字体大小递减 */
+.toc.side ul ul a {              /* h2 */
+    font-size: 0.88rem;
+    color: var(--secondary);
+    opacity: 0.98;
+}
+.toc.side ul ul ul a {          /* h3 */
+    font-size: 0.85rem;
+    color: var(--secondary);
+    opacity: 0.9;
+}
+.toc.side ul ul ul ul a {       /* h4 - 重点优化 */
+    font-size: 0.82rem;
+    color: var(--secondary);
+    opacity: 0.85;
+}
+.toc.side ul ul ul ul ul a {    /* h5 */
+    font-size: 0.78rem;
+    color: var(--secondary);
+    opacity: 0.75;
+}
+.toc.side ul ul ul ul ul ul a { /* h6 */
+    font-size: 0.75rem;
+    color: var(--secondary);
+    opacity: 0.7;
+}
+
+
+.toc.side a:hover {
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);  /* 半透背景 */
+    border-radius: 4px;
+    padding-left: 0.5rem;  /* 悬停时左移 */
+}
+
+/* 响应式设计 */
+@media screen and (max-width: 1400px) {
+    .toc.side {
+        display: none;
+    }
+}
+
+/* 暗色主题适配 */
+[theme="dark"] .toc.side {
+    background: var(--entry);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* 滚动条美化 */
+.toc.side::-webkit-scrollbar {
+    width: 6px;
+}
+
+.toc.side::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.toc.side::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.toc.side::-webkit-scrollbar-thumb:hover {
+    background: var(--secondary);
+}
+
+/* 阅读进度条 */
+.reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 3px;
+    background: var(--primary);
+    z-index: 999;
+    transition: width 0.2s ease;
+}
+
+/* 图片灯箱 */
+.medium-zoom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--theme);
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 998;
+}
+
+.medium-zoom-overlay.medium-zoom--opened {
+    opacity: 0.98;
+}
+
+.medium-zoom-image {
+    cursor: zoom-in;
+}
+
+.medium-zoom-image.medium-zoom-image--opened {
+    position: relative;
+    cursor: zoom-out;
+    z-index: 999;
+}
+
+/* 相关文章样式 */
+.related-posts {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.related-posts h3 {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.related-posts ul {
+    list-style: none;
+    padding: 0;
+}
+
+.related-posts li {
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--entry);
+    border-radius: 8px;
+    transition: transform 0.2s ease;
+}
+
+.related-posts li:hover {
+    transform: translateX(5px);
+}
+
+.related-posts a {
+    color: var(--primary);
+    text-decoration: none;
+    font-size: 1.1rem;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.related-posts .meta {
+    font-size: 0.9rem;
+    color: var(--secondary);
+}
+
+.related-series {
+    margin-bottom: 3rem;
+}
+
+.related-tags {
+    margin-bottom: 3rem;
+}
+
+.related-content {
+    margin-bottom: 2rem;
+}

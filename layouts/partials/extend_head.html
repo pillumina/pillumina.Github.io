@@ -1,3 +1,4 @@
+
 {{ if or .Params.math .Site.Params.math }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -55,7 +56,7 @@
           macros: {
             "\\boldsymbol": "\\mathbf{#1}",
             "\\bm": "\\mathbf{#1}"
-          }
+          },
         });
         // 若仍检测到未渲染的数学表达式，则回退到 MathJax
         setTimeout(function(){
