@@ -6,27 +6,27 @@ tags: ["deterministic","RL"]
 series: ["aiinfra"]
 ---
 
-# 理解LLM推理中deterministic问题来源
+## 理解LLM推理中deterministic问题来源
 
 Wiki上对deterministic算法的定义是:
 >“a deterministic algorithm is an algorithm that, given a particular input, will always produce the same output.”
 
 而我们在文中要讨论的，即对于LLM这个context下的deterministic问题，我会先从inference角度（即重复给定一个确定的input，模型的推理为什么无法给定确定的输出）进行问题的理解，再进一步讨论RL工程中的training & inference之间差异，可能会导致RL训练的崩溃问题，并继续讨论业界现在已有的解决方案、与还在`working-in-progress`的工作。
 
-## 浮点数的非结合性
+### 浮点数的非结合性
 [thinking machines lab针对batch invariant讨论的文章](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/)，详细地解释了在LLM推理中不确定性的来原，即因为精度有限，GPU浮点数运算中的结合性通常不成立：$$(a+b)+c \neq a+(b+c) $$
 [这篇arxiv文章](https://arxiv.org/abs/2506.09501)，则更深入得说明了这个问题：
->Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c)(a+b)+c=a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
+>Floating-point arithmetic in GPUs exhibits non-associativity, meaning (a+b)+c≠a+(b+c) due to finite precision and rounding errors. This property directly impacts the computation of attention scores and logits in the transformer architecture, where parallel operations across multiple threads can yield different results based on execution order.
 
 浮点数通常可用科学计数的表示来表征大/小数，例如格式$mantissa *10^{exponent}$，如果指数项是不同的，也就是文中说的`add at different scales`，那不同累加序导致的精度损失会更加明显，而这种不同scale的累加是最常见的场景。
 
 但是尽管这是不一致输出的根本原因，但是并没有回答不确定性源自何处。无法帮助我们去理解：浮点数值为何会以不同的顺序相加、这种情况何时会发生，已经如何避免这种情况。
 
 
-## 为何计算内核不同序add numbers？
+### 为何计算内核不同序add numbers？
 一个常见的假说是“**并发执行随机性 + 浮点运算误差**”。这个假说的核心观点，就是如果并发线程的结束顺序是非确定的，并且数值累加顺序如果依赖于并发线程的结束顺序（例如使用atomic add操作），那么最终数值累加的顺序也是非确定的。
 
-## 什么时候真正需要atomic add？
+### 什么时候真正需要atomic add？
 
 但是问题是，LLM前向的GPU内核实际上很少用atomic add操作。
 >简单解释下Atomic Add的含义：GPU 会把同一段程序同时扔到很多“小核”（SM）上去跑。这些小核之间天生没有步调一致的机制，谁快谁慢完全看当时心情。于是，如果它们需要把结果写到同一个地方，就会出问题。那atomic add就是，硬件保证所有人的结果最终都会加进去，但谁先谁后、按什么顺序加，完全不保证，因此每次跑出来的累加顺序都可能不一样。
@@ -46,7 +46,7 @@ Wiki上对deterministic算法的定义是:
 但是正向传播里，LLM中根本就没有非得用atomic add的算子，所以结论就是：LLM 的前向推理，跑两次、跑一百次，结果**比特级完全一致**；真正可能“每次不一样”的，只出在反向训练阶段，而且基本就 FlashAttention 一家。（也就是前向是“run-to-run deterministic”的）。
 
 
-## 系统级别批次不变性的缺失（batch invariant）
+### 系统级别批次不变性的缺失（batch invariant）
 
 前向kernel函数的确定性，实际上不等于整个推理服务对外表现确定，也就是还存在额外的**系统级非确定性**。因为真正喂给前向的**张量内容**还可能被其他“外部输入”左右。
 
@@ -84,7 +84,7 @@ offs_bn = tl.max_contiguous(tl.multiple_of(offs_bn, BLOCK_SIZE_N), BLOCK_SIZE_N)
 所以针对推理引擎，比如要在kernel层面实现batch invariant才能真正解决serve层面不确定性的问题。
 
 
-## 和并行策略相关的Reduction不确定性
+### 和并行策略相关的Reduction不确定性
 
 TODO: 通信库的通信算子带来的规约不确定性。
 
@@ -94,14 +94,14 @@ export HCCL_DETERMINISTIC=true
 开启HCCL的规约类算子的确定性计算。
 
 
-# `Batch Invariant`的相关工作
+## `Batch Invariant`的相关工作
 
-## `batch invariant ops`
+### `batch invariant ops`
 
 Thinking Machines Lab发布了`batch invariant`的[部分kernel算子实现](https://github.com/thinking-machines-lab/batch_invariant_ops/tree/main)。
 而从原blog里，提出了三种难度递增的实现。
 
-### batch invariant的`RMSNorm`
+#### batch invariant的`RMSNorm`
 直接让每个Batch元素的reduction顺序固定，不受batch大小影响。
 
 - batch大时，把单个batch元素分配给单个核心，reduction运算在单核心内完成，batch增大时让核心依次处理多个元素，保持reduction策略不变。
@@ -110,13 +110,13 @@ Thinking Machines Lab发布了`batch invariant`的[部分kernel算子实现](htt
 ![batch-inv-rmsnorm](https://pic1.zhimg.com/80/v2-ce80537a575835d21972fe5b063f5bb9_1440w.webp?source=1def8aca)
 
 
-### batch invariant的矩阵乘法
+#### batch invariant的矩阵乘法
 
 将输出张量拆分为2D tiles，每个tile分配给单个核心，reduction在单个核心内部完成。编译固定配置的内核以适配所有形状，虽然会损失20%性能（和cuBLAS相比），但在LLM推理中通常可以接受，因为模型维度（N）比较大，对split-k的需求较低。
 
 ![batch-inv-gemm](https://pic1.zhimg.com/80/v2-7a754f390567bf5c6d92ccf2a4267c0a_1440w.webp?source=1def8aca)
 
-### batch invariant的注意力计算
+#### batch invariant的注意力计算
 
 采用data-parallel策略（沿着Q张量并行，reduction在单核心内完成），更新KV缓存和页表以保证KV布局一致，不受处理token数量的影响。
 
@@ -124,7 +124,7 @@ decode阶段Q长度小，需要拆分KV维度（Split-KV），采用固定拆分
 
 ![batch-inv-attn](https://picx.zhimg.com/80/v2-9b088207a9c3ed23e018f1416897134e_1440w.webp?source=1def8aca)
 
-## Sglang / vLLM 实现deterministic inference
+### Sglang / vLLM 实现deterministic inference
 
 SGLang团队的[博客](https://lmsys.org/blog/2025-09-22-sglang-deterministic/)里记录了实现的细节，主要是针对`batch invariant`kernel上，针对chunked prefill、cuda graph等特性做了兼容，具体可以参考[RoadMap](https://github.com/sgl-project/sglang/issues/10278)。
 
@@ -132,11 +132,10 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 
 
 
-# On-policy RL训练中的训推不一致问题
+## On-policy RL训练中的训推不一致问题
 
 >训推不一致问题，在RL训练上实际上是不可忽视的，主要由于训练侧（FSDP、Megatron等）和推理侧（vllm、sglang、trt等）这类kernel差异、计算实现路径差异、硬件侧针对两边不同优化这类问题导致的系统性偏差。而且这类偏差，在数学上可能会导致：
->- `Bias`: 训练优化器会主动走向一个错误的结果。
-   -`Variance`：优化器会完全停滞，让训练中止。
+> `Bias`: 训练优化器会主动走向一个错误的结果。  `Variance`：优化器会完全停滞，让训练中止。
   在后面算法的章节，在理论上也会对不一致问题对RL影响进行数学上的分析。
 
 [有研究指出](https://fengyao.notion.site/off-policy-rl) train / inference engine之间的不一致会隐形导致on-policy假设的RL实际变成off-policy。所以当我们追求"真正的" on-policy RL训练时，需要知道：如果不能从两个完全一致的推理请求中获取bitwise相等的结果，那么当然也无法保障训推之间的bitwise一致性。所以基于之前我们对确定性推理实现讨论，直觉上可以知道如果保证了确定性推理，那么通过修改训练这部分stack，也能够实现在bitwise上训推的一致性，从而实现真正的on-policy RL训练。
@@ -148,7 +147,7 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 
 后续会分别着重分析这两种解决思路。
 
-## 不一致问题分析
+### 不一致问题分析
 
 [这篇文章](https://fengyao.notion.site/off-policy-rl) 从实验的角度来对rollout-training不一致问题进行了分析，主要得出的结论是，**不同的并行策略**以及**更长的响应长度**会增大二者之间的mismatch，而选择不同的推理后端的影响比较小。
 
@@ -188,9 +187,9 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 
 接下来笔者详细介绍一下，业界针对不一致问题的解决思路和方案。
 
-## 硬对齐训推前反向不同kernel
+### 硬对齐训推前反向不同kernel
 
-### TorchTitan + vLLM
+#### TorchTitan + vLLM
 
 [TorchTitan项目](https://github.com/pytorch/torchtitan/tree/main/torchtitan/experiments/deterministic_vllm_rl)探索了基于vllm的确定性RL的实现，基于vllm的确定性前向实现，补充了vllm operations的反向传播。其具体的实现为：
 - 利用vLLM的`batch invariant`前向实现。
@@ -215,7 +214,7 @@ class FlashAttnWithBackward(torch.autograd.Function):
 ```
 - 提供了torchtitan和vllm侧不同格式的权重转换能力。
 
-### Slime + SGLang
+#### Slime + SGLang
 
 SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，通过定制一系列注意力算子和采样逻辑，也**实现了完全确定性推理**。该实现同时保持与**分块预填充 (chunked prefill)、CUDA Graph、Radix Cache 和非贪婪采样 (non-greedy sampling)** 等关键功能的兼容性。SGLang侧的主要增强工作为:
 - 集成Thinking Machines Lab的批次不变(batch invariant)算子。
@@ -237,9 +236,9 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 详细可以看此[PR](https://github.com/THUDM/slime/pull/370)。
 
 
-## RL算法侧缓解差异（off-policy correction）
+### RL算法侧缓解差异（off-policy correction）
 
-### 数学直觉和分析工具
+#### 数学直觉和分析工具
 
 首先我们需要在数学上对mismatch问题给训练带来影响建立一些理论直觉，针对后续的一些算法工作，才会知道为什么这些是work的，哪些是可能还是有问题的。
 
@@ -263,9 +262,9 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 - Chi-Square ($\chi^2​$) Distance: $$\chi^2(\pi\|\mu) = \mathbb{E}_\mu\left[\left(\frac{\pi(y)}{\mu(y)}\right)^2\right] - 1 = \mathbb{E}_\mu[\rho^2] - 1$$ 公式由IS（重要性采样）的二阶动量定义，用于衡量重要性采样 estimator的variance，$\mathbb{E}_\mu[\rho^2].$。如果这个值很大或者到inf，说明variance已经无法控制了，这个式子用来衡量Term C的影响。
 
 
-### Mismatch Importance Sampling 
+#### Mismatch Importance Sampling 
 
-#### TIS（截断重要性采样）
+##### TIS（截断重要性采样）
 
 比较早的博客是[(Yao et al.2025)](https://fengyao.notion.site/off-policy-rl)，分析了用重要性采样从算法上缓解训推不一致性的问题。对REINFORCE的梯度表示：$$\mathbb{E}_{a \sim \textcolor{red}{\pi_{\text{sampler}}}(\theta)} [R(a)\cdot \nabla_\theta \log \textcolor{blue}{\pi_{\text{learner}}}(a, \theta)],$$ 
 
@@ -284,7 +283,7 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 对比下来还是TIS更加稳定，特别是在训推不同量化这种场景下（e.g. FP8/INT8），更加明显。
 
 
-#### 更多的IS变种
+##### 更多的IS变种
 
 更进一步的，前面介绍的字节的[这篇工作](https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda)还是更细致分析了不同IS：
 - Token-level / Sequence-level TIS
@@ -304,7 +303,7 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 - sequence-level的MIS在更复杂、更长上下文的自回归任务上，表现的还是比token-level要好，这符合理论预期。 ![seq-mis-token-mis](https://yingru.notion.site/image/attachment%3A6269fa85-8a0c-40ab-8485-9238805b69ce%3Aimg_v3_02qb_d5ff66e7-2585-4275-a6f7-db4a65fbe60g.jpg?table=block&id=27b211a5-58b7-80a9-9837-dc6b5f980e1b&spaceId=effaf72e-4449-4e46-8824-1cc2f447196b&width=1420&userId=&cache=v2)
 
 
-#### `VeRL`的rollout correction实现
+##### `VeRL`的rollout correction实现
 
 >建议直接参考[verl rollout correction文档](https://verl.readthedocs.io/en/latest/algo/rollout_corr.html)
 
@@ -334,7 +333,7 @@ actor_rollout_ref:
 而对`bypass_mode`关闭的模式，也就是`decoupled-ppo`模式，会重计算`old_log_prob`，相当于每个`mini batch`都要调用`compute_rollout_correction_and_rejection_mask`计算IS的weight和response make，然后添加到batch中（union），然后正常走正常的流程，比如调用`compute_policy_loss_vanilla`里会处理。
 
 
-#### `Slime`的IS实现
+##### `Slime`的IS实现
 
 >可以参考[合入PR](https://github.com/THUDM/slime/pull/429)，和verl类似，都实现了token/sequence/geometric mean级别的TIS、MIS等校准策略。
 
@@ -345,7 +344,7 @@ actor_rollout_ref:
 - `--train-infer-is-veto-threshold`: Catastrophic token threshold
 
 
-### 从理论角度解释上述的现象
+#### 从理论角度解释上述的现象
 
 前面介绍的这些研究，针对token-level, seq-level的TIS或者MIS都进行了实验，发现seq-level的效果是比token-level更好的，而且seq-level的MIS比seq-level的TIS效果更好，我们可以基于前面给出的理论分析框架和数学工具，再从本质上去理解背后的原因，做到对问题的完全理解。
 
@@ -354,7 +353,7 @@ actor_rollout_ref:
 我们的目标是找到一个estimator $\hat{g}$，同时能控制bias和variance。首先我们分析下常见的estimator，先定义：$$ f(y) := \nabla_\theta \log \pi(y|x) \cdot R(y|x)$$
 作为目标函数，梯度是$g = \mathbb{E}_\pi[f(y)]​$。
 
-#### Seq-IS
+##### Seq-IS
 
 这种是最为pure的estimator：$\hat{g}_{\text{seq}} = \rho(y) \cdot f(y)​$，其中$\rho(y) = \pi(y) / \mu(y)​$，对每个采样进行序列级别的re-weighting，来缓解mismatch。
 
@@ -366,16 +365,16 @@ actor_rollout_ref:
 这个方式虽然能够stable，但是会导致“Sample Collapse”，也就是在高维的序列生成下，$\rho​$方差会很大，可能少量的样本会主导累加和，也就是: $$ \text{ESS} \approx \frac{(\sum \rho_i)^2}{\sum \rho_i^2} \to 1$$
 这样是非常不高效的，可能会抛弃掉batch中99%的数据。因此我们需要"截断"(Truncation)
 
-#### Token-IS
+##### Token-IS
 
 sequence-level的IS，因为涉及到全序列的$\rho = \prod_t \rho_t​$，会出现variance为指数级增长，而token-level的IS，其variance随着序列T的增长，其方差增长并非指数级的，而是多项式级的$O(T^2(1+\bar{\chi}^2))​$。
 
-token-level的estimator形式为：$ \hat{g}_{\text{tok}}(y) = \sum_{t=0}^{T-1} \left( \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})} \right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{<t}) $
-
+token-level的estimator形式为：$ \hat{g}_{\text{tok}}(y) = \sum_{t=0}^{T-1} \left( \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})} \right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{\text{<t}}) $
+    
 但是因为非sequence-level IS，会引入一个系统级别的bias，**而且这个bias随着序列长度$T$呈二次项的增长** $O(T^2 \Delta_{\max})$。因为，这个estimator优化的，只是一个**有偏的替代目标**$L_μ​(π)$ ，它是基于旧的状态分布$d_μ​$,而不是真正的目标$J(π)$。因此，这种继承了这个偏差目标带来的$O(T^2)$偏差。
 
 
-#### Token-TIS
+##### Token-TIS
 
 PPO因为引入了clip，所以其实能较好得处理variance的问题，TIS也是类似，这个是对PPO的一种补充。朴素的思想是，如果重要性比率$\rho_t$太大了，就clip防止数值爆炸。
 $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}, C \right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{<t}) $
@@ -387,7 +386,7 @@ $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<
 
 而且，PPO算法就好像是一个“创可贴”，虽然阻止了训练爆炸，但是模型也看不见真正的sequence-level的objective。而bias是sequence-level的问题，也必须在sequence level去解决。
 
-#### Sequence-TIS
+##### Sequence-TIS
 
 经过前面的分析，我们会发现一个dilemma：
 - Seq-IS：无偏，但是variance为$O((1 + \bar{\chi}^2_{\max})^T)$级别。
@@ -420,14 +419,14 @@ $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<
 所以，下面分析的Sequence-level MIS和Geo-RS才是agentic RL训练所必须的。
 
 
-#### Sequence-MIS
+##### Sequence-MIS
 
 针对那种非常异常的比率权重点(e.g., $\rho = 10,000$)，直观的解释就是，旧的policy会以及其小的概率去生成，所以通常是OOD的样本。如果简单用Sequence-level TIS，相当于是把异常项注入到了优化过程。
 
 所以可以进行更激进的filter：$$  \hat{g}_{\text{seq-mis}}(y) = \mathbb{I}(\rho(y) \le C) \cdot \rho(y) \cdot f(y)$$
 实际上，和Sequence-level TIS相比，MIS的侧重点不太一样。TIS侧重于最大化 **information efficiency**，会从所有为止获取优化信号，最好在data比较干净、mismatch比较小（e.g Online PPO）的场景使用。而MIS，侧重于最大化**Safety**，相当于作为置信域的filter，当mismatch比较大的时候（e.g. Offline RL）可以使用。
 
-#### Geo-RS （几何平均RS）
+##### Geo-RS （几何平均RS）
 
 >这个技巧在现象实验的时候没有被提到，这里进行理论分析证明其能很好解决上文提到的问题2（在CoT推理模型和agents场景合适）。
 
@@ -444,7 +443,7 @@ Geo-RS的estimator为：$$\hat{g}_{\text{geo-rs}}(y) = \underbrace{\mathbb{I}\le
 
 
 
-#### 总结
+##### 总结
 
 | **Estimator**       | **Bias (Term B)**      | **Variance (Term C)**            |
 | ------------------- | ---------------------- | -------------------------------- |
@@ -460,7 +459,7 @@ Geo-RS的estimator为：$$\hat{g}_{\text{geo-rs}}(y) = \underbrace{\mathbb{I}\le
 | **Geo-RS**         | Rejects on _per-token_ drift. | **Stability.** Solves the Length Bias to enable deep thinking. |
 
 
-### Routing Replay
+#### Routing Replay
 
 >https://arxiv.org/html/2510.11370v1
 >https://arxiv.org/html/2510.23027v1       RSPO  routing fluctuations
@@ -478,9 +477,9 @@ Rollout Routing Replay 会在模型进行推理时（Rollout 阶段），记录�
 
 
 
-## 值得注意的其他研究
+### 值得注意的其他研究
 
-### BF16切换为FP16
+#### BF16切换为FP16
 
 有一篇更新的(2025/10/30)的来自Sea AI Lab的文章[Defeating the Training-Inference Mismatch via FP16](https://arxiv.org/html/2510.26788v1) 提出了一个更简单的statement：**我们不需要上面这些复杂的算法修正，只需要把精度从BF16切回FP16，不一致带来的问题就会解决**。
 

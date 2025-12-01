@@ -2,7 +2,7 @@
 .toc.side {
     position: fixed;
     top: 5rem;
-    width: 20rem;
+    width: 22rem;
     max-height: calc(100vh - 7rem);
     overflow-y: auto;
     background: var(--entry);
@@ -15,12 +15,12 @@
 
 /* 右侧TOC */
 .toc.side.right {
-    right: 2rem;
+    right: 1.5rem;
 }
 
 /* 左侧TOC */
 .toc.side.left {
-    left: 2rem;
+    left: 1.5rem;
 }
 
 /* 当前阅读位置高亮 */
@@ -47,7 +47,9 @@
 
 .toc.side ul {
     list-style-type: none;
-    padding-left: 1rem;
+    font-weight: 400;
+    padding-left: 0.75rem;
+    margin: 0;
 }
 
 .toc.side a {
@@ -56,8 +58,39 @@
     font-size: 0.9rem;
     line-height: 1.6;
     display: block;
-    padding: 0.2rem 0;
+    padding: 0.15rem 0;
+    white-space: normal;  /*允许换行，由宽度限制*/
+    word-break: break-word;      /* 长单词可断行 */
 }
+
+
+/* 层级字体大小递减 */
+.toc.side ul ul a {              /* h2 */
+    font-size: 0.88rem;
+    color: var(--secondary);
+    opacity: 0.98;
+}
+.toc.side ul ul ul a {          /* h3 */
+    font-size: 0.85rem;
+    color: var(--secondary);
+    opacity: 0.9;
+}
+.toc.side ul ul ul ul a {       /* h4 - 重点优化 */
+    font-size: 0.82rem;
+    color: var(--secondary);
+    opacity: 0.85;
+}
+.toc.side ul ul ul ul ul a {    /* h5 */
+    font-size: 0.78rem;
+    color: var(--secondary);
+    opacity: 0.75;
+}
+.toc.side ul ul ul ul ul ul a { /* h6 */
+    font-size: 0.75rem;
+    color: var(--secondary);
+    opacity: 0.7;
+}
+
 
 .toc.side a:hover {
     color: var(--primary);
