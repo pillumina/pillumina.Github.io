@@ -49,13 +49,10 @@ Wiki上对deterministic算法的定义是:
 
 ### 系统级别批次不变性的缺失（batch invariant）
 
-前向kernel函数的确定性，实际上不等于整个推理服务对外表现确定，也就是还存在额外的**系统级非确定性**。因为真正喂给前向的**张量内容**还可能被其他“外部输入”左右。
+前向kernel函数的确定性，实际上不等于整个推理服务对外表现确定，也就是还存在额外的**系统级非确定性**。因为真正喂给前向的**张量内容**还可能被其他“外部输入”左右，比如`batch_size`，也就是**仍缺失“批次不变性”（batch invariance）**：同一请求、同一模型权重，只要推理时动态批大小不同，可能会导致`tilesize`不同，导致reduce的计算结果不同。
 
-举个经典里batch norm的坑：早期 BatchNorm 把“整批统计量”（均值/方差）当常量参与计算。  
-同一句话，单条跑 μ₁ σ₁，跟 32 条一起跑 μ₃₂ σ₃₂，算出来的隐藏值就不一样，于是最终 token 概率也不同。  
-站在“单条请求”视角：它完全无法预知今晚会不会有 31 个请求来搭伙，所以即使自己 prompt 固定，输出依旧“看运气”——这就是上面所说的**系统级非确定性**。
+更细节去深究，比如Attention计算时，当kvcache很长的时候，就需要沿着KV维度进行分割：
 
-LLM 推理里虽然早就把 BatchNorm 踢了出去，却**仍缺“批次不变性”（batch invariance）**：同一请求、同一模型权重，只要推理时动态批大小不同，可能会导致`tilesize`不同，导致reduce的计算结果不同。更细节去深究，比如Attention计算时，当kvcache很长的时候，就需要沿着KV维度进行分割：
 - split reduction kernels: Split-KV或者FlashDecoding。
 - 根据batch size动态选择分割数量，会导致不同的reduction顺序。
 
@@ -74,7 +71,9 @@ for ki in range(k_tiles):
             b_ptrs = b_ptr + (offs_k[:, None] * stride_bk + offs_bn[None, :] * stride_bn)
 ```
 
-M/N不同，可能会引入不同的内存对齐，导致不同的计算顺序:
+> batch size数值的变化不会必然导致stride变化，stride变化主要原因是**张量布局改变**，而布局常常因为batch size不同而被program主动`.view/.transpose`等操作修改。
+
+M/N不同（行/列长度不同），可能会引入不同的内存对齐，compiler可能会选不同的tile/block/warp划分或者加pad，间接导致不同的微观计算执行顺序。
 
 ```python
 offs_am = tl.max_contiguous(tl.multiple_of(offs_am, BLOCK_SIZE_M), BLOCK_SIZE_M)
@@ -123,11 +122,16 @@ Thinking Machines Lab发布了`batch invariant`的[部分kernel算子实现](htt
 
 decode阶段Q长度小，需要拆分KV维度（Split-KV），采用固定拆分大小策略（而非固定拆分数量），确保reduction顺序不变，比如把1000长度的KV拆成3个256长度和1个232长度的片段，而不是4个250长度的片段。
 
+- 传统 batch 变化（来 1 条还是 32 条）会让 reduce 并行度变化 → 累加序变化。
+
+- 这里把「并行」只放到 **无 reduce 的 Q 维**（data-parallel），而把 **带 reduce 的 KV 维**用 **固定 tile 大小**串行扫完。
+- 于是 **batch 数只影响开多少核，不影响 reduce 顺序**，实现「batch 变化，结果不变」的 deterministic attention。
+
 ![batch-inv-attn](https://picx.zhimg.com/80/v2-9b088207a9c3ed23e018f1416897134e_1440w.webp?source=1def8aca)
 
 ### Sglang / vLLM 实现deterministic inference
 
-SGLang团队的[博客](https://lmsys.org/blog/2025-09-22-sglang-deterministic/)里记录了实现的细节，主要是针对`batch invariant`kernel上，针对chunked prefill、cuda graph等特性做了兼容，具体可以参考[RoadMap](https://github.com/sgl-project/sglang/issues/10278)。
+SGLang团队的[博客](https://lmsys.org/blog/2025-09-22-sglang-deterministic/)里记录了实现的细节，主要是针对`batch invariant` kernel上，针对chunked prefill、cuda graph等特性做了兼容，具体可以参考[RoadMap](https://github.com/sgl-project/sglang/issues/10278)。
 
 vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/features/batch_invariance/)，也可以参考RFC [#28326](https://github.com/vllm-project/vllm/issues/28326)，[#27433](https://github.com/vllm-project/vllm/issues/27433)。
 
@@ -139,7 +143,9 @@ vLLM参考[Enabling Batch Invariant文档](https://docs.vllm.ai/en/latest/featur
 > `Bias`: 训练优化器会主动走向一个错误的结果。  `Variance`：优化器会完全停滞，让训练中止。
   在后面算法的章节，在理论上也会对不一致问题对RL影响进行数学上的分析。
 
-[有研究指出](https://fengyao.notion.site/off-policy-rl) train / inference engine之间的不一致会隐形导致on-policy假设的RL实际变成off-policy。所以当我们追求"真正的" on-policy RL训练时，需要知道：如果不能从两个完全一致的推理请求中获取bitwise相等的结果，那么当然也无法保障训推之间的bitwise一致性。所以基于之前我们对确定性推理实现讨论，直觉上可以知道如果保证了确定性推理，那么通过修改训练这部分stack，也能够实现在bitwise上训推的一致性，从而实现真正的on-policy RL训练。
+[有研究指出](https://fengyao.notion.site/off-policy-rl) train / inference engine之间的不一致会隐性导致on-policy假设的RL实际变成off-policy。所以当我们追求"真正的" on-policy RL训练时，需要知道：
+
+> 如果不能从两个完全一致的推理请求中获取bitwise相等的结果，那么当然也无法保障训推之间的bitwise一致性。所以基于之前我们对确定性推理实现讨论，直觉上可以知道如果保证了确定性推理，那么通过修改训练这部分stack，也能够实现在bitwise上训推的一致性，从而实现真正的on-policy RL训练。
 
 而业界对这个问题的解决思路上主要分为两种：
 - 在训练引擎侧，基于推理引擎(vllm/sglang)确定性推理内核前向实现，进行反向传递的实现，通过对齐kernel的实现，做到训练和采样部分的bitwise一致性（i.e. 0 KL divergence）。
@@ -247,20 +253,20 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 其中：
 - Term A (True Progress):  $\eta (1 - \frac{L\eta}{2})\|\nabla J\|^2$
     - 对于真实的、无噪声的梯度的训练progess。
-- Term B (Bias Error): $\eta(1 - L\eta)\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle​$
+- Term B (Bias Error): $\eta(1 - L\eta)\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle$
 	- 计算系统级别异常导致的偏差。
-- Term C (Noise Error): $\frac{L\eta^2}{2}[\mathbf{Var}(\hat{g}) + \|\mathbf{Bias}(\hat{g})\|^2]​$
+- Term C (Noise Error): $\frac{L\eta^2}{2}[\mathbf{Var}(\hat{g}) + \|\mathbf{Bias}(\hat{g})\|^2]$
 	- 对于噪声和bias幅度的penalty。
 
 基于上面的式子，有几个takeways：
-- $\mathbf{Bias}(\hat{g}) = \mathbb{E}[\hat{g}] - \nabla J$ 这个差异衡量了estimator的systematic error，而在Term B中，$\langle \nabla J, \mathbf{Bias} \rangle​$ 衡量了真实梯度和这个error关系。可以看到，如果bias比较小，或者是随机的，这个式子接近0，everything is fine。但是如果bias是系统级别的，并且和真实梯度有显著差异，那么点积会变得很大。一个负的Term B，代表着optimizer自己和自己“打架”，这不仅仅是训练变慢，而是逐渐和最优点逐渐偏离。因此，**高的bias会导致一个错误的优化结果**。
-- $\mathbf{Var}(\hat{g}) = \mathbb{E}[\|\hat{g}\|^2] - \|\mathbb{E}[\hat{g}]\|^2$ 方差衡量了estimator的noise，这个noise error总是负数，并且scales with $\eta^2​$，作为上面式子里的penalty。所以如果var比较高，这个负值会变大，那么为了保证优化的稳定（i.e. 确保Term A > Term C），我们只能**被迫使用一个更小的学习率$\eta$** 。而且随着优化的进行，$\eta$也必须scale with $O(1/\mathbf{Var}).$。所以**高方差 => 低学习率 => 缓慢的优化进展**，所以训练的loss没崩掉，不是因为问题解决了，而是优化器本身就慢的很。
+- $\mathbf{Bias}(\hat{g}) = \mathbb{E}[\hat{g}] - \nabla J$ 这个差异衡量了estimator的systematic error，而在Term B中，$\langle \nabla J, \mathbf{Bias} \rangle$ 衡量了真实梯度和这个error关系。可以看到，如果bias比较小，或者是随机的，这个式子接近0，everything is fine。但是如果bias是系统级别的，并且和真实梯度有显著差异，那么点积会变得很大。一个负的Term B，代表着optimizer自己和自己“打架”，这不仅仅是训练变慢，而是逐渐和最优点逐渐偏离。因此，**高的bias会导致一个错误的优化结果**。
+- $\mathbf{Var}(\hat{g}) = \mathbb{E}[\|\hat{g}\|^2] - \|\mathbb{E}[\hat{g}]\|^2$ 方差衡量了estimator的noise，这个noise error总是负数，并且scales with $\eta^2$，作为上面式子里的penalty。所以如果var比较高，这个负值会变大，那么为了保证优化的稳定（i.e. 确保Term A > Term C），我们只能**被迫使用一个更小的学习率$\eta$** 。而且随着优化的进行，$\eta$也必须scale with $O(1/\mathbf{Var}).$。所以**高方差 => 低学习率 => 缓慢的优化进展**，所以训练的loss没崩掉，不是因为问题解决了，而是优化器本身就慢的很。
 所以，算法侧的目标，应该是**既要控制bias也要控制variance**。
 
 衡量bias和variance分别用下面两种工具：
 - Total Variation (TV) Distance ： $$D_{TV}(\mu \| \pi) = \frac{1}{2}\sum_y |\mu(y) - \pi(y)|$$
   这个公式用来衡量bias，用来量化Term B的影响。
-- Chi-Square ($\chi^2​$) Distance: $$\chi^2(\pi\|\mu) = \mathbb{E}_\mu\left[\left(\frac{\pi(y)}{\mu(y)}\right)^2\right] - 1 = \mathbb{E}_\mu[\rho^2] - 1$$ 公式由IS（重要性采样）的二阶动量定义，用于衡量重要性采样 estimator的variance，$\mathbb{E}_\mu[\rho^2].$。如果这个值很大或者到inf，说明variance已经无法控制了，这个式子用来衡量Term C的影响。
+- Chi-Square ($\chi^2$) Distance: $$\chi^2(\pi\|\mu) = \mathbb{E}_\mu\left[\left(\frac{\pi(y)}{\mu(y)}\right)^2\right] - 1 = \mathbb{E}_\mu[\rho^2] - 1$$ 公式由IS（重要性采样）的二阶动量定义，用于衡量重要性采样 estimator的variance，$\mathbb{E}_\mu[\rho^2].$。如果这个值很大或者到inf，说明variance已经无法控制了，这个式子用来衡量Term C的影响。
 
 
 #### Mismatch Importance Sampling 
@@ -274,13 +280,13 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 
 扩展到PPO算法，策略梯度为经典的公式: $$\small{ \mathbb{E}_{a\sim\pi_{\theta_{\mathrm{old}}}} \Bigl[ \nabla_\theta \min\Bigl( \frac{\pi_\theta(a)}{\pi_{\theta_{\mathrm{old}}}(a)}\,\hat A, \;\mathrm{clip}\bigl(\frac{\pi_\theta(a)}{\pi_{\theta_{\mathrm{old}}}(a)},\,1-\epsilon,\,1+\epsilon\bigr)\,\hat A \Bigr) \Bigr]}.$$
 为了提升吞吐，Hybrid RL系统比如veRL使用vLLM这类推理引擎做rollout采样，而后回到训练侧用训练引擎再做一次 $\pi_{\theta old}$的recompute：$$ \small{ \mathbb{E}_{a\sim\textcolor{red}{\pi_{\text{sampler}}}(\theta_{\mathrm{old}})} \Bigl[ \nabla_\theta \min\Bigl( \frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta_{\mathrm{old}})}\,\hat A, \;\mathrm{clip}\bigl(\frac{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta)}{\textcolor{blue}{\pi_{\text{learner}}}(a, \theta_{\mathrm{old}})},\,1-\epsilon,\,1+\epsilon\bigr)\,\hat A \Bigr) \Bigr] }.$$
-同样的，这种训练和推理的mismatch会出现，那么可以使用TIS进行校准：$$\small{\mathbb{E}_{a\sim\textcolor{red}{\pi_{\mathrm{sampler}}}(\theta_{\mathrm{old}})}\Bigl[\underbrace{\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\theta_{\mathrm{old}})}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\theta_{\mathrm{old}})}, C\Bigr)}_{\text{truncated importance ratio}}\cdot\nabla_{\theta}\,\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}\,\hat{A}, \mathrm{clip}\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}, 1-\epsilon,\;1+\epsilon \Bigr)\,\hat{A}\Bigr)\Bigr]}​$$
+同样的，这种训练和推理的mismatch会出现，那么可以使用TIS进行校准：$$\small{\mathbb{E}_{a\sim\textcolor{red}{\pi_{\mathrm{sampler}}}(\theta_{\mathrm{old}})}\Bigl[\underbrace{\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\theta_{\mathrm{old}})}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\theta_{\mathrm{old}})}, C\Bigr)}_{\text{truncated importance ratio}}\cdot\nabla_{\theta}\,\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}\,\hat{A}, \mathrm{clip}\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}, 1-\epsilon,\;1+\epsilon \Bigr)\,\hat{A}\Bigr)\Bigr]}$$
 文中也做了一些对比实验，表示此类校准确实能减少训推之间的计算分布差异:
 ![tis-analysis](https://fengyao.notion.site/image/attachment%3A766b9627-d7c4-4f0d-ba10-6eda045390a1%3Agsm8k_int8.png?table=block&id=246721e3-f6c4-803f-b9f1-c1e707b64b02&spaceId=5cbd2ef3-859d-42c5-86d3-a8382485dc0e&width=1420&userId=&cache=v2)
 
 
 除此之外，不同的IS变种的效果也有所不同。例如Colossal框架使用的PPO-IS格式: $$\small{ \mathbb{E}_{a\sim\textcolor{red}{\pi_{\mathrm{sampler}}}(\theta_{\mathrm{old}})}\Bigl[\nabla_{\theta}\,\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\;\theta_{\mathrm{old}})}\,\hat{A}, \mathrm{clip}\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\;\theta_{\mathrm{old}})}, 1-\epsilon,\;1+\epsilon \Bigr)\,\hat{A}\Bigr)\Bigr]}$$
-以及Nemo-RL框架使用的格式：$$\small{\mathbb{E}_{\textcolor{red}{\pi_{\mathrm{sampler}}}(\theta_{\mathrm{old}})}\Bigl[\underbrace{\frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\theta_{\mathrm{old}})}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\theta_{\mathrm{old}})} }_{\text{importance ratio}}\cdot\nabla_{\theta}\,\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}\,\hat{A}, \mathrm{clip}\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}, 1-\epsilon,\;1+\epsilon \Bigr)\,\hat{A}\Bigr)\Bigr]}​$$
+以及Nemo-RL框架使用的格式：$$\small{\mathbb{E}_{\textcolor{red}{\pi_{\mathrm{sampler}}}(\theta_{\mathrm{old}})}\Bigl[\underbrace{\frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\theta_{\mathrm{old}})}{\textcolor{red}{\pi_{\mathrm{sampler}}}(a,\theta_{\mathrm{old}})} }_{\text{importance ratio}}\cdot\nabla_{\theta}\,\min\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}\,\hat{A}, \mathrm{clip}\Bigl( \frac{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta)}{\textcolor{blue}{\pi_{\mathrm{learner}}}(a,\;\theta_{\mathrm{old}})}, 1-\epsilon,\;1+\epsilon \Bigr)\,\hat{A}\Bigr)\Bigr]}$$
 对比下来还是TIS更加稳定，特别是在训推不同量化这种场景下（e.g. FP8/INT8），更加明显。
 
 
@@ -291,7 +297,7 @@ SGLang团队在Thinking Machines Lab发布的批次不变算子基础之上，�
 	- 给定upper和lower bound，针对weights超过这个部分的做clip。
 - Token-level / Sequence-level MIS
 	- 给定upper和lower bound，将超出这个范围的weights置为0，相当与mask out掉，这个策略更加激进，适合处理极端的mismatch
-简单来说，有以下的几个结论。
+	简单来说，有以下的几个结论。
 
 - Token-level的IS是理论**有偏**（biased）的估计，而Sequence-level的IS是**无偏**的估计，通常能有更稳定的训练。![token-seq-compare](https://yingru.notion.site/image/attachment%3A6e07f8c0-50bb-4418-8fa2-878ea8b5283b%3Aimage.png?table=block&id=271211a5-58b7-8008-aab6-ca175a776bdd&spaceId=effaf72e-4449-4e46-8824-1cc2f447196b&width=1420&userId=&cache=v2)
 
@@ -349,30 +355,30 @@ actor_rollout_ref:
 
 前面介绍的这些研究，针对token-level, seq-level的TIS或者MIS都进行了实验，发现seq-level的效果是比token-level更好的，而且seq-level的MIS比seq-level的TIS效果更好，我们可以基于前面给出的理论分析框架和数学工具，再从本质上去理解背后的原因，做到对问题的完全理解。
 
-回顾一下，我们通过$D_{TV}​$来衡量bias，用$\chi^2​$-divergence衡量variance。
+回顾一下，我们通过$D_{TV}$来衡量bias，用$\chi^2$-divergence衡量variance。
 
 我们的目标是找到一个estimator $\hat{g}$，同时能控制bias和variance。首先我们分析下常见的estimator，先定义：$$ f(y) := \nabla_\theta \log \pi(y|x) \cdot R(y|x)$$
-作为目标函数，梯度是$g = \mathbb{E}_\pi[f(y)]​$。
+作为目标函数，梯度是$g = \mathbb{E}_\pi[f(y)]$。
 
 ##### Seq-IS
 
-这种是最为pure的estimator：$\hat{g}_{\text{seq}} = \rho(y) \cdot f(y)​$，其中$\rho(y) = \pi(y) / \mu(y)​$，对每个采样进行序列级别的re-weighting，来缓解mismatch。
+这种是最为pure的estimator：$\hat{g}_{\text{seq}} = \rho(y) \cdot f(y)$，其中$\rho(y) = \pi(y) / \mu(y)$，对每个采样进行序列级别的re-weighting，来缓解mismatch。
 
 可以推导得到，这个estimator是unbiased：$$ \mathbb{E}_\mu[\hat{g}_{\text{seq}}] = \mathbb{E}_\mu\left[ \frac{\pi(y)}{\mu(y)} f(y) \right] = \sum_y \mu(y) \frac{\pi(y)}{\mu(y)} f(y) = \sum_y \pi(y) f(y) = \mathbb{E}_\pi[f(y)] = g$$
 所以都会优化收敛到正确的结果。而对于estimator的variance，和IS ratio的二阶动量有关$$\mathbb{E}_\mu[\rho^2] = 1 + \chi^2(\pi\|\mu).$$
-但是问题是，针对自回归的序列，二阶动量会跟随序列长度$T$呈现指数级别的增长，对于很小的比如1%的per-token差异($\bar{\chi}^2_{\min} = 0.01​$)，200个token的会得到variance的倍数$(1.01)^{200} \approx 7.3​$。5%的mismatch会导致17292倍数的放大，这个明显是不可接受的。
+但是问题是，针对自回归的序列，二阶动量会跟随序列长度$T$呈现指数级别的增长，对于很小的比如1%的per-token差异($\bar{\chi}^2_{\min} = 0.01$)，200个token的会得到variance的倍数$(1.01)^{200} \approx 7.3$。5%的mismatch会导致17292倍数的放大，这个明显是不可接受的。
 
 当然，我们可以通过normalized的手段，去控制数值爆炸：$$  \hat{g} = \frac{1}{N} \sum \rho_i f_i.$$ $$  \hat{g}_{\text{snis}} = \frac{\sum_{i=1}^N \rho(y_i) f(y_i)}{\sum_{i=1}^N \rho(y_i)}$$
-这个方式虽然能够stable，但是会导致“Sample Collapse”，也就是在高维的序列生成下，$\rho​$方差会很大，可能少量的样本会主导累加和，也就是: $$ \text{ESS} \approx \frac{(\sum \rho_i)^2}{\sum \rho_i^2} \to 1$$
+这个方式虽然能够stable，但是会导致“Sample Collapse”，也就是在高维的序列生成下，$\rho$方差会很大，可能少量的样本会主导累加和，也就是: $$ \text{ESS} \approx \frac{(\sum \rho_i)^2}{\sum \rho_i^2} \to 1$$
 这样是非常不高效的，可能会抛弃掉batch中99%的数据。因此我们需要"截断"(Truncation)
 
 ##### Token-IS
 
-sequence-level的IS，因为涉及到全序列的$\rho = \prod_t \rho_t​$，会出现variance为指数级增长，而token-level的IS，其variance随着序列T的增长，其方差增长并非指数级的，而是多项式级的$O(T^2(1+\bar{\chi}^2))​$。
+sequence-level的IS，因为涉及到全序列的$\rho = \prod_t \rho_t$，会出现variance为指数级增长，而token-level的IS，其variance随着序列T的增长，其方差增长并非指数级的，而是多项式级的$O(T^2(1+\bar{\chi}^2))$。
 
 token-level的estimator形式为：$ \hat{g}_{\text{tok}}(y) = \sum_{t=0}^{T-1} \left( \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})} \right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{\text{<t}}) $
     
-但是因为非sequence-level IS，会引入一个系统级别的bias，**而且这个bias随着序列长度$T$呈二次项的增长** $O(T^2 \Delta_{\max})$。因为，这个estimator优化的，只是一个**有偏的替代目标**$L_μ​(π)$ ，它是基于旧的状态分布$d_μ​$,而不是真正的目标$J(π)$。因此，这种继承了这个偏差目标带来的$O(T^2)$偏差。
+但是因为非sequence-level IS，会引入一个系统级别的bias，**而且这个bias随着序列长度$T$呈二次项的增长** $O(T^2 \Delta_{\max})$。因为，这个estimator优化的，只是一个**有偏的替代目标**$L_μ​(π)$ ，它是基于旧的状态分布$d_μ$,而不是真正的目标$J(π)$。因此，这种继承了这个偏差目标带来的$O(T^2)$偏差。
 
 
 ##### Token-TIS
@@ -380,9 +386,9 @@ token-level的estimator形式为：$ \hat{g}_{\text{tok}}(y) = \sum_{t=0}^{T-1} 
 PPO因为引入了clip，所以其实能较好得处理variance的问题，TIS也是类似，这个是对PPO的一种补充。朴素的思想是，如果重要性比率$\rho_t$太大了，就clip防止数值爆炸。
 $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}, C \right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{<t}) $
 
-通过引入对重要性比值的限制，能约束variance到多项式级别$O(T^2 C^2)​$。
+通过引入对重要性比值的限制，能约束variance到多项式级别$O(T^2 C^2)$。
 
-但是针对bias，不能修复在上文说明的$O(T^2 \Delta_{\max})$级别scale，因为bias来源于状态分布的不一致，也就是$d_\mu \neq d_\pi$，而不是来源于token级别的重要性比值权重$\rho_t​$。而针对$\rho_t​$的clip，是一个减少variance的技巧，而不会修正隐藏的优化目标。这种截断，反而会基于已有的$O(T^2 \Delta_{\max})$上，新增截断的bias: $$  \text{Total Bias} = \mathbb{E}[\hat{g}_{\text{tl-tis}}] - g = \underbrace{(\mathbb{E}[\hat{g}_{\text{tl-tis}}] - \mathbb{E}[\hat{g}_{\text{tok}}])}_{B_{\text{trunc}}} + \underbrace{(\mathbb{E}[\hat{g}_{\text{tok}}] - g)}_{B_{\text{fatal}}} = B_{\text{trunc}} + O(T^2 \Delta_{\max})$$
+但是针对bias，不能修复在上文说明的$O(T^2 \Delta_{\max})$级别scale，因为bias来源于状态分布的不一致，也就是$d_\mu \neq d_\pi$，而不是来源于token级别的重要性比值权重$\rho_t$。而针对$\rho_t$的clip，是一个减少variance的技巧，而不会修正隐藏的优化目标。这种截断，反而会基于已有的$O(T^2 \Delta_{\max})$上，新增截断的bias: $$  \text{Total Bias} = \mathbb{E}[\hat{g}_{\text{tl-tis}}] - g = \underbrace{(\mathbb{E}[\hat{g}_{\text{tl-tis}}] - \mathbb{E}[\hat{g}_{\text{tok}}])}_{B_{\text{trunc}}} + \underbrace{(\mathbb{E}[\hat{g}_{\text{tok}}] - g)}_{B_{\text{fatal}}} = B_{\text{trunc}} + O(T^2 \Delta_{\max})$$
 因此，当**序列长度比较长，并且off-policiness的差异比较大的场景，token-level的技巧都无法解决训练上的问题**。
 
 而且，PPO算法就好像是一个“创可贴”，虽然阻止了训练爆炸，但是模型也看不见真正的sequence-level的objective。而bias是sequence-level的问题，也必须在sequence level去解决。
@@ -392,14 +398,14 @@ $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<
 经过前面的分析，我们会发现一个dilemma：
 - Seq-IS：无偏，但是variance为$O((1 + \bar{\chi}^2_{\max})^T)$级别。
 - Naive/Token-IS/Token-TIS:  variance是$O(T^2)$级别还行，还是bias是$O(T^2 \Delta_{\max})$级别是有偏的而且随着序列规模二次项放大。
-现在分析的Seq-TIS能够解决这个dilemma，其estimator为：$$\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}, C\right) \cdot f(y)​$$
+现在分析的Seq-TIS能够解决这个dilemma，其estimator为：$$\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}, C\right) \cdot f(y)$$
 直觉就是，因为Seq-IS的指数级variance问题就是来源于 -- 少量的样本就能带来很大的序列级别的ratio，那么如果这个值太大了，就clip到一个常数$C$。
 
 这个estimator，对variance的影响是，$\min(\rho, C)$这个ratio会被$C$限制住：$$\mathbf{Var}(\hat{g}_{\text{sl-tis}}) \le \mathbb{E}_\mu[\|\min(\rho, C) f(y)\|^2] \le \mathbb{E}_\mu[C^2 \|f(y)\|^2]$$
-也就是$\mathbf{Var} \le K^2 C^2 = O(T^2 C^2)​$。这样就可以被控制了，不会无限增长。
+也就是$\mathbf{Var} \le K^2 C^2 = O(T^2 C^2)$。这样就可以被控制了，不会无限增长。
 
 而对于bias侧，因为引入了截断，那么就不会是无偏的估计：$$\mathbf{Bias}(\hat{g}_{\text{sl-tis}}) = \mathbb{E}[\hat{g}_{\text{sl-tis}}] - g = \mathbb{E}_\mu[\min(\rho, C) f(y)] - \mathbb{E}_\mu[\rho f(y)]$$
-这个格式$$ \mathbf{Bias} = \mathbb{E}_\mu[(\min(\rho, C) - \rho) f(y)] $$，只有当$\rho > C​$的时候，才会是非零的，而是被约束为: $$\|\mathbf{Bias}(\hat{g}_{\text{sl-tis}})\|_2 \le \frac{2 K (1 + \chi^2)}{C}$$
+这个格式$$ \mathbf{Bias} = \mathbb{E}_\mu[(\min(\rho, C) - \rho) f(y)] $$，只有当$\rho > C$的时候，才会是非零的，而是被约束为: $$\|\mathbf{Bias}(\hat{g}_{\text{sl-tis}})\|_2 \le \frac{2 K (1 + \chi^2)}{C}$$
 和token-level相比，不再是$O(T^2 \Delta_{\max})$，而是一个可以被控制的截断偏差。
 
 
@@ -407,9 +413,9 @@ $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<
 - 为了减小bias，需要增大$C$。
 - 为了减小variance，需要减小$C$。
 
-所以我们可以进行目标$\text{MSE}(C) \approx \text{Bias}^2 + \text{Var}​$的最优$C$求值：$$\text{MSE}(C) \le \text{Bias}^2 + \text{Var} \le \frac{4 K^2 (1 + \chi^2)^2}{C^2} + K^2 C^2$$
+所以我们可以进行目标$\text{MSE}(C) \approx \text{Bias}^2 + \text{Var}$的最优$C$求值：$$\text{MSE}(C) \le \text{Bias}^2 + \text{Var} \le \frac{4 K^2 (1 + \chi^2)^2}{C^2} + K^2 C^2$$
 可以通过计算获取到最小化MSE bound的$C$： $$C^* = \sqrt[4]{\frac{4K^2(1+\chi^2)^2}{K^2}} = \sqrt{2(1+\chi^2)}$$
-可以看到，最佳的截断阈值$C$，可以被表示成$\chi^2​$-divergence的形式，后者是评估variance的metric，代回到最优MSE约束的表达式：$$ \text{MSE} \le \frac{4K^2(1+\chi^2)^2}{2(1+\chi^2)} + K^2(2(1+\chi^2)) = 4 K^2 (1+\chi^2)$$
+可以看到，最佳的截断阈值$C$，可以被表示成$\chi^2$-divergence的形式，后者是评估variance的metric，代回到最优MSE约束的表达式：$$ \text{MSE} \le \frac{4K^2(1+\chi^2)^2}{2(1+\chi^2)} + K^2(2(1+\chi^2)) = 4 K^2 (1+\chi^2)$$
 所以sequence-level的TIS，真正提供了能平衡bias和variance的estimator。
 
 
@@ -432,12 +438,12 @@ $ \hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left( \frac{\pi(y_t|x, y_{<
 >这个技巧在现象实验的时候没有被提到，这里进行理论分析证明其能很好解决上文提到的问题2（在CoT推理模型和agents场景合适）。
 
 举个简单的例子，$ \rho(y) = \prod_{t=1}^T \frac{\pi(y_t|y_{<t})}{\mu(y_t|y_{<t})} $
-序列级别的variance因为乘积效应被指数型放大，假设新的$\pi$和$\mu$的差距不大，token平均偏差比值为1.1。如果T=10，那$\rho \approx 1.1^{10} \approx 2.6​$，如果设置$C=5$, 那可以在裁剪的范围内保留，但是如果T比较大比如100，那就会被reject或者被大幅度得裁剪掉。
+序列级别的variance因为乘积效应被指数型放大，假设新的$\pi$和$\mu$的差距不大，token平均偏差比值为1.1。如果T=10，那$\rho \approx 1.1^{10} \approx 2.6$，如果设置$C=5$, 那可以在裁剪的范围内保留，但是如果T比较大比如100，那就会被reject或者被大幅度得裁剪掉。
 
 换句话说，标准的estimator具有内生的length bias，更偏好于从更短、更浅的回答中学习。
 
 为了解决这个长度上的trap，可以从**概率比值乘**转向**平均概率偏移**：$\rho_{\text{geo}}(y) = \left( \prod_{t=1}^T \frac{\pi(y_t|y_{<t})}{\mu(y_t|y_{<t})} \right)^{1/T} = \rho(y)^{1/T} $
-这个表征了每个token的几何平均差异，这样如果是T=10，$(1.1^{10})^{1/10} = 1.1​$；如果T=100，$(1.1^{100})^{1/100} = 1.1​$。可以避免长度带来的问题。
+这个表征了每个token的几何平均差异，这样如果是T=10，$(1.1^{10})^{1/10} = 1.1$；如果T=100，$(1.1^{100})^{1/100} = 1.1$。可以避免长度带来的问题。
 
 Geo-RS的estimator为：$$\hat{g}_{\text{geo-rs}}(y) = \underbrace{\mathbb{I}\left( C_{\text{low}} \le \rho(y)^{1/T} \le C_{\text{high}} \right)}_{\text{Geometric Filter}} \cdot f(y)$$
 我们用几何均值来判断“这条样本是否有效”（也就是决定 mask），但梯度到底放多大，仍按传统（裁剪后的）重要性权重来算，这样数学上才work。
@@ -496,5 +502,4 @@ Rollout Routing Replay 会在模型进行推理时（Rollout 阶段），记录�
 因此这里的takeaway简单来说，就是在RL场景下，梯度的数值范围通常没有pre-training方差那么大，对梯度的精度要求更高，所谓为了获得比bf16高8倍的精度表征，用fp16 + loss scaling增加的工程成本是值得的。
 
 ![offline-analysis](https://arxiv.org/html/2510.26788v1/x2.png)
-
 
