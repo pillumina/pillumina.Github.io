@@ -1,0 +1,31 @@
+{{- with site.Params.homeInfoParams }}
+<article class="first-entry home-info">
+    <div class="entry-content">
+        <div class="profile-card">
+            <div class="profile-img">
+                {{- if .imageUrl -}}
+                {{- $img := "" }}
+                {{- if not (urls.Parse .imageUrl).IsAbs }}
+                    {{- $img = resources.Get .imageUrl }}
+                {{- end }}
+                {{- if $img }}
+                    {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
+                    {{- if and (in (slice "jpg" "jpeg" "png") $img.MediaType.SubType) (eq $prod true)}}
+                        {{- $img = $img.Resize "200x200" }}
+                    {{- end }}
+                    <img draggable="false" src="{{ $img.Permalink }}" alt="{{ .imageTitle | default "profile" }}" />
+                {{- else }}
+                    <img draggable="false" src="{{ .imageUrl | absURL }}" alt="{{ .imageTitle | default "profile" }}" />
+                {{- end }}
+                {{- end }}
+            </div>
+            <div class="profile-text">
+                {{ .Content | markdownify }}
+            </div>
+        </div>
+    </div>
+    <footer class="entry-footer">
+        {{ partial "social_icons.html" (dict "align" site.Params.homeInfoParams.AlignSocialIconsTo) }}
+    </footer>
+</article>
+{{- end -}}

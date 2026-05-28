@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Writing on CctoctoFX</title>
+    <link>https://pillumina.github.io/tags/writing/</link>
+    <description>Recent content in Writing on CctoctoFX</description>
+    <image>
+      <title>CctoctoFX</title>
+      <url>https://pillumina.github.io/imgs/icon_head.png</url>
+      <link>https://pillumina.github.io/imgs/icon_head.png</link>
+    </image>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 28 May 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://pillumina.github.io/tags/writing/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nature Skills - 学术论文工具集</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-code-skills/nature-skills/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-code-skills/nature-skills/</guid>
+      <description>上海交大博士团队开发的学术论文工具集：写作、润色、图表、审稿回复，覆盖论文全流程</description>
+    </item>
+  </channel>
+</rss>

@@ -11,8 +11,43 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 20 Nov 2025 11:30:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 28 May 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Nature Skills - 学术论文工具集</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-code-skills/nature-skills/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-code-skills/nature-skills/</guid>
+      <description>上海交大博士团队开发的学术论文工具集：写作、润色、图表、审稿回复，覆盖论文全流程</description>
+    </item>
+    <item>
+      <title>Skill: Claude-Mem - 记忆系统工具集</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-code-skills/claude-mem/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-code-skills/claude-mem/</guid>
+      <description>Claude Code 的记忆系统：跨会话持久化上下文，让 Agent 记住项目历史</description>
+    </item>
+    <item>
+      <title>Skill: graphify - 代码库转知识图谱</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-code-skills/graphify/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-code-skills/graphify/</guid>
+      <description>将代码库转化为可导航知识图谱的 Claude Code 技能，支持多 Agent 平台</description>
+    </item>
+    <item>
+      <title>Skill: GSAP - HyperFrames 动画引擎</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-code-skills/gsap/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-code-skills/gsap/</guid>
+      <description>GSAP 官方为 HyperFrames 提供的动画技能参考，GreenSock 动画平台</description>
+    </item>
+    <item>
+      <title>Skill: HyperFrames - 用 HTML 制作视频</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-code-skills/hyperframes/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-code-skills/hyperframes/</guid>
+      <description>用 HTML &#43; GSAP 制作高质量视频的框架，为 AI Agent 优化</description>
+    </item>
     <item>
       <title>[Deterministic RL] 确定性问题的来源 &amp; Reproducible RL</title>
       <link>https://pillumina.github.io/posts/aiinfra/14-deterministic-rl/</link>

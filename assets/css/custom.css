@@ -1,4 +1,159 @@
 /* ==========================================================================
+   首页个人介绍 - 卡片式布局
+   ========================================================================== */
+
+.home-info {
+    padding: 3rem 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.home-info .entry-header {
+    display: none;
+}
+
+.home-info .entry-content {
+    display: flex;
+    justify-content: center;
+}
+
+/* 卡片容器 */
+.home-info .profile-card {
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.3s ease;
+}
+
+.home-info .profile-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+}
+
+/* 头像 */
+.home-info .profile-img {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.home-info .profile-img img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 文字区域 */
+.home-info .profile-text {
+    text-align: center;
+}
+
+/* 标题 */
+.home-info .profile-text h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem 0;
+    letter-spacing: -0.02em;
+    color: var(--primary);
+}
+
+.home-info .profile-text .subtitle {
+    font-size: 0.9rem;
+    color: var(--secondary);
+    margin-bottom: 1.25rem;
+}
+
+/* 分隔线 */
+.home-info .profile-text hr {
+    border: none;
+    height: 1px;
+    background: var(--border);
+    margin: 1.25rem auto;
+    width: 40px;
+}
+
+/* 简介 */
+.home-info .profile-text .bio {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--secondary);
+    margin-bottom: 1.5rem;
+}
+
+/* 话题标签 */
+.home-info .profile-text .topics {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.home-info .profile-text .topics span {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    padding: 0.4rem 0.9rem;
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    transition: all 0.2s ease;
+}
+
+.home-info .profile-text .topics span:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+/* 标语 */
+.home-info .profile-text .tagline {
+    font-size: 0.85rem;
+    color: var(--secondary);
+    opacity: 0.75;
+    font-style: italic;
+}
+
+/* 社交图标 */
+.home-info .entry-footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.home-info .social-icons {
+    display: flex;
+    gap: 1.25rem;
+}
+
+/* 响应式 */
+@media (max-width: 640px) {
+    .home-info {
+        padding: 2rem 1rem;
+    }
+
+    .home-info .profile-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .home-info .profile-img img {
+        width: 90px;
+        height: 90px;
+    }
+
+    .home-info .profile-text h2 {
+        font-size: 1.35rem;
+    }
+}
+
+/* ==========================================================================
    悬浮 TOC - 生产级优化版
    ========================================================================== */
 

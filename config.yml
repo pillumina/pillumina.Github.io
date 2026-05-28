@@ -40,6 +40,9 @@ languages:
         - name: AI Infra
           url: /posts/aiinfra/
           weight: 20
+        - name: AI Agent
+          url: /posts/aiagent/
+          weight: 25
         - name: Thoery
           url: /posts/llmtheory/
           weight: 30
@@ -79,18 +82,24 @@ params:
     enabled: false # needs to be explicitly set
 
   homeInfoParams:
-    Title: CctoctoFX (Yuxiao Huang)
+    Title: CctoctoFX
     Content: |
-      Hey there! I’m a software engineer obsessed with untangling complex systems.
-      My playground includes:
-        - 💻 Software architecture,
-        - 🎯 LLM training/inference,
-        - 🚀 AI Infra related tech-stack,
-        - ⚠️ geopolitics.
+      ## CctoctoFX
 
-      - AI Infrastructure (AI Infra) & ML Systems (MLSys) are my battlefield: deep dives on scaling, optimization, and the guts of large models. Beyond the keyboard, I'd like to also share spicy takes on geopolitics when the mood strikes.
-      
-      - No fluff, just signal. Join the conversation!
+      Yuxiao Huang
+
+      Software engineer working at the intersection of AI infrastructure and ML systems.
+
+      ---
+
+      <div class="topics">
+      <span>System architecture</span>
+      <span>Large language models</span>
+      <span>AI infrastructure</span>
+      <span>Technology & geopolitics</span>
+      </div>
+
+      Grounded in systems thinking — no fluff, just signal.
  
     imageUrl: "imgs/icon_head.png"
     imageTitle: profile

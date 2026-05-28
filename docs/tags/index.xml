@@ -11,8 +11,155 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 20 Nov 2025 11:30:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 28 May 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Academic</title>
+      <link>https://pillumina.github.io/tags/academic/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/academic/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Animation</title>
+      <link>https://pillumina.github.io/tags/animation/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/animation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Citation</title>
+      <link>https://pillumina.github.io/tags/citation/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/citation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Claude-Mem</title>
+      <link>https://pillumina.github.io/tags/claude-mem/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/claude-mem/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Codebase</title>
+      <link>https://pillumina.github.io/tags/codebase/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/codebase/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Codebase-Analysis</title>
+      <link>https://pillumina.github.io/tags/codebase-analysis/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/codebase-analysis/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Graphify</title>
+      <link>https://pillumina.github.io/tags/graphify/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/graphify/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Greensock</title>
+      <link>https://pillumina.github.io/tags/greensock/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/greensock/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Gsap</title>
+      <link>https://pillumina.github.io/tags/gsap/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/gsap/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Html</title>
+      <link>https://pillumina.github.io/tags/html/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/html/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hyperframes</title>
+      <link>https://pillumina.github.io/tags/hyperframes/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/hyperframes/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Journal-Club</title>
+      <link>https://pillumina.github.io/tags/journal-club/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/journal-club/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Knowledge-Base</title>
+      <link>https://pillumina.github.io/tags/knowledge-base/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/knowledge-base/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Knowledge-Graph</title>
+      <link>https://pillumina.github.io/tags/knowledge-graph/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/knowledge-graph/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Memory</title>
+      <link>https://pillumina.github.io/tags/memory/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/memory/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Nature-Skills</title>
+      <link>https://pillumina.github.io/tags/nature-skills/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/nature-skills/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Paper</title>
+      <link>https://pillumina.github.io/tags/paper/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/paper/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>RAG</title>
+      <link>https://pillumina.github.io/tags/rag/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/rag/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Tree-Sitter</title>
+      <link>https://pillumina.github.io/tags/tree-sitter/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/tree-sitter/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Video</title>
+      <link>https://pillumina.github.io/tags/video/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/video/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Writing</title>
+      <link>https://pillumina.github.io/tags/writing/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/writing/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Deterministic</title>
       <link>https://pillumina.github.io/tags/deterministic/</link>
