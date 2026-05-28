@@ -431,14 +431,452 @@
   .related-series { margin-bottom: 3rem; }
   .related-tags { margin-bottom: 3rem; }
   .related-content { margin-bottom: 2rem; }
-  
-  /* ==========================================================================
-     可访问性：减少动画偏好
-     ========================================================================== */
-  @media (prefers-reduced-motion: reduce) {
+
+/* ==========================================================================
+   P0 优先级改进
+   ========================================================================== */
+
+/* ==========================================================================
+   1. 中文优化 - 字体与排版
+   ========================================================================== */
+
+/* 中文/英文双字体栈 */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 18px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 正文字号微调（更舒适的阅读尺寸） */
+.post-content {
+    font-size: 1.0625rem;  /* 17px，略大于基础 18px 的正文 */
+    line-height: 1.85;
+}
+
+/* 段落间距优化 */
+.post-content p {
+    margin-bottom: 1.4rem;
+}
+
+/* 引用块现代化 */
+.post-content blockquote {
+    margin: 1.5rem 0;
+    padding: 1rem 1.5rem;
+    border-left: 4px solid #3B82F6;
+    background: rgba(59, 130, 246, 0.05);
+    border-radius: 0 8px 8px 0;
+    font-style: normal;
+    color: var(--content);
+}
+
+.post-content blockquote p:last-child {
+    margin-bottom: 0;
+}
+
+.dark .post-content blockquote {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+/* 列表项间距 */
+.post-content li {
+    margin-top: 0.5rem;
+    line-height: 1.8;
+}
+
+/* ==========================================================================
+   2. 代码块背景升级 - Catppuccin Mocha 风格
+   ========================================================================== */
+
+/* 代码块容器 - 现代深色背景 */
+.post-content .highlight:not(table) {
+    background: #1E1E2E !important;
+    border: 1px solid rgba(205, 214, 244, 0.1);
+    position: relative;
+}
+
+/* 行内代码优化 */
+.post-content code {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3B82F6;
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.88em;
+    font-weight: 450;
+}
+
+.dark .post-content code {
+    background: rgba(59, 130, 246, 0.15);
+    color: #89B4FA;
+}
+
+/* 代码块语法高亮颜色（Catppuccin Mocha 适配） */
+.post-content pre code {
+    color: #CDD6F4;
+    background: transparent !important;
+}
+
+/* 代码块滚动条 */
+.post-content .highlight::-webkit-scrollbar {
+    height: 8px;
+}
+
+.post-content .highlight::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.post-content .highlight::-webkit-scrollbar-thumb {
+    background: rgba(205, 214, 244, 0.2);
+    border-radius: 4px;
+}
+
+.post-content .highlight::-webkit-scrollbar-thumb:hover {
+    background: rgba(205, 214, 244, 0.3);
+}
+
+/* 暗色模式下代码块边框 */
+.dark .post-content .highlight:not(table) {
+    border-color: rgba(205, 214, 244, 0.15);
+}
+
+/* 代码块圆角 */
+.post-content .highlight pre,
+.post-content .highlight table {
+    border-radius: 8px;
+}
+
+/* ==========================================================================
+   3. Callout 提示块 - 统一设计语言
+   ========================================================================== */
+
+.callout {
+    margin: 1.75rem 0;
+    padding: 0;
+    border-radius: 12px;
+    border: none;
+    background: var(--entry);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.callout:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.callout-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid;
+}
+
+.callout-icon {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+}
+
+.callout-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+}
+
+.callout-body {
+    padding: 1rem 1.25rem;
+    font-size: 0.95rem;
+    line-height: 1.75;
+}
+
+.callout-body p:last-child {
+    margin-bottom: 0;
+}
+
+/* Callout 类型 - 统一配色体系 */
+.callout-tip {
+    border-left: 4px solid #3B82F6;
+}
+.callout-tip .callout-header {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.03));
+    border-bottom-color: rgba(59, 130, 246, 0.15);
+}
+.callout-tip .callout-icon { color: #3B82F6; }
+.callout-tip .callout-title { color: #1E40AF; }
+
+.callout-info {
+    border-left: 4px solid #8B5CF6;
+}
+.callout-info .callout-header {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.03));
+    border-bottom-color: rgba(139, 92, 246, 0.15);
+}
+.callout-info .callout-icon { color: #8B5CF6; }
+.callout-info .callout-title { color: #5B21B6; }
+
+.callout-warning {
+    border-left: 4px solid #F59E0B;
+}
+.callout-warning .callout-header {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03));
+    border-bottom-color: rgba(245, 158, 11, 0.15);
+}
+.callout-warning .callout-icon { color: #F59E0B; }
+.callout-warning .callout-title { color: #92400E; }
+
+.callout-danger {
+    border-left: 4px solid #EF4444;
+}
+.callout-danger .callout-header {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.03));
+    border-bottom-color: rgba(239, 68, 68, 0.15);
+}
+.callout-danger .callout-icon { color: #EF4444; }
+.callout-danger .callout-title { color: #991B1B; }
+
+.dark .callout:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================================================
+   4. 脚注增强 - 专业学术风格
+   ========================================================================== */
+
+.post-content .footnotes {
+    margin-top: 3.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.post-content .footnotes h2,
+.post-content .footnotes hr {
+    display: none;
+}
+
+/* 脚注区域标题 */
+.post-content .footnotes::before {
+    content: 'References';
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--secondary);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px dashed var(--border);
+}
+
+.post-content .footnotes ol {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    counter-reset: footnote-counter;
+}
+
+.post-content .footnotes li {
+    margin-bottom: 0.875rem;
+    padding: 0.75rem 1rem;
+    padding-left: 2.5rem;
+    line-height: 1.65;
+    position: relative;
+    font-size: 0.875rem;
+    color: var(--secondary);
+}
+
+.post-content .footnotes li::before {
+    content: counter(footnote-counter);
+    counter-increment: footnote-counter;
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    width: 1.35rem;
+    height: 1.35rem;
+    background: transparent;
+    border: 1.5px solid var(--tertiary);
+    color: var(--tertiary);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.post-content .footnotes li:hover::before {
+    border-color: #3B82F6;
+    color: #3B82F6;
+}
+
+.post-content .footnotes li p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.post-content .footnotes a {
+    color: #3B82F6;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.post-content .footnotes a:hover {
+    color: #1E40AF;
+    border-bottom-color: #1E40AF;
+}
+
+/* 正文中的脚注引用 - 上标样式 */
+.post-content sup a {
+    color: #3B82F6;
+    font-size: 0.7em;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0.05em 0.35em;
+    background: rgba(59, 130, 246, 0.08);
+    border-radius: 3px;
+    margin-left: 1px;
+    transition: background 0.2s ease;
+}
+
+.post-content sup a:hover {
+    background: rgba(59, 130, 246, 0.15);
+}
+
+.post-content sup a::before,
+.post-content sup a::after {
+    content: none;
+}
+
+.dark .post-content .footnotes li:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   5. 折叠内容增强 - 卡片式设计
+   ========================================================================== */
+
+.post-content details {
+    margin: 1.75rem 0;
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: box-shadow 0.25s ease;
+}
+
+.post-content details:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.post-content details summary {
+    padding: 1rem 1.25rem;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--primary);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    user-select: none;
+    transition: background-color 0.2s ease;
+}
+
+.post-content details summary:hover {
+    background: rgba(59, 130, 246, 0.04);
+}
+
+.post-content details summary::-webkit-details-marker {
+    display: none;
+}
+
+/* 折叠箭头 */
+.post-content details summary::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    background: var(--primary);
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    transition: transform 0.25s ease;
+}
+
+.post-content details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+/* 展开内容区域 */
+.post-content details > *:not(summary) {
+    padding: 0 1.25rem 1.25rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: linear-gradient(to bottom, rgba(59, 130, 246, 0.02), transparent);
+}
+
+.post-content details > *:first-child:not(summary) {
+    padding-top: 1.25rem;
+}
+
+/* 内容样式优化 */
+.post-content details .highlight {
+    margin: 1rem 0;
+}
+
+.post-content details ul,
+.post-content details ol {
+    margin: 0.75rem 0;
+}
+
+.post-content details li {
+    margin: 0.5rem 0;
+    line-height: 1.75;
+}
+
+.dark .post-content details:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   6. ECharts 图表
+   ========================================================================== */
+
+.echarts-wrapper {
+    margin: 1.75rem 0;
+}
+
+.echarts-container {
+    background: var(--entry);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    min-height: 300px;
+    position: relative;
+}
+
+.echarts-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--secondary);
+    font-size: 0.9rem;
+}
+
+.dark .echarts-container {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   可访问性：减少动画偏好
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
     * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
     }
-  }
+}

@@ -1,0 +1,41 @@
+{{/*
+  Callout Shortcode - 专业 SVG 图标风格
+
+  用法：
+  {{< callout "tip" "提示" >}}
+  内容
+  {{< /callout >}}
+
+  类型：tip | info | warning | danger
+*/}}
+
+{{- $type := .Get 0 | default "tip" -}}
+{{- $title := .Get 1 -}}
+
+{{- if eq $type "tip" -}}
+  {{- if not $title }}{{- $title = "提示" }}{{- end -}}
+{{- else if eq $type "info" -}}
+  {{- if not $title }}{{- $title = "信息" }}{{- end -}}
+{{- else if eq $type "warning" -}}
+  {{- if not $title }}{{- $title = "注意" }}{{- end -}}
+{{- else if eq $type "danger" -}}
+  {{- if not $title }}{{- $title = "警告" }}{{- end -}}
+{{- end -}}
+
+<div class="callout callout-{{ $type }}">
+  <div class="callout-header">
+    {{- if eq $type "tip" -}}
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+    {{- else if eq $type "info" -}}
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    {{- else if eq $type "warning" -}}
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    {{- else if eq $type "danger" -}}
+    <svg class="callout-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    {{- end -}}
+    <span class="callout-title">{{ $title }}</span>
+  </div>
+  <div class="callout-body">
+    {{ .Inner | markdownify }}
+  </div>
+</div>

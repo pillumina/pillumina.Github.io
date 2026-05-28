@@ -1,0 +1,15 @@
+{{/*
+  ECharts Shortcode - 交互式图表
+*/}}
+
+{{- $name := .Get 0 -}}
+{{- if not $name }}{{- $name = printf "chart-%d" .Ordinal }}{{- end -}}
+{{- $height := .Get 1 | default "400px" -}}
+
+<div class="echarts-wrapper">
+  <div class="echarts-container" id="{{ $name }}" data-height="{{ $height }}">
+    <div class="echarts-loading">加载图表中...</div>
+  </div>
+</div>
+
+{{ printf "<script id=\"echarts-data-%s\" type=\"application/json\">%s</script>" $name .Inner | safeHTML }}

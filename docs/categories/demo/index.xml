@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Demo on CctoctoFX</title>
+    <link>https://pillumina.github.io/categories/demo/</link>
+    <description>Recent content in Demo on CctoctoFX</description>
+    <image>
+      <title>CctoctoFX</title>
+      <url>https://pillumina.github.io/imgs/icon_head.png</url>
+      <link>https://pillumina.github.io/imgs/icon_head.png</link>
+    </image>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <lastBuildDate>Thu, 28 May 2026 12:00:00 +0800</lastBuildDate>
+    <atom:link href="https://pillumina.github.io/categories/demo/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>博客富文本新功能：Callout、折叠、脚注、ECharts</title>
+      <link>https://pillumina.github.io/posts/demo/99-demo-features/</link>
+      <pubDate>Thu, 28 May 2026 12:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/demo/99-demo-features/</guid>
+      <description>&lt;p&gt;本文展示博客新支持的富文本功能：Callout 提示块、折叠内容、脚注增强和 ECharts 交互图表。&lt;/p&gt;
+&lt;h2 id=&#34;callout-提示块&#34;&gt;Callout 提示块&lt;/h2&gt;
+&lt;p&gt;Callout 是一种突出重要信息的视觉方式，支持四种类型：&lt;/p&gt;
+&lt;h3 id=&#34;示例&#34;&gt;示例&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;tip&lt;/code&gt; - 提示信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;info&lt;/code&gt; - 背景信息&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;warning&lt;/code&gt; - 注意事项&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;danger&lt;/code&gt; - 危险警告&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class=&#34;callout callout-tip&#34;&gt;
+  &lt;div class=&#34;callout-header&#34;&gt;&lt;svg class=&#34;callout-icon&#34; viewBox=&#34;0 0 24 24&#34; fill=&#34;none&#34; stroke=&#34;currentColor&#34; stroke-width=&#34;2&#34;&gt;&lt;circle cx=&#34;12&#34; cy=&#34;12&#34; r=&#34;10&#34;/&gt;&lt;path d=&#34;M12 16v-4M12 8h.01&#34;/&gt;&lt;/svg&gt;&lt;span class=&#34;callout-title&#34;&gt;提示&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&#34;callout-body&#34;&gt;
+    当你学习新概念时，尝试用自己的话复述一遍，这能加深理解。
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;callout callout-info&#34;&gt;
+  &lt;div class=&#34;callout-header&#34;&gt;&lt;svg class=&#34;callout-icon&#34; viewBox=&#34;0 0 24 24&#34; fill=&#34;none&#34; stroke=&#34;currentColor&#34; stroke-width=&#34;2&#34;&gt;&lt;circle cx=&#34;12&#34; cy=&#34;12&#34; r=&#34;10&#34;/&gt;&lt;line x1=&#34;12&#34; y1=&#34;16&#34; x2=&#34;12&#34; y2=&#34;12&#34;/&gt;&lt;line x1=&#34;12&#34; y1=&#34;8&#34; x2=&#34;12.01&#34; y2=&#34;8&#34;/&gt;&lt;/svg&gt;&lt;span class=&#34;callout-title&#34;&gt;背景信息&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&#34;callout-body&#34;&gt;
+    Transformer 架构最早由 Google 在 2017 年的论文《Attention Is All You Need》中提出。
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;callout callout-warning&#34;&gt;
+  &lt;div class=&#34;callout-header&#34;&gt;&lt;svg class=&#34;callout-icon&#34; viewBox=&#34;0 0 24 24&#34; fill=&#34;none&#34; stroke=&#34;currentColor&#34; stroke-width=&#34;2&#34;&gt;&lt;path d=&#34;M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z&#34;/&gt;&lt;line x1=&#34;12&#34; y1=&#34;9&#34; x2=&#34;12&#34; y2=&#34;13&#34;/&gt;&lt;line x1=&#34;12&#34; y1=&#34;17&#34; x2=&#34;12.01&#34; y2=&#34;17&#34;/&gt;&lt;/svg&gt;&lt;span class=&#34;callout-title&#34;&gt;注意事项&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&#34;callout-body&#34;&gt;
+    这个配置选项在生产环境中不建议修改，可能导致服务不稳定。
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;div class=&#34;callout callout-danger&#34;&gt;
+  &lt;div class=&#34;callout-header&#34;&gt;&lt;svg class=&#34;callout-icon&#34; viewBox=&#34;0 0 24 24&#34; fill=&#34;none&#34; stroke=&#34;currentColor&#34; stroke-width=&#34;2&#34;&gt;&lt;polygon points=&#34;7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2&#34;/&gt;&lt;line x1=&#34;12&#34; y1=&#34;8&#34; x2=&#34;12&#34; y2=&#34;12&#34;/&gt;&lt;line x1=&#34;12&#34; y1=&#34;16&#34; x2=&#34;12.01&#34; y2=&#34;16&#34;/&gt;&lt;/svg&gt;&lt;span class=&#34;callout-title&#34;&gt;危险警告&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&#34;callout-body&#34;&gt;
+    执行此操作将删除所有数据，且无法恢复。请务必确认已备份重要文件。
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;h3 id=&#34;用法&#34;&gt;用法&lt;/h3&gt;
+&lt;div class=&#34;highlight&#34;&gt;&lt;div class=&#34;chroma&#34;&gt;
+&lt;table class=&#34;lntable&#34;&gt;&lt;tr&gt;&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code&gt;&lt;span class=&#34;lnt&#34;&gt;1
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;2
+&lt;/span&gt;&lt;span class=&#34;lnt&#34;&gt;3
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class=&#34;lntd&#34;&gt;
+&lt;pre tabindex=&#34;0&#34; class=&#34;chroma&#34;&gt;&lt;code class=&#34;language-markdown&#34; data-lang=&#34;markdown&#34;&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;{{&lt;span class=&#34;p&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;nt&#34;&gt;callout&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;tip&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span class=&#34;err&#34;&gt;&amp;#34;&lt;/span&gt;&lt;span class=&#34;na&#34;&gt;标题&lt;/span&gt;&lt;span class=&#34;err&#34;&gt;&amp;#34;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;&amp;gt;&lt;/span&gt;}}
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;内容
+&lt;/span&gt;&lt;/span&gt;&lt;span class=&#34;line&#34;&gt;&lt;span class=&#34;cl&#34;&gt;{{&lt;span class=&#34;p&#34;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;/&lt;/span&gt;&lt;span class=&#34;nt&#34;&gt;callout&lt;/span&gt; &lt;span class=&#34;p&#34;&gt;&amp;gt;&lt;/span&gt;}}
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;类型可选：&lt;code&gt;tip&lt;/code&gt;、&lt;code&gt;info&lt;/code&gt;、&lt;code&gt;warning&lt;/code&gt;、&lt;code&gt;danger&lt;/code&gt;&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

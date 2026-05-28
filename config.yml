@@ -10,7 +10,7 @@ buildFuture: false
 buildExpired: false
 enableEmoji: true
 pygmentsUseClasses: true
-mainsections: ["posts", "archives"]
+mainsections: ["posts", "archives", "demo"]
 
 pagination:
   disableAliases: false
@@ -40,6 +40,9 @@ languages:
         - name: AI Infra
           url: /posts/aiinfra/
           weight: 20
+        - name: Demos
+          url: /posts/demo/
+          weight: 22
         - name: AI Agent
           url: /posts/aiagent/
           weight: 25
@@ -177,7 +180,6 @@ markup:
   highlight:
     codeFences: true
     lineNos: true
-    style: darcula
     noClasses: false
 
 

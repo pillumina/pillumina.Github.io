@@ -87,7 +87,7 @@ const config = {
     startOnLoad:true,
     theme: 'neutral',
     themeVariables: {
-        lineColor: "#0f0f0f"  
+        lineColor: "#0f0f0f"
     },
     flowchart: {
         useMaxWidth:false,
@@ -98,6 +98,70 @@ mermaid.initialize(config);
 window.onload = () => {
     window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
 }
+</script>
+
+<!-- ECharts 初始化 -->
+<script>
+(function() {
+  // ECharts 默认配置
+  const echartsDefaults = {
+    responsive: true,
+    maintainAspectRatio: false,
+    backgroundColor: 'transparent',
+    textStyle: {
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Inter", "Noto Sans SC", sans-serif'
+    }
+  };
+
+  function initECharts() {
+    var containers = document.querySelectorAll('.echarts-container');
+    if (containers.length === 0) return;
+
+    // 动态加载 ECharts
+    if (typeof echarts === 'undefined') {
+      var script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js';
+      script.onload = createCharts;
+      document.head.appendChild(script);
+    } else {
+      createCharts();
+    }
+  }
+
+  function createCharts() {
+    var containers = document.querySelectorAll('.echarts-container');
+    containers.forEach(function(container) {
+      var id = container.id;
+      var dataEl = document.getElementById('echarts-data-' + id);
+      if (!dataEl || !container) return;
+
+      try {
+        var chartConfig = JSON.parse(dataEl.textContent);
+        var options = Object.assign({}, echartsDefaults, chartConfig);
+
+        var chart = echarts.init(container, null, { renderer: 'canvas' });
+        chart.setOption(options);
+
+        window.addEventListener('resize', function() {
+          chart.resize();
+        });
+
+        var loadingEl = container.querySelector('.echarts-loading'); if (loadingEl) loadingEl.style.display = 'none';
+      } catch (e) {
+        console.warn('ECharts init error:', e);
+      }
+    });
+  }
+
+  // 页面加载完成后初始化
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      initECharts();
+    });
+  } else {
+    initECharts();
+  }
+})();
 </script>
 
 <!-- 自定义样式 -->
