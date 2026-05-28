@@ -41,7 +41,7 @@ languages:
           url: /posts/aiinfra/
           weight: 20
         - name: Demos
-          url: /posts/demo/
+          url: /categories/demo/
           weight: 22
         - name: AI Agent
           url: /posts/aiagent/
