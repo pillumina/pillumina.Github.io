@@ -3,6 +3,7 @@ title: "LaTeX Test Page"
 date: 2024-01-01
 math: true
 draft: false
+categories: ["demo"]
 ---
 
 # LaTeX 渲染测试

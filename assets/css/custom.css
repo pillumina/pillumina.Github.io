@@ -433,50 +433,132 @@
   .related-content { margin-bottom: 2rem; }
 
 /* ==========================================================================
-   P0 优先级改进
+   增强: 网站标题 + 导航字体 - 混合字体方案
    ========================================================================== */
+
+/* 网站标题 - Cormorant Garamond (衬线英文) + Noto Sans SC (中文) */
+.logo a,
+.site-title,
+.site-name {
+    font-family: "Cormorant Garamond", "Noto Sans SC", Georgia, serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+/* 导航菜单 - 英文系统字体 + 中文思源黑体 */
+#menu a,
+.main-nav a,
+.nav-links a {
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "PingFang SC", "Noto Sans SC", sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+/* Logo 英文斜体增强 */
+.logo a {
+    font-style: italic;
+    font-weight: 500;
+}
 
 /* ==========================================================================
-   1. 中文优化 - 字体与排版
+   增强: 字体优化 - 思源字体搭配
    ========================================================================== */
 
-/* 中文/英文双字体栈 */
+/* 全局字体栈 */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Noto Sans SC", "PingFang SC", sans-serif;
     font-size: 18px;
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
 
-/* 正文字号微调（更舒适的阅读尺寸） */
+/* 正文字体 - 思源宋体，更适合阅读 */
 .post-content {
-    font-size: 1.0625rem;  /* 17px，略大于基础 18px 的正文 */
-    line-height: 1.85;
+    font-family: "Noto Serif SC", "Source Han Serif SC", "SimSun", Georgia, serif;
+    font-size: 1.0625rem;
+    line-height: 1.9;
 }
+
+/* 标题字体 - 思源黑体 */
+.post-content h1,
+.post-content h2,
+.post-content h3,
+.post-content h4,
+.post-content h5,
+.post-content h6,
+.article-header h1 {
+    font-family: "Noto Sans SC", -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+/* 代码字体 - JetBrains Mono */
+.post-content code,
+.post-content pre,
+.post-content .highlight {
+    font-family: "JetBrains Mono", "Fira Code", "SF Mono", Consolas, monospace;
+    font-feature-settings: "liga" 1; /* 启用连字 */
+}
+
+/* 标题层级大小微调 */
+.post-content h1 { font-size: 2rem; line-height: 1.3; }
+.post-content h2 { font-size: 1.5rem; line-height: 1.35; margin-top: 2.5rem; }
+.post-content h3 { font-size: 1.25rem; line-height: 1.4; margin-top: 2rem; }
+.post-content h4 { font-size: 1.1rem; line-height: 1.45; }
+
+/* ==========================================================================
+   P0 优先级改进
+   ========================================================================== */
+
+/* ==========================================================================
+   1. 中文优化 - 字体与排版（已整合到上方）
+   ========================================================================== */
 
 /* 段落间距优化 */
 .post-content p {
     margin-bottom: 1.4rem;
 }
 
-/* 引用块现代化 */
-.post-content blockquote {
+/* 引用块现代化 - 浅色友好 */
+:root:not(.dark) .post-content blockquote,
+.post-content blockquote:not(.dark *) {
     margin: 1.5rem 0;
     padding: 1rem 1.5rem;
     border-left: 4px solid #3B82F6;
-    background: rgba(59, 130, 246, 0.05);
+    background: #F0F4FF !important;
     border-radius: 0 8px 8px 0;
     font-style: normal;
-    color: var(--content);
+    color: #374151 !important;
 }
 
-.post-content blockquote p:last-child {
-    margin-bottom: 0;
+:root:not(.dark) .post-content blockquote p,
+:root:not(.dark) .post-content blockquote ul,
+:root:not(.dark) .post-content blockquote ol {
+    color: #374151 !important;
 }
 
+:root:not(.dark) .post-content blockquote a {
+    color: #2563EB !important;
+    font-weight: 500;
+}
+
+/* Dark 模式 */
 .dark .post-content blockquote {
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(30, 41, 59, 0.9) !important;
+    border-left-color: #6366F1 !important;
+    color: #CBD5E1 !important;
+}
+
+.dark .post-content blockquote p,
+.dark .post-content blockquote ul,
+.dark .post-content blockquote ol {
+    color: #CBD5E1 !important;
+}
+
+.dark .post-content blockquote a {
+    color: #818CF8 !important;
+}
 }
 
 /* 列表项间距 */
@@ -514,6 +596,19 @@ body {
 /* 代码块语法高亮颜色（Catppuccin Mocha 适配） */
 .post-content pre code {
     color: #CDD6F4;
+    background: transparent !important;
+}
+
+/* 没有语言的代码块（纯文本块）- 深色背景 */
+.post-content pre:not(.highlight pre) {
+    background: #1E1E2E !important;
+    border: 1px solid rgba(205, 214, 244, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.post-content pre:not(.highlight pre) code {
+    color: #CDD6F4 !important;
     background: transparent !important;
 }
 
@@ -879,4 +974,214 @@ body {
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
     }
+}
+
+/* ==========================================================================
+   增强3: 排版美化 - 表格优化
+   ========================================================================== */
+
+/* 表格容器 - 横向滚动 */
+.post-content .table-wrapper {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.post-content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+/* 表头 */
+.post-content thead {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08), rgba(59, 130, 246, 0.03));
+}
+
+.post-content th {
+    padding: 0.875rem 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+    border-bottom: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+/* 表格行 - 斑马纹 */
+.post-content tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.post-content tbody tr:nth-child(odd) {
+    background: rgba(59, 130, 246, 0.02);
+}
+
+.post-content tbody tr:hover {
+    background: rgba(59, 130, 246, 0.06);
+}
+
+/* 单元格 */
+.post-content td {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.post-content tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* 链接在表格中 */
+.post-content td a {
+    color: #3B82F6;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.post-content td a:hover {
+    border-bottom-color: #3B82F6;
+}
+
+/* ==========================================================================
+   增强4: 视觉细节
+   ========================================================================== */
+
+/* 文本选择高亮颜色 */
+::selection {
+    background: rgba(59, 130, 246, 0.25);
+    color: inherit;
+}
+
+::-moz-selection {
+    background: rgba(59, 130, 246, 0.25);
+    color: inherit;
+}
+
+/* 全局滚动条美化 */
+:root {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.25);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.4);
+    background-clip: padding-box;
+}
+
+/* 链接悬停动效 */
+.post-content a:not(.toc a):not(.code-copy-btn):not(.btn) {
+    color: #3B82F6;
+    text-decoration: none;
+    background: linear-gradient(to bottom, transparent 60%, rgba(59, 130, 246, 0.15) 60%);
+    background-size: 100% 200%;
+    background-position: 0 0;
+    transition: background-position 0.25s ease, color 0.2s ease;
+}
+
+.post-content a:not(.toc a):not(.code-copy-btn):not(.btn):hover {
+    background-position: 0 100%;
+}
+
+.dark .post-content a:not(.toc a):not(.code-copy-btn):not(.btn) {
+    color: #89B4FA;
+    background: linear-gradient(to bottom, transparent 60%, rgba(137, 180, 250, 0.15) 60%);
+    background-size: 100% 200%;
+    background-position: 0 0;
+}
+
+/* 图片悬停放大 */
+.post-content img {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: zoom-in;
+}
+
+.post-content img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* ==========================================================================
+   增强5: 交互增强 - 锚点平滑滚动
+   ========================================================================== */
+
+/* 平滑滚动 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 锚点偏移 - 避免被固定导航遮挡 */
+[id] {
+    scroll-margin-top: 5rem;
+}
+
+/* 回到顶部按钮 */
+.back-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--entry);
+    color: var(--primary);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 90;
+}
+
+.back-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.back-to-top:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+.back-to-top:active {
+    transform: translateY(-1px);
+}
+
+.back-to-top svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* 键盘快捷键提示样式 */
+.kbd {
+    display: inline-block;
+    padding: 0.2em 0.5em;
+    font-family: inherit;
+    font-size: 0.85em;
+    color: var(--primary);
+    background: var(--theme);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow: 0 1px 0 var(--border);
 }

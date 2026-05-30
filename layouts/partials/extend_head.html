@@ -1,4 +1,9 @@
 
+<!-- Google Fonts: 思源宋体 + Inter + JetBrains Mono + 标题混合字体 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
 {{ if or .Params.math .Site.Params.math }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
@@ -83,21 +88,64 @@
 
 <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <script>
-const config = {
-    startOnLoad:true,
-    theme: 'neutral',
-    themeVariables: {
-        lineColor: "#0f0f0f"
-    },
-    flowchart: {
-        useMaxWidth:false,
-        htmlLabels:true
-        }
-};
-mermaid.initialize(config);
-window.onload = () => {
-    window.mermaid.init(undefined, document.querySelectorAll('.language-mermaid'));
-}
+// 检测当前主题并配置 mermaid
+(function() {
+    function getTheme() {
+        // 检测 dark 类或 theme=dark
+        const isDark = document.documentElement.classList.contains('dark') ||
+                       document.documentElement.getAttribute('data-theme') === 'dark' ||
+                       window.matchMedia('(prefers-color-scheme: dark)').matches;
+        return isDark ? 'dark' : 'light';
+    }
+
+    function initMermaid() {
+        const theme = getTheme();
+        const isDark = theme === 'dark';
+
+        const config = {
+            startOnLoad: true,
+            theme: isDark ? 'dark' : 'neutral',
+            themeVariables: {
+                lineColor: isDark ? '#818CF8' : '#1D4ED8',     // 更深的蓝色
+                textColor: isDark ? '#E2E8F0' : '#111827',
+                primaryColor: isDark ? '#4F46E5' : '#1E40AF',  // 深蓝
+                primaryTextColor: isDark ? '#E2E8F0' : '#FFFFFF',
+                primaryBorderColor: isDark ? '#6366F1' : '#1E3A8A',
+                nodeBorder: isDark ? '#6366F1' : '#1E40AF',
+                nodeTextColor: isDark ? '#E2E8F0' : '#111827',
+                clusterBkg: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(30, 64, 175, 0.15)',
+                edgeLabelBackground: isDark ? '#1E1B4B' : '#DBEAFE',  // 浅蓝背景
+                clusterBorder: isDark ? '#6366F1' : '#1E40AF',
+                // 加粗线条
+                border1: 2,
+                border2: 2,
+                border3: 2,
+                border4: 2,
+                fontSize: '14px',
+            },
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        };
+        mermaid.initialize(config);
+    }
+
+    // 初始化
+    initMermaid();
+
+    // 监听主题变化
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.attributeName === 'class' ||
+                mutation.attributeName === 'data-theme') {
+                initMermaid();
+            }
+        });
+    });
+    observer.observe(document.documentElement, { attributes: true });
+})();
 </script>
 
 <!-- ECharts 初始化 -->
@@ -168,6 +216,34 @@ window.onload = () => {
 {{ $custom := resources.Get "css/custom.css" }}
 {{ $custom_style := $custom | resources.Minify | resources.Fingerprint }}
 <link rel="stylesheet" href="{{ $custom_style.RelPermalink }}" integrity="{{ $custom_style.Data.Integrity }}">
+
+<!-- 增强: 回到顶部按钮 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.createElement('button');
+    btn.className = 'back-to-top';
+    btn.setAttribute('aria-label', 'Back to top');
+    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+
+    btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    document.body.appendChild(btn);
+
+    // 显示/隐藏逻辑
+    function updateVisibility() {
+        if (window.scrollY > 300) {
+            btn.classList.add('visible');
+        } else {
+            btn.classList.remove('visible');
+        }
+    }
+
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    updateVisibility();
+});
+</script>
 
 <!-- TOC阅读进度跟踪 -->
 <script>

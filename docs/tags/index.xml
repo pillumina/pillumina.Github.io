@@ -42,6 +42,13 @@
       <description></description>
     </item>
     <item>
+      <title>Ascend</title>
+      <link>https://pillumina.github.io/tags/ascend/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/ascend/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Citation</title>
       <link>https://pillumina.github.io/tags/citation/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
@@ -140,10 +147,31 @@
       <description></description>
     </item>
     <item>
+      <title>Npu</title>
+      <link>https://pillumina.github.io/tags/npu/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/npu/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Paper</title>
       <link>https://pillumina.github.io/tags/paper/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/tags/paper/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Performance</title>
+      <link>https://pillumina.github.io/tags/performance/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/performance/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Profiling</title>
+      <link>https://pillumina.github.io/tags/profiling/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/profiling/</guid>
       <description></description>
     </item>
     <item>
@@ -249,13 +277,6 @@
       <link>https://pillumina.github.io/tags/aiinfra/</link>
       <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/aiinfra/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Ascend</title>
-      <link>https://pillumina.github.io/tags/ascend/</link>
-      <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
-      <guid>https://pillumina.github.io/tags/ascend/</guid>
       <description></description>
     </item>
   </channel>
