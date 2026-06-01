@@ -3,8 +3,8 @@ title: "Nature Skills - 学术论文工具集"
 date: 2026-05-28
 draft: false
 description: "上海交大博士团队开发的学术论文工具集：写作、润色、图表、审稿回复，覆盖论文全流程"
-categories: ["AI Agent", "Claude Code Skills"]
-tags: ["nature-skills", "academic", "paper", "writing", "citation", "journal-club"]
+categories: ["Skills"]
+tags: ["skills", "claude-code", "nature-skills", "academic", "paper", "writing", "citation", "journal-club"]
 ---
 
 > GitHub: [Yuan1z0825/nature-skills](https://github.com/Yuan1z0825/nature-skills)

@@ -3,8 +3,8 @@ title: "Skill: Claude-Mem - 记忆系统工具集"
 date: 2026-05-28
 draft: false
 description: "Claude Code 的记忆系统：跨会话持久化上下文，让 Agent 记住项目历史"
-categories: ["AI Agent", "Claude Code Skills"]
-tags: ["claude-mem", "memory", "knowledge-base", "codebase"]
+categories: ["Skills"]
+tags: ["skills", "claude-code", "memory", "knowledge-base", "codebase"]
 ---
 
 > GitHub: [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem)

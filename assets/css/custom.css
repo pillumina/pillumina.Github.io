@@ -48,6 +48,306 @@
 }
 
 /* ==========================================================================
+   导航下拉菜单 (Categories)
+   ========================================================================== */
+
+/* 重置主题 #menu 的 overflow，避免影响 dropdown 渲染 */
+#menu {
+    overflow: visible !important;
+}
+
+/* 重置下拉菜单内 li 的 PaperMod 主题缩进（li + li 选择器） */
+.menu-dropdown-menu li + li {
+    margin: 0 !important;
+}
+
+/* 父菜单项 */
+.menu-dropdown {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+}
+
+.menu-dropdown-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    user-select: none;
+    padding: 0 var(--space-xs);
+    border-radius: var(--radius-sm);
+    transition: color var(--duration-fast) var(--ease-out),
+                background-color var(--duration-fast) var(--ease-out);
+}
+
+.menu-dropdown-toggle:hover {
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.menu-dropdown-arrow {
+    transition: transform var(--duration-base) var(--ease-out);
+    opacity: 0.6;
+    width: 9px;
+    height: 9px;
+}
+
+.menu-dropdown.is-open .menu-dropdown-arrow,
+.menu-dropdown:hover .menu-dropdown-arrow {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+/* 下拉面板 - 现代化设计（多列分组） */
+.menu-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    z-index: 100;
+    min-width: 240px;
+    margin: 0;
+    padding: 0.75rem;
+    list-style: none;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow:
+        0 4px 6px -1px rgba(0, 0, 0, 0.08),
+        0 12px 24px -4px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+        opacity var(--duration-base) var(--ease-out),
+        visibility var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out);
+
+    /* 响应式多列 */
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.5rem 1.5rem;
+}
+
+.menu-dropdown.is-open .menu-dropdown-menu,
+.menu-dropdown:hover .menu-dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* 分组容器 */
+.menu-dropdown-menu li.menu-group {
+    margin: 0 !important;
+    padding: 0;
+}
+
+.menu-dropdown-menu li.menu-group > ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.menu-group-title {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--secondary);
+    opacity: 0.6;
+    margin-bottom: 0.4rem;
+    padding: 0 0.625rem;
+}
+
+/* 下拉菜单项 */
+.menu-dropdown-menu li.menu-group ul li {
+    margin: 0 !important;
+    padding: 0;
+    display: block;
+}
+
+.menu-dropdown-menu a {
+    display: flex !important;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.625rem !important;
+    font-size: 0.875rem;
+    font-weight: 450;
+    color: var(--secondary);
+    text-decoration: none;
+    white-space: nowrap;
+    border-radius: var(--radius-sm);
+    transition: all var(--duration-fast) var(--ease-out);
+    position: relative;
+    line-height: 1.4;
+}
+
+.menu-item-icon {
+    color: var(--accent);
+    opacity: 0.6;
+    font-size: 0.85em;
+    flex-shrink: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+}
+
+.menu-dropdown-menu a:hover {
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    color: var(--accent);
+}
+
+.menu-dropdown-menu a:hover .menu-item-icon {
+    opacity: 1;
+}
+
+.menu-dropdown-menu a .active {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* ==========================================================================
+   增强: 文章卡片分类徽章
+   ========================================================================== */
+
+/* 分类容器 - 放在封面和标题之间 */
+.entry-categories {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 0.75rem;
+}
+
+.entry-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem 0.25rem 0.55rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    color: var(--cat-color, var(--accent));
+    background: var(--cat-bg, color-mix(in srgb, var(--accent) 8%, transparent));
+    border: 1px solid var(--cat-border, color-mix(in srgb, var(--accent) 18%, transparent));
+    border-radius: 999px;
+    transition: all var(--duration-base) var(--ease-out);
+    position: relative;
+    z-index: 2; /* 防止被 entry-link 遮挡 */
+    pointer-events: auto;
+}
+
+.entry-category:hover {
+    background: var(--cat-color, var(--accent));
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--cat-color, var(--accent)) 30%, transparent);
+}
+
+.entry-category-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cat-color, var(--accent));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cat-color, var(--accent)) 18%, transparent);
+    transition: all var(--duration-base) var(--ease-out);
+    flex-shrink: 0;
+}
+
+.entry-category:hover .entry-category-dot {
+    background: white;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+}
+
+.entry-category-label {
+    line-height: 1;
+}
+
+/* 分类色板 - 不同分类不同色调 */
+.entry-category[data-category="ai-infra"],
+.entry-category[data-category="aiinfra"] {
+    --cat-color: #3B82F6;
+    --cat-bg: rgba(59, 130, 246, 0.08);
+    --cat-border: rgba(59, 130, 246, 0.18);
+}
+
+.entry-category[data-category="skills"] {
+    --cat-color: #8B5CF6;
+    --cat-bg: rgba(139, 92, 246, 0.08);
+    --cat-border: rgba(139, 92, 246, 0.18);
+}
+
+.entry-category[data-category="programming"] {
+    --cat-color: #10B981;
+    --cat-bg: rgba(16, 185, 129, 0.08);
+    --cat-border: rgba(16, 185, 129, 0.18);
+}
+
+.entry-category[data-category="theory"] {
+    --cat-color: #F59E0B;
+    --cat-bg: rgba(245, 158, 11, 0.08);
+    --cat-border: rgba(245, 158, 11, 0.18);
+}
+
+.entry-category[data-category="ailab"],
+.entry-category[data-category="ai-lab"] {
+    --cat-color: #EC4899;
+    --cat-bg: rgba(236, 72, 153, 0.08);
+    --cat-border: rgba(236, 72, 153, 0.18);
+}
+
+.entry-category[data-category="agent"] {
+    --cat-color: #EF4444;
+    --cat-bg: rgba(239, 68, 68, 0.08);
+    --cat-border: rgba(239, 68, 68, 0.18);
+}
+
+.entry-category[data-category="demo"] {
+    --cat-color: #06B6D4;
+    --cat-bg: rgba(6, 182, 212, 0.08);
+    --cat-border: rgba(6, 182, 212, 0.18);
+}
+
+.entry-category[data-category="study"] {
+    --cat-color: #84CC16;
+    --cat-bg: rgba(132, 204, 22, 0.08);
+    --cat-border: rgba(132, 204, 22, 0.18);
+}
+
+.entry-category[data-category="thoughts"] {
+    --cat-color: #6366F1;
+    --cat-bg: rgba(99, 102, 241, 0.08);
+    --cat-border: rgba(99, 102, 241, 0.18);
+}
+
+.entry-category[data-category="tech"] {
+    --cat-color: #14B8A6;
+    --cat-bg: rgba(20, 184, 166, 0.08);
+    --cat-border: rgba(20, 184, 166, 0.18);
+}
+
+.entry-category[data-category="notes"] {
+    --cat-color: #F97316;
+    --cat-bg: rgba(249, 115, 22, 0.08);
+    --cat-border: rgba(249, 115, 22, 0.18);
+}
+
+.entry-category[data-category="showcase"] {
+    --cat-color: #D946EF;
+    --cat-bg: rgba(217, 70, 239, 0.08);
+    --cat-border: rgba(217, 70, 239, 0.18);
+}
+
+/* 通用 fallback - 用 hash 从分类名生成颜色 */
+.entry-category:not([data-category="ai-infra"]):not([data-category="aiinfra"]):not([data-category="skills"]):not([data-category="programming"]):not([data-category="theory"]):not([data-category="ailab"]):not([data-category="ai-lab"]):not([data-category="agent"]):not([data-category="demo"]):not([data-category="study"]):not([data-category="thoughts"]):not([data-category="tech"]):not([data-category="notes"]):not([data-category="showcase"]) {
+    --cat-color: #64748B;
+    --cat-bg: rgba(100, 116, 139, 0.08);
+    --cat-border: rgba(100, 116, 139, 0.18);
+}
+
+/* ==========================================================================
    增强: 主题切换动画
    ========================================================================== */
 

@@ -2,8 +2,8 @@
 title = "Ascend Profiling Analysis Skill 设计深度解析"
 date = 2026-05-28
 draft = false
-categories = ["aiinfra"]
-tags = ["ascend", "profiling", "npu", "performance"]
+categories = ["Skills"]
+tags = ["skills", "ascend", "profiling", "npu", "performance"]
 +++
 
 # Ascend Profiling Analysis Skill 设计深度解析

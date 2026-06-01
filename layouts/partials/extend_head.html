@@ -310,3 +310,52 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTocHighlight();
 });
 </script>
+
+<!-- 导航下拉菜单 - 移动端点击切换 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.menu-dropdown');
+
+    dropdowns.forEach(function(dropdown) {
+        const toggle = dropdown.querySelector('.menu-dropdown-toggle');
+        if (!toggle) return;
+
+        // 移动端点击切换（桌面端用 :hover）
+        toggle.addEventListener('click', function(e) {
+            // 仅在 hover 不生效时（移动端）触发
+            if (window.matchMedia('(hover: none)').matches) {
+                e.preventDefault();
+                const isOpen = dropdown.classList.contains('is-open');
+                // 关闭所有其他
+                dropdowns.forEach(function(d) { d.classList.remove('is-open'); });
+                // 切换当前
+                if (!isOpen) {
+                    dropdown.classList.add('is-open');
+                    toggle.setAttribute('aria-expanded', 'true');
+                } else {
+                    dropdown.classList.remove('is-open');
+                    toggle.setAttribute('aria-expanded', 'false');
+                }
+            }
+        });
+    });
+
+    // 点击外部关闭
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.menu-dropdown')) {
+            dropdowns.forEach(function(d) {
+                d.classList.remove('is-open');
+                const t = d.querySelector('.menu-dropdown-toggle');
+                if (t) t.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
+    // ESC 关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            dropdowns.forEach(function(d) { d.classList.remove('is-open'); });
+        }
+    });
+});
+</script>

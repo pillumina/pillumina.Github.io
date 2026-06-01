@@ -3,8 +3,8 @@ title: "Skill: HyperFrames - 用 HTML 制作视频"
 date: 2026-05-28
 draft: false
 description: "用 HTML + GSAP 制作高质量视频的框架，为 AI Agent 优化"
-categories: ["AI Agent", "Claude Code Skills"]
-tags: ["hyperframes", "html", "video", "gsap", "animation"]
+categories: ["Skills"]
+tags: ["skills", "animation", "hyperframes", "html", "video", "gsap"]
 ---
 
 > GitHub: [heygen-com/hyperframes](https://github.com/heygen-com/hyperframes)

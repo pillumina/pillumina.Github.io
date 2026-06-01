@@ -32,16 +32,10 @@
     <loc>https://pillumina.github.io/tags/academic/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/categories/ai-agent/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiagent/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/aiinfra/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/animation/</loc>
@@ -56,10 +50,7 @@
     <loc>https://pillumina.github.io/tags/citation/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/categories/claude-code-skills/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/claude-mem/</loc>
+    <loc>https://pillumina.github.io/tags/claude-code/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/codebase/</loc>
@@ -126,6 +117,12 @@
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/hyperframes/</loc>
+    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/skills/</loc>
+    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/tree-sitter/</loc>
@@ -374,10 +371,28 @@
     <loc>https://pillumina.github.io/open_courses/</loc>
     <lastmod>2020-10-27T10:47:11+08:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/categories/agent/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/ai-infra/</loc>
+  </url><url>
     <loc>https://pillumina.github.io/archives/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/engineering/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/papers/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/programming/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/reading/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/reflections/</loc>
   </url><url>
     <loc>https://pillumina.github.io/search/</loc>
   </url><url>
     <loc>https://pillumina.github.io/social/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/study/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/workflows/</loc>
   </url>
 </urlset>

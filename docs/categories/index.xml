@@ -18,35 +18,21 @@
       <link>https://pillumina.github.io/categories/demo/</link>
       <pubDate>Thu, 28 May 2026 12:00:00 +0800</pubDate>
       <guid>https://pillumina.github.io/categories/demo/</guid>
-      <description></description>
+      <description>演示：博客功能展示</description>
     </item>
     <item>
-      <title>AI Agent</title>
-      <link>https://pillumina.github.io/categories/ai-agent/</link>
+      <title>Skills</title>
+      <link>https://pillumina.github.io/categories/skills/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/categories/ai-agent/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Aiinfra</title>
-      <link>https://pillumina.github.io/categories/aiinfra/</link>
-      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/categories/aiinfra/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Claude Code Skills</title>
-      <link>https://pillumina.github.io/categories/claude-code-skills/</link>
-      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/categories/claude-code-skills/</guid>
-      <description></description>
+      <guid>https://pillumina.github.io/categories/skills/</guid>
+      <description>Claude Code Skills 实践与推荐</description>
     </item>
     <item>
       <title>Theory</title>
       <link>https://pillumina.github.io/categories/theory/</link>
       <pubDate>Sun, 10 Aug 2025 15:05:12 +0800</pubDate>
       <guid>https://pillumina.github.io/categories/theory/</guid>
-      <description></description>
+      <description>LLM 与 AI 理论：模型架构、训练原理、论文解析等</description>
     </item>
     <item>
       <title>Thinking</title>
@@ -54,6 +40,34 @@
       <pubDate>Fri, 01 Aug 2025 10:05:12 +0800</pubDate>
       <guid>https://pillumina.github.io/categories/thinking/</guid>
       <description></description>
+    </item>
+    <item>
+      <title>Agent</title>
+      <link>https://pillumina.github.io/categories/agent/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/categories/agent/</guid>
+      <description>AI Agent 实践：技能、工作流、Agent 框架等</description>
+    </item>
+    <item>
+      <title>AI Infra</title>
+      <link>https://pillumina.github.io/categories/ai-infra/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/categories/ai-infra/</guid>
+      <description>AI 基础设施相关：硬件、模型部署、推理优化等</description>
+    </item>
+    <item>
+      <title>Programming</title>
+      <link>https://pillumina.github.io/categories/programming/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/categories/programming/</guid>
+      <description>编程技术、源码解析、库与框架使用</description>
+    </item>
+    <item>
+      <title>Study</title>
+      <link>https://pillumina.github.io/categories/study/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/categories/study/</guid>
+      <description>学习笔记：公开课、读书、论文等</description>
     </item>
   </channel>
 </rss>

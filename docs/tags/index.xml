@@ -56,10 +56,10 @@
       <description></description>
     </item>
     <item>
-      <title>Claude-Mem</title>
-      <link>https://pillumina.github.io/tags/claude-mem/</link>
+      <title>Claude-Code</title>
+      <link>https://pillumina.github.io/tags/claude-code/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/claude-mem/</guid>
+      <guid>https://pillumina.github.io/tags/claude-code/</guid>
       <description></description>
     </item>
     <item>
@@ -182,6 +182,13 @@
       <description></description>
     </item>
     <item>
+      <title>Skills</title>
+      <link>https://pillumina.github.io/tags/skills/</link>
+      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/skills/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Tree-Sitter</title>
       <link>https://pillumina.github.io/tags/tree-sitter/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
@@ -278,6 +285,27 @@
       <pubDate>Thu, 07 Aug 2025 10:40:12 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/aiinfra/</guid>
       <description></description>
+    </item>
+    <item>
+      <title>Engineering</title>
+      <link>https://pillumina.github.io/tags/engineering/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/engineering/</guid>
+      <description>工程思考：设计原则、模式、最佳实践</description>
+    </item>
+    <item>
+      <title>Reflections</title>
+      <link>https://pillumina.github.io/tags/reflections/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/reflections/</guid>
+      <description>反思：技术感悟、工程心得</description>
+    </item>
+    <item>
+      <title>Workflows</title>
+      <link>https://pillumina.github.io/tags/workflows/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/workflows/</guid>
+      <description>AI 工作流：自动化流程、Agent 协作等</description>
     </item>
   </channel>
 </rss>

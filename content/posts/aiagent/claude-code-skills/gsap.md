@@ -3,8 +3,8 @@ title: "Skill: GSAP - HyperFrames 动画引擎"
 date: 2026-05-28
 draft: false
 description: "GSAP 官方为 HyperFrames 提供的动画技能参考，GreenSock 动画平台"
-categories: ["AI Agent", "Claude Code Skills"]
-tags: ["gsap", "animation", "hyperframes", "greensock"]
+categories: ["Skills"]
+tags: ["skills", "animation", "gsap", "hyperframes", "greensock"]
 ---
 
 > GitHub: [greensock/gsap-skills](https://github.com/greensock/gsap-skills)

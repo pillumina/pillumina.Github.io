@@ -31,30 +31,131 @@ languages:
       series: series
     menu:
       main:
+        - name: Home
+          url: /
+          weight: 1
+
+        - name: Tech
+          identifier: tech
+          weight: 5
+        - name: AI Infra
+          identifier: ai-infra
+          parent: tech
+          url: /posts/aiinfra/
+          weight: 10
+          params:
+            group: AI
+            icon: "◆"
+        - name: Theory
+          identifier: theory
+          parent: tech
+          url: /posts/llmtheory/
+          weight: 15
+          params:
+            group: AI
+            icon: "◆"
+        - name: Programming
+          identifier: programming
+          parent: tech
+          url: /posts/programming/
+          weight: 20
+          params:
+            group: Tech
+            icon: "◆"
+
+        - name: Notes
+          identifier: notes
+          weight: 30
+        - name: Study
+          identifier: study
+          parent: notes
+          url: /open_courses/
+          weight: 35
+          params:
+            group: Learning
+            icon: "◇"
+        - name: Reading
+          identifier: reading
+          parent: notes
+          url: /reading/
+          weight: 40
+          params:
+            group: Reading
+            icon: "◇"
+        - name: Papers
+          identifier: papers
+          parent: notes
+          url: /papers/
+          weight: 45
+          params:
+            group: Papers
+            icon: "◇"
+
+        - name: AI Lab
+          identifier: ailab
+          weight: 50
+        - name: Agent
+          identifier: agent
+          parent: ailab
+          url: /posts/aiagent/
+          weight: 55
+          params:
+            group: Practice
+            icon: "◈"
+        - name: Skills
+          identifier: skills
+          parent: ailab
+          url: /tags/skills/
+          weight: 60
+          params:
+            group: Practice
+            icon: "◈"
+        - name: Workflows
+          identifier: workflows
+          parent: ailab
+          url: /tags/workflows/
+          weight: 65
+          params:
+            group: Practice
+            icon: "◈"
+
+        - name: Thoughts
+          identifier: thoughts
+          weight: 70
+        - name: Engineering
+          identifier: engineering
+          parent: thoughts
+          url: /tags/engineering/
+          weight: 75
+          params:
+            group: Reflection
+            icon: "○"
+        - name: Reflections
+          identifier: reflections
+          parent: thoughts
+          url: /tags/reflections/
+          weight: 80
+          params:
+            group: Reflection
+            icon: "○"
+
+        - name: Showcase
+          identifier: showcase
+          weight: 90
+        - name: Blog
+          identifier: blog-demo
+          parent: showcase
+          url: /categories/demo/
+          weight: 95
+          params:
+            group: Demo
+            icon: "◉"
         - name: Archive
           url: /archives/
-          weight: 5
+          weight: 100
         - name: Search
           url: /search/
-          weight: 10
-        - name: AI Infra
-          url: /posts/aiinfra/
-          weight: 20
-        - name: Demos
-          url: /categories/demo/
-          weight: 22
-        - name: AI Agent
-          url: /posts/aiagent/
-          weight: 25
-        - name: Thoery
-          url: /posts/llmtheory/
-          weight: 30
-        - name: Social
-          url: /social/
-        - name: Programming
-          url: /posts/programming/
-        - name: Study
-          url: /open_courses/
+          weight: 105
 
 
 outputs:

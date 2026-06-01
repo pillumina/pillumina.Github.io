@@ -3,8 +3,8 @@ title: "Skill: graphify - 代码库转知识图谱"
 date: 2026-05-28
 draft: false
 description: "将代码库转化为可导航知识图谱的 Claude Code 技能，支持多 Agent 平台"
-categories: ["AI Agent", "Claude Code Skills"]
-tags: ["graphify", "knowledge-graph", "codebase-analysis", "RAG", "tree-sitter"]
+categories: ["Skills"]
+tags: ["skills", "claude-code", "graphify", "knowledge-graph", "codebase-analysis", "RAG", "tree-sitter"]
 ---
 
 > GitHub: [safishamsi/graphify](https://github.com/safishamsi/graphify)

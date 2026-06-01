@@ -72,6 +72,27 @@
 <article class="{{ $class }}">
   {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
+
+  {{- /* 分类徽章 - 设计 */}}
+  {{- $categoryLabel := "" }}
+  {{- $categorySlug := "" }}
+  {{- if .Params.categories }}
+    {{- $categoryLabel = index .Params.categories 0 }}
+    {{- $categorySlug = $categoryLabel | urlize }}
+  {{- else if .Section }}
+    {{- /* fallback: 用文章所在 section 作为分类 */}}
+    {{- $categoryLabel = .Section | humanize | title }}
+    {{- $categorySlug = .Section }}
+  {{- end }}
+  {{- if $categoryLabel }}
+    <div class="entry-categories">
+      <a href="/categories/{{ $categorySlug }}/" class="entry-category" data-category="{{ $categorySlug }}">
+        <span class="entry-category-dot"></span>
+        <span class="entry-category-label">{{ $categoryLabel }}</span>
+      </a>
+    </div>
+  {{- end }}
+
   <header class="entry-header">
     <h2 class="entry-hint-parent">
       {{- .Title }}
