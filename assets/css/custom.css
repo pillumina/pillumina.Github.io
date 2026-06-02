@@ -53,6 +53,10 @@
 
 /* 重置主题 #menu 的 overflow，避免影响 dropdown 渲染 */
 #menu {
+    display: flex !important;
+    align-items: center;
+    flex-wrap: nowrap !important;
+    gap: 0;
     overflow: visible !important;
 }
 
@@ -2867,16 +2871,86 @@ html {
     transition: none !important;
 }
 
-/* 修复 nav 换行：菜单项紧凑 + 防止 flex shrink */
-#menu {
-    display: flex !important;
-    align-items: center;
-    flex-wrap: nowrap !important;
-    gap: 0;
+/* ==========================================================================
+   导航栏优化
+   - A: 顶级 hover 下划线（中心向两端展开动画）
+   - B: 当前页指示器
+   - C: 滚动后毛玻璃背景
+   ========================================================================== */
+
+/* C: 滚动后毛玻璃背景 */
+header.header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    transition: background-color var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out),
+                backdrop-filter var(--duration-base) var(--ease-out);
 }
 
-.nav {
-    flex-wrap: nowrap !important;
+header.header > .nav {
+    transition: background-color var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out),
+                backdrop-filter var(--duration-base) var(--ease-out);
+    border-bottom: 1px solid transparent;
+}
+
+header.header.is-scrolled > .nav {
+    background: color-mix(in srgb, var(--bg-base) 75%, transparent);
+    backdrop-filter: saturate(180%) blur(10px);
+    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    border-bottom-color: var(--border);
+}
+
+/* A + B: 顶级 menu item - 通用下划线层（hover + active 共用） */
+#menu > li > a,
+#menu > li > .menu-dropdown-toggle {
+    position: relative;
+    padding: 0 0.6rem;
+    white-space: nowrap;
+    font-size: 0.95rem;
+    line-height: 60px;
+    color: var(--secondary);
+    transition: color var(--duration-fast) var(--ease-out);
+}
+
+/* 下划线：默认 0 宽，hover/active 时展开（中心 → 两端） */
+#menu > li > a::after,
+#menu > li > .menu-dropdown-toggle::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 18px;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    transform: translateX(-50%);
+    transition: width var(--duration-base) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#menu > li > a:hover,
+#menu > li > .menu-dropdown-toggle:hover {
+    color: var(--primary);
+}
+
+#menu > li > a:hover::after,
+#menu > li > .menu-dropdown-toggle:hover::after,
+#menu > li > a.active::after,
+#menu > li > .menu-dropdown-toggle.active::after {
+    width: calc(100% - 1.2rem);
+}
+
+/* B: 当前页指示器 - 覆盖主题默认的黑色 2px border-bottom */
+#menu .active {
+    font-weight: 500;
+    color: var(--primary);
+    border-bottom: none;  /* 移除主题的 border-bottom，用我们的 ::after */
+}
+
+/* 移除主题默认 .menu-dropdown-toggle 的 color (避免与 nav 黑色冲突) */
+.menu-dropdown-toggle {
+    color: var(--secondary) !important;
 }
 
 #menu > li {

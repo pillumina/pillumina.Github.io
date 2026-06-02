@@ -785,6 +785,54 @@ document.addEventListener('DOMContentLoaded', function() {
     // 页面加载完成后恢复（延迟一点避免影响其他初始化）
     setTimeout(restoreScrollPosition, 200);
 });
+
+// 导航栏滚动状态：滚下 > 50px 加 .is-scrolled class
+(function() {
+    const nav = document.querySelector('header.header');
+    if (!nav) return;
+    let lastScrolled = false;
+    function onScroll() {
+        const scrolled = window.scrollY > 50;
+        if (scrolled !== lastScrolled) {
+            nav.classList.toggle('is-scrolled', scrolled);
+            lastScrolled = scrolled;
+        }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+})();
+
+// 当前页指示器：URL 匹配 menu 项时给顶级 + dropdown toggle 加 .active
+function initCurrentPageIndicator() {
+    const path = window.location.pathname.replace(/\/$/, '') || '/';
+    document.querySelectorAll('#menu > li').forEach(li => {
+        const link = li.querySelector(':scope > a, :scope > .menu-dropdown-toggle');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href) return;
+        // 顶级菜单项如果是 dropdown，需要匹配子项
+        const dropdown = li.querySelector(':scope > .menu-dropdown-menu');
+        if (dropdown) {
+            const children = dropdown.querySelectorAll('a[href]');
+            const matches = Array.from(children).some(a => {
+                const h = a.getAttribute('href').replace(/\/$/, '') || '/';
+                return path === h || path.startsWith(h + '/');
+            });
+            if (matches) link.classList.add('active');
+        } else {
+            // 普通顶级项直接匹配
+            const h = href.replace(/\/$/, '') || '/';
+            if (path === h || path.startsWith(h + '/')) {
+                link.classList.add('active');
+            }
+        }
+    });
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCurrentPageIndicator);
+} else {
+    initCurrentPageIndicator();
+}
 </script>
 
 <!-- 代码块语言标签 -->
