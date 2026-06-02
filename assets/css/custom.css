@@ -2659,50 +2659,163 @@ html {
 }
 
 /* ==========================================================================
-   i18n 语言切换点 (顶部 EN / 中)
+   i18n 语言切换点 - 滑动 segmented control (放在菜单末尾)
    ========================================================================== */
 
-.lang-toggle {
+/* 菜单中的竖线分隔 */
+.menu-separator {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.55rem;
-    margin: 0 0.25rem;
-    background: transparent;
+    height: 60px;
+    margin: 0 0.4rem;
+}
+.menu-separator::before {
+    content: '';
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    opacity: 0.7;
+}
+
+.menu-i18n {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* 主切换按钮 - grid 布局 + ::before 滑动指示器 */
+.lang-toggle {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: stretch;
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
+    border-radius: 999px;
     cursor: pointer;
     font-family: inherit;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     line-height: 1;
     color: var(--secondary);
-    transition: color var(--duration-fast) var(--ease-out),
-                border-color var(--duration-fast) var(--ease-out),
-                background-color var(--duration-fast) var(--ease-out);
-    cursor: pointer;
+    transition: border-color var(--duration-base) var(--ease-out);
     user-select: none;
+    overflow: hidden;
+    margin-left: 0.5rem;
+    min-width: 76px;
+    /* 阴影微调，让按钮"浮起" */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .lang-toggle:hover {
-    color: var(--primary);
     border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 6%, transparent);
 }
 
+/* 滑动指示器 - 用 ::before 避免 DOM 结构变动 */
+.lang-toggle::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    bottom: 2px;
+    left: 2px;
+    width: calc(50% - 2px);
+    background: var(--accent);
+    border-radius: 999px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(0);
+    box-shadow: 0 1px 3px color-mix(in srgb, var(--accent) 40%, transparent);
+    z-index: 0;
+}
+
+.lang-toggle[data-lang="zh"]::before {
+    transform: translateX(100%);
+}
+
+/* 选项按钮 */
 .lang-toggle-option {
-    transition: color var(--duration-fast) var(--ease-out),
-                opacity var(--duration-fast) var(--ease-out);
-    opacity: 0.5;
+    position: relative;
+    z-index: 1;
+    padding: 0.32rem 0.5rem;
+    text-align: center;
+    transition: color var(--duration-base) var(--ease-out);
+    color: var(--secondary);
+    line-height: 1.3;
+    font-variant-numeric: tabular-nums;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    user-select: none;
+    min-width: 0;
 }
 
 .lang-toggle-option.active {
-    color: var(--accent);
-    opacity: 1;
+    color: white;
 }
 
-.lang-toggle-divider {
-    opacity: 0.3;
-    color: var(--border);
-    user-select: none;
+.lang-toggle-option:hover:not(.active) {
+    color: var(--primary);
+}
+
+/* 首次加载禁用 toggle 动画（避免页面打开时看到 EN→中 滑块） */
+.lang-toggle.lang-no-transition,
+.lang-toggle.lang-no-transition::before,
+.lang-toggle.lang-no-transition .lang-toggle-option {
+    transition: none !important;
+}
+
+/* 修复 nav 换行：菜单项紧凑 + 防止 flex shrink */
+#menu {
+    display: flex !important;
+    align-items: center;
+    flex-wrap: nowrap !important;
+    gap: 0;
+}
+
+.nav {
+    flex-wrap: nowrap !important;
+}
+
+#menu > li {
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-inline-start: 0 !important;
+}
+
+#menu > li + li {
+    margin-inline-start: 0 !important;
+}
+
+#menu > li > a,
+#menu > li > .menu-dropdown-toggle {
+    padding: 0 0.6rem;
+    white-space: nowrap;
+    font-size: 0.95rem;
+}
+
+/* logo 站点名 - 单行不换 */
+.logo {
+    flex-wrap: nowrap !important;
+    flex-shrink: 0;
+}
+
+.logo a {
+    white-space: nowrap;
+}
+
+/* 移动端窄屏隐藏 i18n 切换点 (避免 overflow) */
+@media (max-width: 1024px) {
+    .menu-separator,
+    .menu-i18n {
+        display: none;
+    }
+    #menu > li > a,
+    #menu > li > .menu-dropdown-toggle {
+        padding: 0 0.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-separator,
+    .menu-i18n {
+        display: none;
+    }
 }

@@ -90,14 +90,7 @@
 
                 {{- $lang := .Lang}}
                 {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
-                {{- /* JS-driven i18n toggle: 顶部 EN/中 切换点 */}}
-                <button id="lang-toggle" class="lang-toggle"
-                        aria-label="Switch language"
-                        title="Switch language / 切换语言">
-                    <span class="lang-toggle-option lang-toggle-en">EN</span>
-                    <span class="lang-toggle-divider">/</span>
-                    <span class="lang-toggle-option lang-toggle-zh">中</span>
-                </button>
+                {{- /* i18n toggle 移至菜单右侧 (header.html 末尾) */}}
             </div>
         </div>
         <ul id="menu">
@@ -166,6 +159,16 @@
                     </li>
                 {{- end }}
             {{- end }}
+            {{- /* i18n 切换点 - 滑动 segmented control - 在菜单末尾 */}}
+            <li class="menu-separator" aria-hidden="true"></li>
+            <li class="menu-i18n">
+                <button id="lang-toggle" class="lang-toggle"
+                        aria-label="Switch language"
+                        title="Switch language / 切换语言">
+                    <span class="lang-toggle-option lang-toggle-en">EN</span>
+                    <span class="lang-toggle-option lang-toggle-zh">中</span>
+                </button>
+            </li>
         </ul>
     </nav>
 </header>

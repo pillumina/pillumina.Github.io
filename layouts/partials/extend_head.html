@@ -1,8 +1,72 @@
 
-<!-- Google Fonts: 思源宋体 + Inter + JetBrains Mono + 标题混合字体 -->
+<!-- Google Fonts: 同步加载（避免 async 异步导致的 FOUC/字体跳变） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=optional">
+
+<!-- i18n 预应用：在 body 渲染前同步设置 lang 并替换 nav 文字，避免 FOUC -->
+<script>
+(function() {
+  try {
+    var lang = localStorage.getItem('preferred-lang') || 'en';
+    var html = document.documentElement;
+    html.setAttribute('lang', lang);
+    html.setAttribute('data-lang', lang);
+    // 在 JS 跑完前，加这个 class 让 CSS 可以隐藏待翻译元素
+    html.classList.add('i18n-pending');
+    html.classList.add('lang-' + lang);
+
+    if (lang === 'zh') {
+      // 同步替换 nav 公共词（必须在 body 解析前执行）
+      // 这些元素由 Hugo header.html 渲染，紧跟 <body>
+      var observer = new MutationObserver(function(mutations) {
+        for (var i = 0; i < mutations.length; i++) {
+          var added = mutations[i].addedNodes;
+          for (var j = 0; j < added.length; j++) {
+            var n = added[j];
+            if (n.nodeType !== 1) continue;
+            // 一旦 header 出现，替换文字
+            if (n.id === 'menu' || (n.querySelector && n.querySelector('#menu'))) {
+              applyNavTranslations();
+              observer.disconnect();
+              return;
+            }
+          }
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      // 兜底：如果 #menu 已经在 DOM 中（极少见），直接调用
+      if (document.getElementById('menu')) applyNavTranslations();
+    }
+
+    function applyNavTranslations() {
+      var i18n = {
+        archive: '归档',
+        search: '搜索',
+        home: '主页'
+      };
+      var archive = document.querySelector('#menu a[href$="/archives/"]');
+      if (archive) archive.textContent = i18n.archive;
+      var search = document.querySelector('#menu a[href$="/search/"]');
+      if (search) search.textContent = i18n.search;
+      var home = document.querySelector('#menu li:first-child > a[href="/"]');
+      if (home) home.textContent = i18n.home;
+    }
+  } catch(e) { /* 兜底：localStorage 不可用时静默 */ }
+})();
+</script>
+
+<!-- i18n 预应用期间 + 字体加载期间：body 透明，避免 FOUC + FOUT -->
+<style>
+html.i18n-pending body,
+html.fonts-pending body {
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+}
+html.i18n-ready body {
+    opacity: 1;
+}
+</style>
 
 {{ if or .Params.math .Site.Params.math }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
@@ -1123,7 +1187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         zh: {
             'archive': '归档',
             'search': '搜索',
-            'home': '首页',
+            'home': '主页',
             'toc': '目录',
             'posted_on': '发布于',
             'last_updated': '更新于',
@@ -1151,11 +1215,47 @@ document.addEventListener('DOMContentLoaded', function() {
     const ATTR_KEY = 'data-i18n-applied';
     let currentLang = localStorage.getItem(STORAGE_KEY) || 'en';
 
+    // 防止 i18n 切换时触发 CSS 动画（首次加载时无动画）
+    function setLangSilent(lang) {
+        if (!I18N[lang]) lang = 'en';
+        currentLang = lang;
+        localStorage.setItem(STORAGE_KEY, lang);
+        document.documentElement.setAttribute('lang', lang);
+        document.documentElement.setAttribute('data-lang', lang);
+
+        // 临时禁用 toggle 的过渡
+        const btn = document.getElementById('lang-toggle');
+        const slider = btn ? btn.querySelector('.lang-toggle-option, .lang-toggle-slider, [data-lang]') : null;
+        if (btn) btn.classList.add('lang-no-transition');
+
+        const t = I18N[lang];
+        for (const [key, sel] of Object.entries(SELECTORS)) {
+            if (!t[key]) continue;
+            document.querySelectorAll(sel).forEach(el => {
+                if (el.getAttribute(ATTR_KEY) === lang) return;
+                el.setAttribute(ATTR_KEY, lang);
+                el.textContent = t[key];
+            });
+        }
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) { el.setAttribute(ATTR_KEY, lang); el.textContent = t[key]; }
+        });
+
+        applyTextReplacements(lang);
+        updateToggleHighlight(lang);
+
+        // 恢复 toggle 过渡（下一帧）
+        requestAnimationFrame(() => {
+            if (btn) btn.classList.remove('lang-no-transition');
+        });
+    }
+
     // 选择器映射：每个 key 对应要翻译的 DOM 元素
     const SELECTORS = {
         'archive': '#menu a[href$="/archives/"]',
         'search': '#menu a[href$="/search/"]',
-        'home': '.breadcrumbs a[href="/"], .breadcrumb a:first-child',
+        'home': '.breadcrumbs a[href="/"], .breadcrumb a:first-child, #menu li:first-child > a[href="/"]',
         'toc': '.toc .details, .toc-title, details summary',
         'prev': '.pagination a.prev, .post-nav a:first-child',
         'next': '.pagination a.next, .post-nav a:last-child',
@@ -1192,32 +1292,91 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // 全局文本扫描：替换特定后缀（"5 min" → "5 分钟", "1867 words" → "1867 字"）
+        applyTextReplacements(lang);
+        updateToggleHighlight(lang);
+    }
+
+    // 全局文本扫描：min/words 翻译
+    function applyTextReplacements(lang) {
+        const sel = '.entry-footer, .post-meta, .post-footer, .first-entry .entry-footer, .home-col-posts .post-entry:first-child .entry-footer, .post-header .post-meta';
         if (lang === 'zh') {
-            // X min → X 分钟
-            document.querySelectorAll('.entry-footer, .post-meta, .post-footer, .first-entry .entry-footer, .home-col-posts .post-entry:first-child .entry-footer').forEach(el => {
-                if (el.getAttribute(ATTR_KEY) === 'zh-text') return;
-                el.setAttribute(ATTR_KEY, 'zh-text');
+            document.querySelectorAll(sel).forEach(el => {
+                if (el.getAttribute(ATTR_KEY + '-text') === 'zh-text') return;
+                el.setAttribute(ATTR_KEY + '-text', 'zh-text');
                 el.innerHTML = el.innerHTML
-                    .replace(/(\d+)\s*min/gi, '$1 分钟')
+                    .replace(/(\d+)\s*min\b/gi, '$1 分钟')
                     .replace(/(\d+)\s*words?/gi, '$1 字');
             });
+            // 日期：May 28, 2026 → 2026年5月28日
+            applyDateFormat('zh');
         } else {
-            // X 分钟 → X min
-            document.querySelectorAll('.entry-footer, .post-meta, .post-footer, .first-entry .entry-footer, .home-col-posts .post-entry:first-child .entry-footer').forEach(el => {
-                if (el.getAttribute(ATTR_KEY) === 'en-text') return;
-                el.setAttribute(ATTR_KEY, 'en-text');
+            document.querySelectorAll(sel).forEach(el => {
+                if (el.getAttribute(ATTR_KEY + '-text') === 'en-text') return;
+                el.setAttribute(ATTR_KEY + '-text', 'en-text');
                 el.innerHTML = el.innerHTML
                     .replace(/(\d+)\s*分钟/g, '$1 min')
                     .replace(/(\d+)\s*字/g, '$1 words');
             });
+            // 日期还原
+            applyDateFormat('en');
         }
+    }
 
-        // 切换按钮高亮
+    // 日期格式翻译：May 28, 2026 ↔ 2026年5月28日
+    const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const MONTHS_ZH = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+
+    function applyDateFormat(lang) {
+        // PaperMod 用 <span title="YYYY-MM-DD ..."> 而非 <time datetime>
+        const sel = '.post-meta span[title], .entry-footer span[title], .post-meta time, .entry-footer time, time[datetime]';
+        document.querySelectorAll(sel).forEach(el => {
+            if (el.getAttribute(ATTR_KEY + '-date') === lang) return;
+            el.setAttribute(ATTR_KEY + '-date', lang);
+            const orig = el.getAttribute('title') || el.getAttribute('datetime');
+            if (!orig) return;
+            const d = new Date(orig);
+            if (isNaN(d)) return;
+            if (lang === 'zh') {
+                el.textContent = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日`;
+            } else {
+                el.textContent = `${MONTHS_EN[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+            }
+        });
+    }
+
+    // 切换按钮高亮
+    function updateToggleHighlight(lang) {
+        const btn = document.getElementById('lang-toggle');
+        if (btn) btn.setAttribute('data-lang', lang);
         const enBtn = document.querySelector('.lang-toggle-en');
         const zhBtn = document.querySelector('.lang-toggle-zh');
         if (enBtn) enBtn.classList.toggle('active', lang === 'en');
         if (zhBtn) zhBtn.classList.toggle('active', lang === 'zh');
+    }
+
+    // 用户主动切换（带动画）
+    function applyLang(lang) {
+        if (!I18N[lang]) lang = 'en';
+        currentLang = lang;
+        localStorage.setItem(STORAGE_KEY, lang);
+        document.documentElement.setAttribute('lang', lang);
+        document.documentElement.setAttribute('data-lang', lang);
+
+        const t = I18N[lang];
+        for (const [key, sel] of Object.entries(SELECTORS)) {
+            if (!t[key]) continue;
+            document.querySelectorAll(sel).forEach(el => {
+                if (el.getAttribute(ATTR_KEY) === lang) return;
+                el.setAttribute(ATTR_KEY, lang);
+                el.textContent = t[key];
+            });
+        }
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) { el.setAttribute(ATTR_KEY, lang); el.textContent = t[key]; }
+        });
+        applyTextReplacements(lang);
+        updateToggleHighlight(lang);
     }
 
     function toggleLang() {
@@ -1228,17 +1387,33 @@ document.addEventListener('DOMContentLoaded', function() {
     window.__i18nToggle = toggleLang;
     window.__i18nApply = applyLang;
 
-    // DOM 准备好后执行
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => {
-            applyLang(currentLang);
-            const btn = document.getElementById('lang-toggle');
-            if (btn) btn.addEventListener('click', toggleLang);
-        });
-    } else {
-        applyLang(currentLang);
+    // DOM 准备好后执行（首次加载用 silent，不动画）
+    function initI18n() {
+        setLangSilent(currentLang);
+        // 移除 i18n-pending，添加 i18n-ready
+        // 等待字体加载完成再显示页面（避免 FOUT 抖动）
+        document.documentElement.classList.remove('i18n-pending');
+        document.documentElement.classList.add('fonts-pending');
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(() => {
+                document.documentElement.classList.remove('fonts-pending');
+                document.documentElement.classList.add('i18n-ready');
+            });
+        } else {
+            // 旧浏览器：直接显示
+            document.documentElement.classList.remove('fonts-pending');
+            document.documentElement.classList.add('i18n-ready');
+        }
+
         const btn = document.getElementById('lang-toggle');
         if (btn) btn.addEventListener('click', toggleLang);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initI18n);
+    } else {
+        initI18n();
     }
 })();
 </script>

@@ -1,5 +1,7 @@
-<!-- 阅读进度条 -->
+{{- /* 阅读进度条 - 仅文章页 */}}
+{{- if .IsPage }}
 <div class="reading-progress-bar"></div>
+{{- end }}
 
 <!-- 图片灯箱依赖 -->
 <script src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.6/dist/medium-zoom.min.js"></script>
