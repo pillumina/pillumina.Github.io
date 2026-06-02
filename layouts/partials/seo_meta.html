@@ -1,0 +1,96 @@
+{{- /*
+  SEO meta tags - 在文章页和首页注入
+  - Canonical URL
+  - Open Graph
+  - Twitter Card
+  - JSON-LD 结构化数据
+*/}}
+{{- $isHome := .IsHome }}
+{{- $fullURL := .Permalink }}
+
+{{- /* Canonical URL */}}
+<link rel="canonical" href="{{ $fullURL }}">
+
+{{- /* Open Graph */}}
+<meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}">
+<meta property="og:url" content="{{ $fullURL }}">
+<meta property="og:title" content="{{ .Title }}">
+<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+<meta property="og:site_name" content="{{ .Site.Title }}">
+<meta property="og:locale" content="{{ .Site.LanguageCode | default "en" }}">
+{{- with .Params.image }}
+<meta property="og:image" content="{{ . | absURL }}">
+{{- else }}
+{{- $defaultImage := index .Site.Params.images 0 }}
+{{- if $defaultImage }}
+<meta property="og:image" content="{{ $defaultImage | absURL }}">
+{{- end }}
+{{- end }}
+
+{{- if .IsPage }}
+<meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">
+<meta property="article:modified_time" content="{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}">
+{{- with .Params.author }}
+<meta property="article:author" content="{{ . }}">
+{{- end }}
+{{- range .Params.tags }}
+<meta property="article:tag" content="{{ . }}">
+{{- end }}
+{{- end }}
+
+{{- /* Twitter Card */}}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="{{ $fullURL }}">
+<meta name="twitter:title" content="{{ .Title }}">
+<meta name="twitter:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Site.Params.description }}{{ end }}">
+{{- with .Params.image }}
+<meta name="twitter:image" content="{{ . | absURL }}">
+{{- end }}
+
+{{- /* JSON-LD 结构化数据 - 文章页（用 dict + jsonify 避免双重编码） */}}
+{{- if .IsPage }}
+{{- $authorName := .Params.author | default .Site.Params.author | default "Anonymous" }}
+{{- $jsonLD := dict
+  "@context" "https://schema.org"
+  "@type" "BlogPosting"
+  "headline" .Title
+  "datePublished" (.Date.Format "2006-01-02T15:04:05Z07:00")
+  "dateModified" (.Lastmod.Format "2006-01-02T15:04:05Z07:00")
+  "author" (dict "@type" "Person" "name" $authorName)
+  "publisher" (dict
+    "@type" "Organization"
+    "name" .Site.Title
+    "logo" (dict
+      "@type" "ImageObject"
+      "url" (index .Site.Params.images 0 | default "" | absURL)
+    )
+  )
+  "description" (.Description | default (.Summary | plainify))
+  "url" $fullURL
+  "mainEntityOfPage" (dict
+    "@type" "WebPage"
+    "@id" $fullURL
+  )
+  "keywords" .Params.tags
+  "wordCount" .WordCount
+  "inLanguage" (.Site.LanguageCode | default "en")
+-}}
+<script type="application/ld+json">{{ $jsonLD | jsonify | safeHTML }}</script>
+{{- end }}
+
+{{- /* JSON-LD 网站级数据 - 仅首页 */}}
+{{- if .IsHome }}
+{{- $jsonWebsite := dict
+  "@context" "https://schema.org"
+  "@type" "WebSite"
+  "name" .Site.Title
+  "url" $fullURL
+  "description" .Site.Params.description
+  "inLanguage" (.Site.LanguageCode | default "en")
+  "publisher" (dict
+    "@type" "Organization"
+    "name" .Site.Title
+  )
+-}}
+<script type="application/ld+json">{{ $jsonWebsite | jsonify | safeHTML }}</script>
+{{- end }}

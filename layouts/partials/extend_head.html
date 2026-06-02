@@ -212,18 +212,104 @@
 })();
 </script>
 
-<!-- 自定义样式 -->
+<!-- 关键 CSS 内联 - 提升首屏渲染（FCP / LCP） -->
+{{- $critical := `
+:root {
+  --accent: #0066FF;
+  --accent-strong: #0052CC;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 0.15s;
+  --duration-base: 0.25s;
+  --duration-slow: 0.4s;
+  --bg-base: #FAFAF9;
+  --bg-elevated: #FFFFFF;
+  --theme: #FAFAF9;
+  --entry: #FFFFFF;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Noto Sans SC", "PingFang SC", sans-serif;
+  background: var(--bg-base);
+  color: var(--content);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.post-content {
+  font-size: clamp(1rem, 0.3vw + 0.95rem, 1.25rem);
+  line-height: 1.85;
+  max-width: 100%;
+}
+.first-entry.home-info {
+  padding: 3rem 2rem;
+  max-width: 700px;
+  margin: 0 auto;
+}
+.nav {
+  display: flex;
+  align-items: center;
+  line-height: 60px;
+}
+.entry-header h2 {
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 700;
+}
+.reading-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  background: var(--accent);
+  z-index: 100;
+}
+` }}
+<style>{{ $critical | safeCSS }}</style>
+
+<!-- 自定义样式 - 用 preload 标记关键资源，async 加载避免阻塞渲染 -->
 {{ $custom := resources.Get "css/custom.css" }}
 {{ $custom_style := $custom | resources.Minify | resources.Fingerprint }}
-<link rel="stylesheet" href="{{ $custom_style.RelPermalink }}" integrity="{{ $custom_style.Data.Integrity }}">
+<link rel="preload" href="{{ $custom_style.RelPermalink }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="{{ $custom_style.RelPermalink }}"></noscript>
 
-<!-- 增强: 回到顶部按钮 -->
+<!-- 增强: 回到顶部按钮 + 顶部阅读进度条联动 -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // 顶部进度条（已存在于 .reading-progress-bar，复用）
+    const progressBar = document.querySelector('.reading-progress-bar');
+
+    // 仅文章页：检查是否有 <article class="post-single"> 容器
+    const isArticle = !!document.querySelector('article.post-single');
+
+    // 创建圆形进度环 (SVG ring + 中心数字) - 仅文章页
+    let ringWrap, ringFill, ringText;
+    const RADIUS = 17;
+    const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+    if (isArticle) {
+        ringWrap = document.createElement('div');
+        ringWrap.className = 'reading-progress-ring';
+        ringWrap.setAttribute('role', 'progressbar');
+        ringWrap.setAttribute('aria-label', '阅读进度');
+        ringWrap.title = '阅读进度';
+        ringWrap.innerHTML = `
+            <svg class="ring-svg" viewBox="0 0 40 40" width="44" height="44" aria-hidden="true">
+                <circle class="ring-bg" cx="20" cy="20" r="${RADIUS}" fill="none" stroke-width="2.5"></circle>
+                <circle class="ring-fill" cx="20" cy="20" r="${RADIUS}" fill="none" stroke-width="2.5"
+                        stroke-dasharray="${CIRCUMFERENCE.toFixed(3)}"
+                        stroke-dashoffset="${CIRCUMFERENCE.toFixed(3)}"
+                        stroke-linecap="round"></circle>
+            </svg>
+            <span class="ring-text">0%</span>
+        `;
+        document.body.appendChild(ringWrap);
+        ringFill = ringWrap.querySelector('.ring-fill');
+        ringText = ringWrap.querySelector('.ring-text');
+    }
+
     const btn = document.createElement('button');
     btn.className = 'back-to-top';
     btn.setAttribute('aria-label', 'Back to top');
-    btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>';
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18"><polyline points="18 15 12 9 6 15"></polyline></svg>';
 
     btn.addEventListener('click', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -231,17 +317,44 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.body.appendChild(btn);
 
-    // 显示/隐藏逻辑
-    function updateVisibility() {
-        if (window.scrollY > 300) {
+    // 显示/隐藏 + 顶部进度条更新
+    let ticking = false;
+    function updateProgress() {
+        const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const percent = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
+        const rounded = Math.round(percent);
+
+        // 顶部进度条
+        if (progressBar) {
+            progressBar.style.width = percent + '%';
+        }
+
+        // 圆形进度环更新
+        if (ringFill && ringText) {
+            const offset = CIRCUMFERENCE * (1 - percent / 100);
+            ringFill.setAttribute('stroke-dashoffset', offset.toFixed(3));
+            ringText.textContent = rounded + '%';
+            ringWrap.setAttribute('aria-valuenow', rounded);
+        }
+
+        // 按钮显示/隐藏
+        if (scrollY > 300) {
             btn.classList.add('visible');
         } else {
             btn.classList.remove('visible');
         }
+        ticking = false;
     }
 
-    window.addEventListener('scroll', updateVisibility, { passive: true });
-    updateVisibility();
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            window.requestAnimationFrame(updateProgress);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    updateProgress();
 });
 </script>
 
@@ -257,41 +370,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 创建标题位置映射
     const headerPositions = {};
-    headers.forEach(header => {
-        headerPositions[header.id] = header.offsetTop;
+    // 使用 IntersectionObserver 检测当前章节（更准确）
+    const visibleHeaders = new Set();
+    const headerObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                visibleHeaders.add(entry.target.id);
+            } else {
+                visibleHeaders.delete(entry.target.id);
+            }
+        });
+    }, {
+        // 仅视口顶部 25% 区域算"正在阅读"
+        rootMargin: '-80px 0px -75% 0px',
+        threshold: 0
     });
 
-    // 获取当前激活的标题
+    headers.forEach(function(h) {
+        headerObserver.observe(h);
+    });
+
+    // 获取当前激活的标题：DOM 顺序中最靠后且可见的
     function getActiveHeader() {
-        const scrollPosition = window.scrollY + 100; // 添加偏移量以提前触发
-        
-        let activeId = '';
-        for (const [id, position] of Object.entries(headerPositions)) {
-            if (scrollPosition >= position) {
-                activeId = id;
-            } else {
-                break;
+        let lastVisible = '';
+        for (const h of headers) {
+            if (visibleHeaders.has(h.id)) {
+                lastVisible = h.id;
             }
         }
-        return activeId;
+        return lastVisible;
     }
 
-    // 更新TOC高亮
+    // TOC 链接点击：平滑滚动
+    tocLinks.forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (!href || !href.startsWith('#')) return;
+
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.getElementById(href.slice(1));
+            if (!target) return;
+
+            // 减去固定顶栏高度的偏移（scroll-margin-top 已设置）
+            const top = target.getBoundingClientRect().top + window.scrollY - 60;
+            window.scrollTo({ top: top, behavior: 'smooth' });
+            history.replaceState(null, '', href);
+        });
+    });
+
+    // 更新TOC高亮 + 智能滚动
+    const tocInner = document.querySelector('.toc.side .inner');
+    let lastActiveId = null;
+
     function updateTocHighlight() {
         const activeId = getActiveHeader();
-        
+
         // 移除所有active类
         tocLinks.forEach(link => {
             link.classList.remove('active');
         });
-        
+
         // 添加active类到当前标题的链接
+        let activeLink = null;
         if (activeId) {
-            const activeLink = document.querySelector(`.toc a[href="#${activeId}"]`);
+            activeLink = document.querySelector(`.toc a[href="#${activeId}"]`);
             if (activeLink) {
                 activeLink.classList.add('active');
             }
         }
+
+        // TOC 内部智能滚动：让高亮章节始终可见（instant 跟随避免双重动画）
+        if (activeLink && tocInner && activeId !== lastActiveId) {
+            // 让链接的顶部距容器顶部约 1/4 处（偏上位置，符合阅读视线）
+            const linkTop = activeLink.offsetTop;
+            const targetScroll = linkTop - tocInner.clientHeight * 0.25;
+
+            // instant 跳转（无动画），避免与主页面滚动叠加产生跳变
+            tocInner.scrollTop = Math.max(0, targetScroll);
+        }
+        lastActiveId = activeId;
     }
 
     // 监听滚动事件
@@ -359,3 +516,580 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+<!-- 阅读设置 - 浮动按钮 + 弹出面板 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const post = document.querySelector('.post-single') || document.querySelector('.post-content');
+    if (!post) return;
+
+    // 状态
+    const STORAGE_KEY = 'reading-font-scale';
+    const STORAGE_LH_KEY = 'reading-line-height';
+    const STORAGE_FOCUS_KEY = 'reading-focus-mode';
+    const STORAGE_FONT_KEY = 'reading-font-mode';
+    const FONT_MODES = ['serif', 'sans', 'inter'];
+    const FONT_LABELS = { serif: 'Serif 宋', sans: 'Sans 黑', inter: 'Inter' };
+    let scale = parseFloat(localStorage.getItem(STORAGE_KEY)) || 1;
+    let lineHeight = parseFloat(localStorage.getItem(STORAGE_LH_KEY)) || 1;
+    let focusMode = localStorage.getItem(STORAGE_FOCUS_KEY) === 'true';
+    let fontMode = localStorage.getItem(STORAGE_FONT_KEY) || 'serif';
+    let panelOpen = false;
+
+    // 函数
+    function apply() {
+        document.documentElement.style.setProperty('--reading-scale', scale);
+        document.documentElement.style.setProperty('--reading-lh', lineHeight);
+        document.documentElement.dataset.fontMode = fontMode;
+    }
+    function applyFocus() {
+        document.body.classList.toggle('focus-mode', focusMode);
+    }
+    function save() {
+        localStorage.setItem(STORAGE_KEY, scale);
+        localStorage.setItem(STORAGE_LH_KEY, lineHeight);
+        localStorage.setItem(STORAGE_FOCUS_KEY, String(focusMode));
+        localStorage.setItem(STORAGE_FONT_KEY, fontMode);
+    }
+    function changeFont(delta) {
+        scale = Math.max(0.85, Math.min(1.4, +(scale + delta).toFixed(2)));
+        apply(); save();
+    }
+    function changeLineHeight(delta) {
+        lineHeight = Math.max(0.7, Math.min(1.4, +(lineHeight + delta).toFixed(2)));
+        apply(); save();
+    }
+    function cycleFont() {
+        const idx = FONT_MODES.indexOf(fontMode);
+        fontMode = FONT_MODES[(idx + 1) % FONT_MODES.length];
+        apply(); save();
+    }
+
+    // 创建 DOM
+    const trigger = document.createElement('button');
+    trigger.className = 'reader-trigger';
+    trigger.setAttribute('aria-label', '阅读设置');
+    trigger.title = '阅读设置';
+    trigger.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>';
+    document.body.appendChild(trigger);
+
+    const panel = document.createElement('div');
+    panel.className = 'reader-panel';
+    panel.innerHTML =
+        '<div class="reader-panel-section">' +
+            '<div class="reader-panel-row">' +
+                '<span class="reader-panel-label">字号</span>' +
+                '<div class="reader-panel-buttons">' +
+                    '<button class="rp-btn" data-action="decrease"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg></button>' +
+                    '<span class="rp-value" id="rp-font-value">100%</span>' +
+                    '<button class="rp-btn" data-action="increase"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></button>' +
+                '</div>' +
+            '</div>' +
+            '<div class="reader-panel-row">' +
+                '<span class="reader-panel-label">行距</span>' +
+                '<div class="reader-panel-buttons">' +
+                    '<button class="rp-btn" data-action="lh-compact"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h10M4 18h16"/></svg></button>' +
+                    '<span class="rp-value" id="rp-lh-value">1.00×</span>' +
+                    '<button class="rp-btn" data-action="lh-loose"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>' +
+                '</div>' +
+            '</div>' +
+            '<div class="reader-panel-row">' +
+                '<span class="reader-panel-label">字体</span>' +
+                '<div class="reader-panel-buttons">' +
+                    '<button class="rp-cycle" data-action="cycle-font"><span class="rp-cycle-label" id="rp-font-mode">Serif 宋</span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg></button>' +
+                '</div>' +
+            '</div>' +
+            '<div class="reader-panel-row">' +
+                '<span class="reader-panel-label">Focus</span>' +
+                '<div class="reader-panel-buttons">' +
+                    '<button class="rp-toggle" data-action="focus-toggle"><span class="rp-toggle-track"><span class="rp-toggle-knob"></span></span></button>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+    document.body.appendChild(panel);
+
+    // 更新面板显示值
+    function updatePanelValues() {
+        const fontVal = panel.querySelector('#rp-font-value');
+        const lhVal = panel.querySelector('#rp-lh-value');
+        const fontLabel = panel.querySelector('#rp-font-mode');
+        const focusBtn = panel.querySelector('[data-action="focus-toggle"]');
+        if (fontVal) fontVal.textContent = Math.round(scale * 100) + '%';
+        if (lhVal) lhVal.textContent = lineHeight.toFixed(2) + '×';
+        if (fontLabel) fontLabel.textContent = FONT_LABELS[fontMode] || fontMode;
+        if (focusBtn) focusBtn.classList.toggle('is-active', focusMode);
+    }
+
+    // 事件绑定
+    trigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        panelOpen = !panelOpen;
+        panel.classList.toggle('is-open', panelOpen);
+        trigger.classList.toggle('is-active', panelOpen);
+    });
+
+    panel.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        if (action === 'decrease') changeFont(-0.1);
+        else if (action === 'increase') changeFont(0.1);
+        else if (action === 'lh-compact') changeLineHeight(-0.1);
+        else if (action === 'lh-loose') changeLineHeight(0.1);
+        else if (action === 'cycle-font') cycleFont();
+        else if (action === 'focus-toggle') {
+            focusMode = !focusMode;
+            applyFocus(); save();
+        }
+        updatePanelValues();
+    });
+
+    document.addEventListener('click', function() {
+        if (panelOpen) {
+            panelOpen = false;
+            panel.classList.remove('is-open');
+            trigger.classList.remove('is-active');
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        // ESC 单独处理（不需要 Alt）
+        if (e.key === 'Escape' && focusMode) {
+            e.preventDefault();
+            focusMode = false;
+            applyFocus(); save();
+            updatePanelValues();
+            return;
+        }
+        // 其他快捷键需要 Alt
+        if (!e.altKey) return;
+        if (e.key === '+' || e.key === '=') {
+            e.preventDefault(); changeFont(0.1);
+        } else if (e.key === '-') {
+            e.preventDefault(); changeFont(-0.1);
+        } else if (e.key === '0') {
+            e.preventDefault(); scale = 1; apply(); save();
+        } else if (e.key === 'f' || e.key === 'F') {
+            e.preventDefault();
+            focusMode = !focusMode;
+            applyFocus(); save();
+        }
+        updatePanelValues();
+    });
+
+    // 初始化
+    apply();
+    applyFocus();
+    updatePanelValues();
+
+    // ========== 阅读位置保存 ==========
+    const SCROLL_KEY_PREFIX = 'reading-position:';
+    const currentPath = window.location.pathname;
+
+    function restoreScrollPosition() {
+        try {
+            const pos = localStorage.getItem(SCROLL_KEY_PREFIX + currentPath);
+            if (pos) {
+                const y = parseInt(pos, 10);
+                if (!isNaN(y) && y > 0) {
+                    window.scrollTo({ top: y, behavior: 'instant' });
+                }
+            }
+        } catch (e) { /* ignore */ }
+    }
+
+    let scrollSaveTimer = null;
+    function saveScrollPosition() {
+        if (scrollSaveTimer) return;
+        scrollSaveTimer = setTimeout(function() {
+            scrollSaveTimer = null;
+            const scrollY = window.scrollY;
+            const atBottom = window.innerHeight + window.scrollY >= document.body.scrollHeight - 100;
+            try {
+                if (atBottom || scrollY < 100) {
+                    localStorage.removeItem(SCROLL_KEY_PREFIX + currentPath);
+                } else {
+                    localStorage.setItem(SCROLL_KEY_PREFIX + currentPath, String(scrollY));
+                }
+            } catch (e) { /* ignore */ }
+        }, 300);
+    }
+
+    window.addEventListener('scroll', saveScrollPosition, { passive: true });
+
+    // 页面加载完成后恢复（延迟一点避免影响其他初始化）
+    setTimeout(restoreScrollPosition, 200);
+});
+</script>
+
+<!-- 代码块语言标签 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const blocks = document.querySelectorAll('.post-content .highlight');
+    blocks.forEach(function(block) {
+        if (block.querySelector('.code-lang-label')) return;
+        // 找带 language-xxx 类的 code（chroma 渲染可能有多个 code 元素）
+        const codes = block.querySelectorAll('code');
+        let lang = null;
+        for (let i = 0; i < codes.length; i++) {
+            const m = (codes[i].className || '').match(/language-(\S+)/);
+            if (m) { lang = m[1]; break; }
+        }
+        if (!lang) return;
+        if (lang === 'text' || lang === 'plain' || lang === 'plaintext' || lang === 'mermaid') return;
+        const label = document.createElement('span');
+        label.className = 'code-lang-label';
+        label.textContent = lang;
+        block.appendChild(label);
+    });
+});
+</script>
+
+<!-- TOC 状态管理：默认展开，可点击收起/展开，状态持久化 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toc = document.querySelector('.toc.side');
+    if (!toc) return;
+
+    const STORAGE_KEY = 'toc-collapsed';
+    const isCollapsed = localStorage.getItem(STORAGE_KEY) === 'true';
+
+    // 初始状态
+    if (isCollapsed) {
+        toc.classList.add('is-collapsed');
+    }
+
+    // 监听 summary 点击
+    const summary = toc.querySelector('summary');
+    if (summary) {
+        summary.addEventListener('click', function(e) {
+            e.preventDefault();
+            toc.classList.toggle('is-collapsed');
+            const collapsed = toc.classList.contains('is-collapsed');
+            localStorage.setItem(STORAGE_KEY, String(collapsed));
+        });
+    }
+});
+</script>
+
+<!-- 文章元素进入视口淡入动画 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    if (!('IntersectionObserver' in window)) return;
+
+    const post = document.querySelector('.post-content');
+    if (!post) return;
+
+    // 选择直接子元素（段落、标题、图片、引用、表格、列表、代码块外层）
+    const targets = post.querySelectorAll(':scope > *:not(.highlight):not(script):not(.echarts-container)');
+
+    if (targets.length === 0) return;
+
+    // 给目标添加初始隐藏样式
+    targets.forEach(function(el) {
+        el.classList.add('reveal-init');
+    });
+
+    const observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('reveal-visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -8% 0px'
+    });
+
+    targets.forEach(function(el) {
+        observer.observe(el);
+    });
+});
+</script>
+
+<!-- 图片懒加载 + blur-up 渐显 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const post = document.querySelector('.post-content');
+    if (!post) return;
+
+    const images = post.querySelectorAll('img');
+    if (images.length === 0) return;
+
+    // 1. 给所有图片加 loading="lazy" + decoding="async"（浏览器原生支持）
+    images.forEach(function(img) {
+        if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
+        }
+        if (!img.hasAttribute('decoding')) {
+            img.setAttribute('decoding', 'async');
+        }
+    });
+
+    // 2. IntersectionObserver 增强：进入视口时加 fade-in 类
+    if (!('IntersectionObserver' in window)) {
+        // 不支持则直接显示
+        images.forEach(function(img) { img.classList.add('img-loaded'); });
+        return;
+    }
+
+    const imgObserver = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                // 图片加载完成时加 fade-in 类
+                if (img.complete && img.naturalWidth > 0) {
+                    img.classList.add('img-loaded');
+                } else {
+                    img.addEventListener('load', function() {
+                        img.classList.add('img-loaded');
+                    }, { once: true });
+                    img.addEventListener('error', function() {
+                        img.classList.add('img-loaded', 'img-error');
+                    }, { once: true });
+                }
+                imgObserver.unobserve(img);
+            }
+        });
+    }, {
+        rootMargin: '200px 0px'  // 提前 200px 开始加载
+    });
+
+    images.forEach(function(img) {
+        img.classList.add('img-lazy');
+        imgObserver.observe(img);
+    });
+});
+</script>
+
+<!-- 图片 caption - 从 alt 自动生成 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const post = document.querySelector('.post-content');
+    if (!post) return;
+
+    const images = post.querySelectorAll('img');
+    images.forEach(function(img) {
+        // 跳过已经在 figure > figcaption 里的
+        if (img.closest('figure') && img.closest('figure').querySelector('figcaption')) return;
+        // 跳过没有 alt 或空 alt 的
+        const alt = (img.getAttribute('alt') || '').trim();
+        if (!alt) return;
+
+        // 创建 figcaption
+        const caption = document.createElement('figcaption');
+        caption.className = 'image-caption';
+        caption.textContent = alt;
+
+        // 包裹 img + caption 在 figure 里
+        const figure = document.createElement('figure');
+        figure.className = 'image-figure';
+        img.parentNode.insertBefore(figure, img);
+        figure.appendChild(img);
+        figure.appendChild(caption);
+    });
+});
+</script>
+
+<!-- 标题锚点链接 - hover 显示 # 图标，点击复制 URL -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const post = document.querySelector('.post-content');
+    if (!post) return;
+
+    const headers = post.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
+
+    headers.forEach(function(header) {
+        const id = header.id;
+        if (!id) return;
+
+        // 创建锚点链接
+        const link = document.createElement('a');
+        link.className = 'header-anchor';
+        link.href = '#' + id;
+        link.setAttribute('aria-label', '复制锚点链接');
+        link.title = '复制链接到 ' + header.textContent.trim();
+        link.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const url = window.location.origin + window.location.pathname + '#' + id;
+            const originalContent = link.innerHTML;
+            const checkSvg = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(url).then(function() {
+                    link.innerHTML = checkSvg;
+                    link.classList.add('is-copied');
+                    setTimeout(function() {
+                        link.innerHTML = originalContent;
+                        link.classList.remove('is-copied');
+                    }, 1500);
+                });
+            } else {
+                // 降级方案：直接跳到锚点
+                window.location.hash = id;
+            }
+
+            // 同时更新 URL
+            history.replaceState(null, '', '#' + id);
+        });
+
+        header.appendChild(link);
+    });
+});
+</script>
+
+<!-- 代码块全屏 + 复制按钮（自己提供，隐藏 PaperMod 默认 copy-code） -->
+<style>
+/* 隐藏 PaperMod 默认的 copy-code 按钮（避免和自己提供的按钮重叠） */
+.post-content .highlight .copy-code { display: none !important; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const post = document.querySelector('.post-content');
+    if (!post) return;
+
+    const blocks = post.querySelectorAll('.highlight');
+    blocks.forEach(function(block) {
+        // 按钮组容器
+        const actions = document.createElement('div');
+        actions.className = 'code-actions';
+
+        // 复制按钮
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'code-action-btn';
+        copyBtn.setAttribute('aria-label', '复制代码');
+        copyBtn.title = '复制代码';
+        copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+
+        copyBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            // 找带 language-xxx 的 code 元素（实际内容，chroma 渲染有行号 + 内容两个 code）
+            const codes = block.querySelectorAll('code');
+            let contentCode = null;
+            for (let i = 0; i < codes.length; i++) {
+                if (codes[i].className && codes[i].className.match(/language-/)) {
+                    contentCode = codes[i];
+                    break;
+                }
+            }
+            const text = contentCode ? contentCode.textContent : (block.textContent || '');
+            const original = copyBtn.innerHTML;
+            const checkSvg = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    copyBtn.innerHTML = checkSvg;
+                    copyBtn.classList.add('is-copied');
+                    setTimeout(function() {
+                        copyBtn.innerHTML = original;
+                        copyBtn.classList.remove('is-copied');
+                    }, 1500);
+                });
+            }
+        });
+
+        // 全屏按钮
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'code-action-btn';
+        fullscreenBtn.setAttribute('aria-label', '全屏查看');
+        fullscreenBtn.title = '全屏查看';
+        fullscreenBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V3h4M21 7V3h-4M3 17v4h4M21 17v4h-4"/></svg>';
+
+        fullscreenBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openFullscreen(block);
+        });
+
+        // 全屏放最右，复制放它左边
+        actions.appendChild(fullscreenBtn);
+        actions.appendChild(copyBtn);
+        block.appendChild(actions);
+    });
+
+    let currentOverlay = null;
+    function openFullscreen(block) {
+        if (currentOverlay) {
+            document.body.removeChild(currentOverlay);
+            currentOverlay = null;
+        }
+
+        // 找实际内容 code
+        const codes = block.querySelectorAll('code');
+        let contentCode = null;
+        for (let i = 0; i < codes.length; i++) {
+            if (codes[i].className && codes[i].className.match(/language-/)) {
+                contentCode = codes[i];
+                break;
+            }
+        }
+        const text = contentCode ? contentCode.textContent : (block.textContent || '');
+
+        const overlay = document.createElement('div');
+        overlay.className = 'code-fullscreen-overlay';
+        overlay.innerHTML =
+            '<header class="code-fullscreen-header">' +
+                '<span class="code-fullscreen-title">代码查看</span>' +
+                '<div class="code-fullscreen-actions">' +
+                    '<button class="code-fullscreen-copy" data-action="copy">复制</button>' +
+                    '<button class="code-fullscreen-close" data-action="close" aria-label="关闭">' +
+                        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+                    '</button>' +
+                '</div>' +
+            '</header>' +
+            '<pre class="code-fullscreen-pre"></pre>';
+
+        // 用 textContent 保留所有空白（避免 HTML 解析吃掉换行）
+        overlay.querySelector('.code-fullscreen-pre').textContent = text;
+
+        // 复制按钮
+        overlay.querySelector('[data-action="copy"]').addEventListener('click', function() {
+            const btn = this;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(function() {
+                    btn.textContent = '已复制 ✓';
+                    setTimeout(function() {
+                        btn.textContent = '复制';
+                    }, 1500);
+                });
+            }
+        });
+
+        // 关闭按钮
+        overlay.querySelector('[data-action="close"]').addEventListener('click', function() {
+            closeOverlay();
+        });
+
+        // 点击 overlay 背景关闭
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) closeOverlay();
+        });
+
+        // ESC 关闭
+        overlay.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeOverlay();
+        });
+        overlay.tabIndex = 0;
+        overlay.focus();
+
+        document.body.appendChild(overlay);
+        currentOverlay = overlay;
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeOverlay() {
+        if (currentOverlay) {
+            document.body.removeChild(currentOverlay);
+            currentOverlay = null;
+            document.body.style.overflow = '';
+        }
+    }
+});
+</script>
+
+{{- /* SEO meta tags (canonical, OG, Twitter Card, JSON-LD) */}}
+{{- partial "seo_meta.html" . }}
