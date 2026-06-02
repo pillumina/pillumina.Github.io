@@ -2,7 +2,7 @@
 <!-- Google Fonts: 同步加载（避免 async 异步导致的 FOUC/字体跳变） -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=optional">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
 
 <!-- i18n 预应用：在 body 渲染前同步设置 lang 并替换 nav 文字，避免 FOUC -->
 <script>
@@ -150,7 +150,7 @@ html.i18n-ready body {
 {{ end }}
 
 
-<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 <script>
 // 检测当前主题并配置 mermaid
 (function() {
@@ -196,8 +196,12 @@ html.i18n-ready body {
         mermaid.initialize(config);
     }
 
-    // 初始化
-    initMermaid();
+    // 初始化（mermaid 已加 defer，等 DOMContentLoaded 后再跑，保证 window.mermaid 已就绪）
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMermaid);
+    } else {
+        initMermaid();
+    }
 
     // 监听主题变化
     const observer = new MutationObserver(function(mutations) {
@@ -382,7 +386,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.appendChild(btn);
 
     // 显示/隐藏 + 顶部进度条更新
-    let ticking = false;
     function updateProgress() {
         const scrollY = window.scrollY;
         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
@@ -408,17 +411,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             btn.classList.remove('visible');
         }
-        ticking = false;
     }
 
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(updateProgress);
-            ticking = true;
-        }
-    }, { passive: true });
-
+    // 初始状态
     updateProgress();
+
+    // 注册到统一 scroll 调度器（替代独立 listener）
+    (window.__scrollFrameFns = window.__scrollFrameFns || []).push(updateProgress);
 });
 </script>
 
@@ -515,20 +514,11 @@ document.addEventListener('DOMContentLoaded', function() {
         lastActiveId = activeId;
     }
 
-    // 监听滚动事件
-    let ticking = false;
-    window.addEventListener('scroll', function() {
-        if (!ticking) {
-            window.requestAnimationFrame(function() {
-                updateTocHighlight();
-                ticking = false;
-            });
-            ticking = true;
-        }
-    });
-
     // 初始化高亮
     updateTocHighlight();
+
+    // 注册到统一 scroll 调度器（替代独立 listener）
+    (window.__scrollFrameFns = window.__scrollFrameFns || []).push(updateTocHighlight);
 });
 </script>
 
@@ -780,27 +770,47 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 300);
     }
 
-    window.addEventListener('scroll', saveScrollPosition, { passive: true });
+    // 注册到统一 scroll 调度器（替代独立 listener）
+    (window.__scrollFrameFns = window.__scrollFrameFns || []).push(saveScrollPosition);
 
     // 页面加载完成后恢复（延迟一点避免影响其他初始化）
     setTimeout(restoreScrollPosition, 200);
 });
 
-// 导航栏滚动状态：滚下 > 50px 加 .is-scrolled class
-(function() {
+// 导航栏滚动状态：滚下 > 100px 加 .is-scrolled 毛玻璃；向下滚加 .is-hidden 隐藏
+function initNavScrollState() {
     const nav = document.querySelector('header.header');
     if (!nav) return;
-    let lastScrolled = false;
+    let lastY = window.scrollY;
+    let isTop = true;
     function onScroll() {
-        const scrolled = window.scrollY > 50;
-        if (scrolled !== lastScrolled) {
-            nav.classList.toggle('is-scrolled', scrolled);
-            lastScrolled = scrolled;
+        const y = window.scrollY;
+        const dir = y > lastY ? 'down' : 'up';
+        // 毛玻璃：滚下 > 50px
+        nav.classList.toggle('is-scrolled', y > 50);
+        // 自动隐藏：滚下 > 100px 且方向向下
+        if (y > 100 && dir === 'down' && !isTop) {
+            nav.classList.add('is-hidden');
+        } else {
+            nav.classList.remove('is-hidden');
         }
+        // 顶部特殊状态：永远可见
+        isTop = y < 50;
+        if (isTop) {
+            nav.classList.add('is-top');
+        } else {
+            nav.classList.remove('is-top');
+        }
+        lastY = y;
     }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-})();
+    // 注册到统一 scroll 调度器（替代独立 listener）
+    (window.__scrollFrameFns = window.__scrollFrameFns || []).push(onScroll);
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNavScrollState);
+} else {
+    initNavScrollState();
+}
 
 // 当前页指示器：URL 匹配 menu 项时给顶级 + dropdown toggle 加 .active
 function initCurrentPageIndicator() {
@@ -1462,6 +1472,39 @@ document.addEventListener('DOMContentLoaded', function() {
         document.addEventListener('DOMContentLoaded', initI18n);
     } else {
         initI18n();
+    }
+})();
+</script>
+
+<!-- 统一 scroll 调度器 - 合并 4 个独立 listener 为 1 个 RAF 节流的 listener -->
+<script>
+(function() {
+    function init() {
+        const fns = window.__scrollFrameFns || [];
+        if (fns.length === 0) return;
+
+        let ticking = false;
+        function onFrame() {
+            for (let i = 0; i < fns.length; i++) {
+                try { fns[i](); } catch (e) { console.error('[scroll feature]', e); }
+            }
+            ticking = false;
+        }
+
+        window.addEventListener('scroll', function() {
+            if (!ticking) {
+                requestAnimationFrame(onFrame);
+                ticking = true;
+            }
+        }, { passive: true });
+    }
+
+    // DOMContentLoaded 阶段：feature handler 按文档顺序先注册先执行，
+    // 调度器最后执行 → 已能读到全部 push 的函数
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
     }
 })();
 </script>

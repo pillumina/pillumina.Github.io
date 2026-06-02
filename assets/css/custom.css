@@ -2878,14 +2878,26 @@ html {
    - C: 滚动后毛玻璃背景
    ========================================================================== */
 
-/* C: 滚动后毛玻璃背景 */
+/* C: 滚动后毛玻璃背景 + 自动隐藏 nav */
 header.header {
     position: sticky;
     top: 0;
     z-index: 50;
+    transform: translateY(0);
     transition: background-color var(--duration-base) var(--ease-out),
                 border-color var(--duration-base) var(--ease-out),
-                backdrop-filter var(--duration-base) var(--ease-out);
+                backdrop-filter var(--duration-base) var(--ease-out),
+                transform var(--duration-base) var(--ease-out);
+}
+
+/* 滚下 > 100px 且方向向下：nav 滑出 */
+header.header.is-hidden {
+    transform: translateY(-100%);
+}
+
+/* 滚到顶部：nav 必须可见（不隐藏），覆盖 is-hidden */
+header.header.is-top {
+    transform: translateY(0);
 }
 
 header.header > .nav {
