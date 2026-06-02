@@ -421,53 +421,64 @@
     font-size: 0.75rem;
     padding: 0.3rem 0.5rem;
 }
-/* 分类容器 - 放在封面和标题之间 */
+/* 分类容器 - 编辑感 overline */
 .entry-categories {
     display: flex;
     flex-wrap: wrap;
     gap: 0.4rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
 }
 
+/* 类别 overline：编辑物风的"小标" */
 .entry-category {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.25rem 0.6rem 0.25rem 0.55rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    gap: 0.5rem;
+    padding: 0;
+    font-family: var(--font-system);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
     text-decoration: none;
     color: var(--cat-color, var(--accent));
-    background: var(--cat-bg, color-mix(in srgb, var(--accent) 8%, transparent));
-    border: 1px solid var(--cat-border, color-mix(in srgb, var(--accent) 18%, transparent));
-    border-radius: 999px;
-    transition: all var(--duration-base) var(--ease-out);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    transition: color var(--duration-base) var(--ease-out),
+                transform var(--duration-base) var(--ease-out);
     position: relative;
-    z-index: 2; /* 防止被 entry-link 遮挡 */
+    z-index: 2;
     pointer-events: auto;
+    line-height: 1.2;
+}
+
+.entry-category::before {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: currentColor;
+    flex-shrink: 0;
+    opacity: 0.6;
+    transition: width var(--duration-base) var(--ease-out),
+                opacity var(--duration-base) var(--ease-out);
 }
 
 .entry-category:hover {
-    background: var(--cat-color, var(--accent));
-    color: white;
+    color: var(--cat-color, var(--accent));
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--cat-color, var(--accent)) 30%, transparent);
+    background: transparent;
+    box-shadow: none;
 }
 
+.entry-category:hover::before {
+    width: 28px;
+    opacity: 1;
+}
+
+/* 隐藏原 dot（不再使用） */
 .entry-category-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--cat-color, var(--accent));
-    box-shadow: 0 0 0 2px color-mix(in srgb, var(--cat-color, var(--accent)) 18%, transparent);
-    transition: all var(--duration-base) var(--ease-out);
-    flex-shrink: 0;
-}
-
-.entry-category:hover .entry-category-dot {
-    background: white;
-    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
+    display: none;
 }
 
 .entry-category-label {
@@ -1185,8 +1196,83 @@ main,
 }
 
 /* ==========================================================================
-   首页两栏布局 - Profile 左 + 文章列表右 (仅首页)
+   文章卡片 - 编辑感排印
    ========================================================================== */
+
+/* 文章列第一篇（hero card）：Cormorant Garamond 衬线斜体（出版书封风） */
+.home-col-posts .post-entry:first-child .entry-header h2,
+.first-entry .entry-header h1 {
+    font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
+    font-size: clamp(1.75rem, 2.5vw + 1rem, 2.6rem);
+    font-weight: 500;
+    font-style: italic;
+    font-feature-settings: "kern", "liga", "dlig";
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--primary);
+    margin: 0.4rem 0 0.7rem;
+    -webkit-line-clamp: 2;
+}
+
+.home-col-posts .post-entry:first-child .entry-content,
+.first-entry .entry-content {
+    margin: 0.6rem 0 0.85rem;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--secondary);
+    -webkit-line-clamp: 3;
+    font-family: "Noto Sans SC", "Inter", sans-serif;
+    letter-spacing: 0.005em;
+}
+
+.home-col-posts .post-entry:first-child .entry-footer,
+.first-entry .entry-footer {
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--secondary);
+    opacity: 0.85;
+}
+
+/* 次篇标题：Inter 600 + 字体特性 */
+.entry-header h2 {
+    font-family: "Inter", "Noto Sans SC", sans-serif;
+    font-size: clamp(1.1rem, 0.5vw + 1rem, 1.4rem);
+    font-weight: 600;
+    font-feature-settings: "kern", "ss01";
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    color: var(--primary);
+    margin: 0.25rem 0 0.5rem;
+    -webkit-line-clamp: 2;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.entry-header h2 a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.entry-content {
+    margin: 0.5rem 0 0.7rem;
+    color: var(--secondary);
+    font-size: 0.88rem;
+    line-height: 1.7;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-family: "Noto Sans SC", "Inter", sans-serif;
+    letter-spacing: 0.005em;
+}
+
+.entry-footer {
+    color: var(--secondary);
+    font-size: 0.75rem;
+    letter-spacing: 0.02em;
+    opacity: 0.9;
+}
 
 @media (min-width: 1024px) {
     body.list:has(.home-two-col) .main {
