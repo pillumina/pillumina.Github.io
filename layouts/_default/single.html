@@ -46,7 +46,7 @@
     {{- $tags := .Language.Params.Taxonomies.tag | default "tags" }}
     <ul class="post-tags">
       {{- range ($.GetTerms $tags) }}
-      <li><a href="{{ .Permalink }}">{{ .LinkTitle }}</a></li>
+      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
       {{- end }}
     </ul>
     {{- if (.Param "ShowPostNavLinks") }}
@@ -55,9 +55,6 @@
     {{- if (and site.Params.ShowShareButtons (ne .Params.disableShare true)) }}
     {{- partial "share_icons.html" . -}}
     {{- end }}
-
-    {{/* 添加相关文章部分 */}}
-    {{ partial "related.html" . }}
   </footer>
 
   {{- if (.Param "comments") }}

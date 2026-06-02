@@ -45,7 +45,6 @@ languages:
           weight: 10
           params:
             group: AI
-            icon: "◆"
         - name: Theory
           identifier: theory
           parent: tech
@@ -53,7 +52,6 @@ languages:
           weight: 15
           params:
             group: AI
-            icon: "◆"
         - name: Programming
           identifier: programming
           parent: tech
@@ -61,7 +59,6 @@ languages:
           weight: 20
           params:
             group: Tech
-            icon: "◆"
 
         - name: Notes
           identifier: notes
@@ -73,7 +70,6 @@ languages:
           weight: 35
           params:
             group: Learning
-            icon: "◇"
         - name: Reading
           identifier: reading
           parent: notes
@@ -81,7 +77,6 @@ languages:
           weight: 40
           params:
             group: Reading
-            icon: "◇"
         - name: Papers
           identifier: papers
           parent: notes
@@ -89,7 +84,6 @@ languages:
           weight: 45
           params:
             group: Papers
-            icon: "◇"
 
         - name: AI Lab
           identifier: ailab
@@ -101,7 +95,6 @@ languages:
           weight: 55
           params:
             group: Practice
-            icon: "◈"
         - name: Skills
           identifier: skills
           parent: ailab
@@ -109,7 +102,6 @@ languages:
           weight: 60
           params:
             group: Practice
-            icon: "◈"
         - name: Workflows
           identifier: workflows
           parent: ailab
@@ -117,7 +109,6 @@ languages:
           weight: 65
           params:
             group: Practice
-            icon: "◈"
 
         - name: Thoughts
           identifier: thoughts
@@ -129,7 +120,6 @@ languages:
           weight: 75
           params:
             group: Reflection
-            icon: "○"
         - name: Reflections
           identifier: reflections
           parent: thoughts
@@ -137,7 +127,6 @@ languages:
           weight: 80
           params:
             group: Reflection
-            icon: "○"
 
         - name: Showcase
           identifier: showcase
@@ -149,7 +138,6 @@ languages:
           weight: 95
           params:
             group: Demo
-            icon: "◉"
         - name: Archive
           url: /archives/
           weight: 100

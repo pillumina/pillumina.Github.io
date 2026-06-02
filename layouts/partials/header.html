@@ -36,7 +36,7 @@
         <div class="logo">
             {{- $label_text := (site.Params.label.text | default site.Title) }}
             {{- if site.Title }}
-            <a href="{{ "" | absLangURL }}" accesskey="h" title="{{ $label_text }} (Alt + H)">
+            <a href="{{ "" | relLangURL }}" accesskey="h" title="{{ $label_text }} (Alt + H)">
                 {{- if site.Params.label.icon }}
                 {{- $img := resources.Get site.Params.label.icon }}
                 {{- if $img }}
@@ -55,7 +55,7 @@
                     <img src="{{ $img.Permalink }}" alt="" aria-label="logo"
                         height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- else }}
-                <img src="{{- site.Params.label.icon | absURL -}}" alt="" aria-label="logo"
+                <img src="{{- site.Params.label.icon | relURL -}}" alt="" aria-label="logo"
                     height="{{- site.Params.label.iconHeight | default "30" -}}">
                 {{- end -}}
                 {{- else if hasPrefix site.Params.label.iconSVG "<svg" }}
@@ -114,7 +114,7 @@
         <ul id="menu">
             {{- range $idx, $item := site.Menus.main }}
                 {{- if $item.HasChildren }}
-                    <li class="menu-dropdown">
+                    <li class="menu-dropdown menu-dropdown--{{ $item.Identifier }}">
                         <a href="javascript:void(0);" class="menu-dropdown-toggle" title="{{ $item.Title | default $item.Name }}" aria-haspopup="true" aria-expanded="false">
                             <span>
                                 {{- $item.Name -}}
@@ -143,7 +143,7 @@
                                             {{- with $child.Params.group }}{{ $childGrp = . }}{{ end }}
                                             {{- if eq $childGrp $grpName }}
                                             <li>
-                                                <a href="{{ $child.URL | absLangURL }}" title="{{ $child.Title | default $child.Name }}">
+                                                <a href="{{ $child.URL | relLangURL }}" title="{{ $child.Title | default $child.Name }}">
                                                     {{- with $child.Params.icon }}<span class="menu-item-icon">{{ . }}</span>{{- end }}
                                                     <span>{{- $child.Name -}}</span>
                                                 </a>
@@ -158,7 +158,7 @@
                 {{- else }}
                     {{- $is_search := eq (site.GetPage $item.KeyName).Layout `search` }}
                     <li>
-                        <a href="{{ $item.URL | absLangURL }}" title="{{ $item.Title | default $item.Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
+                        <a href="{{ $item.URL | relLangURL }}" title="{{ $item.Title | default $item.Name }} {{- cond $is_search (" (Alt + /)" | safeHTMLAttr) ("" | safeHTMLAttr ) }}"
                         {{- cond $is_search (" accesskey=/" | safeHTMLAttr) ("" | safeHTMLAttr ) }}>
                             <span>
                                 {{- $item.Pre }}
