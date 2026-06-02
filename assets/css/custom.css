@@ -150,17 +150,27 @@
 }
 
 .menu-group-title {
-    display: block;
-    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     color: var(--secondary);
-    opacity: 0.6;
-    margin: 0.4rem 0.625rem 0.35rem;
-    padding: 0;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.4rem;
+    margin: 0.6rem 0.625rem 0.4rem;
+    padding: 0 0 0.4rem;
+    border-bottom: 1px dashed var(--border);
+}
+
+.menu-group-title::before {
+    content: '';
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--menu-accent, var(--accent));
+    opacity: 0.7;
+    flex-shrink: 0;
 }
 
 /* 下拉菜单项 */
@@ -168,13 +178,30 @@
     margin: 0 !important;
     padding: 0;
     display: block;
+    /* stagger 动画：每个 item 延迟 30ms */
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity var(--duration-base) var(--ease-out),
+                transform var(--duration-base) var(--ease-out);
+}
+.menu-dropdown-menu li.menu-group ul li:nth-child(1) { transition-delay: 30ms; }
+.menu-dropdown-menu li.menu-group ul li:nth-child(2) { transition-delay: 60ms; }
+.menu-dropdown-menu li.menu-group ul li:nth-child(3) { transition-delay: 90ms; }
+.menu-dropdown-menu li.menu-group ul li:nth-child(4) { transition-delay: 120ms; }
+.menu-dropdown-menu li.menu-group ul li:nth-child(5) { transition-delay: 150ms; }
+.menu-dropdown-menu li.menu-group ul li:nth-child(6) { transition-delay: 180ms; }
+
+.menu-dropdown.is-open .menu-dropdown-menu li.menu-group ul li,
+.menu-dropdown:hover .menu-dropdown-menu li.menu-group ul li {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .menu-dropdown-menu a {
     display: flex !important;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.625rem !important;
+    gap: 0.625rem;
+    padding: 0.5rem 0.75rem !important;
     font-size: 0.875rem;
     font-weight: 450;
     color: var(--secondary);
@@ -184,6 +211,7 @@
     transition: all var(--duration-fast) var(--ease-out);
     position: relative;
     line-height: 1.4;
+    overflow: hidden;
 }
 
 /* 隐藏原 icon 字符（params.icon），改用 CSS 色点 */
@@ -194,24 +222,39 @@
 /* CSS 色点：每项前的 6px 圆，颜色由父菜单决定 */
 .menu-dropdown-menu a::before {
     content: '';
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background: var(--menu-accent, var(--accent));
     flex-shrink: 0;
-    opacity: 0.7;
-    transition: opacity var(--duration-fast) var(--ease-out),
-                transform var(--duration-fast) var(--ease-out);
+    opacity: 0.5;
+    transition: all var(--duration-base) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-dropdown-menu a::after {
+    content: '→';
+    margin-left: auto;
+    color: var(--menu-accent, var(--accent));
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all var(--duration-base) var(--ease-out);
+    font-size: 0.8rem;
 }
 
 .menu-dropdown-menu a:hover {
     background: color-mix(in srgb, var(--menu-accent, var(--accent)) 10%, transparent);
     color: var(--menu-accent, var(--accent));
+    padding-left: 1rem !important;
 }
 
 .menu-dropdown-menu a:hover::before {
     opacity: 1;
-    transform: scale(1.3);
+    transform: scale(1.4);
+}
+
+.menu-dropdown-menu a:hover::after {
+    opacity: 0.7;
+    transform: translateX(0);
 }
 
 .menu-dropdown-menu a .active {
@@ -2302,15 +2345,32 @@ body {
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: box-shadow var(--duration-base) var(--ease-out);
+    transition: box-shadow var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out);
 }
 
 .post-content details:hover {
     box-shadow: var(--shadow-md);
 }
 
+/* 连续 details 视觉区分 - 用细线连接器避免"两块 merge"的错觉 */
+.post-content details + details {
+    margin-top: 0.75rem;
+    position: relative;
+}
+.post-content details + details::before {
+    content: '';
+    position: absolute;
+    top: -0.5rem;
+    left: 1.25rem;
+    right: 1.25rem;
+    height: 1px;
+    background: var(--border);
+    opacity: 0.4;
+}
+
 .post-content details summary {
-    padding: 1rem 1.25rem;
+    padding: 1.1rem 1.25rem;
     cursor: pointer;
     font-weight: 500;
     color: var(--primary);
@@ -2320,6 +2380,7 @@ body {
     gap: 0.875rem;
     user-select: none;
     transition: background-color var(--duration-base) var(--ease-out);
+    font-size: 0.95rem;
 }
 
 .post-content details summary:hover {
@@ -2330,46 +2391,92 @@ body {
     display: none;
 }
 
-/* 折叠箭头 */
+/* 折叠箭头 - 更细更精致的 chevron */
 .post-content details summary::before {
     content: '';
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     flex-shrink: 0;
     background: var(--primary);
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E") center/contain no-repeat;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E") center/contain no-repeat;
-    transition: transform var(--duration-base) var(--ease-out);
+    opacity: 0.6;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='9 18 15 12 9 6'/%3E%3C/svg%3E") center/contain no-repeat;
+    transition: transform var(--duration-base) var(--ease-out),
+                opacity var(--duration-base) var(--ease-out);
+}
+
+.post-content details summary:hover::before {
+    opacity: 1;
 }
 
 .post-content details[open] summary::before {
     transform: rotate(90deg);
+    opacity: 1;
 }
 
-/* 展开内容区域 */
+/* 展开内容区域 - 顶部短 accent bar 标记（避免与中文左竖笔重叠） */
 .post-content details > *:not(summary) {
-    padding: 0 1.25rem 1.25rem 1.25rem;
-    border-top: 1px solid var(--border);
-    background: linear-gradient(to bottom, color-mix(in srgb, var(--accent) 2%, transparent), transparent);
+    padding: 0.75rem 1.5rem 1.5rem 1.5rem;
+    position: relative;
+}
+
+.post-content details > *:not(summary)::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 1.5rem;
+    width: 32px;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 0 0 2px 2px;
+    opacity: 0.7;
 }
 
 .post-content details > *:first-child:not(summary) {
-    padding-top: 1.25rem;
+    padding-top: 0.75rem;
 }
 
 /* 内容样式优化 */
+.post-content details p {
+    margin: 0.6rem 0;
+    line-height: 1.8;
+    color: var(--secondary);
+}
+
 .post-content details .highlight {
     margin: 1rem 0;
+    border-radius: var(--radius-md);
 }
 
 .post-content details ul,
 .post-content details ol {
     margin: 0.75rem 0;
+    padding-left: 1.5rem;
 }
 
 .post-content details li {
     margin: 0.5rem 0;
     line-height: 1.75;
+    color: var(--secondary);
+}
+
+.post-content details li::marker {
+    color: var(--accent);
+    opacity: 0.5;
+}
+
+.post-content details code:not(pre code) {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    color: var(--accent);
+    padding: 0.1em 0.4em;
+    border-radius: var(--radius-sm);
+    font-size: 0.875em;
+    font-weight: 500;
+}
+
+.post-content details strong {
+    color: var(--primary);
+    font-weight: 600;
 }
 
 .dark .post-content details:hover {
