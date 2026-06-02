@@ -80,6 +80,11 @@
     cursor: pointer;
     user-select: none;
     padding: 0 var(--space-xs);
+    border: 0;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
     border-radius: var(--radius-sm);
     transition: color var(--duration-fast) var(--ease-out),
                 background-color var(--duration-fast) var(--ease-out);
@@ -88,6 +93,11 @@
 .menu-dropdown-toggle:hover {
     color: var(--accent);
     background: color-mix(in srgb, var(--accent) 6%, transparent);
+}
+
+.menu-dropdown-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
 }
 
 .menu-dropdown-arrow {
@@ -1715,69 +1725,6 @@ main,
     transition: width 0.1s linear;
   }
 
-  /* 11.1 阅读进度百分比 - 圆形进度环 (SVG ring + 中心数字) */
-  .reading-progress-ring {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    z-index: 98;
-    width: 44px;
-    height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 50%;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    opacity: 0.4;
-    transition: opacity var(--duration-base) var(--ease-out),
-                transform var(--duration-base) var(--ease-out),
-                border-color var(--duration-base) var(--ease-out);
-    cursor: default;
-    pointer-events: auto;
-  }
-
-  .reading-progress-ring:hover {
-    opacity: 1;
-    transform: scale(1.08);
-    border-color: var(--accent);
-  }
-
-  .ring-svg {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  .ring-bg {
-    stroke: var(--border);
-    opacity: 0.6;
-    transition: stroke var(--duration-base) var(--ease-out);
-  }
-
-  .ring-fill {
-    stroke: var(--accent);
-    transition: stroke-dashoffset 0.12s linear, stroke var(--duration-base) var(--ease-out);
-    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--accent) 40%, transparent));
-  }
-
-  .ring-text {
-    position: relative;
-    z-index: 1;
-    font-size: 0.625rem;
-    font-weight: 700;
-    font-variant-numeric: tabular-nums;
-    color: var(--primary);
-    line-height: 1;
-    user-select: none;
-    letter-spacing: -0.01em;
-  }
-
   /* 12. 图片灯箱（z-index 变量化） */
   .medium-zoom-overlay {
     position: fixed;
@@ -1899,7 +1846,7 @@ button,
 /* 全局字体栈 */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Inter", "Noto Sans SC", "PingFang SC", sans-serif;
-    font-size: 18px;
+    font-size: clamp(1rem, 0.3vw + 0.95rem, 1.25rem);
     line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -2176,12 +2123,12 @@ body {
     margin-bottom: 0;
 }
 
-/* Callout 类型 - 统一配色体系 */
+/* Callout 类型 - 统一配色体系（克制版：去渐变，单色 6% 透明） */
 .callout-tip {
     border-left: 4px solid var(--accent);
 }
 .callout-tip .callout-header {
-    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 8%, transparent), color-mix(in srgb, var(--accent) 3%, transparent));
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
     border-bottom-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 .callout-tip .callout-icon { color: var(--accent); }
@@ -2191,7 +2138,7 @@ body {
     border-left: 4px solid #8B5CF6;
 }
 .callout-info .callout-header {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(139, 92, 246, 0.03));
+    background: rgba(139, 92, 246, 0.06);
     border-bottom-color: rgba(139, 92, 246, 0.15);
 }
 .callout-info .callout-icon { color: #8B5CF6; }
@@ -2201,7 +2148,7 @@ body {
     border-left: 4px solid #F59E0B;
 }
 .callout-warning .callout-header {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03));
+    background: rgba(245, 158, 11, 0.06);
     border-bottom-color: rgba(245, 158, 11, 0.15);
 }
 .callout-warning .callout-icon { color: #F59E0B; }
@@ -2211,7 +2158,7 @@ body {
     border-left: 4px solid #EF4444;
 }
 .callout-danger .callout-header {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.03));
+    background: rgba(239, 68, 68, 0.06);
     border-bottom-color: rgba(239, 68, 68, 0.15);
 }
 .callout-danger .callout-icon { color: #EF4444; }
