@@ -5,11 +5,50 @@
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/categories/architecture/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/architecture/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/attention/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/categories/</loc>
-    <lastmod>2026-05-28T12:00:00+08:00</lastmod>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/</loc>
-    <lastmod>2026-05-28T12:00:00+08:00</lastmod>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/gqa/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/minimax/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/minimax-m2.7/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/model-architecture/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/moe/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/mtp/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/</loc>
+    <lastmod>2026-06-09T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/categories/demo/</loc>
     <lastmod>2026-05-28T12:00:00+08:00</lastmod>
@@ -18,12 +57,6 @@
     <lastmod>2026-05-28T12:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/features/</loc>
-    <lastmod>2026-05-28T12:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/</loc>
-    <lastmod>2026-05-28T12:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/</loc>
     <lastmod>2026-05-28T12:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/demo/99-demo-features/</loc>
@@ -146,13 +179,7 @@
     <loc>https://pillumina.github.io/tags/rl/</loc>
     <lastmod>2025-11-20T11:30:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/series/</loc>
-    <lastmod>2025-11-20T11:30:12+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/13-vllmascend-mc2/</loc>
-    <lastmod>2025-09-20T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/moe/</loc>
     <lastmod>2025-09-20T11:30:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/series/vllm-ascend/</loc>

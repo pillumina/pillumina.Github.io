@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 600" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .cell { fill: #fff; stroke: #000; stroke-width: 1.2; }
+    .cell-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .header-text { fill: #fff; font-weight: bold; font-size: 11px; }
+    .warn { fill: #b8721a; }
+    .warn-bold { fill: #b8721a; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="24" text-anchor="middle" font-weight="bold" font-size="14">MoE 路由机制：Sigmoid Gate + Routing Bias + Top-8 Dispatch</text>
+  <text class="annot" x="440" y="40" text-anchor="middle">256 个 Fine-grained Experts, 无 Shared Expert, 每 Token 激活 8 个 Expert</text>
+
+  <!-- ======= SECTION 1: Gate Network ======= -->
+  <rect class="box-hl" x="30" y="55" width="820" height="150"/>
+  <text class="label-hl" x="440" y="75" text-anchor="middle" font-size="12">1. Gate 网络：hidden_states → Expert Scores</text>
+
+  <!-- Input -->
+  <rect class="box" x="80" y="90" width="180" height="30"/>
+  <text class="label" x="170" y="109" text-anchor="middle">hidden_states [B,S,3072]</text>
+
+  <line class="arrow" x1="260" y1="105" x2="310" y2="105"/>
+
+  <!-- Linear -->
+  <rect class="box" x="312" y="88" width="190" height="34"/>
+  <text class="label" x="407" y="104" text-anchor="middle">Linear(3072 → 256)</text>
+  <text class="annot" x="407" y="117" text-anchor="middle">weight: [256, 3072]</text>
+
+  <line class="arrow" x1="502" y1="105" x2="550" y2="105"/>
+
+  <!-- Sigmoid -->
+  <rect class="box-hl" x="552" y="88" width="130" height="34"/>
+  <text class="label-hl" x="617" y="104" text-anchor="middle">σ (Sigmoid)</text>
+  <text class="annot-hl" x="617" y="117" text-anchor="middle">scoring_func</text>
+
+  <line class="arrow" x1="682" y1="105" x2="720" y2="105"/>
+
+  <!-- Scores -->
+  <rect class="box" x="722" y="90" width="120" height="30"/>
+  <text class="label" x="782" y="109" text-anchor="middle">256 scores ∈ (0,1)</text>
+
+  <!-- Annotations -->
+  <text class="annot" x="170" y="150" text-anchor="middle">每层独立 Gate</text>
+  <text class="annot-hl" x="617" y="155" text-anchor="middle">不是 softmax!</text>
+  <text class="annot" x="782" y="155" text-anchor="middle">shape: [B,S,256]</text>
+
+  <text class="annot" x="440" y="180" text-anchor="middle">scoring_func = "sigmoid" (每个 expert 独立打分, 不互斥)</text>
+  <text class="annot-hl" x="440" y="196" text-anchor="middle">与 DeepSeek V3 的 sigmoid 一致, 区别于 Mixtral 的 softmax</text>
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="782" y1="205" x2="782" y2="230"/>
+
+  <!-- ======= SECTION 2: Routing Bias ======= -->
+  <rect class="box-hl" x="30" y="230" width="820" height="120"/>
+  <text class="label-hl" x="440" y="250" text-anchor="middle" font-size="12">2. Routing Bias (e_score_correction_bias)：learnable, 不进梯度</text>
+
+  <!-- Bias box -->
+  <rect class="box" x="200" y="262" width="160" height="34"/>
+  <text class="label" x="280" y="278" text-anchor="middle">bias vector [256]</text>
+  <text class="annot" x="280" y="291" text-anchor="middle">e_score_correction_bias</text>
+
+  <text class="annot" x="480" y="280" text-anchor="middle">+</text>
+
+  <!-- Adjusted scores -->
+  <rect class="box" x="540" y="262" width="180" height="34"/>
+  <text class="label" x="630" y="278" text-anchor="middle">adjusted_score[i] = s[i] + b[i]</text>
+  <text class="annot" x="630" y="291" text-anchor="middle">bias 仅用于 routing, 不进梯度</text>
+
+  <!-- Annotations -->
+  <text class="annot-hl" x="440" y="315" text-anchor="middle">Bias 作用: 修正 expert 负载均衡, 训练时学习最优 expert 分配, 但不参与 loss 计算</text>
+  <text class="annot" x="440" y="332" text-anchor="middle">b_i 为可训练参数, 但 forward 时加到 score 上, backward 时梯度不回传至 bias 本身</text>
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="630" y1="350" x2="630" y2="375"/>
+
+  <!-- ======= SECTION 3: Top-8 Selection + Dispatch ======= -->
+  <rect class="box-hl" x="30" y="375" width="820" height="170"/>
+  <text class="label-hl" x="440" y="395" text-anchor="middle" font-size="12">3. Top-8 选择 + Expert Dispatch</text>
+
+  <!-- Top-K -->
+  <rect class="box" x="120" y="412" width="180" height="34"/>
+  <text class="label" x="210" y="428" text-anchor="middle">topk(scores, k=8)</text>
+  <text class="annot" x="210" y="441" text-anchor="middle">选出 top-8 expert indices</text>
+
+  <line class="arrow" x1="300" y1="429" x2="360" y2="429"/>
+
+  <!-- One-hot -->
+  <rect class="box" x="362" y="412" width="200" height="34"/>
+  <text class="label" x="462" y="428" text-anchor="middle">one_hot(indices) → [B,S,256]</text>
+  <text class="annot" x="462" y="441" text-anchor="middle">8 个位置为 1, 其余为 0</text>
+
+  <line class="arrow" x1="562" y1="429" x2="620" y2="429"/>
+
+  <!-- Index Add -->
+  <rect class="box-hl" x="622" y="412" width="200" height="34"/>
+  <text class="label-hl" x="722" y="428" text-anchor="middle">index_add(token, expert)</text>
+  <text class="annot" x="722" y="441" text-anchor="middle">将 token 发送至 8 个 expert</text>
+
+  <!-- Expert dispatch visualization -->
+  <text class="label" x="440" y="478" text-anchor="middle" font-weight="bold">Expert 执行流程</text>
+
+  <rect class="box" x="60" y="488" width="70" height="24"/>
+  <text class="annot" x="95" y="504" text-anchor="middle">Expert 0</text>
+
+  <rect class="box" x="145" y="488" width="70" height="24"/>
+  <text class="annot" x="180" y="504" text-anchor="middle">Expert 1</text>
+
+  <rect class="box" x="230" y="488" width="70" height="24"/>
+  <text class="annot" x="265" y="504" text-anchor="middle">Expert 2</text>
+
+  <text class="annot" x="315" y="504" text-anchor="middle">...</text>
+
+  <rect class="box-hl" x="340" y="488" width="70" height="24"/>
+  <text class="annot-hl" x="375" y="504" text-anchor="middle">Expert k</text>
+
+  <text class="annot" x="425" y="504" text-anchor="middle">...</text>
+
+  <rect class="box" x="450" y="488" width="70" height="24"/>
+  <text class="annot" x="485" y="504" text-anchor="middle">Expert 254</text>
+
+  <rect class="box" x="535" y="488" width="70" height="24"/>
+  <text class="annot" x="570" y="504" text-anchor="middle">Expert 255</text>
+
+  <text class="annot" x="722" y="504" text-anchor="middle">每个 expert: GELU FFN</text>
+
+  <!-- Sum output -->
+  <text class="annot" x="440" y="536" text-anchor="middle">output = Σ weights[i] · expert_i(x)   (8 个 expert 输出的加权和)</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 575)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="box-hl" x="70" y="6" width="14" height="14"/>
+    <text class="annot" x="88" y="17">核心创新 (sigmoid gate, routing bias, no shared expert)</text>
+    <rect class="box" x="400" y="6" width="14" height="14"/>
+    <text class="annot" x="418" y="17">标准组件</text>
+    <text class="annot" x="520" y="17">| k=8 experts/token | N=256 total | scoring_func=sigmoid</text>
+  </g>
+</svg>

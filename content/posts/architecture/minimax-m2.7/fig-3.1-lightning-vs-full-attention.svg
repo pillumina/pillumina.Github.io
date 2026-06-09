@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 560" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .cell { fill: #fff; stroke: #000; stroke-width: 1.2; }
+    .cell-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .header-text { fill: #fff; font-weight: bold; font-size: 11px; }
+    .warn { fill: #b8721a; }
+    .warn-bold { fill: #b8721a; font-weight: bold; }
+  </style>
+
+  <!-- 标题 -->
+  <text x="440" y="24" text-anchor="middle" font-weight="bold" font-size="14">Lightning Attention vs Full Attention：M2 为何放弃 Hybrid</text>
+
+  <!-- ====== TOP LEFT: Lightning Attention ====== -->
+  <rect class="box" x="30" y="42" width="395" height="200"/>
+  <text class="label-hl" x="227" y="62" text-anchor="middle" font-size="12">Lightning Attention (Linear Attention)</text>
+
+  <!-- Formula -->
+  <text class="annot" x="45" y="82">核心公式:</text>
+  <text class="annot" x="45" y="100">K = φ(x) W_k,  V = x W_v,  Q = φ(x) W_q</text>
+  <text class="annot" x="45" y="118">output = Q · (K^T · V)  ← 先算 K^T V (associative)</text>
+
+  <rect class="box" x="45" y="128" width="365" height="36"/>
+  <text class="annot" x="227" y="142" text-anchor="middle">特征映射 (kernel feature map): φ(x) = ELU(x) + 1</text>
+  <text class="annot" x="227" y="156" text-anchor="middle">或 ReLU, cos/sin 等</text>
+
+  <text class="annot-hl" x="45" y="186">复杂度: O(T · d²) 或 O(T · 2d), 长序列线性缩放</text>
+  <text class="annot" x="45" y="202">优点: 长文本推理快, KV 缓存 O(d²) 固定</text>
+  <text class="warn" x="45" y="218">缺点: 注意力质量低于 Full Attention, 精度损失</text>
+
+  <!-- Arrow between top-left and top-right -->
+  <text class="annot" x="427" y="152" text-anchor="middle" font-size="14">vs</text>
+
+  <!-- ====== TOP RIGHT: Full Attention + GQA ====== -->
+  <rect class="box-hl" x="455" y="42" width="400" height="200"/>
+  <text class="label-hl" x="655" y="62" text-anchor="middle" font-size="12">Full Attention + GQA (M2.7 选择)</text>
+
+  <!-- Formula -->
+  <text class="annot" x="470" y="82">核心公式:</text>
+  <text class="annot" x="470" y="100">Q = W_q x,  K = W_k x,  V = W_v x</text>
+  <text class="annot" x="470" y="118">output = softmax(QK^T / √d) · V  ← 标准 scaled dot-product</text>
+
+  <rect class="box" x="470" y="128" width="370" height="36"/>
+  <text class="annot" x="655" y="142" text-anchor="middle">GQA: 48 Query heads, 8 KV heads (repeat_kv = 6)</text>
+  <text class="annot" x="655" y="156" text-anchor="middle">QK Norm + RoPE (rotary_dim=64, θ=5M)</text>
+
+  <text class="annot-hl" x="470" y="186">复杂度: O(T² · d), 短/中序列最优质量</text>
+  <text class="annot" x="470" y="202">优点: 注意力质量高, 精度无损失</text>
+  <text class="warn" x="470" y="218">代价: 长序列推理显存/计算较大</text>
+
+  <!-- Divider -->
+  <line x1="20" y1="255" x2="860" y2="255" stroke="#888" stroke-width="0.8"/>
+
+  <!-- ====== BOTTOM: Ablation Table ====== -->
+  <text class="label" x="440" y="272" text-anchor="middle" font-weight="bold" font-size="12">论文 Ablation：Full Attention vs SWA (Lightning) — 质量差距显著</text>
+
+  <!-- Table Header -->
+  <rect class="cell" x="40" y="285" width="160" height="28" fill="#1a3a6e"/>
+  <text class="header-text" x="120" y="303" text-anchor="middle">Benchmark</text>
+
+  <rect class="cell" x="200" y="285" width="140" height="28" fill="#1a3a6e"/>
+  <text class="header-text" x="270" y="303" text-anchor="middle">Full Attention</text>
+
+  <rect class="cell" x="340" y="285" width="140" height="28" fill="#f4f4f4" stroke="#000" stroke-width="1.2"/>
+  <text class="label" x="410" y="303" text-anchor="middle">SWA (Lightning)</text>
+
+  <rect class="cell" x="480" y="285" width="140" height="28" fill="#1a3a6e"/>
+  <text class="header-text" x="550" y="303" text-anchor="middle">Δ Gap</text>
+
+  <rect class="cell" x="620" y="285" width="200" height="28" fill="#1a3a6e"/>
+  <text class="header-text" x="720" y="303" text-anchor="middle">Verdict</text>
+
+  <!-- Row 1: RULER 128K CWE -->
+  <rect class="cell" x="40" y="313" width="160" height="30"/>
+  <text class="label" x="120" y="332" text-anchor="middle">RULER 128K CWE</text>
+
+  <rect class="cell-hl" x="200" y="313" width="140" height="30"/>
+  <text class="label-hl" x="270" y="332" text-anchor="middle">90.0</text>
+
+  <rect class="cell" x="340" y="313" width="140" height="30"/>
+  <text class="annot" x="410" y="332" text-anchor="middle">72.0</text>
+
+  <rect class="cell" x="480" y="313" width="140" height="30"/>
+  <text class="warn-bold" x="550" y="332" text-anchor="middle">−18.0 pp</text>
+
+  <rect class="cell" x="620" y="313" width="200" height="30"/>
+  <text class="annot-hl" x="720" y="332" text-anchor="middle">Full 显著领先</text>
+
+  <!-- Row 2: MTOB -->
+  <rect class="cell" x="40" y="343" width="160" height="30"/>
+  <text class="label" x="120" y="362" text-anchor="middle">MTOB</text>
+
+  <rect class="cell-hl" x="200" y="343" width="140" height="30"/>
+  <text class="label-hl" x="270" y="362" text-anchor="middle">60.0</text>
+
+  <rect class="cell" x="340" y="343" width="140" height="30"/>
+  <text class="annot" x="410" y="362" text-anchor="middle">45.0</text>
+
+  <rect class="cell" x="480" y="343" width="140" height="30"/>
+  <text class="warn-bold" x="550" y="362" text-anchor="middle">−15.0 pp</text>
+
+  <rect class="cell" x="620" y="343" width="200" height="30"/>
+  <text class="annot-hl" x="720" y="362" text-anchor="middle">Full 显著领先</text>
+
+  <!-- Row 3: LongBench -->
+  <rect class="cell" x="40" y="373" width="160" height="30"/>
+  <text class="label" x="120" y="392" text-anchor="middle">LongBench</text>
+
+  <rect class="cell-hl" x="200" y="373" width="140" height="30"/>
+  <text class="label-hl" x="270" y="392" text-anchor="middle">~85</text>
+
+  <rect class="cell" x="340" y="373" width="140" height="30"/>
+  <text class="annot" x="410" y="392" text-anchor="middle">~70</text>
+
+  <rect class="cell" x="480" y="373" width="140" height="30"/>
+  <text class="warn-bold" x="550" y="392" text-anchor="middle">−15 pp</text>
+
+  <rect class="cell" x="620" y="373" width="200" height="30"/>
+  <text class="annot-hl" x="720" y="392" text-anchor="middle">Full 显著领先</text>
+
+  <!-- Row 4: RULER 4K -->
+  <rect class="cell" x="40" y="403" width="160" height="30"/>
+  <text class="label" x="120" y="422" text-anchor="middle">RULER 4K</text>
+
+  <rect class="cell-hl" x="200" y="403" width="140" height="30"/>
+  <text class="label-hl" x="270" y="422" text-anchor="middle">~95</text>
+
+  <rect class="cell" x="340" y="403" width="140" height="30"/>
+  <text class="annot" x="410" y="422" text-anchor="middle">~90</text>
+
+  <rect class="cell" x="480" y="403" width="140" height="30"/>
+  <text class="warn-bold" x="550" y="422" text-anchor="middle">−5 pp</text>
+
+  <rect class="cell" x="620" y="403" width="200" height="30"/>
+  <text class="annot" x="720" y="422" text-anchor="middle">Full 小幅领先</text>
+
+  <!-- Conclusion Box -->
+  <rect class="box-hl" x="60" y="450" width="760" height="60"/>
+  <text class="label-hl" x="440" y="468" text-anchor="middle" font-size="12">结论：M2 全面转向 Full Attention</text>
+  <text class="annot" x="440" y="485" text-anchor="middle">在所有长文本 benchmark 上 Full Attention 均大幅优于 SWA (Lightning)，尤其在超长上下文 (128K) 场景差距达 18pp</text>
+  <text class="annot-hl" x="440" y="500" text-anchor="middle">M2 选择牺牲部分推理速度换取注意力质量，配合 GQA (8 KV heads) 缓解显存压力，62 层全 Full Attention</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 535)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="box-hl" x="70" y="6" width="14" height="14"/>
+    <text class="annot" x="88" y="17">Full Attention (M2.7 采用)</text>
+    <rect class="box" x="260" y="6" width="14" height="14"/>
+    <text class="annot" x="278" y="17">Lightning / SWA</text>
+    <text class="warn-bold" x="420" y="17">Δ: 质量差距</text>
+  </g>
+</svg>

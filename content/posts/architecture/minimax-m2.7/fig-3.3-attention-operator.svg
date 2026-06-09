@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 920" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .cell { fill: #fff; stroke: #000; stroke-width: 1.2; }
+    .cell-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #333; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .header-text { fill: #fff; font-weight: bold; font-size: 11px; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .step-num { fill: #1a3a6e; font-weight: bold; font-size: 10px; }
+    .code { fill: #333; font-size: 8.5px; }
+    .shape-annot { fill: #666; font-size: 8px; }
+    .precision-tag { fill: #b8721a; font-size: 8px; font-weight: bold; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="500" y="24" text-anchor="middle" font-weight="bold" font-size="14">MiniMaxM2Attention.forward 算子级拆解</text>
+  <text class="annot" x="500" y="40" text-anchor="middle">源码: modeling_minimax_m2.py L259-L314 | 精度: BF16</text>
+
+  <!-- BF16 precision tag (left side) -->
+  <rect x="14" y="54" width="55" height="16" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text class="precision-tag" x="41" y="65" text-anchor="middle">BF16</text>
+
+  <!-- ====== Step 1: QKV Projection ====== -->
+  <rect class="box" x="80" y="66" width="840" height="66"/>
+  <text class="step-num" x="100" y="83">Step 1</text>
+  <text class="label" x="160" y="83" font-weight="bold">QKV 投影 (L268-270)</text>
+
+  <rect class="box" x="100" y="94" width="240" height="24"/>
+  <text class="code" x="220" y="109" text-anchor="middle">q_proj: 3072 → 48×128=6144</text>
+
+  <rect class="box" x="370" y="94" width="250" height="24"/>
+  <text class="code" x="495" y="109" text-anchor="middle">k_proj: 3072 → 8×128=1024</text>
+
+  <rect class="box" x="650" y="94" width="250" height="24"/>
+  <text class="code" x="775" y="109" text-anchor="middle">v_proj: 3072 → 8×128=1024</text>
+
+  <text class="shape-annot" x="220" y="128" text-anchor="middle">[B,S,6144]</text>
+  <text class="shape-annot" x="495" y="128" text-anchor="middle">[B,S,1024]  ← 6× 小于 Q</text>
+  <text class="shape-annot" x="775" y="128" text-anchor="middle">[B,S,1024]</text>
+
+  <!-- Why annotation -->
+  <text class="shape-annot" x="500" y="82" text-anchor="end" fill="#1a3a6e">投影放大 hidden state 分布 → Norm 抑制异常值</text>
+
+  <!-- Arrow Step 1→2 -->
+  <line class="arrow" x1="500" y1="132" x2="500" y2="172"/>
+
+  <!-- ====== Step 2: QK Norm (HIGHLIGHTED) ====== -->
+  <rect class="box-hl" x="80" y="176" width="840" height="66"/>
+  <text class="step-num" x="100" y="193">Step 2</text>
+  <text class="label-hl" x="160" y="193" font-weight="bold">QK Norm (per_layer) (L273-274)</text>
+
+  <rect class="box-hl" x="100" y="204" width="370" height="24"/>
+  <text class="code" x="285" y="219" text-anchor="middle">self.q_norm(query_states)  ← RMSNorm over 6144 dims</text>
+
+  <rect class="box-hl" x="500" y="204" width="400" height="24"/>
+  <text class="code" x="700" y="219" text-anchor="middle">self.k_norm(key_states)    ← RMSNorm over 1024 dims</text>
+
+  <text class="annot-hl" x="500" y="238" text-anchor="middle">per_layer: Layer 0 和 Layer 61 的 QK Norm 参数独立</text>
+
+  <!-- Arrow Step 2→3 -->
+  <line class="arrow" x1="500" y1="242" x2="500" y2="282"/>
+
+  <!-- ====== Step 3: RoPE ====== -->
+  <rect class="box" x="80" y="286" width="840" height="60"/>
+  <text class="step-num" x="100" y="303">Step 3</text>
+  <text class="label" x="160" y="303" font-weight="bold">RoPE (partial) (L283-284)</text>
+
+  <rect class="box" x="100" y="314" width="370" height="20"/>
+  <text class="code" x="285" y="327" text-anchor="middle">apply_rotary_pos_emb(Q[:,:,:64], K[:,:,:64])</text>
+
+  <rect class="box" x="500" y="314" width="400" height="20"/>
+  <text class="code" x="700" y="327" text-anchor="middle">rotary_dim=64, head_dim=128 (partial RoPE)</text>
+
+  <text class="shape-annot" x="500" y="342" text-anchor="middle">前 64 维旋转(位置)，后 64 维不变(语义)</text>
+
+  <!-- Arrow Step 3→4 -->
+  <line class="arrow" x1="500" y1="346" x2="500" y2="386"/>
+
+  <!-- ====== Step 4: KV Cache ====== -->
+  <rect class="box" x="80" y="390" width="840" height="60"/>
+  <text class="step-num" x="100" y="407">Step 4</text>
+  <text class="label" x="160" y="407" font-weight="bold">KV Cache 更新 (L286-289)</text>
+
+  <rect class="box" x="100" y="418" width="800" height="20"/>
+  <text class="code" x="500" y="431" text-anchor="middle">past_key_values.update(key_states, value_states, layer_idx)</text>
+
+  <text class="shape-annot" x="500" y="446" text-anchor="middle">192K 上下文下, 每层 K cache = 192K × 8 × 128 × 2B = 393 MB (BF16) | 62 层总计 48.8 GB</text>
+
+  <!-- Arrow Step 4→5 -->
+  <line class="arrow" x1="500" y1="450" x2="500" y2="490"/>
+
+  <!-- ====== Step 5: GQA expand (HIGHLIGHTED) ====== -->
+  <rect class="box-hl" x="80" y="494" width="840" height="66"/>
+  <text class="step-num" x="100" y="511">Step 5</text>
+  <text class="label-hl" x="160" y="511" font-weight="bold">GQA expand: repeat_kv (attention_interface 内部)</text>
+
+  <rect class="box-hl" x="100" y="522" width="370" height="24"/>
+  <text class="code" x="285" y="537" text-anchor="middle">key_states = repeat_kv(key, 6)    [B,8,S,128] → [B,48,S,128]</text>
+
+  <rect class="box-hl" x="500" y="522" width="400" height="24"/>
+  <text class="code" x="700" y="537" text-anchor="middle">value_states = repeat_kv(value, 6)  [B,8,S,128] → [B,48,S,128]</text>
+
+  <text class="annot-hl" x="500" y="556" text-anchor="middle">8 KV 头各复制 6 次 → 匹配 48 个 Q 头。零 FLOPs (reshape + expand)</text>
+
+  <!-- Arrow Step 5→6 -->
+  <line class="arrow" x1="500" y1="560" x2="500" y2="600"/>
+
+  <!-- ====== Step 6: Scaled Dot-Product Attention ====== -->
+  <rect class="box" x="80" y="604" width="840" height="86"/>
+  <text class="step-num" x="100" y="621">Step 6</text>
+  <text class="label" x="160" y="621" font-weight="bold">Scaled Dot-Product Attention (L291-293)</text>
+
+  <rect class="box" x="100" y="632" width="240" height="20"/>
+  <text class="code" x="220" y="645" text-anchor="middle">attn_weights = Q @ K^T / sqrt(128)</text>
+
+  <rect class="box" x="370" y="632" width="250" height="20"/>
+  <text class="code" x="495" y="645" text-anchor="middle">+ causal_mask → softmax(dim=-1)</text>
+
+  <rect class="box" x="650" y="632" width="250" height="20"/>
+  <text class="code" x="775" y="645" text-anchor="middle">attn_output = weights @ V</text>
+
+  <text class="shape-annot" x="220" y="664" text-anchor="middle">[B,48,S,192K]</text>
+  <text class="shape-annot" x="495" y="664" text-anchor="middle">softmax over 192K dims</text>
+  <text class="shape-annot" x="775" y="664" text-anchor="middle">[B,48,S,128]</text>
+
+  <text class="shape-annot" x="500" y="684" text-anchor="middle">scaling = head_dim^-0.5 = 1/sqrt(128) ≈ 0.0884</text>
+
+  <!-- Arrow Step 6→7 -->
+  <line class="arrow" x1="500" y1="690" x2="500" y2="730"/>
+
+  <!-- ====== Step 7: O Projection ====== -->
+  <rect class="box" x="80" y="734" width="840" height="62"/>
+  <text class="step-num" x="100" y="751">Step 7</text>
+  <text class="label" x="160" y="751" font-weight="bold">O 投影 + reshape (L297-298)</text>
+
+  <rect class="box" x="100" y="762" width="370" height="20"/>
+  <text class="code" x="285" y="775" text-anchor="middle">attn_output.reshape(B, S, 48×128=6144)</text>
+
+  <rect class="box" x="500" y="762" width="400" height="20"/>
+  <text class="code" x="700" y="775" text-anchor="middle">self.o_proj: 6144 → 3072 → 残差连接</text>
+
+  <!-- ====== Bottom: Key Insight ====== -->
+  <rect class="box-hl" x="100" y="826" width="800" height="42"/>
+  <text class="label-hl" x="500" y="844" text-anchor="middle" font-size="11">核心瓶颈: Step 6 的 softmax over 192K — 这是 M2.7 「速度慢」的根本原因</text>
+  <text class="annot" x="500" y="862" text-anchor="middle">Attention 占单 token 总 FLOPs 的 99.8% (98.4 / 98.5 GFLOPs)</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 890)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="box-hl" x="70" y="6" width="14" height="14"/>
+    <text class="annot" x="88" y="17">QK Norm + GQA expand (关键步骤)</text>
+    <rect class="box" x="250" y="6" width="14" height="14"/>
+    <text class="annot" x="268" y="17">标准 Attention 步骤</text>
+    <text class="precision-tag" x="410" y="19">BF16</text>
+    <text class="annot" x="445" y="19">: 精度标签</text>
+  </g>
+</svg>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 460" font-family="Courier New, monospace" font-size="10">
+  <style>
+    .box { fill: #fafafa; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fafafa; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-pivot { fill: #fafafa; stroke: #b8721a; stroke-width: 2.2; }
+    .cell { stroke: #000; stroke-width: 1.2; }
+    .cell-hl { stroke: #1a3a6e; stroke-width: 1.5; }
+    .cell-pivot { stroke: #b8721a; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #000; font-weight: bold; }
+    .label-pivot { fill: #000; font-weight: bold; }
+    .annot { fill: #111; font-size: 8px; }
+    .annot-hl { fill: #000; font-size: 8px; font-weight: bold; }
+    .annot-pivot { fill: #000; font-size: 8px; font-weight: bold; }
+    .header { fill: #1a3a6e; }
+    .header-text { fill: #fff; font-weight: bold; font-size: 10px; }
+    .header-pivot { fill: #b8721a; }
+    .header-text-pivot { fill: #fff; font-weight: bold; font-size: 10px; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="a-pv" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="540" y="24" text-anchor="middle" font-weight="bold" font-size="14">MiniMax 模型架构演进路线 (Text-01 → M2.7)</text>
+  <text class="annot" x="540" y="40" text-anchor="middle">五代演进: 从 Lightning Attention 实验到 Full Attention 回归 + 自我进化</text>
+
+  <!-- ====== Column Headers ====== -->
+  <!-- Col 1: Text-01 -->
+  <rect class="cell" x="15" y="60" width="195" height="32" fill="#1a3a6e"/>
+  <text class="header-text" x="112" y="73" text-anchor="middle">Text-01</text>
+  <text class="header-text" x="112" y="87" text-anchor="middle" font-size="8">2025-01</text>
+
+  <!-- Col 2: M1 -->
+  <rect class="cell" x="218" y="60" width="195" height="32" fill="#1a3a6e"/>
+  <text class="header-text" x="315" y="73" text-anchor="middle">MiniMax-M1</text>
+  <text class="header-text" x="315" y="87" text-anchor="middle" font-size="8">2025</text>
+
+  <!-- Col 3: M2 (PIVOT) -->
+  <rect class="cell-pivot" x="421" y="60" width="195" height="32" fill="#faf0e0" />
+  <text class="label-pivot" x="518" y="73" text-anchor="middle" font-size="11">MiniMax-M2 ★</text>
+  <text class="annot-pivot" x="518" y="87" text-anchor="middle">2025-11</text>
+
+  <!-- Col 4: M2.5 -->
+  <rect class="cell" x="624" y="60" width="195" height="32" fill="#1a3a6e"/>
+  <text class="header-text" x="721" y="73" text-anchor="middle">MiniMax-M2.5</text>
+  <text class="header-text" x="721" y="87" text-anchor="middle" font-size="8">Agent 增强</text>
+
+  <!-- Col 5: M2.7 -->
+  <rect class="cell-hl" x="827" y="60" width="238" height="32" fill="#e0eaf4" />
+  <text class="label-hl" x="946" y="73" text-anchor="middle" font-size="11">MiniMax-M2.7</text>
+  <text class="annot-hl" x="946" y="87" text-anchor="middle">2026-03</text>
+
+  <!-- === Architecture === -->
+  <rect class="cell" x="15" y="94" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="110" text-anchor="middle">Dense, 456B total</text>
+
+  <rect class="cell" x="218" y="94" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="110" text-anchor="middle">Dense (Lightning only)</text>
+
+  <rect class="cell-pivot" x="421" y="94" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="110" text-anchor="middle">256 Experts MoE</text>
+
+  <rect class="cell" x="624" y="94" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="110" text-anchor="middle">256 Experts MoE (同 M2)</text>
+
+  <rect class="cell-hl" x="827" y="94" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="110" text-anchor="middle">256 Experts MoE (同 M2)</text>
+
+  <!-- === Attention Type (KEY ROW) === -->
+  <rect class="cell" x="15" y="122" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="138" text-anchor="middle">Lightning + Full Hybrid</text>
+
+  <rect class="cell" x="218" y="122" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="138" text-anchor="middle">纯 Lightning Attention</text>
+
+  <rect class="cell-pivot" x="421" y="122" width="195" height="26" fill="#faf0e0" />
+  <text class="label-pivot" x="518" y="138" text-anchor="middle" font-size="10">回归 Full Attention!</text>
+
+  <rect class="cell" x="624" y="122" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="138" text-anchor="middle">Full Attention (同 M2)</text>
+
+  <rect class="cell-hl" x="827" y="122" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="138" text-anchor="middle">Full Attention (同 M2)</text>
+
+  <!-- === GQA === -->
+  <rect class="cell" x="15" y="150" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="166" text-anchor="middle">MHA (48 Q / 48 KV)</text>
+
+  <rect class="cell" x="218" y="150" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="166" text-anchor="middle">MHA (推测)</text>
+
+  <rect class="cell-pivot" x="421" y="150" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="166" text-anchor="middle">GQA: 48Q / 8KV (首次引入)</text>
+
+  <rect class="cell" x="624" y="150" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="166" text-anchor="middle">GQA: 48Q / 8KV</text>
+
+  <rect class="cell-hl" x="827" y="150" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="166" text-anchor="middle">GQA: 48Q / 8KV</text>
+
+  <!-- === QK Norm === -->
+  <rect class="cell" x="15" y="178" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="194" text-anchor="middle">—</text>
+
+  <rect class="cell" x="218" y="178" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="194" text-anchor="middle">—</text>
+
+  <rect class="cell-pivot" x="421" y="178" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="194" text-anchor="middle">—</text>
+
+  <rect class="cell" x="624" y="178" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="194" text-anchor="middle">—</text>
+
+  <rect class="cell-hl" x="827" y="178" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="194" text-anchor="middle">QK Norm (per_layer)</text>
+
+  <!-- === Active Params === -->
+  <rect class="cell" x="15" y="206" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="222" text-anchor="middle">~45.5B active (Dense)</text>
+
+  <rect class="cell" x="218" y="206" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="222" text-anchor="middle">~? active</text>
+
+  <rect class="cell-pivot" x="421" y="206" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="222" text-anchor="middle">~10B active / 229.9B</text>
+
+  <rect class="cell" x="624" y="206" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="222" text-anchor="middle">~10B active / 229.9B</text>
+
+  <rect class="cell-hl" x="827" y="206" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="222" text-anchor="middle">~9.8B active / 229.9B</text>
+
+  <!-- === MTP === -->
+  <rect class="cell" x="15" y="234" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="250" text-anchor="middle">—</text>
+
+  <rect class="cell" x="218" y="234" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="250" text-anchor="middle">—</text>
+
+  <rect class="cell-pivot" x="421" y="234" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="250" text-anchor="middle">—</text>
+
+  <rect class="cell" x="624" y="234" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="250" text-anchor="middle">—</text>
+
+  <rect class="cell-hl" x="827" y="234" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="250" text-anchor="middle">MTP × 3 (speculative decoding)</text>
+
+  <!-- === Self-Evolution === -->
+  <rect class="cell" x="15" y="262" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="278" text-anchor="middle">—</text>
+
+  <rect class="cell" x="218" y="262" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="278" text-anchor="middle">—</text>
+
+  <rect class="cell-pivot" x="421" y="262" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="278" text-anchor="middle">—</text>
+
+  <rect class="cell" x="624" y="262" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="278" text-anchor="middle">—</text>
+
+  <rect class="cell-hl" x="827" y="262" width="238" height="26" fill="#e0eaf4" />
+  <text class="label-hl" x="946" y="278" text-anchor="middle" font-size="10">Self-Evolution (100+ 轮)</text>
+
+  <!-- === RoPE === -->
+  <rect class="cell" x="15" y="290" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="306" text-anchor="middle">RoPE (θ = standard)</text>
+
+  <rect class="cell" x="218" y="290" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="306" text-anchor="middle">RoPE (推测)</text>
+
+  <rect class="cell-pivot" x="421" y="290" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="306" text-anchor="middle">RoPE (θ = 5M)</text>
+
+  <rect class="cell" x="624" y="290" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="306" text-anchor="middle">RoPE (θ = 5M)</text>
+
+  <rect class="cell-hl" x="827" y="290" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="306" text-anchor="middle">Partial RoPE (rotary_dim=64)</text>
+
+  <!-- === Vocab === -->
+  <rect class="cell" x="15" y="318" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="112" y="334" text-anchor="middle">vocab ~ standard</text>
+
+  <rect class="cell" x="218" y="318" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="315" y="334" text-anchor="middle">vocab ~?</text>
+
+  <rect class="cell-pivot" x="421" y="318" width="195" height="26" fill="#faf0e0" />
+  <text class="annot-pivot" x="518" y="334" text-anchor="middle">vocab=200,064</text>
+
+  <rect class="cell" x="624" y="318" width="195" height="26" fill="#f8f8f8" />
+  <text class="annot" x="721" y="334" text-anchor="middle">vocab=200,064</text>
+
+  <rect class="cell-hl" x="827" y="318" width="238" height="26" fill="#e0eaf4" />
+  <text class="annot-hl" x="946" y="334" text-anchor="middle">vocab=200,064</text>
+
+  <!-- Evolution arrows between columns -->
+  <line class="arrow" x1="210" y1="200" x2="216" y2="200"/>
+  <line class="arrow" x1="413" y1="200" x2="419" y2="200"/>
+  <line class="arrow" x1="616" y1="200" x2="622" y2="200"/>
+  <line class="arrow" x1="819" y1="200" x2="825" y2="200"/>
+
+  <!-- Key highlight boxes -->
+  <rect class="box-pivot" x="20" y="365" width="500" height="50" rx="0"/>
+  <text class="label-pivot" x="270" y="383" text-anchor="middle" font-size="11">M2 关键转折 (2025-11)</text>
+  <text class="annot-pivot" x="270" y="400" text-anchor="middle">放弃 Lightning Attention → 回归 Full Attention + GQA + 256 MoE</text>
+  <text class="annot" x="270" y="412" text-anchor="middle">「No Free Lunch」: 混合注意力在生产环境不可行</text>
+
+  <rect class="box-hl" x="555" y="365" width="505" height="50" rx="0"/>
+  <text class="label-hl" x="807" y="383" text-anchor="middle" font-size="11">M2.7 核心贡献 (2026-03)</text>
+  <text class="annot-hl" x="807" y="400" text-anchor="middle">自我进化范式 (100+ 轮) | QK Norm per_layer | MTP × 3</text>
+  <text class="annot" x="807" y="412" text-anchor="middle">架构与 M2 相同, 创新在训练流程和自我优化</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 435)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="box-hl" x="70" y="6" width="14" height="14"/>
+    <text class="annot" x="88" y="17">M2.7 新增 (自我进化)</text>
+    <rect class="box-pivot" x="250" y="6" width="14" height="14"/>
+    <text class="annot" x="268" y="17">M2 关键转折 (回归 Full Attention)</text>
+    <rect class="cell" x="560" y="6" width="14" height="14" fill="#f8f8f8" />
+    <text class="annot" x="578" y="17">继承前代</text>
+  </g>
+</svg>

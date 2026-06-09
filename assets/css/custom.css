@@ -617,8 +617,14 @@
     --cat-border: rgba(217, 70, 239, 0.18);
 }
 
+.entry-category[data-category="architecture"] {
+    --cat-color: #0284C7;
+    --cat-bg: rgba(2, 132, 199, 0.08);
+    --cat-border: rgba(2, 132, 199, 0.18);
+}
+
 /* 通用 fallback - 用 hash 从分类名生成颜色 */
-.entry-category:not([data-category="ai-infra"]):not([data-category="aiinfra"]):not([data-category="skills"]):not([data-category="programming"]):not([data-category="theory"]):not([data-category="ailab"]):not([data-category="ai-lab"]):not([data-category="agent"]):not([data-category="demo"]):not([data-category="study"]):not([data-category="thoughts"]):not([data-category="tech"]):not([data-category="notes"]):not([data-category="showcase"]) {
+.entry-category:not([data-category="ai-infra"]):not([data-category="aiinfra"]):not([data-category="skills"]):not([data-category="programming"]):not([data-category="theory"]):not([data-category="ailab"]):not([data-category="ai-lab"]):not([data-category="agent"]):not([data-category="demo"]):not([data-category="study"]):not([data-category="thoughts"]):not([data-category="tech"]):not([data-category="notes"]):not([data-category="showcase"]):not([data-category="architecture"]) {
     --cat-color: #64748B;
     --cat-bg: rgba(100, 116, 139, 0.08);
     --cat-border: rgba(100, 116, 139, 0.18);

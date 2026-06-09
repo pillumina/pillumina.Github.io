@@ -52,6 +52,13 @@ languages:
           weight: 15
           params:
             group: AI
+        - name: Architecture
+          identifier: architecture
+          parent: tech
+          url: /posts/architecture/
+          weight: 17
+          params:
+            group: AI
         - name: Programming
           identifier: programming
           parent: tech

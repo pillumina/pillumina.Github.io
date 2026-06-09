@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 480" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .cell { fill: #fff; stroke: #000; stroke-width: 1.2; }
+    .cell-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .header-text { fill: #fff; font-weight: bold; font-size: 11px; }
+    .warn { fill: #b8721a; }
+    .warn-bold { fill: #b8721a; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .mtp-box { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 1.8; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="24" text-anchor="middle" font-weight="bold" font-size="14">MTP (Multi-Token Prediction)：3 个独立预测模块</text>
+  <text class="annot" x="440" y="40" text-anchor="middle">推理时用作 Speculative Decoding Draft Model</text>
+
+  <!-- ====== TOP: Main Model ====== -->
+  <rect class="box-hl" x="80" y="55" width="720" height="78"/>
+  <text class="label-hl" x="440" y="75" text-anchor="middle" font-size="12">主模型：62 层 Full Attention + MoE Decoder</text>
+
+  <rect class="box" x="130" y="86" width="140" height="22"/>
+  <text class="annot" x="200" y="101" text-anchor="middle">Layer 0</text>
+
+  <rect class="box" x="280" y="86" width="140" height="22"/>
+  <text class="annot" x="350" y="101" text-anchor="middle">Layer 1</text>
+
+  <text class="annot" x="440" y="101" text-anchor="middle">...</text>
+
+  <rect class="box" x="480" y="86" width="140" height="22"/>
+  <text class="annot" x="550" y="101" text-anchor="middle">Layer 60</text>
+
+  <rect class="box" x="630" y="86" width="140" height="22"/>
+  <text class="annot" x="700" y="101" text-anchor="middle">Layer 61</text>
+
+  <!-- Output from main model -->
+  <text class="annot" x="440" y="124" text-anchor="middle">final_hidden_states [B,S,3072]  ← 第 62 层输出</text>
+
+  <!-- Arrow down -->
+  <line class="arrow" x1="440" y1="133" x2="440" y2="153"/>
+
+  <!-- ====== MIDDLE: Shared Embedding ====== -->
+  <rect class="box" x="250" y="155" width="380" height="30"/>
+  <text class="label" x="440" y="174" text-anchor="middle">共享 Embedding (与主模型共用 vocab=200,064)</text>
+
+  <!-- Arrows to 3 MTP modules -->
+  <line class="arrow" x1="320" y1="185" x2="225" y2="215"/>
+  <line class="arrow" x1="440" y1="185" x2="440" y2="215"/>
+  <line class="arrow" x1="560" y1="185" x2="655" y2="215"/>
+
+  <!-- ====== MIDDLE: 3 MTP Modules ====== -->
+  <!-- MTP Module 1 -->
+  <rect class="mtp-box" x="70" y="217" width="220" height="110"/>
+  <text class="label-hl" x="180" y="237" text-anchor="middle" font-size="11">MTP Module 1</text>
+
+  <rect class="box" x="90" y="248" width="180" height="22"/>
+  <text class="annot" x="180" y="263" text-anchor="middle">1× Transformer Layer</text>
+
+  <rect class="box" x="90" y="276" width="180" height="22"/>
+  <text class="annot" x="180" y="291" text-anchor="middle">Independent Output Head</text>
+
+  <text class="annot-hl" x="180" y="318" text-anchor="middle">预测 token[n+1]</text>
+
+  <!-- MTP Module 2 -->
+  <rect class="mtp-box" x="330" y="217" width="220" height="110"/>
+  <text class="label-hl" x="440" y="237" text-anchor="middle" font-size="11">MTP Module 2</text>
+
+  <rect class="box" x="350" y="248" width="180" height="22"/>
+  <text class="annot" x="440" y="263" text-anchor="middle">1× Transformer Layer</text>
+
+  <rect class="box" x="350" y="276" width="180" height="22"/>
+  <text class="annot" x="440" y="291" text-anchor="middle">Independent Output Head</text>
+
+  <text class="annot-hl" x="440" y="318" text-anchor="middle">预测 token[n+2]</text>
+
+  <!-- MTP Module 3 -->
+  <rect class="mtp-box" x="590" y="217" width="220" height="110"/>
+  <text class="label-hl" x="700" y="237" text-anchor="middle" font-size="11">MTP Module 3</text>
+
+  <rect class="box" x="610" y="248" width="180" height="22"/>
+  <text class="annot" x="700" y="263" text-anchor="middle">1× Transformer Layer</text>
+
+  <rect class="box" x="610" y="276" width="180" height="22"/>
+  <text class="annot" x="700" y="291" text-anchor="middle">Independent Output Head</text>
+
+  <text class="annot-hl" x="700" y="318" text-anchor="middle">预测 token[n+3]</text>
+
+  <!-- Arrows connecting MTP modules (sequential dependency) -->
+  <line class="arrow" x1="290" y1="272" x2="328" y2="272"/>
+  <text class="annot" x="310" y="268" text-anchor="middle" font-size="8">emb</text>
+
+  <line class="arrow" x1="550" y1="272" x2="588" y2="272"/>
+  <text class="annot" x="570" y="268" text-anchor="middle" font-size="8">emb</text>
+
+  <!-- ====== BOTTOM: Speculative Decoding ====== -->
+  <rect class="box-hl" x="100" y="345" width="680" height="55"/>
+  <text class="label-hl" x="440" y="363" text-anchor="middle" font-size="12">推理时：Speculative Decoding (Draft Model + Verification)</text>
+  <text class="annot" x="440" y="380" text-anchor="middle">Step 1: MTP 模块并发生成 3 个候选 token (draft)  →  Step 2: 主模型一次 forward 验证所有候选</text>
+  <text class="annot" x="440" y="395" text-anchor="middle">接受匹配的 token, 拒绝不匹配的 → 大幅提升推理吞吐 (每步最多产出 4 个 token)</text>
+
+  <!-- ====== Comparison Note ====== -->
+  <rect class="box-grp" x="100" y="412" width="680" height="38"/>
+  <text class="warn-bold" x="440" y="428" text-anchor="middle" font-size="10">与 DeepSeek V3 MTP 对比</text>
+  <text class="annot" x="440" y="443" text-anchor="middle">M2.7: 每个 MTP 模块仅 1 层 Transformer + 独立 output head | V3: 每个模块 1 共享层 + 1 独立层</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 458)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="mtp-box" x="70" y="4" width="14" height="14"/>
+    <text class="annot" x="88" y="15">MTP 核心创新</text>
+    <rect class="box" x="210" y="4" width="14" height="14"/>
+    <text class="annot" x="228" y="15">标准组件</text>
+    <text class="annot" x="320" y="15">| num_mtp_modules=3 | mtp_transformer_layers=1 | speculative decoding</text>
+  </g>
+</svg>

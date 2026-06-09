@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">MiniMax-M2.7 顶层框图：62 层 Full Attention + GQA + MoE + MTP</text>
+  <text class="annot" x="860" y="22" text-anchor="end">229.9B total / 9.8B active</text>
+
+  <!-- Input -->
+  <rect class="box" x="330" y="50" width="220" height="30"/>
+  <text class="label" x="440" y="69" text-anchor="middle">Input Token (vocab=200,064)</text>
+  <line class="arrow" x1="440" y1="80" x2="440" y2="100"/>
+
+  <!-- Embedding -->
+  <rect class="box" x="350" y="100" width="180" height="28"/>
+  <text class="label" x="440" y="118" text-anchor="middle">Embedding [B,S,3072]</text>
+  <line class="arrow" x1="440" y1="128" x2="440" y2="148"/>
+
+  <!-- Decoder Layer × 62 -->
+  <rect class="box-hl" x="100" y="150" width="680" height="220" rx="3"/>
+  <text class="label-hl" x="440" y="170" text-anchor="middle" font-weight="bold">Decoder Layer × 62</text>
+
+  <!-- Pre-Norm 1 -->
+  <rect class="box" x="280" y="185" width="160" height="26"/>
+  <text class="label" x="360" y="202" text-anchor="middle">RMSNorm (Pre-Norm)</text>
+  <line class="arrow" x1="360" y1="211" x2="360" y2="230"/>
+
+  <!-- Attention 框 -->
+  <rect class="box-hl" x="120" y="230" width="320" height="100" rx="3"/>
+  <text class="label-hl" x="280" y="248" text-anchor="middle" font-weight="bold">Full Multi-Head Attention</text>
+  <text class="annot" x="280" y="264" text-anchor="middle">GQA: 48 Q heads / 8 KV heads</text>
+  <text class="annot" x="280" y="278" text-anchor="middle">head_dim = 128, RoPE (θ = 5M)</text>
+  <text class="annot-hl" x="280" y="294" text-anchor="middle">QK Norm (per_layer)</text>
+  <text class="annot" x="280" y="310" text-anchor="middle">rotary_dim = 64 (partial RoPE)</text>
+  <text class="annot" x="280" y="324" text-anchor="middle">scaling = 1/√128</text>
+
+  <!-- Pre-Norm 2 -->
+  <rect class="box" x="560" y="230" width="200" height="26"/>
+  <text class="label" x="660" y="247" text-anchor="middle">RMSNorm (Pre-Norm)</text>
+  <line class="arrow" x1="660" y1="256" x2="660" y2="268"/>
+
+  <!-- MoE FFN 框 -->
+  <rect class="box-hl" x="480" y="268" width="280" height="80" rx="3"/>
+  <text class="label-hl" x="620" y="286" text-anchor="middle" font-weight="bold">MoE FFN</text>
+  <text class="annot" x="620" y="302" text-anchor="middle">256 experts (fine-grained)</text>
+  <text class="annot" x="620" y="316" text-anchor="middle">sigmoid + routing bias</text>
+  <text class="annot" x="620" y="330" text-anchor="middle">top-8 per token</text>
+  <text class="annot-hl" x="620" y="344" text-anchor="middle">no shared expert!</text>
+
+  <!-- Attention → MoE arrow -->
+  <line class="arrow" x1="440" y1="330" x2="480" y2="308"/>
+
+  <!-- Residual arrows -->
+  <line class="arrow-hl" x1="120" y1="212" x2="120" y2="310"/>
+  <text class="annot" x="108" y="265" text-anchor="end">residual</text>
+
+  <!-- Output arrow from Decoder Layer -->
+  <line class="arrow" x1="440" y1="370" x2="440" y2="400"/>
+
+  <!-- MTP 模块 -->
+  <rect class="box-hl" x="250" y="400" width="380" height="100" rx="3"/>
+  <text class="label-hl" x="440" y="418" text-anchor="middle" font-weight="bold">MTP (Multi-Token Prediction) × 3</text>
+  <text class="annot" x="440" y="436" text-anchor="middle">3 个独立预测头, 每个 1 层 Transformer</text>
+  <text class="annot" x="440" y="452" text-anchor="middle">预测 token[n+1], token[n+2], token[n+3]</text>
+  <text class="annot" x="440" y="468" text-anchor="middle">推理时用作 speculative decoding draft model</text>
+  <text class="annot" x="440" y="484" text-anchor="middle">config: num_mtp_modules=3, mtp_transformer_layers=1</text>
+
+  <line class="arrow" x1="440" y1="500" x2="440" y2="530"/>
+
+  <!-- LM Head -->
+  <rect class="box" x="330" y="530" width="220" height="30"/>
+  <text class="label" x="440" y="549" text-anchor="middle">LM Head → next token</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 620)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="box-hl" x="70" y="6" width="14" height="14"/>
+    <text class="annot" x="88" y="17">核心创新</text>
+    <rect class="box" x="170" y="6" width="14" height="14"/>
+    <text class="annot" x="188" y="17">标准组件</text>
+    <text class="annot" x="280" y="17">关键参数: d=3072, L=62, GQA=48/8, k=8, no shared expert</text>
+  </g>
+</svg>

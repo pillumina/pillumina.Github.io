@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 780" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-warn { fill: #fff8f0; stroke: #b8721a; stroke-width: 1.5; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .cell { fill: #fff; stroke: #000; stroke-width: 1.2; }
+    .cell-hl { fill: #f0f4ff; stroke: #1a3a6e; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #333; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .header-text { fill: #fff; font-weight: bold; font-size: 11px; }
+    .warn { fill: #5c2d0a; }
+    .warn-bold { fill: #5c2d0a; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .arrow-warn { stroke: #b8721a; stroke-width: 1.5; fill: none; marker-end: url(#w); stroke-dasharray: 4 2; }
+    .step-num { fill: #1a3a6e; font-weight: bold; font-size: 10px; }
+    .code { fill: #333; font-size: 8.5px; }
+    .shape-annot { fill: #666; font-size: 8px; }
+    .buffer-tag { fill: #b8721a; font-size: 8px; font-weight: bold; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="500" y="24" text-anchor="middle" font-weight="bold" font-size="14">route_tokens_to_experts 算子级拆解</text>
+  <text class="annot" x="500" y="40" text-anchor="middle">源码: modeling_minimax_m2.py L112-L118 | MoE 路由核心算子</text>
+
+  <!-- ====== Input ====== -->
+  <rect class="box" x="310" y="55" width="380" height="30"/>
+  <text class="label" x="500" y="74" text-anchor="middle">router_logits [B*S, 256]</text>
+
+  <line class="arrow" x1="500" y1="85" x2="500" y2="125"/>
+
+  <!-- ====== Step 1: Sigmoid ====== -->
+  <rect class="box-hl" x="80" y="129" width="840" height="62"/>
+  <text class="step-num" x="100" y="146">Step 1</text>
+  <text class="label-hl" x="160" y="146" font-weight="bold">Sigmoid 评分 (L113)</text>
+
+  <rect class="box-hl" x="100" y="157" width="360" height="22"/>
+  <text class="code" x="280" y="172" text-anchor="middle">routing_weights = F.sigmoid(router_logits)</text>
+
+  <rect class="box" x="490" y="157" width="410" height="22"/>
+  <text class="code" x="695" y="172" text-anchor="middle">每个值 ∈ (0,1), 256 个 expert 独立评分</text>
+
+  <text class="annot-hl" x="500" y="144" text-anchor="end" font-size="10">scoring_func=sigmoid</text>
+
+  <!-- Why sigmoid note -->
+  <text class="shape-annot" x="695" y="188" text-anchor="middle">不像 softmax 你高我低 → 多个 expert 可同时高分</text>
+
+  <line class="arrow" x1="500" y1="191" x2="500" y2="231"/>
+
+  <!-- ====== Step 2: Load Routing Bias (WARN) ====== -->
+  <rect class="box-warn" x="80" y="235" width="840" height="66"/>
+  <text class="step-num" x="100" y="252">Step 2</text>
+  <text class="warn-bold" x="160" y="252" font-weight="bold">加载 Routing Bias (L114)  ← register_buffer</text>
+
+  <!-- register_buffer badge -->
+  <rect x="14" y="238" width="65" height="14" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text class="buffer-tag" x="46" y="248" text-anchor="middle">no grad</text>
+
+  <rect class="box-warn" x="100" y="263" width="420" height="22"/>
+  <text class="code" x="310" y="278" text-anchor="middle">scores = routing_weights + self.e_score_correction_bias</text>
+
+  <rect class="box" x="550" y="263" width="350" height="22"/>
+  <text class="code" x="725" y="278" text-anchor="middle">[256] 广播到 [B*S, 256]</text>
+
+  <text class="warn" x="500" y="296" text-anchor="middle">register_buffer — 不参与梯度更新, 由外部 RL 循环独立更新</text>
+
+  <text class="shape-annot" x="500" y="190" text-anchor="end" fill="#5c2d0a">命中率高→bias↓ | 命中率低→bias↑</text>
+
+  <line class="arrow" x1="500" y1="301" x2="500" y2="341"/>
+
+  <!-- ====== Step 3: Top-8 ====== -->
+  <rect class="box" x="80" y="345" width="840" height="62"/>
+  <text class="step-num" x="100" y="362">Step 3</text>
+  <text class="label" x="160" y="362" font-weight="bold">Top-8 选择 (L115)</text>
+
+  <rect class="box" x="100" y="373" width="360" height="22"/>
+  <text class="code" x="280" y="388" text-anchor="middle">_, top_k_index = torch.topk(scores, 8, dim=-1)</text>
+
+  <rect class="box" x="490" y="373" width="410" height="22"/>
+  <text class="code" x="695" y="388" text-anchor="middle">[B*S, 8] expert indices</text>
+
+  <text class="shape-annot" x="500" y="404" text-anchor="middle">k=8: 256 expert 消融实验后的选择 — 比 6 容量更足, 比 12 推理更省</text>
+
+  <line class="arrow" x1="500" y1="407" x2="500" y2="447"/>
+
+  <!-- ====== Step 4: Weight Extract + Normalize ====== -->
+  <rect class="box-hl" x="80" y="451" width="840" height="66"/>
+  <text class="step-num" x="100" y="468">Step 4</text>
+  <text class="label-hl" x="160" y="468" font-weight="bold">权重提取 + 归一化 (L116-117)</text>
+
+  <rect class="box-hl" x="100" y="479" width="360" height="22"/>
+  <text class="code" x="280" y="494" text-anchor="middle">top_k_weights = routing_weights.gather(1, top_k_index)</text>
+
+  <rect class="box-hl" x="490" y="479" width="410" height="22"/>
+  <text class="code" x="695" y="494" text-anchor="middle">top_k_weights /= top_k_weights.sum(dim=-1, keepdim=True)</text>
+
+  <text class="annot-hl" x="500" y="514" text-anchor="middle">仅归一化 (÷ sum), 不做 softmax — sigmoid 已输出 (0,1), 无需 exp 再变换</text>
+
+  <!-- Bottom separator -->
+  <line x1="40" y1="535" x2="960" y2="535" stroke="#888" stroke-width="0.8"/>
+
+  <!-- ====== Routing Bias Update Flow ====== -->
+  <text class="label" x="500" y="558" text-anchor="middle" font-weight="bold" font-size="12">Routing Bias 独立更新机制 (不经过梯度)</text>
+
+  <rect class="box" x="140" y="570" width="170" height="28"/>
+  <text class="code" x="225" y="588" text-anchor="middle">统计各 expert 命中率</text>
+
+  <line class="arrow-hl" x1="310" y1="584" x2="356" y2="584"/>
+
+  <rect class="box-warn" x="360" y="570" width="220" height="28"/>
+  <text class="warn" x="470" y="588" text-anchor="middle">命中率高 → bias −= Δ</text>
+
+  <line class="arrow-hl" x1="580" y1="584" x2="626" y2="584"/>
+
+  <rect class="box-warn" x="630" y="570" width="170" height="28"/>
+  <text class="warn" x="715" y="588" text-anchor="middle">命中率低 → bias += Δ</text>
+
+  <text class="shape-annot" x="500" y="614" text-anchor="middle">更新来源: 外部 RL / 负载均衡算法 | 更新频率: 每 N steps</text>
+  <text class="shape-annot" x="500" y="626" text-anchor="middle">与 optimizer 完全解耦 — 不受学习率、momentum 影响</text>
+
+  <!-- ====== Bottom: sigmoid vs softmax comparison ====== -->
+  <text class="label" x="500" y="654" text-anchor="middle" font-weight="bold" font-size="12">Sigmoid 评分 vs Softmax 评分 — 为什么 M2.7 不用 softmax?</text>
+
+  <!-- Mini table -->
+  <rect class="cell" x="130" y="664" width="180" height="24" fill="#1a3a6e"/>
+  <text class="header-text" x="220" y="680" text-anchor="middle">对比维度</text>
+  <rect class="cell" x="310" y="664" width="260" height="24" fill="#1a3a6e"/>
+  <text class="header-text" x="440" y="680" text-anchor="middle">Sigmoid (M2.7)</text>
+  <rect class="cell" x="570" y="664" width="260" height="24" fill="#1a3a6e"/>
+  <text class="header-text" x="700" y="680" text-anchor="middle">Softmax (Mixtral 等)</text>
+
+  <rect class="cell" x="130" y="688" width="180" height="22"/>
+  <text class="annot" x="220" y="703" text-anchor="middle">Expert 关系</text>
+  <rect class="cell-hl" x="310" y="688" width="260" height="22"/>
+  <text class="annot" x="440" y="703" text-anchor="middle">独立 (多 expert 可同时高分)</text>
+  <rect class="cell" x="570" y="688" width="260" height="22"/>
+  <text class="annot" x="700" y="703" text-anchor="middle">竞争 (概率和为 1)</text>
+
+  <rect class="cell" x="130" y="710" width="180" height="22"/>
+  <text class="annot" x="220" y="725" text-anchor="middle">适合 top-k</text>
+  <rect class="cell-hl" x="310" y="710" width="260" height="22"/>
+  <text class="annot" x="440" y="725" text-anchor="middle">k ≥ 2 (尤其 k=8)</text>
+  <rect class="cell" x="570" y="710" width="260" height="22"/>
+  <text class="annot" x="700" y="725" text-anchor="middle">k = 1-2</text>
+
+  <!-- 图例 -->
+  <g transform="translate(20, 748)">
+    <text class="annot" font-weight="bold">Legend:</text>
+    <rect class="box-hl" x="70" y="6" width="14" height="14"/>
+    <text class="annot" x="88" y="17">关键步骤</text>
+    <rect class="box-warn" x="180" y="6" width="14" height="14"/>
+    <text class="annot" x="198" y="17">register_buffer (无梯度)</text>
+    <text class="buffer-tag" x="340" y="19">no grad</text>
+    <text class="annot" x="395" y="19">: 不参与梯度更新</text>
+  </g>
+</svg>
