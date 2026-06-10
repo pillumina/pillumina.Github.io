@@ -11,14 +11,14 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 09 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 10 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/model-architecture/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>MiniMax-M2.7 架构深度拆解</title>
       <link>https://pillumina.github.io/posts/architecture/minimax-m2.7/</link>
-      <pubDate>Tue, 09 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/architecture/minimax-m2.7/</guid>
-      <description>M2.7（229.9B/9.8B 激活）的核心不在规模而在自我进化范式。本期拆解五代演进脉络（Text-01 → M2.7）、62层 Full Attention + GQA + 256 MoE 的设计空间、单 token 6.1 TFLOPs / 48.8GB KV Cache 的计算分析，以及 attention 和 MoE gate 的算子级拆解。</description>
+      <description>M2.7（229.9B/9.8B 激活）的核心不在规模而在自我进化与训练体系。本期拆解五代演进、62层 Full Attention + 256 MoE 设计空间、单 token 6.1 TFLOPs / 48.8GB KV Cache / ~510GB 推理显存的计算分析，以及 attention + MoE gate 的算子级拆解，另附完整训练体系（29.2T tokens / FP8 / 自进化）。</description>
     </item>
   </channel>
 </rss>
