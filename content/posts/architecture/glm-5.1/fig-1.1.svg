@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" width="880" height="660" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="440" y="35" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a3a6e">GLM-4 -> GLM-5 -> GLM-5.1 Evolution</text>
+
+  <!-- Three columns -->
+  <!-- Column 1: GLM-4 -->
+  <rect x="30" y="60" width="250" height="540" rx="4" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="155" y="90" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a3a6e">GLM-4 (2024)</text>
+  <line x1="50" y1="100" x2="260" y2="100" stroke="#888" stroke-width="0.5"/>
+
+  <text x="50" y="125" font-size="12" fill="#000">Architecture:</text>
+  <text x="50" y="145" font-size="11" fill="#888">Dense Transformer</text>
+  <text x="50" y="165" font-size="11" fill="#888">Early MoE exploration</text>
+
+  <text x="50" y="200" font-size="12" fill="#000">Scale:</text>
+  <text x="50" y="220" font-size="11" fill="#888">GLM-4.5: 355B tot / 32B act</text>
+  <text x="50" y="240" font-size="11" fill="#888">160 experts, k=8</text>
+  <text x="50" y="260" font-size="11" fill="#888">GQA attention</text>
+
+  <text x="50" y="300" font-size="12" fill="#000">Key Features:</text>
+  <text x="50" y="320" font-size="11" fill="#888">- Basic RLHF pipeline</text>
+  <text x="50" y="340" font-size="11" fill="#888">- MMLU / GSM8K focus</text>
+  <text x="50" y="360" font-size="11" fill="#888">- 128K ctx mid-training</text>
+
+  <text x="50" y="400" font-size="12" fill="#000">Capabilities:</text>
+  <text x="50" y="420" font-size="11" fill="#888">GLM-4.7 SWE 73.8</text>
+  <text x="50" y="440" font-size="11" fill="#888">AI Index v4.0: 42</text>
+
+  <text x="50" y="480" font-size="12" fill="#000">Limitations:</text>
+  <text x="50" y="500" font-size="11" fill="#888">- GQA KV cache = O(T*d)</text>
+  <text x="50" y="520" font-size="11" fill="#888">- No sparse attention</text>
+  <text x="50" y="540" font-size="11" fill="#888">- Sync RL = GPU idle</text>
+  <text x="50" y="560" font-size="11" fill="#888">- SWE capability gap</text>
+
+  <!-- Arrow 1->2 -->
+  <line x1="280" y1="330" x2="310" y2="330" stroke="#1a3a6e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Column 2: GLM-5 -->
+  <rect x="315" y="60" width="250" height="540" rx="4" fill="none" stroke="#b8721a" stroke-width="2"/>
+  <text x="440" y="90" text-anchor="middle" font-size="15" font-weight="bold" fill="#b8721a">GLM-5 (2026-02)</text>
+  <line x1="335" y1="100" x2="545" y2="100" stroke="#888" stroke-width="0.5"/>
+
+  <text x="335" y="125" font-size="12" fill="#000">Architecture:</text>
+  <text x="335" y="145" font-size="11" fill="#1a3a6e">MoE + MLA + DSA</text>
+  <text x="335" y="165" font-size="11" fill="#888">78L (3 Dense + 75 MoE)</text>
+
+  <text x="335" y="200" font-size="12" fill="#000">Scale:</text>
+  <text x="335" y="220" font-size="11" fill="#1a3a6e">744B tot / 40B act</text>
+  <text x="335" y="240" font-size="11" fill="#888">256 exp + 1 shared, k=8</text>
+  <text x="335" y="260" font-size="11" fill="#888">DSA (top-2048) + MLA</text>
+
+  <text x="335" y="300" font-size="12" fill="#000">Key Innovations:</text>
+  <text x="335" y="320" font-size="11" fill="#1a3a6e">- DSA Dynamic Sparse Attn</text>
+  <text x="335" y="340" font-size="11" fill="#1a3a6e">- MLA (kv_lora_rank=512)</text>
+  <text x="335" y="360" font-size="11" fill="#1a3a6e">- Async RL (slime)</text>
+  <text x="335" y="380" font-size="11" fill="#1a3a6e">- 28.5T tokens training</text>
+  <text x="335" y="400" font-size="11" fill="#1a3a6e">- 200K ctx mid-training</text>
+
+  <text x="335" y="440" font-size="12" fill="#000">Results:</text>
+  <text x="335" y="460" font-size="11" fill="#888">SWE Verified: 77.8</text>
+  <text x="335" y="480" font-size="11" fill="#888">AI Index v4.0: 50 (SOTA open)</text>
+  <text x="335" y="500" font-size="11" fill="#888">LMArena #1 open model</text>
+  <text x="335" y="520" font-size="11" fill="#888">HLE: 30.5 (50.4 w/ tools)</text>
+  <text x="335" y="540" font-size="11" fill="#888">BrowseComp: 62.0</text>
+
+  <!-- Arrow 2->3 -->
+  <line x1="565" y1="330" x2="595" y2="330" stroke="#1a3a6e" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- Column 3: GLM-5.1 -->
+  <rect x="600" y="60" width="250" height="540" rx="4" fill="none" stroke="#4a7ab0" stroke-width="2"/>
+  <text x="725" y="90" text-anchor="middle" font-size="15" font-weight="bold" fill="#4a7ab0">GLM-5.1 (2026)</text>
+  <line x1="620" y1="100" x2="830" y2="100" stroke="#888" stroke-width="0.5"/>
+
+  <text x="620" y="125" font-size="12" fill="#000">Architecture:</text>
+  <text x="620" y="145" font-size="11" fill="#888">Same as GLM-5</text>
+  <text x="620" y="165" font-size="11" fill="#888">(MoE+MLA+DSA)</text>
+
+  <text x="620" y="200" font-size="12" fill="#000">Scale:</text>
+  <text x="620" y="220" font-size="11" fill="#888">~744B tot / ~40B act</text>
+  <text x="620" y="240" font-size="11" fill="#888">Same as GLM-5</text>
+
+  <text x="620" y="280" font-size="12" fill="#000">Enhancements:</text>
+  <text x="620" y="300" font-size="11" fill="#4a7ab0">- Checkpoint optimization</text>
+  <text x="620" y="320" font-size="11" fill="#4a7ab0">- Agent eng. polish</text>
+  <text x="620" y="340" font-size="11" fill="#4a7ab0">- 7 domestic chips adapt</text>
+  <text x="620" y="360" font-size="11" fill="#4a7ab0">- W4A8 quantization</text>
+  <text x="620" y="380" font-size="11" fill="#4a7ab0">- HF Transformers deploy</text>
+
+  <text x="620" y="420" font-size="12" fill="#000">Results:</text>
+  <text x="620" y="440" font-size="11" fill="#4a7ab0">SWE-Bench Pro: 58.4</text>
+  <text x="620" y="460" font-size="11" fill="#4a7ab0">Code Arena: 1530 Elo</text>
+  <text x="620" y="480" font-size="11" fill="#4a7ab0">SWE-rebench: 42.1%</text>
+  <text x="620" y="500" font-size="11" fill="#4a7ab0">CC-Bench-V2 Backend: 25.8</text>
+
+  <text x="620" y="540" font-size="12" fill="#000">Known Issues:</text>
+  <text x="620" y="560" font-size="11" fill="#888">- ~44 TPS (slow)</text>
+  <text x="620" y="580" font-size="11" fill="#888">- API pricing controversy</text>
+
+  <!-- Legend -->
+  <rect x="30" y="625" width="820" height="25" rx="3" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="40" y="643" font-size="11" fill="#888">Legend:</text>
+  <rect x="100" y="633" width="12" height="12" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="117" y="643" font-size="10" fill="#1a3a6e">Previous Gen</text>
+  <rect x="230" y="633" width="12" height="12" fill="none" stroke="#b8721a" stroke-width="2"/>
+  <text x="247" y="643" font-size="10" fill="#b8721a">Major Innovation</text>
+  <rect x="380" y="633" width="12" height="12" fill="none" stroke="#4a7ab0" stroke-width="2"/>
+  <text x="397" y="643" font-size="10" fill="#4a7ab0">Optimized Deploy</text>
+  <text x="600" y="643" font-size="10" fill="#888">Arrows = direct lineage</text>
+</svg>

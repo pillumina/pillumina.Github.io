@@ -1,0 +1,157 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720" width="880" height="720">
+  <defs>
+    <marker id="fig21-ma" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1a3a6e"/>
+    </marker>
+    <marker id="fig21-mg" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#888"/>
+    </marker>
+    <marker id="fig21-mw" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="880" height="720" fill="#fff"/>
+
+  <!-- Title -->
+  <text x="440" y="22" text-anchor="middle" font-family="Courier New, monospace" font-size="13" font-weight="bold" fill="#000">Figure 2.1: GLM-5.1 Top-Level Architecture (78-Layer Decoder-Only)</text>
+
+  <!-- ===== Main Spine ===== -->
+
+  <!-- Input Tokens -->
+  <rect x="300" y="45" width="280" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="66" text-anchor="middle" font-family="Courier New, monospace" font-size="11" fill="#000">Input Tokens</text>
+
+  <!-- Arrow: Input → Embedding -->
+  <line x1="440" y1="79" x2="440" y2="97" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- Embedding -->
+  <rect x="300" y="99" width="280" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="120" text-anchor="middle" font-family="Courier New, monospace" font-size="11" fill="#000">Embedding</text>
+
+  <!-- Arrow: Embedding → Decoder Layer -->
+  <line x1="440" y1="133" x2="440" y2="151" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- ===== Decoder Layer Box ===== -->
+  <rect x="35" y="153" width="810" height="250" fill="none" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+  <!-- Decoder Layer title -->
+  <text x="47" y="174" font-family="Courier New, monospace" font-size="12" font-weight="bold" fill="#1a3a6e">Decoder Layer  &#xD7;78</text>
+
+  <!-- ===== Inside Decoder Layer ===== -->
+
+  <!-- Row 1 (y=192): RMSNorm → DSA Indexer → MLA Attn -->
+  <!-- Entry from left -->
+  <line x1="35" y1="208" x2="57" y2="208" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- RMSNorm-1 -->
+  <rect x="59" y="192" width="78" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="98" y="212" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">RMSNorm</text>
+
+  <!-- Arrow RMSNorm → DSA -->
+  <line x1="137" y1="208" x2="155" y2="208" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- DSA Indexer -->
+  <rect x="157" y="192" width="100" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="207" y="212" text-anchor="middle" font-family="Courier New, monospace" font-size="9.5" fill="#000">DSA Indexer</text>
+
+  <!-- Arrow DSA → MLA -->
+  <line x1="257" y1="208" x2="275" y2="208" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- MLA Attn -->
+  <rect x="277" y="192" width="90" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="322" y="212" text-anchor="middle" font-family="Courier New, monospace" font-size="9.5" fill="#000">MLA Attn</text>
+
+  <!-- Arrow MLA → Add1 -->
+  <line x1="367" y1="208" x2="386" y2="208" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- Add circle 1 -->
+  <circle cx="404" cy="208" r="12" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="404" y="213" text-anchor="middle" font-family="Courier New, monospace" font-size="13" fill="#1a3a6e">+</text>
+
+  <!-- Residual 1: from input to Add1 (above path) -->
+  <path d="M 47 208 L 47 178 L 404 178 L 404 196" fill="none" stroke="#888" stroke-width="1.2" marker-end="url(#fig21-mg)"/>
+  <text x="225" y="173" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">residual</text>
+
+  <!-- Flow: Add1 output → row2 (arrow down, then left, then down to row2) -->
+  <path d="M 416 208 L 416 238 L 59 238 L 59 263" fill="none" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- Row 2 (y=267): RMSNorm → MoE -->
+  <!-- RMSNorm-2 -->
+  <rect x="59" y="267" width="78" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="98" y="287" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">RMSNorm</text>
+
+  <!-- Arrow RMSNorm → MoE -->
+  <line x1="137" y1="283" x2="155" y2="283" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- MoE -->
+  <rect x="157" y="267" width="138" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="226" y="287" text-anchor="middle" font-family="Courier New, monospace" font-size="9.5" fill="#000">MoE (256+1, k=8)</text>
+
+  <!-- Arrow MoE → Add2 -->
+  <line x1="295" y1="283" x2="313" y2="283" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- Add circle 2 -->
+  <circle cx="331" cy="283" r="12" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="331" y="288" text-anchor="middle" font-family="Courier New, monospace" font-size="13" fill="#1a3a6e">+</text>
+
+  <!-- Residual 2: from row2 input to Add2 (below path) -->
+  <path d="M 47 283 L 47 318 L 331 318 L 331 295" fill="none" stroke="#888" stroke-width="1.2" marker-end="url(#fig21-mg)"/>
+  <text x="189" y="312" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">residual</text>
+
+  <!-- Exit: Add2 → bottom of box → center spine -->
+  <path d="M 343 283 L 343 330 L 440 330 L 440 415" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+
+  <!-- Right-side parameter panel -->
+  <rect x="478" y="172" width="350" height="200" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="488" y="190" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#b8721a">Key Parameters</text>
+
+  <text x="488" y="208" font-family="Courier New, monospace" font-size="9.5" fill="#000">num_layers = 78</text>
+  <text x="488" y="222" font-family="Courier New, monospace" font-size="9.5" fill="#000">hidden_size = 6144</text>
+  <text x="488" y="236" font-family="Courier New, monospace" font-size="9.5" fill="#000">num_attention_heads = 64</text>
+  <text x="488" y="250" font-family="Courier New, monospace" font-size="9.5" fill="#000">first_k_dense_replace = 3</text>
+  <text x="488" y="264" font-family="Courier New, monospace" font-size="9.5" fill="#000">moe_layer_freq = 1</text>
+  <text x="488" y="278" font-family="Courier New, monospace" font-size="9.5" fill="#000">kv_lora_rank = 512</text>
+  <text x="488" y="292" font-family="Courier New, monospace" font-size="9.5" fill="#000">q_lora_rank = 2048</text>
+  <text x="488" y="306" font-family="Courier New, monospace" font-size="9.5" fill="#000">n_routed_experts = 256</text>
+  <text x="488" y="320" font-family="Courier New, monospace" font-size="9.5" fill="#000">n_shared_experts = 1</text>
+  <text x="488" y="334" font-family="Courier New, monospace" font-size="9.5" fill="#000">num_experts_per_tok = 8</text>
+  <text x="488" y="348" font-family="Courier New, monospace" font-size="9.5" fill="#000">routed_scaling_factor = 2.5</text>
+  <text x="488" y="362" font-family="Courier New, monospace" font-size="9.5" fill="#000">index_topk = 2048</text>
+
+  <!-- ===== After Decoder Layer ===== -->
+
+  <!-- MTP -->
+  <rect x="300" y="430" width="280" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="451" text-anchor="middle" font-family="Courier New, monospace" font-size="11" fill="#000">MTP (Multi-Token Prediction)</text>
+
+  <!-- Arrow: MTP → LM Head -->
+  <line x1="440" y1="464" x2="440" y2="485" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- LM Head -->
+  <rect x="300" y="487" width="280" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="508" text-anchor="middle" font-family="Courier New, monospace" font-size="11" fill="#000">LM Head</text>
+
+  <!-- Arrow: LM Head → Output -->
+  <line x1="440" y1="521" x2="440" y2="540" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig21-ma)"/>
+
+  <!-- Output text -->
+  <text x="440" y="556" text-anchor="middle" font-family="Courier New, monospace" font-size="11" fill="#000">Output Logits</text>
+
+  <!-- ===== Legend ===== -->
+  <rect x="10" y="590" width="280" height="90" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="22" y="608" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#000">Legend</text>
+
+  <line x1="22" y1="623" x2="52" y2="623" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="60" y="627" font-family="Courier New, monospace" font-size="9.5" fill="#000">Main data flow</text>
+
+  <line x1="22" y1="640" x2="52" y2="640" stroke="#888" stroke-width="1.2"/>
+  <text x="60" y="644" font-family="Courier New, monospace" font-size="9.5" fill="#000">Residual connection</text>
+
+  <rect x="22" y="653" width="30" height="12" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="60" y="663" font-family="Courier New, monospace" font-size="9.5" fill="#000">Parameter annotation</text>
+
+  <!-- Source footnote -->
+  <text x="440" y="635" text-anchor="middle" font-family="Courier New, monospace" font-size="8" fill="#888">Sources: config.json + modeling_glm_moe_dsa.py</text>
+</svg>

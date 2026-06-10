@@ -1,0 +1,153 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" width="880" height="660">
+  <defs>
+    <marker id="fig31-ma" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1a3a6e"/>
+    </marker>
+    <marker id="fig31-mg" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#888"/>
+    </marker>
+  </defs>
+
+  <rect width="880" height="660" fill="#fff"/>
+
+  <!-- Title -->
+  <text x="440" y="22" text-anchor="middle" font-family="Courier New, monospace" font-size="13" font-weight="bold" fill="#000">Figure 3.1: DSA Indexer Mechanism (GlmMoeDsaIndexer)</text>
+
+  <!-- ===== Left: KV Cache Panel ===== -->
+  <rect x="30" y="50" width="170" height="280" fill="none" stroke="#888" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="115" y="68" text-anchor="middle" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#888">KV Cache</text>
+
+  <!-- KV cache symbols - small dots or lines -->
+  <rect x="55" y="80" width="120" height="22" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="115" y="95" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">K: keys of all positions</text>
+
+  <rect x="55" y="112" width="120" height="22" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="115" y="127" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">V: values cached</text>
+
+  <!-- KV cache→attention arrow -->
+  <text x="115" y="160" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">During generation:</text>
+  <text x="115" y="175" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">keys+values stored</text>
+  <text x="115" y="190" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">after each step</text>
+
+  <rect x="55" y="205" width="120" height="24" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="115" y="221" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">Indexer K = kv_lora</text>
+
+  <rect x="55" y="238" width="120" height="24" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="115" y="254" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">Indexer V = full V</text>
+
+  <rect x="55" y="275" width="120" height="24" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="115" y="291" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">pos_idx lookup</text>
+
+  <!-- ===== Center: Main Flow ===== -->
+
+  <!-- Hidden States -->
+  <rect x="270" y="50" width="240" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="71" text-anchor="middle" font-family="Courier New, monospace" font-size="11" fill="#000">Hidden States (x)</text>
+
+  <!-- Arrow down -->
+  <line x1="390" y1="84" x2="390" y2="102" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+
+  <!-- q_proj -->
+  <rect x="270" y="104" width="240" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="121" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">q_proj (hidden &#x2192; 4096)</text>
+  <text x="390" y="133" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">2048 &#x2192; 32&#xD7;128 = 4096</text>
+
+  <!-- Arrow down -->
+  <line x1="390" y1="138" x2="390" y2="156" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+
+  <!-- RoPE -->
+  <rect x="270" y="158" width="240" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="175" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">RoPE (rope_interleave)</text>
+  <text x="390" y="187" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">position-encoded query</text>
+
+  <!-- Arrow down + branch lines to KV Cache -->
+  <line x1="390" y1="192" x2="390" y2="215" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+  <!-- Branch from KV Cache to Index Score: dashed -->
+  <line x1="115" y1="305" x2="115" y2="330" stroke="#888" stroke-width="1.2"/>
+  <line x1="115" y1="330" x2="390" y2="330" stroke="#888" stroke-width="1.2"/>
+  <line x1="390" y1="330" x2="390" y2="348" stroke="#888" stroke-width="1.2" marker-end="url(#fig31-mg)"/>
+
+  <!-- Index Score -->
+  <rect x="260" y="217" width="260" height="46" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="235" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">Index Score Computation</text>
+  <text x="390" y="250" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">score = einsum(q, K_cache)</text>
+  <text x="390" y="261" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#b8721a">q &#x2192; reshape (32 heads &#xD7; 128 dim)</text>
+
+  <!-- Arrow down -->
+  <line x1="390" y1="263" x2="390" y2="288" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+
+  <!-- top-k Selection -->
+  <rect x="270" y="290" width="240" height="46" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="308" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">top-k Selection</text>
+  <text x="390" y="323" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">select top-2048 positions</text>
+  <text x="390" y="333" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#b8721a">index_topk = 2048</text>
+
+  <!-- Arrow down -->
+  <line x1="390" y1="336" x2="390" y2="358" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+
+  <!-- Sparse Position Indices -->
+  <rect x="270" y="360" width="240" height="46" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="378" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">Sparse Position Indices</text>
+  <text x="390" y="393" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">position_ids for sparse attn</text>
+  <text x="390" y="403" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#b8721a">only top-k positions attend</text>
+
+  <!-- Arrow down -->
+  <line x1="390" y1="406" x2="390" y2="428" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+
+  <!-- Sparse Attention -->
+  <rect x="270" y="430" width="240" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="451" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">Sparse Attention (FlashAttn)</text>
+
+  <!-- Arrow down -->
+  <line x1="390" y1="464" x2="390" y2="486" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig31-ma)"/>
+
+  <!-- Output -->
+  <rect x="300" y="488" width="180" height="30" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="390" y="507" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">Attention Output</text>
+
+  <!-- ===== Right: Parameter Panel ===== -->
+  <rect x="550" y="50" width="300" height="180" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="560" y="68" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#b8721a">DSA Indexer Parameters</text>
+
+  <rect x="560" y="80" width="280" height="140" fill="none" stroke="none"/>
+  <text x="570" y="98" font-family="Courier New, monospace" font-size="10" fill="#000">index_n_heads = 32</text>
+  <text x="570" y="114" font-family="Courier New, monospace" font-size="10" fill="#000">index_head_dim = 128</text>
+  <text x="570" y="130" font-family="Courier New, monospace" font-size="10" fill="#000">index_topk = 2048</text>
+  <text x="570" y="146" font-family="Courier New, monospace" font-size="10" fill="#000">q_lora_rank = 2048</text>
+  <text x="570" y="162" font-family="Courier New, monospace" font-size="10" fill="#000">indexer_rope_interleave = True</text>
+  <text x="570" y="178" font-family="Courier New, monospace" font-size="10" fill="#000">n_kv_head = 1 (indexer)</text>
+  <text x="570" y="194" font-family="Courier New, monospace" font-size="10" fill="#000">kv_lora_rank = 512</text>
+  <text x="570" y="210" font-family="Courier New, monospace" font-size="10" fill="#000">&#x27A4; score dim: 32&#xD7;128 = 4096</text>
+
+  <!-- Explanation text -->
+  <text x="560" y="250" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#1a3a6e">How It Works:</text>
+  <text x="560" y="268" font-family="Courier New, monospace" font-size="9" fill="#000">1. Project hidden states to 32-head query</text>
+  <text x="560" y="283" font-family="Courier New, monospace" font-size="9" fill="#000">2. Apply RoPE for positional encoding</text>
+  <text x="560" y="298" font-family="Courier New, monospace" font-size="9" fill="#000">3. Compute einsum(q, K_cache) for all</text>
+  <text x="560" y="313" font-family="Courier New, monospace" font-size="9" fill="#000">   positions in KV cache</text>
+  <text x="560" y="328" font-family="Courier New, monospace" font-size="9" fill="#000">4. Select top-2048 positions</text>
+  <text x="560" y="343" font-family="Courier New, monospace" font-size="9" fill="#000">5. Use sparse indices for attention</text>
+  <text x="560" y="358" font-family="Courier New, monospace" font-size="9" fill="#000">   (only selected positions attend)</text>
+
+  <!-- Benefit note -->
+  <rect x="560" y="380" width="280" height="50" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="570" y="397" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#1a3a6e">Efficiency Gain:</text>
+  <text x="570" y="413" font-family="Courier New, monospace" font-size="9" fill="#000">O(L) indexing, O(2048&#xD7;64) attention</text>
+  <text x="570" y="426" font-family="Courier New, monospace" font-size="9" fill="#000">vs. O(L&#xB2;) for naive full attention</text>
+
+  <!-- ===== Legend ===== -->
+  <rect x="10" y="540" width="260" height="80" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="22" y="558" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#000">Legend</text>
+
+  <rect x="22" y="568" width="16" height="10" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="46" y="577" font-family="Courier New, monospace" font-size="9.5" fill="#000">Main computation flow</text>
+
+  <rect x="22" y="585" width="16" height="10" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="6,3"/>
+  <text x="46" y="594" font-family="Courier New, monospace" font-size="9.5" fill="#000">KV cache interaction</text>
+
+  <rect x="22" y="601" width="16" height="8" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="46" y="609" font-family="Courier New, monospace" font-size="9.5" fill="#000">Key parameter</text>
+
+  <!-- Source -->
+  <text x="440" y="638" text-anchor="middle" font-family="Courier New, monospace" font-size="8" fill="#888">Source: modeling_glm_moe_dsa.py:L104-L200</text>
+</svg>

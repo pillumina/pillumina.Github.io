@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 600" width="880" height="600">
+  <defs>
+    <marker id="fig32-ma" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#1a3a6e"/>
+    </marker>
+    <marker id="fig32-mg" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#888"/>
+    </marker>
+  </defs>
+
+  <rect width="880" height="600" fill="#fff"/>
+
+  <!-- Title -->
+  <text x="440" y="22" text-anchor="middle" font-family="Courier New, monospace" font-size="13" font-weight="bold" fill="#000">Figure 3.2: MLA (Multi-head Latent Attention) &#x2014; Latent KV Mechanism</text>
+
+  <!-- ===== Shared Input ===== -->
+  <rect x="340" y="42" width="200" height="30" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="61" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">Input x (hidden=6144)</text>
+
+  <!-- Branch lines from input -->
+  <line x1="440" y1="72" x2="440" y2="85" stroke="#1a3a6e" stroke-width="1.5"/>
+  <line x1="170" y1="85" x2="710" y2="85" stroke="#1a3a6e" stroke-width="1.5"/>
+  <line x1="170" y1="85" x2="170" y2="98" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+  <line x1="710" y1="85" x2="710" y2="98" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- Labels for branches -->
+  <text x="305" y="82" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#1a3a6e" font-weight="bold">Q LoRA Path</text>
+  <text x="575" y="82" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#1a3a6e" font-weight="bold">KV LoRA Path</text>
+
+  <!-- ===== Q Pathway (Left) ===== -->
+  <!-- q_a_proj -->
+  <rect x="40" y="100" width="260" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="170" y="115" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">q_a_proj</text>
+  <text x="170" y="127" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">Linear(6144 &#x2192; 2048)</text>
+
+  <line x1="170" y1="132" x2="170" y2="148" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- q_norm -->
+  <rect x="40" y="150" width="260" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="170" y="165" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">q_norm (RMSNorm)</text>
+  <text x="170" y="177" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">normalize latent query</text>
+
+  <line x1="170" y1="182" x2="170" y2="198" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- q_b_proj -->
+  <rect x="40" y="200" width="260" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="170" y="215" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">q_b_proj</text>
+  <text x="170" y="227" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">Linear(2048 &#x2192; 64&#xD7;512 = 32768)</text>
+
+  <line x1="170" y1="232" x2="170" y2="250" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- Q Split -->
+  <rect x="40" y="252" width="260" height="72" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="170" y="268" text-anchor="middle" font-family="Courier New, monospace" font-size="9.5" font-weight="bold" fill="#1a3a6e">Q Output Split (per head)</text>
+  <text x="55" y="286" font-family="Courier New, monospace" font-size="9" fill="#000">&#x251C; qk_nope: 192 dim (content)</text>
+  <text x="55" y="301" font-family="Courier New, monospace" font-size="9" fill="#000">&#x251C; qk_rope: 64 dim (&#x2192; RoPE)</text>
+  <text x="55" y="316" font-family="Courier New, monospace" font-size="9" fill="#000">&#x2514; v: 256 dim</text>
+
+  <!-- ===== KV Pathway (Right) ===== -->
+  <!-- kv_a_proj -->
+  <rect x="580" y="100" width="260" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="710" y="115" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">kv_a_proj</text>
+  <text x="710" y="127" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">Linear(6144 &#x2192; 512 + 64)</text>
+
+  <line x1="710" y1="132" x2="710" y2="148" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- kv_norm -->
+  <rect x="580" y="150" width="260" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="710" y="165" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">kv_norm (RMSNorm)</text>
+  <text x="710" y="177" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">normalize latent KV</text>
+
+  <line x1="710" y1="182" x2="710" y2="198" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- kv_b_proj -->
+  <rect x="580" y="200" width="260" height="32" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="710" y="215" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">kv_b_proj</text>
+  <text x="710" y="227" text-anchor="middle" font-family="Courier New, monospace" font-size="8.5" fill="#888">Linear(512 &#x2192; 64&#xD7;320 = 20480)</text>
+
+  <line x1="710" y1="232" x2="710" y2="250" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- KV Split -->
+  <rect x="580" y="252" width="260" height="72" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="710" y="268" text-anchor="middle" font-family="Courier New, monospace" font-size="9.5" font-weight="bold" fill="#1a3a6e">KV Output Split (per head)</text>
+  <text x="595" y="286" font-family="Courier New, monospace" font-size="9" fill="#000">&#x251C; k_nope: 192 dim (content)</text>
+  <text x="595" y="301" font-family="Courier New, monospace" font-size="9" fill="#000">&#x251C; k_rope: 64 dim (&#x2192; RoPE)</text>
+  <text x="595" y="316" font-family="Courier New, monospace" font-size="9" fill="#000">&#x2514; v: 256 dim</text>
+
+  <!-- ===== Convergence ===== -->
+  <!-- Lines from Q split to attention -->
+  <line x1="170" y1="324" x2="170" y2="348" stroke="#1a3a6e" stroke-width="1.5"/>
+  <line x1="170" y1="348" x2="440" y2="348" stroke="#1a3a6e" stroke-width="1.5"/>
+  <line x1="440" y1="348" x2="440" y2="360" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <!-- Lines from KV split to attention -->
+  <line x1="710" y1="324" x2="710" y2="348" stroke="#1a3a6e" stroke-width="1.5"/>
+  <line x1="710" y1="348" x2="440" y2="348" stroke="#1a3a6e" stroke-width="1.5"/>
+
+  <!-- ===== MLA Attention Block ===== -->
+  <rect x="280" y="362" width="320" height="40" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="378" text-anchor="middle" font-family="Courier New, monospace" font-size="11" font-weight="bold" fill="#000">MLA Attention (FlashAttn)</text>
+  <text x="440" y="394" text-anchor="middle" font-family="Courier New, monospace" font-size="9" fill="#888">qk_nope &#xB7; k_nope^T + RoPE(qk_rope &#xB7; k_rope^T)</text>
+
+  <!-- Output from attention -->
+  <line x1="440" y1="402" x2="440" y2="420" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig32-ma)"/>
+
+  <rect x="280" y="422" width="320" height="30" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="441" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#000">Attention Output (64&#xD7;256 = 16384)</text>
+
+  <!-- ===== Parameter Annotations ===== -->
+  <rect x="10" y="362" width="240" height="120" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="20" y="380" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#b8721a">Key Parameters</text>
+
+  <text x="20" y="398" font-family="Courier New, monospace" font-size="9" fill="#000">q_lora_rank = 2048</text>
+  <text x="20" y="414" font-family="Courier New, monospace" font-size="9" fill="#000">kv_lora_rank = 512</text>
+  <text x="20" y="430" font-family="Courier New, monospace" font-size="9" fill="#000">qk_nope_head_dim = 192</text>
+  <text x="20" y="446" font-family="Courier New, monospace" font-size="9" fill="#000">qk_rope_head_dim = 64</text>
+  <text x="20" y="462" font-family="Courier New, monospace" font-size="9" fill="#000">v_head_dim = 256</text>
+  <text x="20" y="478" font-family="Courier New, monospace" font-size="9" fill="#000">num_heads = 64</text>
+
+  <!-- Efficiency note -->
+  <rect x="620" y="380" width="230" height="70" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="630" y="397" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#1a3a6e">LoRA Compression:</text>
+  <text x="630" y="413" font-family="Courier New, monospace" font-size="9" fill="#000">Q: 6144&#x2192;2048&#x2192;64&#xD7;512</text>
+  <text x="630" y="428" font-family="Courier New, monospace" font-size="9" fill="#000">KV: 6144&#x2192;512&#x2192;64&#xD7;320</text>
+  <text x="630" y="443" font-family="Courier New, monospace" font-size="9" fill="#000">Total K dim = 192+64 = 256</text>
+
+  <!-- ===== Legend ===== -->
+  <rect x="10" y="500" width="300" height="70" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="22" y="518" font-family="Courier New, monospace" font-size="10" font-weight="bold" fill="#000">Legend</text>
+
+  <rect x="22" y="528" width="16" height="10" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="46" y="537" font-family="Courier New, monospace" font-size="9.5" fill="#000">Data flow</text>
+
+  <rect x="22" y="545" width="16" height="8" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="46" y="553" font-family="Courier New, monospace" font-size="9.5" fill="#000">Parameter annotation</text>
+
+  <!-- Source -->
+  <text x="440" y="578" text-anchor="middle" font-family="Courier New, monospace" font-size="8" fill="#888">Source: modeling_glm_moe_dsa.py:L288-L461</text>
+</svg>

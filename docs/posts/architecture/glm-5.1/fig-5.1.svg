@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 750" width="900" height="750" font-family="Courier New, monospace" font-size="11">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+  <style>
+    .title { font-size: 14px; font-weight: bold; fill: #000; }
+    .section-title { font-size: 11px; font-weight: bold; fill: #1a3a6e; }
+    .box { fill: #fff; stroke: #1a3a6e; stroke-width: 1.5; }
+    .box-warn { fill: #fff; stroke: #b8721a; stroke-width: 1.5; }
+    .label { fill: #000; font-size: 10px; }
+    .label-sm { fill: #888; font-size: 8.5px; }
+    .label-warn { fill: #b8721a; font-size: 9px; font-weight: bold; }
+    .annot { fill: #888; font-size: 9px; }
+    .arrow { stroke: #1a3a6e; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .line-plain { stroke: #1a3a6e; stroke-width: 1.5; fill: none; }
+    .expert-active { fill: #1a3a6e; stroke: #000; stroke-width: 0.8; opacity: 0.85; }
+    .expert-idle { fill: #f0f0f0; stroke: #ccc; stroke-width: 0.5; }
+  </style>
+
+  <text class="title" x="450" y="24" text-anchor="middle">Figure 5.1: MoE Routing — GlmMoeDsaMoE + GlmMoeDsaTopkRouter</text>
+
+  <!-- ===== LEFT COLUMN: Routing Pipeline + Output Flow ===== -->
+  <text class="section-title" x="210" y="52" text-anchor="middle">Routing Pipeline</text>
+
+  <rect class="box" x="80" y="64" width="260" height="30"/>
+  <text class="label" x="210" y="83" text-anchor="middle">Hidden States (hidden=6144)</text>
+  <line x1="210" y1="94" x2="210" y2="112" class="arrow"/>
+
+  <rect class="box" x="80" y="112" width="260" height="34"/>
+  <text class="label" x="210" y="128" text-anchor="middle">Router Gate: Linear(6144 → 256)</text>
+  <text class="label-sm" x="210" y="142" text-anchor="middle">scoring_func = sigmoid</text>
+  <line x1="210" y1="146" x2="210" y2="162" class="arrow"/>
+
+  <rect class="box" x="80" y="162" width="260" height="34"/>
+  <text class="label" x="210" y="178" text-anchor="middle">+ e_score_correction_bias</text>
+  <text class="label-sm" x="210" y="192" text-anchor="middle">per-expert learned bias, register_buffer</text>
+  <line x1="210" y1="196" x2="210" y2="212" class="arrow"/>
+
+  <rect class="box" x="80" y="212" width="260" height="40"/>
+  <text class="label" x="210" y="229" text-anchor="middle">top-k Selection (k=8)</text>
+  <text class="label-sm" x="210" y="243" text-anchor="middle">method = noaux_tc</text>
+  <line x1="210" y1="252" x2="210" y2="268" class="arrow"/>
+
+  <rect class="box" x="80" y="268" width="260" height="34"/>
+  <text class="label" x="210" y="285" text-anchor="middle">Norm + Scale</text>
+  <text class="label-sm" x="210" y="299" text-anchor="middle">weights /= sum(weights), × routed_scaling_factor</text>
+  <line x1="210" y1="302" x2="210" y2="318" class="arrow"/>
+
+  <rect class="box" x="80" y="318" width="260" height="30"/>
+  <text class="label" x="210" y="337" text-anchor="middle">Expert Dispatch (NaiveMoe)</text>
+  <line x1="340" y1="333" x2="410" y2="333" class="arrow"/>
+
+  <!-- Output flow below pipeline -->
+  <line x1="210" y1="348" x2="210" y2="380" class="arrow"/>
+
+  <rect class="box" x="80" y="380" width="260" height="30"/>
+  <text class="label" x="210" y="399" text-anchor="middle">+ 1 Shared Expert (always active)</text>
+
+  <line x1="210" y1="410" x2="210" y2="440" class="arrow"/>
+
+  <rect class="box" x="80" y="440" width="260" height="34"/>
+  <text class="label" x="210" y="457" text-anchor="middle">Combined MoE Output</text>
+  <text class="label-sm" x="210" y="470" text-anchor="middle">routed_scale × routed + shared</text>
+
+  <!-- ===== RIGHT COLUMN: Expert Grid + Parameters ===== -->
+  <text class="section-title" x="590" y="52" text-anchor="middle">Expert Selection (256 routed, top-8)</text>
+  <rect class="box" x="420" y="64" width="340" height="300"/>
+
+  <!-- Expert grid: 16x16, showing 8 activated -->
+  <g>
+    <rect class="expert-active" x="425" y="69" width="18" height="16"/><text x="434" y="80" text-anchor="middle" fill="#fff" font-size="6">e0</text>
+    <rect class="expert-active" x="510" y="90" width="18" height="16"/><text x="519" y="101" text-anchor="middle" fill="#fff" font-size="6">e1</text>
+    <rect class="expert-active" x="450" y="174" width="18" height="16"/><text x="459" y="185" text-anchor="middle" fill="#fff" font-size="6">e2</text>
+    <rect class="expert-active" x="585" y="220" width="18" height="16"/><text x="594" y="231" text-anchor="middle" fill="#fff" font-size="6">e3</text>
+    <rect class="expert-active" x="535" y="280" width="18" height="16"/><text x="544" y="291" text-anchor="middle" fill="#fff" font-size="6">e4</text>
+    <rect class="expert-active" x="600" y="300" width="18" height="16"/><text x="609" y="311" text-anchor="middle" fill="#fff" font-size="6">e5</text>
+    <rect class="expert-active" x="470" y="345" width="18" height="16"/><text x="479" y="356" text-anchor="middle" fill="#fff" font-size="6">e6</text>
+    <rect class="expert-active" x="690" y="340" width="18" height="16"/><text x="699" y="351" text-anchor="middle" fill="#fff" font-size="6">e7</text>
+  </g>
+  <text class="annot" x="590" y="380" text-anchor="middle">dark blue = activated experts (top-8)</text>
+
+  <!-- Router parameters under expert grid -->
+  <rect class="box-warn" x="420" y="400" width="340" height="145"/>
+
+  <text class="label-warn" x="430" y="420">Router Parameters</text>
+  <line x1="430" y1="426" x2="750" y2="426" stroke="#b8721a" stroke-width="0.5"/>
+
+  <text class="label-sm" x="430" y="444">n_routed_experts = 256</text>
+  <text class="label-sm" x="430" y="460">n_shared_experts = 1</text>
+  <text class="label-sm" x="430" y="476">num_experts_per_tok (k) = 8</text>
+  <text class="label-sm" x="430" y="492">scoring_func = sigmoid</text>
+  <text class="label-sm" x="430" y="508">topk_method = noaux_tc</text>
+  <text class="label-sm" x="430" y="524">routed_scaling_factor = 2.5</text>
+  <text class="label-sm" x="430" y="540">gate dim: 6144 → 256</text>
+
+  <!-- ===== LEGEND ===== -->
+  <g transform="translate(20, 710)">
+    <rect class="expert-active" x="0" y="0" width="14" height="12"/>
+    <text class="annot" x="18" y="10">activated expert (top-8)</text>
+    <rect class="expert-idle" x="200" y="0" width="14" height="12"/>
+    <text class="annot" x="218" y="10">idle expert</text>
+    <rect class="box-warn" x="360" y="0" width="14" height="12"/>
+    <text class="annot" x="378" y="10">router parameters</text>
+  </g>
+</svg>
