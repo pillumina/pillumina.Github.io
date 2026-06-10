@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-instr { fill: #fff; stroke: #000; stroke-width: 1.5; stroke-dasharray: 4 2; }
+    .box-hi { fill: #fff; stroke: #1a3a6e; stroke-width: 3; }
+    .label { fill: #000; }
+    .hi-label { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hi { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hi); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="360" y="22" text-anchor="middle" font-weight="bold" font-size="14">DeepSeek-V4 产品线家族</text>
+
+  <!-- 列标题 -->
+  <text class="annot" x="120" y="42" text-anchor="middle" font-weight="bold">Pro Series (1.6T / 49B)</text>
+  <text class="annot" x="360" y="42" text-anchor="middle" font-weight="bold" fill="#1a3a6e">Flash Series (284B / 13B)</text>
+  <text class="annot" x="600" y="42" text-anchor="middle" font-weight="bold">Think Max 衍生</text>
+
+  <!-- 顶部关联标签: Think Max (reasoning budget) — 推理模式衍生 -->
+  <text class="annot" x="360" y="60" text-anchor="middle">Think Max (reasoning budget) — 推理模式衍生</text>
+
+  <!-- 分隔线 -->
+  <line x1="240" y1="68" x2="240" y2="330" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2"/>
+  <line x1="480" y1="68" x2="480" y2="330" stroke="#ccc" stroke-width="1" stroke-dasharray="2 2"/>
+
+  <!-- Pro-Base (实线) -->
+  <rect class="box" x="40" y="80" width="160" height="80"/>
+  <text class="label" x="120" y="105" text-anchor="middle" font-weight="bold">V4-Pro-Base</text>
+  <text class="annot" x="120" y="125" text-anchor="middle">1.6T / 49B</text>
+  <text class="annot" x="120" y="140" text-anchor="middle">FP8, 1M ctx</text>
+  <text class="annot" x="120" y="155" text-anchor="middle">pre-train only</text>
+
+  <!-- Pro (虚线) -->
+  <rect class="box-instr" x="40" y="200" width="160" height="80"/>
+  <text class="label" x="120" y="225" text-anchor="middle" font-weight="bold">V4-Pro</text>
+  <text class="annot" x="120" y="245" text-anchor="middle">1.6T / 49B</text>
+  <text class="annot" x="120" y="260" text-anchor="middle">FP4+FP8, 1M</text>
+  <text class="annot" x="120" y="275" text-anchor="middle">+ post-training</text>
+
+  <!-- Arrow: Base -> Instruct -->
+  <line class="arrow" x1="120" y1="165" x2="120" y2="195"/>
+  <text class="annot" x="135" y="183">post-train</text>
+
+  <!-- Flash-Base (实线 + 高亮) -->
+  <rect class="box-hi" x="280" y="80" width="160" height="80"/>
+  <text class="hi-label" x="360" y="103" text-anchor="middle" font-size="12">V4-Flash-Base</text>
+  <text class="annot" x="360" y="123" text-anchor="middle">284B / 13B</text>
+  <text class="annot" x="360" y="138" text-anchor="middle">FP8, 1M ctx</text>
+  <text class="annot" x="360" y="153" text-anchor="middle">pre-train only</text>
+
+  <!-- Flash (虚线 + 高亮) -->
+  <rect class="box-hi" x="280" y="200" width="160" height="80" stroke-dasharray="4 2"/>
+  <text class="hi-label" x="360" y="223" text-anchor="middle" font-size="12">V4-Flash</text>
+  <text class="annot" x="360" y="243" text-anchor="middle">284B / 13B</text>
+  <text class="annot" x="360" y="258" text-anchor="middle">FP4+FP8, 1M</text>
+  <text class="annot" x="360" y="273" text-anchor="middle">+ post-training</text>
+
+  <!-- Arrow: Base -> Instruct (高亮) -->
+  <line class="arrow-hi" x1="360" y1="165" x2="360" y2="195"/>
+  <text class="annot" x="375" y="183" fill="#1a3a6e">post-train</text>
+
+  <!-- Pro-Max (虚线) -->
+  <rect class="box-instr" x="520" y="80" width="160" height="80"/>
+  <text class="label" x="600" y="105" text-anchor="middle" font-weight="bold">V4-Pro-Max</text>
+  <text class="annot" x="600" y="125" text-anchor="middle">1.6T / 49B</text>
+  <text class="annot" x="600" y="140" text-anchor="middle">Think Max mode</text>
+  <text class="annot" x="600" y="155" text-anchor="middle">384K ctx recommended</text>
+
+  <!-- Flash-Max (虚线) -->
+  <rect class="box-instr" x="520" y="200" width="160" height="80"/>
+  <text class="label" x="600" y="225" text-anchor="middle" font-weight="bold">V4-Flash-Max</text>
+  <text class="annot" x="600" y="245" text-anchor="middle">284B / 13B</text>
+  <text class="annot" x="600" y="260" text-anchor="middle">Think Max mode</text>
+  <text class="annot" x="600" y="275" text-anchor="middle">384K ctx recommended</text>
+
+  <!-- 横向关联箭头: Pro -> Pro-Max (L形: 向上→向右→向下, 不穿过 Flash 列) -->
+  <path class="arrow" d="M 200 120 L 220 120 L 220 75 L 600 75 L 600 78" fill="none"/>
+
+  <!-- 横向关联箭头: Flash -> Flash-Max (高亮) -->
+  <line class="arrow-hi" x1="440" y1="240" x2="518" y2="240"/>
+  <text class="annot" x="478" y="232" text-anchor="middle" fill="#1a3a6e">Think Max</text>
+
+  <!-- 本报告范围标注 -->
+  <rect x="275" y="295" width="170" height="22" fill="#1a3a6e"/>
+  <text x="360" y="310" text-anchor="middle" fill="#fff" font-weight="bold" font-size="10">本报告范围: V4-Flash (284B/13B)</text>
+
+  <!-- 图例 -->
+  <text class="annot" x="40" y="345">实线框 = Base (pre-train only)  虚线框 = Instruct (post-trained)  深蓝粗框 = 本报告范围</text>
+
+</svg>

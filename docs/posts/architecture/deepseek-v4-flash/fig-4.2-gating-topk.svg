@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720" width="880" height="720" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-active { fill: #1a3a6e; stroke: #000; stroke-width: 1.5; }
+    .box-hash { fill: #fff; stroke: #b5651d; stroke-width: 2.2; stroke-dasharray: 5 3; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .label-active { fill: #fff; font-weight: bold; font-size: 10px; }
+    .label-hash { fill: #b5651d; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .annot-hash { fill: #b5651d; font-size: 9px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .arrow-hash { stroke: #b5651d; stroke-width: 2; fill: none; stroke-dasharray: 4 2; marker-end: url(#a-hash); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="a-hash" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#b5651d"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">Gating 流程：sqrtsoftplus + Aux-Loss-Free Bias + Top-6 (双路径路由)</text>
+
+  <!-- 超参标注 -->
+  <text class="annot" x="860" y="22" text-anchor="end">score_func=sqrtsoftplus  num_hash_layers=3  topk=6  bias &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">256</tspan></text>
+
+  <!-- ====== Input token ====== -->
+  <rect class="box" x="370" y="50" width="140" height="30"/>
+  <text class="label" x="440" y="69" text-anchor="middle">token x &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">4096</tspan></text>
+  <text class="annot" x="440" y="92" text-anchor="middle">+ input_ids (for hash lookup)</text>
+
+  <!-- 双路径分流点 -->
+  <line class="arrow" x1="440" y1="100" x2="440" y2="125"/>
+  <line class="arrow-hl" x1="440" y1="125" x2="220" y2="125"/>
+  <line class="arrow-hash" x1="440" y1="125" x2="660" y2="125"/>
+
+  <!-- 路径标签 -->
+  <text class="label-hl" x="330" y="120" text-anchor="middle" font-weight="bold">score routing (40 layers)</text>
+  <text class="label-hash" x="660" y="120" text-anchor="middle" font-weight="bold">hash routing (前 3 层)</text>
+
+  <!-- =========================================================== -->
+  <!-- 左侧: score routing 路径 -->
+  <!-- =========================================================== -->
+
+  <!-- Step 1: W_g · x -->
+  <rect class="box" x="50" y="140" width="320" height="40"/>
+  <text class="label" x="210" y="158" text-anchor="middle" font-weight="bold">[1]  W<tspan baseline-shift="sub" font-size="smaller">g</tspan> &#183; x   &#10230;  raw scores</text>
+  <text class="annot" x="210" y="173" text-anchor="middle">W<tspan baseline-shift="sub" font-size="smaller">g</tspan> &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">4096&#215;256</tspan>  (1M params)</text>
+
+  <line class="arrow-hl" x1="210" y1="180" x2="210" y2="195"/>
+
+  <!-- Step 2: sqrtsoftplus (强调 ≠ sigmoid) -->
+  <rect class="box-hl" x="50" y="195" width="320" height="48"/>
+  <text class="label-hl" x="210" y="215" text-anchor="middle" font-weight="bold">[2]  sqrtsoftplus(&#183;)   &#8800; sigmoid</text>
+  <text class="annot" x="210" y="230" text-anchor="middle">g = sqrt(softplus(z)) = sqrt(log(1 + e<tspan baseline-shift="super" font-size="smaller">z</tspan>))</text>
+  <text class="annot" x="210" y="242" text-anchor="middle">公式 (4.1)：g_i = sqrtsoftplus((W_g · x)_i)</text>
+
+  <line class="arrow-hl" x1="210" y1="243" x2="210" y2="258"/>
+
+  <!-- Step 3: 拆分两条子路径: original_scores vs score_for_topk -->
+  <rect class="box" x="50" y="258" width="150" height="36"/>
+  <text class="label" x="125" y="276" text-anchor="middle" font-size="10">保存 original_scores</text>
+  <text class="annot" x="125" y="288" text-anchor="middle">(不带 bias, 用于权重)</text>
+
+  <rect class="box" x="220" y="258" width="150" height="36"/>
+  <text class="label" x="295" y="276" text-anchor="middle" font-size="10">+ aux-loss-free b</text>
+  <text class="annot" x="295" y="288" text-anchor="middle">(只影响 topk, 训练时更新)</text>
+
+  <!-- 两路箭头 -->
+  <line class="arrow" x1="125" y1="294" x2="125" y2="320"/>
+  <line class="arrow-hl" x1="295" y1="294" x2="295" y2="320"/>
+
+  <!-- 公式 4.2 标注 -->
+  <text class="annot-hl" x="440" y="320" text-anchor="end">[公式 4.2]</text>
+
+  <!-- Step 4: topk 选 6 个 expert -->
+  <rect class="box-hl" x="50" y="320" width="320" height="44"/>
+  <text class="label-hl" x="210" y="340" text-anchor="middle" font-weight="bold">[3]  top_k(g + b, k = 6)</text>
+  <text class="annot" x="210" y="354" text-anchor="middle">score_for_topk = g + b (b &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">256</tspan>, fp32 trainable)</text>
+  <text class="annot" x="210" y="364" text-anchor="middle">indices = topk.indices &#8712; {0..255}<tspan baseline-shift="super" font-size="smaller">6</tspan></text>
+
+  <line class="arrow-hl" x1="210" y1="364" x2="210" y2="380"/>
+
+  <!-- =========================================================== -->
+  <!-- 右侧: hash routing 路径 -->
+  <!-- =========================================================== -->
+
+  <rect class="box-hash" x="540" y="140" width="320" height="44"/>
+  <text class="label-hash" x="700" y="160" text-anchor="middle" font-weight="bold">[H1]  hash(input_id)</text>
+  <text class="annot" x="700" y="175" text-anchor="middle">tid2eid &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">vocab&#215;6</tspan>  (固定查找表, 无 score)</text>
+
+  <line class="arrow-hash" x1="700" y1="184" x2="700" y2="200"/>
+
+  <rect class="box-hash" x="540" y="200" width="320" height="44"/>
+  <text class="label-hash" x="700" y="220" text-anchor="middle" font-weight="bold">[H2]  indices = tid2eid[input_id]</text>
+  <text class="annot" x="700" y="235" text-anchor="middle">不需 W_g, 不需 sqrtsoftplus, 不需 topk</text>
+
+  <line class="arrow-hash" x1="700" y1="244" x2="700" y2="260"/>
+
+  <rect class="box-hash" x="540" y="260" width="320" height="44"/>
+  <text class="label-hash" x="700" y="280" text-anchor="middle" font-weight="bold">[H3]  weights = 1.5 / 6  (均匀权重)</text>
+  <text class="annot" x="700" y="295" text-anchor="middle">hash 模式无 softmax 归一化, 用平均权重</text>
+
+  <line class="arrow-hash" x1="700" y1="304" x2="700" y2="380"/>
+
+  <!-- =========================================================== -->
+  <!-- 底部: Aux-Loss-Free Bias Update 循环 (训练时) -->
+  <!-- =========================================================== -->
+
+  <text class="label-hl" x="440" y="412" text-anchor="middle" font-weight="bold" font-size="12">Aux-Loss-Free Bias 更新循环 (仅训练时激活)</text>
+
+  <rect class="box" x="40" y="425" width="220" height="44"/>
+  <text class="label" x="150" y="443" text-anchor="middle" font-weight="bold">[a] 统计频率 f_e</text>
+  <text class="annot" x="150" y="458" text-anchor="middle">counts = bincount(indices, minlength=256)</text>
+
+  <line class="arrow" x1="260" y1="447" x2="280" y2="447"/>
+
+  <rect class="box" x="280" y="425" width="220" height="44"/>
+  <text class="label" x="390" y="443" text-anchor="middle" font-weight="bold">[b] 与目标 p = 1/256 比较</text>
+  <text class="annot" x="390" y="458" text-anchor="middle">&#948; = 0.05 (目标带, 论文 §4.2.3)</text>
+
+  <line class="arrow" x1="500" y1="447" x2="520" y2="447"/>
+
+  <rect class="box" x="520" y="425" width="320" height="44"/>
+  <text class="label" x="680" y="443" text-anchor="middle" font-weight="bold">[c] 偏置更新规则</text>
+  <text class="annot" x="680" y="458" text-anchor="middle">f &gt; p+&#948; : b_e -= &#951;    |    f &lt; p-&#948; : b_e += &#951;    (&#951;=0.001)</text>
+
+  <line class="arrow" x1="680" y1="469" x2="680" y2="490"/>
+  <line class="arrow" x1="390" y1="469" x2="390" y2="490"/>
+  <line class="arrow" x1="150" y1="469" x2="150" y2="490"/>
+
+  <rect class="box-hl" x="40" y="490" width="800" height="48"/>
+  <text class="label-hl" x="440" y="510" text-anchor="middle" font-weight="bold">关键：bias b 不进入 loss, 不污染主梯度, 仅修改 topk 选择</text>
+  <text class="annot" x="440" y="525" text-anchor="middle">推理时：bias 冻结 (用训练后的值)，hash 路径 / score 路径行为一致，仅 aux 更新停止</text>
+  <text class="annot" x="440" y="535" text-anchor="middle">V3.2-Exp 沿用同一机制；V4 沿用并加 hash routing 双路径</text>
+
+  <!-- =========================================================== -->
+  <!-- 底部: 输出 + 公式 4.3 -->
+  <!-- =========================================================== -->
+
+  <rect class="box-hl" x="40" y="565" width="800" height="80"/>
+  <text class="label-hl" x="440" y="585" text-anchor="middle" font-weight="bold" font-size="12">公式 (4.3)  输出合成</text>
+  <text class="label" x="440" y="605" text-anchor="middle" font-size="11">y = shared(x) + route_scale &#183; &#931;<tspan baseline-shift="sub" font-size="smaller">i&#8712;top6</tspan> softmax(g)[i] &#183; expert_i(x)</text>
+  <text class="annot" x="440" y="622" text-anchor="middle">route_scale = 1.5 (V4 关键调参)    |    g = sqrtsoftplus(W_g · x)    |    bias b 仅影响 topk</text>
+  <text class="annot" x="440" y="638" text-anchor="middle">hash 模式: indices = tid2eid[input_id], weights = 1.5/6 (均匀), 不走 W_g, 不走 topk</text>
+
+  <!-- 图例 -->
+  <text class="annot" x="40" y="678" font-weight="bold">Legend:</text>
+  <rect class="box-hl" x="100" y="668" width="14" height="14"/>
+  <text class="annot" x="118" y="679">score routing 路径 (40 层)</text>
+  <rect class="box-hash" x="280" y="668" width="14" height="14"/>
+  <text class="annot" x="298" y="679">hash routing 路径 (前 3 层)</text>
+  <rect class="box-active" x="450" y="668" width="14" height="14"/>
+  <text class="annot" x="468" y="679">训练时激活的更新规则</text>
+
+  <text class="annot" x="40" y="700" text-anchor="start">Notes: ① sqrtsoftplus 是关键创新，区别于 V3 的 sigmoid；② aux-loss-free bias 沿用 V3 思路但与 hash routing 协同；③ route_scale=1.5 是 V4 关键调参，补偿 k 砍到 6 后的容量损失。</text>
+
+</svg>

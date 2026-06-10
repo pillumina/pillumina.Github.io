@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 620" width="1100" height="620" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+    <marker id="arrB" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="620" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="550" y="32" text-anchor="middle" font-size="20" font-weight="bold" fill="#222">
+    Comparison: Standard Residual vs Manifold-Constrained Hyper-Connections (mHC)
+  </text>
+  <text x="550" y="55" text-anchor="middle" font-size="12" fill="#555" font-style="italic">
+    hc_mult = 4 (V4-Flash) — 4-channel multi-residual flow
+  </text>
+
+  <!-- Divider line -->
+  <line x1="550" y1="80" x2="550" y2="580" stroke="#bbb" stroke-width="1" stroke-dasharray="4,4"/>
+
+  <!-- ============== LEFT: Standard Residual ============== -->
+  <text x="275" y="105" text-anchor="middle" font-size="15" font-weight="bold" fill="#222">
+    Standard Residual
+  </text>
+  <text x="275" y="123" text-anchor="middle" font-size="11" fill="#666">
+    (ResNet 2015 / Pre-Norm Transformer)
+  </text>
+
+  <!-- x input -->
+  <circle cx="80" cy="320" r="22" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="80" y="324" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">x</text>
+  <text x="80" y="362" text-anchor="middle" font-size="10" fill="#666">[T, d]</text>
+
+  <!-- arrow to f box -->
+  <line x1="102" y1="320" x2="218" y2="320" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <!-- f box -->
+  <rect x="218" y="290" width="120" height="60" fill="#fff8e1" stroke="#b8860b" stroke-width="2" rx="4"/>
+  <text x="278" y="316" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">f(x)</text>
+  <text x="278" y="334" text-anchor="middle" font-size="10" fill="#666">attn or MoE</text>
+
+  <!-- + sign and y output -->
+  <line x1="338" y1="320" x2="408" y2="320" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="408" cy="320" r="22" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="408" y="325" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a3a6e">+</text>
+
+  <!-- output y -->
+  <line x1="430" y1="320" x2="478" y2="320" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <circle cx="500" cy="320" r="22" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="500" y="324" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">y</text>
+
+  <!-- skip connection (curve from x to +) -->
+  <path d="M 80 298 Q 240 200 408 298" fill="none" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="6,3" marker-end="url(#arrB)"/>
+  <text x="244" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">identity (weight = 1, fixed)</text>
+
+  <!-- formula box -->
+  <rect x="120" y="410" width="320" height="50" fill="#f0f0f0" stroke="#888" stroke-width="1" rx="4"/>
+  <text x="280" y="435" text-anchor="middle" font-size="15" font-family="Cambria, serif" font-style="italic" fill="#222">
+    y = x + f(x)
+  </text>
+  <text x="280" y="452" text-anchor="middle" font-size="10" fill="#555">
+    single channel, fixed weight
+  </text>
+
+  <!-- properties -->
+  <text x="60" y="495" font-size="11" font-weight="bold" fill="#222">Properties:</text>
+  <text x="60" y="514" font-size="10" fill="#555">• Channel count: 1 (no multi-flow)</text>
+  <text x="60" y="530" font-size="10" fill="#555">• Weights: fixed (no learnable mixing)</text>
+  <text x="60" y="546" font-size="10" fill="#555">• Stability: OK in 43 layers, but limited expression</text>
+  <text x="60" y="562" font-size="10" fill="#555">• Inference overhead: 0</text>
+
+
+  <!-- ============== RIGHT: mHC ============== -->
+  <text x="825" y="105" text-anchor="middle" font-size="15" font-weight="bold" fill="#1a3a6e">
+    mHC (hc_mult = 4)
+  </text>
+  <text x="825" y="123" text-anchor="middle" font-size="11" fill="#666">
+    (V4-Flash, 2026)
+  </text>
+
+  <!-- x input -->
+  <circle cx="600" cy="320" r="22" fill="#fff" stroke="#333" stroke-width="2"/>
+  <text x="600" y="324" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">x</text>
+  <text x="600" y="362" text-anchor="middle" font-size="10" fill="#666">[T, d]</text>
+
+  <!-- tile to 4 channels (vertical stack) -->
+  <line x1="622" y1="320" x2="660" y2="320" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <g font-size="10" fill="#1a3a6e">
+    <circle cx="680" cy="240" r="14" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <text x="680" y="244" text-anchor="middle">1</text>
+    <circle cx="680" cy="280" r="14" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <text x="680" y="284" text-anchor="middle">2</text>
+    <circle cx="680" cy="320" r="14" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <text x="680" y="324" text-anchor="middle">3</text>
+    <circle cx="680" cy="360" r="14" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <text x="680" y="364" text-anchor="middle">4</text>
+  </g>
+  <text x="680" y="395" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">tile(x, 4)</text>
+  <text x="680" y="408" text-anchor="middle" font-size="9" fill="#666">[T, 4·d]</text>
+
+  <!-- α_pre -->
+  <text x="710" y="215" font-size="11" font-weight="bold" fill="#1a3a6e">α_pre ∈ ℝ⁴</text>
+  <text x="710" y="230" font-size="9" fill="#555">(reduce: 4→1)</text>
+
+  <!-- α_pre line: from x to tile (above) -->
+  <line x1="680" y1="225" x2="680" y2="226" stroke="#1a3a6e" stroke-width="1.5"/>
+
+  <!-- from tile to f box (merge) -->
+  <line x1="694" y1="240" x2="730" y2="240" stroke="#333" stroke-width="1.5"/>
+  <line x1="694" y1="280" x2="730" y2="280" stroke="#333" stroke-width="1.5"/>
+  <line x1="694" y1="320" x2="730" y2="320" stroke="#333" stroke-width="1.5"/>
+  <line x1="694" y1="360" x2="730" y2="360" stroke="#333" stroke-width="1.5"/>
+
+  <!-- f box (4 channel input) -->
+  <rect x="730" y="240" width="120" height="120" fill="#fff8e1" stroke="#b8860b" stroke-width="2" rx="4"/>
+  <text x="790" y="285" text-anchor="middle" font-size="14" font-weight="bold" fill="#222">f(x_in)</text>
+  <text x="790" y="304" text-anchor="middle" font-size="10" fill="#666">attn or MoE</text>
+  <text x="790" y="320" text-anchor="middle" font-size="10" fill="#666">applied per-channel</text>
+  <text x="790" y="340" text-anchor="middle" font-size="9" fill="#888">[T, 4·d] → [T, 4·d]</text>
+
+  <!-- f box output → α_post (4 channels out) -->
+  <line x1="850" y1="240" x2="890" y2="240" stroke="#333" stroke-width="1.5"/>
+  <line x1="850" y1="280" x2="890" y2="280" stroke="#333" stroke-width="1.5"/>
+  <line x1="850" y1="320" x2="890" y2="320" stroke="#333" stroke-width="1.5"/>
+  <line x1="850" y1="360" x2="890" y2="360" stroke="#333" stroke-width="1.5"/>
+
+  <!-- α_post weights -->
+  <g font-size="10" fill="#1a3a6e">
+    <circle cx="910" cy="240" r="14" fill="#fff0e8" stroke="#c25a1a" stroke-width="1.5"/>
+    <circle cx="910" cy="280" r="14" fill="#fff0e8" stroke="#c25a1a" stroke-width="1.5"/>
+    <circle cx="910" cy="320" r="14" fill="#fff0e8" stroke="#c25a1a" stroke-width="1.5"/>
+    <circle cx="910" cy="360" r="14" fill="#fff0e8" stroke="#c25a1a" stroke-width="1.5"/>
+  </g>
+  <text x="910" y="395" text-anchor="middle" font-size="10" font-weight="bold" fill="#c25a1a">α_post ∈ ℝ⁴</text>
+  <text x="910" y="408" text-anchor="middle" font-size="9" fill="#666">(post-weight)</text>
+
+  <!-- 4 channels → + → y (4 channel output) -->
+  <line x1="924" y1="240" x2="970" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="924" y1="280" x2="970" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="924" y1="320" x2="970" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <line x1="924" y1="360" x2="970" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+
+  <circle cx="970" cy="300" r="22" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="970" y="305" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a3a6e">+</text>
+
+  <!-- y output (4 channel) -->
+  <line x1="992" y1="300" x2="1024" y2="300" stroke="#333" stroke-width="1.5" marker-end="url(#arr)"/>
+  <g font-size="10" fill="#1a3a6e">
+    <circle cx="1042" cy="240" r="13" fill="#fff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <circle cx="1042" cy="280" r="13" fill="#fff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <circle cx="1042" cy="320" r="13" fill="#fff" stroke="#1a3a6e" stroke-width="1.5"/>
+    <circle cx="1042" cy="360" r="13" fill="#fff" stroke="#1a3a6e" stroke-width="1.5"/>
+  </g>
+  <text x="1042" y="395" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">y ∈ [T, 4·d]</text>
+  <text x="1042" y="408" text-anchor="middle" font-size="9" fill="#666">(4 channels)</text>
+
+  <!-- α_comb box (separate, lower right) -->
+  <rect x="720" y="430" width="180" height="55" fill="#e8f4ff" stroke="#1a3a6e" stroke-width="1.5" rx="4"/>
+  <text x="810" y="455" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">α_comb ∈ ℝ^{4×4}</text>
+  <text x="810" y="473" text-anchor="middle" font-size="10" fill="#1a3a6e">doubly-stochastic matrix</text>
+  <text x="810" y="486" text-anchor="middle" font-size="9" fill="#555">(Sinkhorn-Knopp, §5.3)</text>
+
+  <!-- α_comb applied to residual x_in (curve from x to α_comb to output) -->
+  <path d="M 600 342 Q 540 420 720 460" fill="none" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <path d="M 810 430 L 810 408" fill="none" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="6,3"/>
+  <text x="540" y="405" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">residual path</text>
+  <text x="540" y="419" text-anchor="middle" font-size="9" fill="#555">x_in → α_comb → y</text>
+
+  <!-- formula box right -->
+  <rect x="600" y="510" width="450" height="65" fill="#f0f0f0" stroke="#888" stroke-width="1" rx="4"/>
+  <text x="825" y="535" text-anchor="middle" font-size="14" font-family="Cambria, serif" font-style="italic" fill="#222">
+    y = α_post · f(x_in) + α_comb · x_in
+  </text>
+  <text x="825" y="555" text-anchor="middle" font-size="10" fill="#555">
+    x_in = tile(x, 4); α_comb doubly-stochastic (Sinkhorn)
+  </text>
+  <text x="825" y="568" text-anchor="middle" font-size="10" fill="#555">
+    Output: [T, 4·d] → reduce / pass to next block's hc_pre
+  </text>
+
+  <!-- Footer note -->
+  <text x="550" y="600" text-anchor="middle" font-size="11" fill="#1a3a6e" font-style="italic">
+    Sinkhorn-Knopp projection (§5.3) guarantees α_comb is a doubly-stochastic matrix — the key to mHC's deep-stability.
+  </text>
+</svg>

@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 680" width="880" height="680" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-shared { fill: #f4f4f4; stroke: #1a3a6e; stroke-width: 2; }
+    .expert-idle { fill: #fff; stroke: #bbb; stroke-width: 0.6; }
+    .expert-active { fill: #1a3a6e; stroke: #000; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .label-active { fill: #fff; font-weight: bold; font-size: 7px; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .arrow-shared { stroke: #1a3a6e; stroke-width: 1.5; fill: none; stroke-dasharray: 3 2; marker-end: url(#a-hl); }
+    .arrow-active { stroke: #1a3a6e; stroke-width: 1.8; fill: none; marker-end: url(#a-hl); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- ============ 标题 + 超参 ============ -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">V4-Flash MoE 拓扑：1 shared + 256 routed, top-6 selected</text>
+  <text class="annot" x="860" y="22" text-anchor="end">E=256  k=6  shared=1  num_hash_layers=3  route_scale=1.5</text>
+
+  <!-- ============ Input token x ============ -->
+  <rect class="box" x="370" y="50" width="140" height="30"/>
+  <text class="label" x="440" y="69" text-anchor="middle">token x &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">4096</tspan></text>
+  <line class="arrow" x1="440" y1="80" x2="440" y2="108"/>
+
+  <!-- ============ Gating 框 ============ -->
+  <rect class="box-hl" x="120" y="108" width="640" height="172" rx="3"/>
+  <text class="label-hl" x="440" y="128" text-anchor="middle" font-weight="bold">Gating (Gate.forward) — W<tspan baseline-shift="sub" font-size="smaller">g</tspan> &#183; x  &#10230;  sqrtsoftplus  &#10230;  +bias  &#10230;  top-6</text>
+
+  <!-- Gating 子步骤（左侧 3 个） -->
+  <rect class="box" x="160" y="145" width="280" height="28"/>
+  <text class="label" x="300" y="163" text-anchor="middle">W<tspan baseline-shift="sub" font-size="smaller">g</tspan> &#183; x  &#10230;  [256 scores]</text>
+
+  <rect class="box" x="160" y="180" width="280" height="28"/>
+  <text class="label" x="300" y="198" text-anchor="middle">sqrtsoftplus( &#183; )   <tspan class="annot">[ &#8800; sigmoid! ]</tspan></text>
+
+  <rect class="box" x="160" y="215" width="280" height="28"/>
+  <text class="label" x="300" y="233" text-anchor="middle">+ aux-loss-free bias b<tspan baseline-shift="sub" font-size="smaller">e</tspan>  <tspan class="annot">[topk only]</tspan></text>
+
+  <!-- Gating 内：top-6 select 框（右侧） -->
+  <rect class="box-hl" x="470" y="170" width="250" height="65"/>
+  <text class="label-hl" x="595" y="192" text-anchor="middle" font-weight="bold">top-6 select</text>
+  <text class="annot" x="595" y="210" text-anchor="middle">indices [6]  (前 3 层：hash routing)</text>
+  <text class="annot" x="595" y="225" text-anchor="middle">&#8593; 决定哪 6 个 expert 被激活</text>
+
+  <!-- Gating 输出箭头 -->
+  <line class="arrow-hl" x1="440" y1="280" x2="440" y2="300"/>
+
+  <!-- ============ 路由专家区 子标题 ============ -->
+  <text class="label-hl" x="220" y="320" text-anchor="middle" font-weight="bold">256 routed experts (FP4, block=32) — 12&#215;12 = 144 visible</text>
+  <text class="annot" x="220" y="335" text-anchor="middle">top-6 selected highlighted in dark blue (#1a3a6e); 250 omitted</text>
+
+  <!-- ============ 12&#215;12 = 144 expert 网格 ============ -->
+  <g transform="translate(80, 350)">
+    <rect class="expert-active" x="0" y="0" width="18" height="16"/>
+    <text class="label-active" x="9.0" y="11.0" text-anchor="middle">e0</text>
+    <rect class="expert-idle" x="18" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="0" width="18" height="16"/>
+    <rect class="expert-active" x="90" y="0" width="18" height="16"/>
+    <text class="label-active" x="99.0" y="11.0" text-anchor="middle">e100</text>
+    <rect class="expert-idle" x="108" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="0" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="16" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="32" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="48" width="18" height="16"/>
+    <rect class="expert-active" x="36" y="48" width="18" height="16"/>
+    <text class="label-active" x="45.0" y="59.0" text-anchor="middle">e48</text>
+    <rect class="expert-idle" x="54" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="48" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="64" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="80" width="18" height="16"/>
+    <rect class="expert-active" x="144" y="80" width="18" height="16"/>
+    <text class="label-active" x="153.0" y="91.0" text-anchor="middle">e205</text>
+    <rect class="expert-idle" x="162" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="80" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="96" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="112" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="128" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="144" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="144" width="18" height="16"/>
+    <rect class="expert-active" x="0" y="160" width="18" height="16"/>
+    <text class="label-active" x="9.0" y="171.0" text-anchor="middle">e156</text>
+    <rect class="expert-idle" x="18" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="160" width="18" height="16"/>
+    <rect class="expert-active" x="180" y="160" width="18" height="16"/>
+    <text class="label-active" x="189.0" y="171.0" text-anchor="middle">e231</text>
+    <rect class="expert-idle" x="198" y="160" width="18" height="16"/>
+    <rect class="expert-idle" x="0" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="18" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="36" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="54" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="72" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="90" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="108" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="126" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="144" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="162" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="180" y="176" width="18" height="16"/>
+    <rect class="expert-idle" x="198" y="176" width="18" height="16"/>
+  </g>
+
+  <!-- 网格列标 / 行标（学术化细节） -->
+  <text class="annot" x="78" y="362" text-anchor="end">e0&#8594;</text>
+  <text class="annot" x="78" y="378" text-anchor="end">...</text>
+  <text class="annot" x="298" y="552" text-anchor="start">... e255</text>
+
+  <!-- ============ 1 shared expert 框（始终在线） ============ -->
+  <rect class="box-shared" x="630" y="370" width="210" height="180" rx="3"/>
+  <text class="label-hl" x="735" y="400" text-anchor="middle" font-weight="bold" font-size="13">1 shared</text>
+  <text class="label-hl" x="735" y="418" text-anchor="middle" font-weight="bold" font-size="13">expert</text>
+  <line stroke="#1a3a6e" stroke-width="1" x1="660" y1="430" x2="810" y2="430"/>
+  <text class="annot" x="735" y="450" text-anchor="middle">always active</text>
+  <text class="annot" x="735" y="465" text-anchor="middle">FP8 / SwiGLU</text>
+  <text class="annot" x="735" y="480" text-anchor="middle">dim = 4096</text>
+  <text class="annot-hl" x="735" y="505" text-anchor="middle" font-weight="bold">+ additive to</text>
+  <text class="annot-hl" x="735" y="520" text-anchor="middle" font-weight="bold">routed output</text>
+  <text class="annot" x="735" y="540" text-anchor="middle">(no gating score)</text>
+
+  <!-- 汇聚箭头（专家区 → 公式） -->
+  <line class="arrow" x1="188" y1="552" x2="188" y2="600"/>
+  <text class="annot" x="200" y="578">routed</text>
+  <line class="arrow-shared" x1="735" y1="550" x2="735" y2="600"/>
+  <text class="annot" x="745" y="578">shared</text>
+
+  <!-- ============ 输出公式 ============ -->
+  <rect class="box" x="40" y="600" width="800" height="40"/>
+  <text class="label" x="440" y="622" text-anchor="middle" font-weight="bold">y = shared(x) + route_scale &#183; &#931;<tspan baseline-shift="sub" font-size="smaller">i&#8712;top6</tspan> softmax(g)[i] &#183; expert<tspan baseline-shift="sub" font-size="smaller">i</tspan>(x)</text>
+  <text class="annot" x="440" y="635" text-anchor="middle">route_scale = 1.5 (V4 独有)；g = sqrtsoftplus(W<tspan baseline-shift="sub" font-size="smaller">g</tspan> &#183; x) [不带 bias 的原始分]</text>
+
+  <!-- ============ Legend ============ -->
+  <text class="annot" x="40" y="660" font-weight="bold">图例：</text>
+  <rect class="expert-active" x="80" y="652" width="12" height="12"/>
+  <text class="annot" x="96" y="662">top-6 selected routed (e0, e48, e100, e156, e205, e231)</text>
+  <rect class="expert-idle" x="370" y="652" width="12" height="12"/>
+  <text class="annot" x="386" y="662">138 idle (visible subset of 250)</text>
+  <rect class="box-shared" x="560" y="652" width="12" height="12"/>
+  <text class="annot" x="576" y="662">1 shared expert (always on)</text>
+  <text class="annot" x="730" y="662" font-style="italic">前 3 层：hash routing</text>
+</svg>

@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720" width="880" height="720" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-csa { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 1.5; }
+    .box-hca { fill: #fdf4e3; stroke: #b8721a; stroke-width: 1.5; }
+    .box-win { fill: #f4f4f4; stroke: #000; stroke-width: 1.5; stroke-dasharray: 4 2; }
+    .box-shared { fill: #e0f0e0; stroke: #2e7d32; stroke-width: 2; stroke-dasharray: 4 2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .label-csa { fill: #1a3a6e; font-weight: bold; }
+    .label-hca { fill: #b8721a; font-weight: bold; }
+    .label-shared { fill: #2e7d32; font-weight: bold; }
+    .annot { fill: #444; font-size: 9.5px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9.5px; font-weight: bold; }
+    .annot-csa { fill: #1a3a6e; font-size: 9px; }
+    .annot-hca { fill: #b8721a; font-size: 9px; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">CSA + HCA Hybrid: Layer-wise Alternation in V4-Flash</text>
+  <text class="annot" x="440" y="38" text-anchor="middle">公式 (3.7):  layer_i = pure_sliding | CSA (m=4) | HCA (m=128)  per compress_ratios[layer_id]</text>
+
+  <!-- compress_ratios 表 (顶部) -->
+  <g transform="translate(40, 60)">
+    <text class="label-hl" x="400" y="14" text-anchor="middle">V4-Flash compress_ratios (44 entries, first 43 used)</text>
+
+    <!-- 缩略图：43 层的颜色块 -->
+    <g transform="translate(0, 24)">
+      <!-- Layer 0: 纯滑窗 -->
+      <rect class="box-win" x="0" y="0" width="18" height="40"/>
+      <text class="annot" x="9" y="22" text-anchor="middle" font-size="8">L0</text>
+      <text class="annot" x="9" y="32" text-anchor="middle" font-size="8">win</text>
+      <!-- Layer 1: 纯滑窗 -->
+      <rect class="box-win" x="18" y="0" width="18" height="40"/>
+      <text class="annot" x="27" y="22" text-anchor="middle" font-size="8">L1</text>
+      <text class="annot" x="27" y="32" text-anchor="middle" font-size="8">win</text>
+      <!-- Layer 2-42 交替 CSA / HCA -->
+      <rect class="box-csa" x="36" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="45" y="22" text-anchor="middle" font-size="8">L2</text>
+      <text class="annot-csa" x="45" y="32" text-anchor="middle" font-size="8">CSA</text>
+      <rect class="box-hca" x="54" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="63" y="22" text-anchor="middle" font-size="8">L3</text>
+      <text class="annot-hca" x="63" y="32" text-anchor="middle" font-size="8">HCA</text>
+      <rect class="box-csa" x="72" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="81" y="22" text-anchor="middle" font-size="8">L4</text>
+      <rect class="box-hca" x="90" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="99" y="22" text-anchor="middle" font-size="8">L5</text>
+      <rect class="box-csa" x="108" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="117" y="22" text-anchor="middle" font-size="8">L6</text>
+      <rect class="box-hca" x="126" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="135" y="22" text-anchor="middle" font-size="8">L7</text>
+      <rect class="box-csa" x="144" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="153" y="22" text-anchor="middle" font-size="8">L8</text>
+      <rect class="box-hca" x="162" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="171" y="22" text-anchor="middle" font-size="8">L9</text>
+      <rect class="box-csa" x="180" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="189" y="22" text-anchor="middle" font-size="8">L10</text>
+      <rect class="box-hca" x="198" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="207" y="22" text-anchor="middle" font-size="8">L11</text>
+      <rect class="box-csa" x="216" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="225" y="22" text-anchor="middle" font-size="8">L12</text>
+      <rect class="box-hca" x="234" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="243" y="22" text-anchor="middle" font-size="8">L13</text>
+      <rect class="box-csa" x="252" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="261" y="22" text-anchor="middle" font-size="8">L14</text>
+      <rect class="box-hca" x="270" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="279" y="22" text-anchor="middle" font-size="8">L15</text>
+      <rect class="box-csa" x="288" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="297" y="22" text-anchor="middle" font-size="8">L16</text>
+      <rect class="box-hca" x="306" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="315" y="22" text-anchor="middle" font-size="8">L17</text>
+      <rect class="box-csa" x="324" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="333" y="22" text-anchor="middle" font-size="8">L18</text>
+      <rect class="box-hca" x="342" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="351" y="22" text-anchor="middle" font-size="8">L19</text>
+      <rect class="box-csa" x="360" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="369" y="22" text-anchor="middle" font-size="8">L20</text>
+      <rect class="box-hca" x="378" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="387" y="22" text-anchor="middle" font-size="8">L21</text>
+      <rect class="box-csa" x="396" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="405" y="22" text-anchor="middle" font-size="8">L22</text>
+      <rect class="box-hca" x="414" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="423" y="22" text-anchor="middle" font-size="8">L23</text>
+      <rect class="box-csa" x="432" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="441" y="22" text-anchor="middle" font-size="8">L24</text>
+      <rect class="box-hca" x="450" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="459" y="22" text-anchor="middle" font-size="8">L25</text>
+      <rect class="box-csa" x="468" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="477" y="22" text-anchor="middle" font-size="8">L26</text>
+      <rect class="box-hca" x="486" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="495" y="22" text-anchor="middle" font-size="8">L27</text>
+      <rect class="box-csa" x="504" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="513" y="22" text-anchor="middle" font-size="8">L28</text>
+      <rect class="box-hca" x="522" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="531" y="22" text-anchor="middle" font-size="8">L29</text>
+      <rect class="box-csa" x="540" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="549" y="22" text-anchor="middle" font-size="8">L30</text>
+      <rect class="box-hca" x="558" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="567" y="22" text-anchor="middle" font-size="8">L31</text>
+      <rect class="box-csa" x="576" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="585" y="22" text-anchor="middle" font-size="8">L32</text>
+      <rect class="box-hca" x="594" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="603" y="22" text-anchor="middle" font-size="8">L33</text>
+      <rect class="box-csa" x="612" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="621" y="22" text-anchor="middle" font-size="8">L34</text>
+      <rect class="box-hca" x="630" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="639" y="22" text-anchor="middle" font-size="8">L35</text>
+      <rect class="box-csa" x="648" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="657" y="22" text-anchor="middle" font-size="8">L36</text>
+      <rect class="box-hca" x="666" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="675" y="22" text-anchor="middle" font-size="8">L37</text>
+      <rect class="box-csa" x="684" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="693" y="22" text-anchor="middle" font-size="8">L38</text>
+      <rect class="box-hca" x="702" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="711" y="22" text-anchor="middle" font-size="8">L39</text>
+      <rect class="box-csa" x="720" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="729" y="22" text-anchor="middle" font-size="8">L40</text>
+      <rect class="box-hca" x="738" y="0" width="18" height="40"/>
+      <text class="annot-hca" x="747" y="22" text-anchor="middle" font-size="8">L41</text>
+      <rect class="box-csa" x="756" y="0" width="18" height="40"/>
+      <text class="annot-csa" x="765" y="22" text-anchor="middle" font-size="8">L42</text>
+      <rect class="box-win" x="774" y="0" width="18" height="40"/>
+      <text class="annot" x="783" y="22" text-anchor="middle" font-size="8">L43</text>
+      <text class="annot" x="783" y="32" text-anchor="middle" font-size="8">win</text>
+    </g>
+
+    <!-- 计数标签 -->
+    <text class="annot" x="0" y="86" font-size="9">3 win</text>
+    <text class="annot-csa" x="200" y="86" font-size="9" fill="#1a3a6e" font-weight="bold">21 CSA (m=4)</text>
+    <text class="annot-hca" x="450" y="86" font-size="9" fill="#b8721a" font-weight="bold">21 HCA (m=128)</text>
+  </g>
+
+  <!-- 三列：左 win | 中 CSA | 右 HCA -->
+  <g transform="translate(40, 170)">
+    <!-- 左列：纯滑窗 -->
+    <g>
+      <rect class="box-win" x="0" y="0" width="240" height="220"/>
+      <text class="label" x="120" y="20" text-anchor="middle" font-weight="bold">Pure Sliding Window</text>
+      <text class="annot" x="120" y="36" text-anchor="middle">compress_ratios[i] = 0</text>
+      <text class="annot" x="120" y="50" text-anchor="middle">Layers: 0, 1, 43 (3 layers)</text>
+
+      <line x1="20" y1="60" x2="220" y2="60" stroke="#888" stroke-dasharray="3 2"/>
+
+      <text class="annot" x="20" y="78">window_size = 128</text>
+      <text class="annot" x="20" y="94">kv_cache size = 128</text>
+      <text class="annot" x="20" y="108">flash_attn over 128 tokens</text>
+
+      <text class="annot-hl" x="20" y="132">flops: O(T x 128 x d)</text>
+      <text class="annot-hl" x="20" y="148">cache: 128 x d x 2</text>
+
+      <text class="annot" x="20" y="172">No Compressor, No Indexer</text>
+      <text class="annot" x="20" y="186">Standard RoPE (no YaRN)</text>
+      <text class="annot" x="20" y="200">FP8 KV cache (block=128)</text>
+    </g>
+
+    <!-- 中列：CSA -->
+    <g transform="translate(280, 0)">
+      <rect class="box-csa" x="0" y="0" width="240" height="220"/>
+      <text class="label-csa" x="120" y="20" text-anchor="middle" font-weight="bold">CSA (m=4, with Indexer)</text>
+      <text class="annot" x="120" y="36" text-anchor="middle">compress_ratios[i] = 4</text>
+      <text class="annot" x="120" y="50" text-anchor="middle">Layers: 2,4,6,...,42 (21 layers)</text>
+
+      <line x1="20" y1="60" x2="220" y2="60" stroke="#888" stroke-dasharray="3 2"/>
+
+      <text class="annot" x="20" y="78">Compressor (m=4, overlap=True)</text>
+      <text class="annot" x="20" y="94">Indexer (Hadamard + FP4)</text>
+      <text class="annot" x="20" y="108">top-k=512 score-based</text>
+
+      <text class="annot-hl" x="20" y="132">flops: O(T^2/4 + T*512)</text>
+      <text class="annot-hl" x="20" y="148">cache: (T/4 + 128) x d x 2</text>
+
+      <text class="annot" x="20" y="172">YaRN RoPE (compress_rope_theta)</text>
+      <text class="annot" x="20" y="186">FP8 simulate (QAT)</text>
+      <text class="annot" x="20" y="200">window + compress concat</text>
+    </g>
+
+    <!-- 右列：HCA -->
+    <g transform="translate(560, 0)">
+      <rect class="box-hca" x="0" y="0" width="240" height="220"/>
+      <text class="label-hca" x="120" y="20" text-anchor="middle" font-weight="bold">HCA (m=128, no Indexer)</text>
+      <text class="annot" x="120" y="36" text-anchor="middle">compress_ratios[i] = 128</text>
+      <text class="annot" x="120" y="50" text-anchor="middle">Layers: 3,5,7,...,41 (21 layers)</text>
+
+      <line x1="20" y1="60" x2="220" y2="60" stroke="#888" stroke-dasharray="3 2"/>
+
+      <text class="annot" x="20" y="78">Compressor (m=128, overlap=False)</text>
+      <text class="annot" x="20" y="94">get_compress_topk_idxs (positions)</text>
+      <text class="annot" x="20" y="108">top-k=512 position-based</text>
+
+      <text class="annot-hl" x="20" y="132">flops: O(T^2/128 + T*512)</text>
+      <text class="annot-hl" x="20" y="148">cache: (T/128 + 128) x d x 2</text>
+
+      <text class="annot" x="20" y="172">YaRN RoPE (compress_rope_theta)</text>
+      <text class="annot" x="20" y="186">FP8 simulate (QAT)</text>
+      <text class="annot" x="20" y="200">no Indexer = save FP4/Hadamard</text>
+    </g>
+  </g>
+
+  <!-- 底部：共享 MQA-KV + window 拼接 -->
+  <g transform="translate(40, 410)">
+    <rect class="box-shared" x="0" y="0" width="800" height="200"/>
+    <text class="label-shared" x="400" y="20" text-anchor="middle">Shared across all 43 layers</text>
+
+    <g transform="translate(20, 40)">
+      <rect class="box" x="0" y="0" width="370" height="60"/>
+      <text class="label" x="185" y="18" text-anchor="middle" font-weight="bold">MQA-KV (num_kv_heads=1)</text>
+      <text class="annot" x="185" y="34" text-anchor="middle">All 64 Q heads share 1 KV head (head_dim=512)</text>
+      <text class="annot" x="185" y="48" text-anchor="middle">wkv = Linear(dim, head_dim)  (single projection)</text>
+    </g>
+
+    <g transform="translate(410, 40)">
+      <rect class="box" x="0" y="0" width="370" height="60"/>
+      <text class="label" x="185" y="18" text-anchor="middle" font-weight="bold">Grouped low-rank O (o_groups=8)</text>
+      <text class="annot" x="185" y="34" text-anchor="middle">wo_a: (n_heads * head_dim / 8) -> o_lora_rank (1024)</text>
+      <text class="annot" x="185" y="48" text-anchor="middle">wo_b: 8 * 1024 -> dim  (per group, low-rank)</text>
+    </g>
+
+    <g transform="translate(20, 120)">
+      <rect class="box-hl" x="0" y="0" width="760" height="60"/>
+      <text class="label-hl" x="380" y="18" text-anchor="middle" font-weight="bold">window_size=128 prefix (always prepended)</text>
+      <text class="annot" x="380" y="34" text-anchor="middle">公式 (3.7): topk_idxs = cat([window_topk_idxs, compress_topk_idxs], dim=-1)</text>
+      <text class="annot" x="380" y="48" text-anchor="middle">无论本层是纯滑窗 / CSA / HCA, 前 128 个位置都是 raw K,V (不压缩), 最近的 token 总是 raw attention</text>
+    </g>
+  </g>
+
+  <!-- 底部注释 -->
+  <g transform="translate(0, 630)">
+    <rect class="box" x="20" y="0" width="840" height="80"/>
+    <text class="label-hl" x="30" y="18">逐层交替的工程取舍:</text>
+    <text class="annot" x="30" y="34">- 全部 CSA: FLOPs 省 4x, cache 仍占 25% of V3.2</text>
+    <text class="annot" x="30" y="48">- 全部 HCA: cache 省 128x, 但 m=128 损失太多细节, 质量下降</text>
+    <text class="annot" x="30" y="62">- 交替: CSA 隔层"补细节", HCA 隔层"省算力" — 既保质又省 FLOPs/cache</text>
+    <text class="annot" x="30" y="76">Source: model.py L453 (compress_ratio 决定), L466-L471 (分支创建), L508-L514 (topk 拼接).</text>
+  </g>
+</svg>

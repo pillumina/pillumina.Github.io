@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 720" width="880" height="720" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .box-warn { fill: #fde8e8; stroke: #b22; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9.5px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9.5px; font-weight: bold; }
+    .annot-warn { fill: #b22; font-size: 10px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .matrix { fill: #ddd; stroke: #000; stroke-width: 1; }
+    .matrix-up { fill: #fff; stroke: #888; stroke-width: 0.5; }
+    .matrix-low { fill: #bcd; stroke: #000; stroke-width: 0.5; }
+    .matrix-diag { fill: #1a3a6e; stroke: #000; stroke-width: 0.5; }
+    .tbl-row { fill: #fafafa; stroke: #000; stroke-width: 0.8; }
+    .tbl-row-hl { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 1.2; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">Standard Attention at T=1M: Complexity Disaster</text>
+  <text class="annot" x="440" y="38" text-anchor="middle">Why V4 needs CSA + HCA — V3.2 MLA only compresses cache, not compute</text>
+
+  <!-- 左侧：N x N 矩阵示意 -->
+  <g transform="translate(30, 60)">
+    <text class="label-hl" x="100" y="14" text-anchor="middle">Causal Attention Matrix (T=1M)</text>
+    <text class="annot" x="100" y="28" text-anchor="middle">T x T = 1.1 x 10^12 entries</text>
+
+    <!-- 下三角 active 区 (causal mask 允许的区域, 浅蓝) -->
+    <polygon class="matrix-low" points="0,40 0,240 200,240" fill="#bcd" stroke="#000" stroke-width="1"/>
+    <!-- 上三角 masked 区 (白色) -->
+    <polygon class="matrix-up" points="0,40 200,40 200,240" fill="#fff" stroke="#000" stroke-width="1"/>
+
+    <!-- 对角线 -->
+    <line x1="0" y1="40" x2="200" y2="240" class="matrix-diag" stroke-width="2.5"/>
+
+    <!-- 区域标签 -->
+    <text class="annot" x="148" y="100" text-anchor="middle">Upper triangle</text>
+    <text class="annot" x="148" y="114" text-anchor="middle">(masked out)</text>
+    <text class="annot" x="55" y="200" text-anchor="middle" fill="#1a3a6e">Lower triangle</text>
+    <text class="annot" x="55" y="214" text-anchor="middle" fill="#1a3a6e">(causal mask</text>
+    <text class="annot" x="55" y="228" text-anchor="middle" fill="#1a3a6e">active)</text>
+
+    <text class="annot-hl" x="208" y="50" fill="#1a3a6e">diagonal</text>
+
+    <!-- 边框 -->
+    <rect x="0" y="40" width="200" height="200" fill="none" stroke="#000" stroke-width="1.5"/>
+
+    <!-- 轴标 -->
+    <text class="annot" x="100" y="256" text-anchor="middle">positions 0 ... T-1</text>
+    <text class="annot" x="-8" y="140" text-anchor="end" transform="rotate(-90, -8, 140)">positions 0 ... T-1</text>
+
+    <!-- 数字标注 -->
+    <text class="annot-warn" x="100" y="278" text-anchor="middle">active entries: T(T+1)/2 ~ 5.5e11</text>
+    <text class="annot-warn" x="100" y="292" text-anchor="middle">flops: 5.5e11 x d x 2 ~ 4.5e15 per layer</text>
+    <text class="annot-warn" x="100" y="306" text-anchor="middle">43 layers total: ~1.9e17 flops</text>
+
+    <!-- 与 V3.2 比较 -->
+    <g transform="translate(0, 330)">
+      <rect class="box" x="0" y="0" width="200" height="80"/>
+      <text class="label-hl" x="100" y="16" text-anchor="middle">V3.2 MLA: cache only</text>
+      <text class="annot" x="100" y="32" text-anchor="middle">cache = T x d_c x 2</text>
+      <text class="annot" x="100" y="46" text-anchor="middle">= 1M x 512 x 120 = 240 GB</text>
+      <text class="annot" x="100" y="60" text-anchor="middle">compute: still O(T^2 d)</text>
+      <text class="annot-warn" x="100" y="74" text-anchor="middle">~ 5x less cache, but FLOPs same</text>
+    </g>
+  </g>
+
+  <!-- 右侧：复杂度分项表 -->
+  <g transform="translate(250, 60)">
+    <text class="label-hl" x="310" y="14" text-anchor="middle">Complexity Breakdown (per-layer, T=1M)</text>
+
+    <!-- 表头 -->
+    <rect class="box" x="0" y="28" width="620" height="22"/>
+    <text class="label" x="10" y="44" font-weight="bold">Operation</text>
+    <text class="label" x="240" y="44" font-weight="bold">FLOPs / token</text>
+    <text class="label" x="380" y="44" font-weight="bold">Cache entries</text>
+    <text class="label" x="510" y="44" font-weight="bold">V3.2 MLA</text>
+
+    <!-- 行 1: QK^T -->
+    <rect class="tbl-row" x="0" y="50" width="620" height="22"/>
+    <text class="annot" x="10" y="65">QK^T (per query)</text>
+    <text class="annot" x="240" y="65">2 T d = 8.6e9</text>
+    <text class="annot" x="380" y="65">N/A (no cache)</text>
+    <text class="annot" x="510" y="65">same: 8.6e9</text>
+
+    <!-- 行 2: Softmax -->
+    <rect class="tbl-row" x="0" y="72" width="620" height="22"/>
+    <text class="annot" x="10" y="87">Softmax (QK^T / sqrt(d))</text>
+    <text class="annot" x="240" y="87">O(T) = 1.0e6</text>
+    <text class="annot" x="380" y="87">N/A</text>
+    <text class="annot" x="510" y="87">same: 1.0e6</text>
+
+    <!-- 行 3: Score @ V -->
+    <rect class="tbl-row" x="0" y="94" width="620" height="22"/>
+    <text class="annot" x="10" y="109">Score @ V</text>
+    <text class="annot" x="240" y="109">2 T d = 8.6e9</text>
+    <text class="annot" x="380" y="109">N/A</text>
+    <text class="annot" x="510" y="109">same: 8.6e9</text>
+
+    <!-- 行 4: KV cache (attention layer only) -->
+    <rect class="tbl-row" x="0" y="116" width="620" height="22"/>
+    <text class="annot" x="10" y="131">KV cache per layer (FP16)</text>
+    <text class="annot" x="240" y="131">read: 2 T d = 8.6e9</text>
+    <text class="annot" x="380" y="131">T x d x 2 = 8.6e9</text>
+    <text class="annot" x="510" y="131">T x d_c x 2 = 1.1e9</text>
+
+    <!-- 行 5: end-to-end forward (1 token decode) -->
+    <rect class="tbl-row-hl" x="0" y="138" width="620" height="22"/>
+    <text class="annot-hl" x="10" y="153">TOTAL: 1-token decode at T=1M</text>
+    <text class="annot-hl" x="240" y="153">~ 1.7e10 flops</text>
+    <text class="annot-hl" x="380" y="153">8.6e9 / layer</text>
+    <text class="annot-hl" x="510" y="153">1.1e9 / layer</text>
+
+    <!-- 整图：L=43 累计 -->
+    <rect class="box" x="0" y="170" width="620" height="56"/>
+    <text class="label-hl" x="10" y="186">43 layers total:</text>
+    <text class="annot" x="10" y="202">- FLOPs: 43 x 1.7e10 ~ 7.3e11 (without MoE)</text>
+    <text class="annot" x="10" y="216">- Cache: 43 x 8.6e9 ~ 3.7e11 float ~ 1.4 TB (FP16)</text>
+    <text class="annot-warn" x="310" y="216" text-anchor="middle">V3.2: 240 GB / 100% flops</text>
+  </g>
+
+  <!-- 右侧底部：V4 解法 -->
+  <g transform="translate(250, 320)">
+    <rect class="box-hl" x="0" y="0" width="620" height="220"/>
+    <text class="label-hl" x="310" y="20" text-anchor="middle" font-size="13">V4 Solution: CSA + HCA Hybrid</text>
+    <text class="annot" x="10" y="38">CSA (m=4, k=512):</text>
+    <text class="annot" x="170" y="38">flops: O(T^2/4 + T x 512) ~ 2.5e11</text>
+    <text class="annot-hl" x="500" y="38" fill="#1a3a6e">~ 25% of standard</text>
+
+    <text class="annot" x="10" y="56">HCA (m=128, k=512):</text>
+    <text class="annot" x="170" y="56">flops: O(T^2/128 + T x 512) ~ 9.3e9</text>
+    <text class="annot-hl" x="500" y="56" fill="#1a3a6e">~ 1% of standard</text>
+
+    <text class="annot" x="10" y="74">Hybrid (50% CSA + 50% HCA):</text>
+    <text class="annot" x="170" y="74">~ 1.3e11 flops</text>
+    <text class="annot-hl" x="500" y="74" fill="#1a3a6e">~ 8% of standard</text>
+
+    <line x1="0" y1="86" x2="620" y2="86" stroke="#888" stroke-dasharray="3 2"/>
+
+    <text class="label-hl" x="10" y="106">V4 official numbers (1M context, per token):</text>
+
+    <g transform="translate(10, 122)">
+      <rect class="box" x="0" y="0" width="190" height="80"/>
+      <text class="label" x="95" y="18" text-anchor="middle" font-weight="bold">V3.2 (MLA)</text>
+      <text class="annot" x="95" y="38" text-anchor="middle">FLOPs: 100%</text>
+      <text class="annot" x="95" y="54" text-anchor="middle">KV cache: 100%</text>
+      <text class="annot" x="95" y="70" text-anchor="middle">= 240 GB</text>
+    </g>
+
+    <g transform="translate(215, 122)">
+      <rect class="box" x="0" y="0" width="190" height="80"/>
+      <text class="label" x="95" y="18" text-anchor="middle" font-weight="bold">V4-Pro</text>
+      <text class="annot" x="95" y="38" text-anchor="middle">FLOPs: 27%</text>
+      <text class="annot" x="95" y="54" text-anchor="middle">KV cache: 10%</text>
+      <text class="annot" x="95" y="70" text-anchor="middle">= 24 GB</text>
+    </g>
+
+    <g transform="translate(420, 122)">
+      <rect class="box-hl" x="0" y="0" width="190" height="80"/>
+      <text class="label-hl" x="95" y="18" text-anchor="middle" font-weight="bold">V4-Flash</text>
+      <text class="annot-hl" x="95" y="38" text-anchor="middle">FLOPs: ~10%</text>
+      <text class="annot-hl" x="95" y="54" text-anchor="middle">KV cache: ~7%</text>
+      <text class="annot-hl" x="95" y="70" text-anchor="middle">= ~17 GB</text>
+    </g>
+  </g>
+
+  <!-- 底部注释 -->
+  <g transform="translate(0, 590)">
+    <rect class="box" x="20" y="0" width="840" height="110"/>
+    <text class="label-hl" x="30" y="18">Key insight:</text>
+    <text class="annot" x="100" y="18">T=1M makes the N x N matrix 5.5e11 entries. Standard attention is FLOPs-bound AND cache-bound.</text>
+
+    <text class="label-hl" x="30" y="36">V3.2 (MLA):</text>
+    <text class="annot" x="100" y="36">cache 8x smaller (d_c=512 vs d=4096) but compute still O(T^2 d). Insufficient at 1M.</text>
+
+    <text class="label-hl" x="30" y="54">V4 (CSA + HCA):</text>
+    <text class="annot" x="100" y="54">CSA sparsifies the N x N matrix along time (m=4); HCA sparsifies it 32x further (m=128). Hybrid = ~10% flops, ~7% cache.</text>
+
+    <text class="label-hl" x="30" y="72">Phase 11:</text>
+    <text class="annot" x="100" y="72">HTML 互动版 add V3.2 ↔ V4 toggle to switch complexity rows; each cell shows the formula.</text>
+
+    <text class="annot" x="30" y="96">Source: V4 technical report §1 (V4-Pro/Flash FLOPs / KV cache percentages), CH3.5 (theoretical derivation).</text>
+  </g>
+</svg>

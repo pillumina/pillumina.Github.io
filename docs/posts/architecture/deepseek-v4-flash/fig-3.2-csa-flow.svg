@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" width="880" height="660" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-shared { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 2; stroke-dasharray: 4 2; }
+    .box-indexer { fill: #fdf4e3; stroke: #b8721a; stroke-width: 2; stroke-dasharray: 4 2; }
+    .box-formula { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .label-idx { fill: #b8721a; font-weight: bold; }
+    .annot { fill: #444; font-size: 9.5px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9.5px; font-weight: bold; }
+    .annot-idx { fill: #b8721a; font-size: 9.5px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .arrow-idx { stroke: #b8721a; stroke-width: 1.5; fill: none; marker-end: url(#a-idx); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="a-idx" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">CSA: Compressed Sparse Attention</text>
+  <text class="annot" x="440" y="38" text-anchor="middle">x -> Compressor(m=4) -> Indexer -> top-k=512 -> Sparse Attention</text>
+
+  <!-- 步骤 1: x -->
+  <g transform="translate(40, 70)">
+    <rect class="box-hl" x="0" y="0" width="120" height="50"/>
+    <text class="label-hl" x="60" y="20" text-anchor="middle">1. Input x</text>
+    <text class="annot" x="60" y="35" text-anchor="middle">shape: [T, d]</text>
+    <text class="annot-hl" x="60" y="46" text-anchor="middle">T x d = 1M x 4096</text>
+  </g>
+
+  <!-- 步骤 2: 共享 Compressor (m=4) -->
+  <g transform="translate(40, 170)">
+    <rect class="box-shared" x="0" y="0" width="320" height="160"/>
+    <text class="label-hl" x="160" y="20" text-anchor="middle">2. Shared Compressor (m=4, overlap=True)</text>
+    <text class="annot" x="160" y="35" text-anchor="middle">公式 (3.1):  c_K, c_V = CComp_KV(x)</text>
+
+    <!-- K 路径 -->
+    <rect class="box" x="20" y="50" width="130" height="40"/>
+    <text class="label" x="85" y="68" text-anchor="middle">wkv(x) [fp32]</text>
+    <text class="annot" x="85" y="80" text-anchor="middle">softmax-pool</text>
+
+    <!-- V 路径 -->
+    <rect class="box" x="170" y="50" width="130" height="40"/>
+    <text class="label" x="235" y="68" text-anchor="middle">wgate(x) [fp32]</text>
+    <text class="annot" x="235" y="80" text-anchor="middle">score weight</text>
+
+    <text class="annot" x="160" y="108" text-anchor="middle">kv = (kv * score.softmax(dim=2)).sum(dim=2)</text>
+    <text class="annot" x="160" y="122" text-anchor="middle">overlap window 2m=8 for boundary smoothness</text>
+    <text class="annot-hl" x="160" y="140" text-anchor="middle">Output: c_K, c_V in R^[T/4, d]</text>
+    <text class="annot-hl" x="160" y="152" text-anchor="middle">= 262,144 x 4096 (1/4 of raw)</text>
+  </g>
+
+  <!-- 步骤 3: 独立 Indexer -->
+  <g transform="translate(40, 360)">
+    <rect class="box-indexer" x="0" y="0" width="320" height="200"/>
+    <text class="label-idx" x="160" y="20" text-anchor="middle">3. Indexer (CSA-only, m=4)</text>
+    <text class="annot-idx" x="160" y="35" text-anchor="middle">公式 (3.2):  I_t = relu(q_t . k_idx^T) * w_t</text>
+
+    <!-- 内部: Compressor + Hadamard + FP4 -->
+    <rect class="box" x="20" y="48" width="280" height="32"/>
+    <text class="label" x="160" y="62" text-anchor="middle">Independent Compressor (rotate=True)</text>
+    <text class="annot" x="160" y="73" text-anchor="middle">+ Hadamard + FP4 simulation (QAT)</text>
+
+    <text class="annot" x="20" y="98">q = wq_b(qr); unflatten to 64 heads x 128 dim</text>
+    <text class="annot" x="20" y="112">q = rotate_activation(q); fp4_act_quant(q)</text>
+    <text class="annot" x="20" y="128">index_score = einsum("bshd,btd->bsht", q, kv_cache)</text>
+    <text class="annot" x="20" y="142">index_score = (index_score.relu_() * weights.unsqueeze(-1)).sum(dim=2)</text>
+
+    <text class="annot-idx" x="20" y="160">topk_idxs = index_score.topk(k=512, dim=-1)[1]</text>
+    <text class="annot-idx" x="20" y="178">shape: [B, T, 512]  (512 indices per query)</text>
+    <text class="annot" x="20" y="192">CAUSAL MASK: -inf for future positions</text>
+  </g>
+
+  <!-- 步骤 4: top-k=512 选位置 -->
+  <g transform="translate(420, 70)">
+    <rect class="box-hl" x="0" y="0" width="200" height="50"/>
+    <text class="label-hl" x="100" y="20" text-anchor="middle">4. top-k = 512</text>
+    <text class="annot" x="100" y="35" text-anchor="middle">512 selected positions</text>
+    <text class="annot-hl" x="100" y="46" text-anchor="middle">per query</text>
+  </g>
+
+  <!-- 步骤 5: Sparse Attention -->
+  <g transform="translate(420, 170)">
+    <rect class="box-hl" x="0" y="0" width="200" height="160"/>
+    <text class="label-hl" x="100" y="20" text-anchor="middle">5. Sparse Attention</text>
+    <text class="annot" x="100" y="35" text-anchor="middle">公式 (3.3):</text>
+    <text class="annot" x="100" y="50" text-anchor="middle">o_t = softmax(q_t . c_K^T / sqrt(d)) . c_V</text>
+    <text class="annot" x="100" y="65" text-anchor="middle">(over 512 selected positions)</text>
+
+    <text class="annot" x="20" y="92">complexity:</text>
+    <text class="annot-hl" x="20" y="108">O(T^2/m + T*k)</text>
+    <text class="annot-hl" x="20" y="124">= O(T^2/4 + T*512)</text>
+    <text class="annot" x="20" y="142">= 2.5e11 + 1.5e9 (T=1M)</text>
+    <text class="annot-hl" x="20" y="156">= 1/4 of standard attention</text>
+  </g>
+
+  <!-- 步骤 6: 输出 o_csa -->
+  <g transform="translate(680, 70)">
+    <rect class="box-hl" x="0" y="0" width="160" height="50"/>
+    <text class="label-hl" x="80" y="20" text-anchor="middle">6. Output o_csa</text>
+    <text class="annot" x="80" y="35" text-anchor="middle">shape: [T, d]</text>
+    <text class="annot-hl" x="80" y="46" text-anchor="middle">1M x 4096</text>
+  </g>
+
+  <!-- 箭头连接 -->
+  <!-- x -> Compressor -->
+  <line x1="100" y1="120" x2="100" y2="166" class="arrow-hl"/>
+  <!-- Compressor -> c_K, c_V 框 (L 形: 向右进入 Sparse Attention) -->
+  <path d="M 360 250 L 416 250" class="arrow-hl" fill="none"/>
+  <text class="annot-hl" x="362" y="245" text-anchor="end">c_K, c_V</text>
+
+  <!-- x -> Indexer (向下) -->
+  <line x1="100" y1="120" x2="100" y2="356" class="arrow-idx"/>
+  <text class="annot-idx" x="110" y="240" text-anchor="start">q = wq_b(qr)</text>
+
+  <!-- Indexer -> top-k (L 形: 向右 -> 向上 -> 向右) -->
+  <path d="M 360 460 L 388 460 L 388 95 L 416 95" class="arrow-idx" fill="none"/>
+
+  <!-- c_K c_V -> Sparse Attention (水平) -->
+  <path d="M 360 270 L 416 270" class="arrow-hl" fill="none"/>
+
+  <!-- top-k -> Sparse Attention (向下) -->
+  <line x1="520" y1="120" x2="520" y2="166" class="arrow-hl"/>
+
+  <!-- Sparse Attention -> output (L 形: 向右 -> 向上 -> 向右) -->
+  <path d="M 620 200 L 640 200 L 640 95 L 676 95" class="arrow-hl" fill="none"/>
+
+  <!-- 底部注释 -->
+  <g transform="translate(0, 580)">
+    <rect class="box-formula" x="20" y="0" width="840" height="68"/>
+    <text class="label-hl" x="30" y="18">Phase 11 HTML 互动:</text>
+    <text class="annot" x="30" y="34">hover 各关键块显示公式 (3.1)-(3.3)。点击 Compressor / Indexer 切换显示 fp32 / Hadamard / FP4 路径。</text>
+    <text class="annot" x="30" y="50">Source: model.py L279-L377 (Compressor), L380-L433 (Indexer), L436-L543 (Attention).</text>
+    <text class="annot" x="30" y="64">注意: m=4 (CSA) 启用 overlap=True; m=128 (HCA, 见 fig-3.3) 不启用 overlap, 也无独立 Indexer.</text>
+  </g>
+</svg>

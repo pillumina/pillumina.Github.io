@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 680" width="1100" height="680" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-formula { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .annot-b { fill: #b8721a; font-size: 9px; font-weight: bold; }
+    .row-label { fill: #000; font-weight: bold; font-size: 10.5px; }
+    .row-label-hl { fill: #1a3a6e; font-weight: bold; font-size: 10.5px; }
+    .cell-idle { fill: #f8f8f8; stroke: #888; stroke-width: 0.8; }
+    .cell-hl { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 1.8; }
+    .cell-final { fill: #fdf4e3; stroke: #b8721a; stroke-width: 2; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .grid { stroke: #ccc; stroke-width: 0.5; stroke-dasharray: 2 2; }
+    .axis { stroke: #000; stroke-width: 1.5; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 (y=0-40) -->
+  <text x="550" y="20" text-anchor="middle" font-weight="bold" font-size="14">sparse_attn_kernel: 8-block pipeline + online softmax state machine</text>
+  <text class="annot" x="550" y="36" text-anchor="middle">TileLang kernel, h=64 d=128, block=64, num_stages=2 (double-buffer), topk=512 → num_blocks=8</text>
+
+  <!-- ============================================== -->
+  <!-- 左侧: kernel 入口参数 + buffer 清单 (y=60-440) -->
+  <!-- ============================================== -->
+  <g transform="translate(20, 60)">
+    <rect class="box" x="0" y="0" width="130" height="380"/>
+    <text class="label-hl" x="6" y="14" font-weight="bold">kernel 入口</text>
+    <text class="annot"     x="6" y="28">h=64  d=128</text>
+    <text class="annot"     x="6" y="40">block=64</text>
+    <text class="annot"     x="6" y="52">num_stages=2</text>
+    <text class="annot"     x="6" y="64">topk=512</text>
+    <text class="annot"     x="6" y="76">num_blocks=8</text>
+
+    <text class="label-hl" x="6" y="100" font-weight="bold">5 个 buffer</text>
+    <text class="annot"     x="6" y="114">q_shared</text>
+    <text class="annot"     x="6" y="124">(h, d) bf16</text>
+    <text class="annot"     x="6" y="138">kv_shared</text>
+    <text class="annot"     x="6" y="148">(block, d)</text>
+    <text class="annot"     x="6" y="162">acc_s</text>
+    <text class="annot"     x="6" y="172">(h, block) fp32</text>
+    <text class="annot"     x="6" y="186">acc_o</text>
+    <text class="annot"     x="6" y="196">(h, d) fp32</text>
+    <text class="annot"     x="6" y="210">o_shared</text>
+    <text class="annot"     x="6" y="220">(h, d) bf16</text>
+
+    <text class="label-hl" x="6" y="244" font-weight="bold">online softmax</text>
+    <text class="annot"     x="6" y="258">scores_max</text>
+    <text class="annot"     x="6" y="268">(h,) fp32</text>
+    <text class="annot"     x="6" y="282">scores_max_prev</text>
+    <text class="annot"     x="6" y="292">(h,) fp32</text>
+    <text class="annot"     x="6" y="306">scores_scale</text>
+    <text class="annot"     x="6" y="316">(h,) fp32</text>
+    <text class="annot"     x="6" y="330">scores_sum</text>
+    <text class="annot"     x="6" y="340">(h,) fp32</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 右侧: 4 行 state 变量 × 16 cells (y=60-460)   -->
+  <!-- cell: 50w × 70h, gap 4; 列 1..16, x=20..900   -->
+  <!-- 行 1 (scores_max)  y=80-150                    -->
+  <!-- 行 2 (scores_scale) y=170-240                  -->
+  <!-- 行 3 (scores_sum)  y=260-330                   -->
+  <!-- 行 4 (acc_o)       y=350-420                   -->
+  <!-- ============================================== -->
+
+  <!-- 网格: 4 行 × 16 列, 每 cell 50w × 70h, x_offset=20, y_offset=0, gap=4 -->
+  <!-- 总宽 = 16*50 + 15*4 = 860; 总高 = 4*70 + 3*20 = 340 -->
+
+  <!-- block header bar (x=20-880, y=60) -->
+  <g transform="translate(160, 60)">
+    <!-- block 1..8 header (每 block 跨 2 cell = 50*2 + 4 = 104) -->
+    <rect class="cell-hl"   x="0"   y="0" width="104" height="16"/>
+    <text class="annot-hl" x="52"  y="12" text-anchor="middle">block 1</text>
+
+    <rect class="cell-idle" x="108" y="0" width="104" height="16"/>
+    <text class="annot"     x="160" y="12" text-anchor="middle">block 2</text>
+
+    <rect class="cell-idle" x="216" y="0" width="104" height="16"/>
+    <text class="annot"     x="268" y="12" text-anchor="middle">block 3</text>
+
+    <rect class="cell-idle" x="324" y="0" width="104" height="16"/>
+    <text class="annot"     x="376" y="12" text-anchor="middle">block 4</text>
+
+    <rect class="cell-idle" x="432" y="0" width="104" height="16"/>
+    <text class="annot"     x="484" y="12" text-anchor="middle">block 5</text>
+
+    <rect class="cell-idle" x="540" y="0" width="104" height="16"/>
+    <text class="annot"     x="592" y="12" text-anchor="middle">block 6</text>
+
+    <rect class="cell-idle" x="648" y="0" width="104" height="16"/>
+    <text class="annot"     x="700" y="12" text-anchor="middle">block 7</text>
+
+    <rect class="cell-final" x="756" y="0" width="104" height="16"/>
+    <text class="annot-b"   x="808" y="12" text-anchor="middle">block 8</text>
+  </g>
+
+  <!-- 列标 pre/post (y=80, block header 下方) -->
+  <g transform="translate(160, 80)">
+    <!-- 16 个列标, 每列中心 (x=20+25=45, 50+25+4=79, ...) -->
+    <!-- col 0 (x=0..50), col 1 (x=54..104), ... col i: x = i*54, center = i*54+25 -->
+    <text class="annot" x="25"  y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="79"  y="0" text-anchor="middle">post</text>
+    <text class="annot" x="133" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="187" y="0" text-anchor="middle">post</text>
+    <text class="annot" x="241" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="295" y="0" text-anchor="middle">post</text>
+    <text class="annot" x="349" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="403" y="0" text-anchor="middle">post</text>
+    <text class="annot" x="457" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="511" y="0" text-anchor="middle">post</text>
+    <text class="annot" x="565" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="619" y="0" text-anchor="middle">post</text>
+    <text class="annot" x="673" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="727" y="0" text-anchor="middle">post</text>
+    <text class="annot" x="781" y="0" text-anchor="middle">pre</text>
+    <text class="annot" x="835" y="0" text-anchor="middle">post</text>
+  </g>
+
+  <!-- ============== 行 1: scores_max (y=100-160) ============== -->
+  <g transform="translate(0, 100)">
+    <text class="row-label" x="145" y="35" text-anchor="end">scores_max</text>
+    <text class="annot"     x="145" y="50" text-anchor="end">(-inf init)</text>
+  </g>
+  <g transform="translate(160, 100)">
+    <!-- col 0: init -->
+    <rect class="cell-idle" x="0" y="0" width="50" height="60"/>
+    <text class="annot" x="25" y="22" text-anchor="middle">m0=-inf</text>
+    <text class="annot" x="25" y="38" text-anchor="middle">init</text>
+    <text class="annot" x="25" y="52" text-anchor="middle">—</text>
+
+    <!-- col 1: post (block 1 详细) -->
+    <rect class="cell-hl" x="54" y="0" width="50" height="60"/>
+    <text class="annot-hl" x="79" y="20" text-anchor="middle">m1</text>
+    <text class="annot" x="79" y="36" text-anchor="middle">=max(m0,</text>
+    <text class="annot" x="79" y="50" text-anchor="middle">b1.max)</text>
+
+    <!-- col 2-14: pre/post (空, 简短标签) -->
+    <rect class="cell-idle" x="108" y="0" width="50" height="60"/>
+    <text class="annot" x="133" y="32" text-anchor="middle">m1</text>
+    <text class="annot" x="133" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="162" y="0" width="50" height="60"/>
+    <text class="annot" x="187" y="32" text-anchor="middle">m2</text>
+    <text class="annot" x="187" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="216" y="0" width="50" height="60"/>
+    <text class="annot" x="241" y="32" text-anchor="middle">m2</text>
+    <text class="annot" x="241" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="270" y="0" width="50" height="60"/>
+    <text class="annot" x="295" y="32" text-anchor="middle">m3</text>
+    <text class="annot" x="295" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="324" y="0" width="50" height="60"/>
+    <text class="annot" x="349" y="32" text-anchor="middle">m3</text>
+    <text class="annot" x="349" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="378" y="0" width="50" height="60"/>
+    <text class="annot" x="403" y="32" text-anchor="middle">m4</text>
+    <text class="annot" x="403" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="432" y="0" width="50" height="60"/>
+    <text class="annot" x="457" y="32" text-anchor="middle">m4</text>
+    <text class="annot" x="457" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="486" y="0" width="50" height="60"/>
+    <text class="annot" x="511" y="32" text-anchor="middle">m5</text>
+    <text class="annot" x="511" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="540" y="0" width="50" height="60"/>
+    <text class="annot" x="565" y="32" text-anchor="middle">m5</text>
+    <text class="annot" x="565" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="594" y="0" width="50" height="60"/>
+    <text class="annot" x="619" y="32" text-anchor="middle">m6</text>
+    <text class="annot" x="619" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="648" y="0" width="50" height="60"/>
+    <text class="annot" x="673" y="32" text-anchor="middle">m6</text>
+    <text class="annot" x="673" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="702" y="0" width="50" height="60"/>
+    <text class="annot" x="727" y="32" text-anchor="middle">m7</text>
+    <text class="annot" x="727" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="756" y="0" width="50" height="60"/>
+    <text class="annot" x="781" y="32" text-anchor="middle">m7</text>
+    <text class="annot" x="781" y="48" text-anchor="middle">pre</text>
+
+    <!-- col 15: post (block 8 final) -->
+    <rect class="cell-final" x="810" y="0" width="50" height="60"/>
+    <text class="annot-b" x="835" y="28" text-anchor="middle">m8</text>
+    <text class="annot-b" x="835" y="44" text-anchor="middle">final</text>
+  </g>
+
+  <!-- ============== 行 2: scores_scale (y=190-250) ============== -->
+  <g transform="translate(0, 190)">
+    <text class="row-label" x="145" y="35" text-anchor="end">scores_scale</text>
+    <text class="annot"     x="145" y="50" text-anchor="end">(rescale)</text>
+  </g>
+  <g transform="translate(160, 190)">
+    <rect class="cell-idle" x="0" y="0" width="50" height="60"/>
+    <text class="annot" x="25" y="22" text-anchor="middle">s0=1.0</text>
+    <text class="annot" x="25" y="38" text-anchor="middle">init</text>
+    <text class="annot" x="25" y="52" text-anchor="middle">—</text>
+
+    <rect class="cell-hl" x="54" y="0" width="50" height="60"/>
+    <text class="annot-hl" x="79" y="20" text-anchor="middle">s1</text>
+    <text class="annot" x="79" y="36" text-anchor="middle">=exp(m0-</text>
+    <text class="annot" x="79" y="50" text-anchor="middle">m1)</text>
+
+    <rect class="cell-idle" x="108" y="0" width="50" height="60"/>
+    <text class="annot" x="133" y="32" text-anchor="middle">s1</text>
+    <text class="annot" x="133" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="162" y="0" width="50" height="60"/>
+    <text class="annot" x="187" y="32" text-anchor="middle">s2</text>
+    <text class="annot" x="187" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="216" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="270" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="324" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="378" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="432" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="486" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="540" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="594" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="648" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="702" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="756" y="0" width="50" height="60"/>
+
+    <rect class="cell-final" x="810" y="0" width="50" height="60"/>
+    <text class="annot-b" x="835" y="28" text-anchor="middle">s8</text>
+    <text class="annot-b" x="835" y="44" text-anchor="middle">final</text>
+  </g>
+
+  <!-- ============== 行 3: scores_sum (y=280-340) ============== -->
+  <g transform="translate(0, 280)">
+    <text class="row-label" x="145" y="35" text-anchor="end">scores_sum</text>
+    <text class="annot"     x="145" y="50" text-anchor="end">(denom)</text>
+  </g>
+  <g transform="translate(160, 280)">
+    <rect class="cell-idle" x="0" y="0" width="50" height="60"/>
+    <text class="annot" x="25" y="22" text-anchor="middle">S0=0</text>
+    <text class="annot" x="25" y="38" text-anchor="middle">init</text>
+    <text class="annot" x="25" y="52" text-anchor="middle">—</text>
+
+    <rect class="cell-hl" x="54" y="0" width="50" height="60"/>
+    <text class="annot-hl" x="79" y="20" text-anchor="middle">S1</text>
+    <text class="annot" x="79" y="36" text-anchor="middle">=S0·s1</text>
+    <text class="annot" x="79" y="50" text-anchor="middle">+b1.sum</text>
+
+    <rect class="cell-idle" x="108" y="0" width="50" height="60"/>
+    <text class="annot" x="133" y="32" text-anchor="middle">S1</text>
+    <text class="annot" x="133" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="162" y="0" width="50" height="60"/>
+    <text class="annot" x="187" y="32" text-anchor="middle">S2</text>
+    <text class="annot" x="187" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="216" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="270" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="324" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="378" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="432" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="486" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="540" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="594" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="648" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="702" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="756" y="0" width="50" height="60"/>
+
+    <rect class="cell-final" x="810" y="0" width="50" height="60"/>
+    <text class="annot-b" x="835" y="28" text-anchor="middle">S8</text>
+    <text class="annot-b" x="835" y="44" text-anchor="middle">final</text>
+  </g>
+
+  <!-- ============== 行 4: acc_o (y=370-430) ============== -->
+  <g transform="translate(0, 370)">
+    <text class="row-label" x="145" y="35" text-anchor="end">acc_o</text>
+    <text class="annot"     x="145" y="50" text-anchor="end">(output acc)</text>
+  </g>
+  <g transform="translate(160, 370)">
+    <rect class="cell-idle" x="0" y="0" width="50" height="60"/>
+    <text class="annot" x="25" y="22" text-anchor="middle">o0=0</text>
+    <text class="annot" x="25" y="38" text-anchor="middle">init</text>
+    <text class="annot" x="25" y="52" text-anchor="middle">—</text>
+
+    <rect class="cell-hl" x="54" y="0" width="50" height="60"/>
+    <text class="annot-hl" x="79" y="20" text-anchor="middle">o1</text>
+    <text class="annot" x="79" y="36" text-anchor="middle">=o0·s1</text>
+    <text class="annot" x="79" y="50" text-anchor="middle">+b1.PV</text>
+
+    <rect class="cell-idle" x="108" y="0" width="50" height="60"/>
+    <text class="annot" x="133" y="32" text-anchor="middle">o1</text>
+    <text class="annot" x="133" y="48" text-anchor="middle">pre</text>
+
+    <rect class="cell-idle" x="162" y="0" width="50" height="60"/>
+    <text class="annot" x="187" y="32" text-anchor="middle">o2</text>
+    <text class="annot" x="187" y="48" text-anchor="middle">post</text>
+
+    <rect class="cell-idle" x="216" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="270" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="324" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="378" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="432" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="486" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="540" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="594" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="648" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="702" y="0" width="50" height="60"/>
+    <rect class="cell-idle" x="756" y="0" width="50" height="60"/>
+
+    <rect class="cell-final" x="810" y="0" width="50" height="60"/>
+    <text class="annot-b" x="835" y="28" text-anchor="middle">o8</text>
+    <text class="annot-b" x="835" y="44" text-anchor="middle">final</text>
+  </g>
+
+  <!-- 时间箭头: 行 1→行 2 (y=170), 行 2→行 3 (y=260), 行 3→行 4 (y=350) -->
+  <!-- 箭头从 block 1 post 下方 (x=160+79=239) 到 block 2 pre 上方 (x=160+108+25=293), 长 54 -->
+  <g>
+    <line class="arrow-hl" x1="240" y1="170" x2="270" y2="170"/>
+    <line class="arrow-hl" x1="240" y1="260" x2="270" y2="260"/>
+    <line class="arrow-hl" x1="240" y1="350" x2="270" y2="350"/>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 状态更新公式 (y=500-600)                        -->
+  <!-- ============================================== -->
+  <g transform="translate(160, 500)">
+    <rect class="box-formula" x="0" y="0" width="860" height="80"/>
+    <text class="label-hl" x="10" y="18" font-weight="bold" font-size="12">block 1 状态更新 (m = m1, s = s1, S = S1, o = o1):</text>
+    <text class="annot"     x="10" y="34">m1 = max(m0, block1.max)</text>
+    <text class="annot"     x="10" y="48">s1 = exp(m0 - m1)                            ;  acc_o *= s1, acc_o += block1.PV</text>
+    <text class="annot"     x="10" y="62">S1 = S0·s1 + block1.sum_exp                  ;  (online softmax 三件套 + rescale + 输出累加)</text>
+    <text class="annot-hl" x="10" y="76">final (block 8):  S8 += exp(attn_sink - m8)   (V3.2 沿用的 attn_sink 偏置)   |   o = o8 / S8  (block 8 结束后归一化)</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- 底部图例 (y=620-650)                            -->
+  <!-- ============================================== -->
+  <g transform="translate(20, 620)">
+    <rect class="cell-hl"   x="0"   y="0" width="20" height="14"/>
+    <text class="annot-hl"  x="24"  y="11">block 1 详细更新 (高亮)</text>
+
+    <rect class="cell-idle" x="170" y="0" width="20" height="14"/>
+    <text class="annot"     x="194" y="11">block 2..7 (相同模式, 省略)</text>
+
+    <rect class="cell-final" x="350" y="0" width="20" height="14"/>
+    <text class="annot-b"   x="374" y="11">block 8 结束 (attn_sink + 归一化)</text>
+
+    <text class="annot"     x="700" y="11" font-weight="bold">cell 50×70, gap=4, 4 行 × 16 列</text>
+  </g>
+</svg>

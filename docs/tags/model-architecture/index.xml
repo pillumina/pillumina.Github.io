@@ -14,6 +14,13 @@
     <lastBuildDate>Wed, 10 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/model-architecture/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>DeepSeek-V4-Flash 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/deepseek-v4-flash/</link>
+      <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/deepseek-v4-flash/</guid>
+      <description>V4-Flash（284B 总参 / 13B 激活）是 DeepSeek 2026-04-24 发布的旗舰 MoE 模型。核心创新为 CSA+HCA 混合稀疏注意力（长上下文 1M 支持）、62 层 384 专家 MoE、mHC 多通道残差替代 Pre-Norm、Muon 正交化优化器。本期完整拆解 V3.2→V4 演进、稀疏注意力双引擎、8 类 gating 负载均衡对比、FP4+FP8 混合量化，以及 13 类架构组合的 4D Parallelism 部署策略。</description>
+    </item>
+    <item>
       <title>GLM-5.1 架构深度拆解</title>
       <link>https://pillumina.github.io/posts/architecture/glm-5.1/</link>
       <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
@@ -26,6 +33,13 @@
       <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/architecture/minimax-m2.7/</guid>
       <description>M2.7（229.9B/9.8B 激活）的核心不在规模而在自我进化与训练体系。本期拆解五代演进、62层 Full Attention + 256 MoE 设计空间、单 token 6.1 TFLOPs / 48.8GB KV Cache / ~510GB 推理显存的计算分析，以及 attention + MoE gate 的算子级拆解，另附完整训练体系（29.2T tokens / FP8 / 自进化）。</description>
+    </item>
+    <item>
+      <title>Qwen3.5-MoE 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/qwen3.5-moe/</link>
+      <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/qwen3.5-moe/</guid>
+      <description>Qwen3.5-MoE（255B 总参 / 30B 激活）是阿里 Qwen 团队的 MoE 旗舰模型。核心创新为 Gated DeltaNet（GDN）线性注意力与传统 Full Attention 的混合架构（Hybrid-Attn）、2048 专家细粒度 MoE（k=8 激活 + 1 共享）、FW4a 量化部署。本期拆解 GDN chunkwise-parallel 递归机制、混合注意力层分布策略、MoE 拓扑及与 M2.7/GLM-5.1/V4-Flash 的对比。</description>
     </item>
   </channel>
 </rss>

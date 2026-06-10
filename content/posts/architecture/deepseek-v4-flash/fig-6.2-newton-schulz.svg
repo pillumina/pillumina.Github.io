@@ -1,0 +1,418 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 720" width="1400" height="720" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+    <linearGradient id="stage1" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e0e6f0"/>
+      <stop offset="100%" stop-color="#a3b5d4"/>
+    </linearGradient>
+    <linearGradient id="stage2" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#1a3a6e"/>
+      <stop offset="100%" stop-color="#0d1f3d"/>
+    </linearGradient>
+    <linearGradient id="initGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f0f0f0"/>
+      <stop offset="100%" stop-color="#c0c0c0"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1400" height="720" fill="#fafafa"/>
+
+  <!-- Title -->
+  <text x="700" y="32" text-anchor="middle" font-size="20" font-weight="bold" fill="#222">
+    Hybrid Newton-Schulz Iteration: 10 Steps in Two Stages (8+2)
+  </text>
+  <text x="700" y="55" text-anchor="middle" font-size="12" fill="#555" font-style="italic">
+    公式 28: M_k = a·M_{k-1} + b·(M_{k-1}·M_{k-1}^⊤)·M_{k-1} + c·(M_{k-1}·M_{k-1}^⊤)²·M_{k-1}
+  </text>
+
+  <!-- ============== STAGE BANNER ============== -->
+  <!-- Stage 1: Quick convergence -->
+  <g transform="translate(50, 90)">
+    <rect x="0" y="0" width="1080" height="40" fill="url(#stage1)" stroke="#1a3a6e" stroke-width="1" rx="4"/>
+    <text x="20" y="26" font-size="13" font-weight="bold" fill="#1a3a6e">
+      阶段 1 — 快速收敛 (Steps 1-8)
+    </text>
+    <text x="280" y="26" font-size="12" fill="#1a3a6e" font-family="monospace">
+      系数 (a, b, c) = (3.4445, -4.7750, 2.0315)
+    </text>
+    <text x="700" y="26" font-size="11" fill="#1a3a6e" font-style="italic">
+      把奇异值快速推到 [0.5, 1.5] 附近
+    </text>
+  </g>
+
+  <!-- Stage 2: Precise stabilization -->
+  <g transform="translate(50, 540)">
+    <rect x="0" y="0" width="1080" height="40" fill="url(#stage2)" stroke="#0d1f3d" stroke-width="1" rx="4"/>
+    <text x="20" y="26" font-size="13" font-weight="bold" fill="white">
+      阶段 2 — 精确稳定 (Steps 9-10)
+    </text>
+    <text x="280" y="26" font-size="12" fill="white" font-family="monospace">
+      系数 (a, b, c) = (2, -1.5, 0.5)
+    </text>
+    <text x="700" y="26" font-size="11" fill="white" font-style="italic">
+      Chebyshev 迭代 — 几何级数衰减至 σ = 1
+    </text>
+  </g>
+
+  <!-- ============== 10 iteration blocks ============== -->
+  <!-- Each block: 100w x 200h, gap 8 -->
+  <!-- Block 0: initial M, position (50, 150) -->
+  <g transform="translate(50, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="url(#initGrad)" stroke="#888" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#333">M₀</text>
+    <text x="50" y="36" text-anchor="middle" font-size="9" fill="#555">初始</text>
+    <!-- 3x3 matrix values (random) -->
+    <g transform="translate(15, 60)">
+      <rect x="0" y="0" width="70" height="70" fill="white" stroke="#aaa" stroke-width="0.5"/>
+      <g font-size="9" fill="#444" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.7</text>
+        <text x="35" y="14">-0.3</text>
+        <text x="58" y="14">+0.5</text>
+        <text x="12" y="38">-0.4</text>
+        <text x="35" y="38">+0.8</text>
+        <text x="58" y="38">-0.2</text>
+        <text x="12" y="62">+0.6</text>
+        <text x="35" y="62">-0.5</text>
+        <text x="58" y="62">+0.4</text>
+      </g>
+    </g>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#666">Frobenius 归一化</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#666" font-style="italic">M₀ = M / ||M||_F</text>
+    <text x="50" y="190" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ∈ (0, 1]</text>
+  </g>
+
+  <!-- 8 step blocks in stage 1 -->
+  <!-- positions: 162, 270, 378, 486, 594, 702, 810, 918 -->
+  <g id="stepBlocks">
+    <!-- Helper: each step shows a 3x3 matrix with progressively more uniform values + step label + coefficient -->
+  </g>
+
+  <!-- Generate 10 step blocks manually -->
+  <!-- Step 1 -->
+  <g transform="translate(162, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 1</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#f5f8fc" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.62</text>
+        <text x="35" y="14">-0.41</text>
+        <text x="58" y="14">+0.55</text>
+        <text x="12" y="38">-0.38</text>
+        <text x="35" y="38">+0.71</text>
+        <text x="58" y="38">-0.32</text>
+        <text x="12" y="62">+0.58</text>
+        <text x="35" y="62">-0.45</text>
+        <text x="58" y="62">+0.49</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.7</text>
+  </g>
+
+  <!-- Step 2 -->
+  <g transform="translate(270, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 2</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#eaf0f8" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.58</text>
+        <text x="35" y="14">-0.39</text>
+        <text x="58" y="14">+0.55</text>
+        <text x="12" y="38">-0.36</text>
+        <text x="35" y="38">+0.68</text>
+        <text x="58" y="38">-0.35</text>
+        <text x="12" y="62">+0.56</text>
+        <text x="35" y="62">-0.42</text>
+        <text x="58" y="62">+0.52</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.78</text>
+  </g>
+
+  <!-- Step 3 -->
+  <g transform="translate(378, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 3</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#dde6f2" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.55</text>
+        <text x="35" y="14">-0.37</text>
+        <text x="58" y="14">+0.54</text>
+        <text x="12" y="38">-0.35</text>
+        <text x="35" y="38">+0.65</text>
+        <text x="58" y="38">-0.37</text>
+        <text x="12" y="62">+0.55</text>
+        <text x="35" y="62">-0.40</text>
+        <text x="58" y="62">+0.54</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.84</text>
+  </g>
+
+  <!-- Step 4 -->
+  <g transform="translate(486, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 4</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#d0dbed" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.53</text>
+        <text x="35" y="14">-0.36</text>
+        <text x="58" y="14">+0.53</text>
+        <text x="12" y="38">-0.34</text>
+        <text x="35" y="38">+0.62</text>
+        <text x="58" y="38">-0.38</text>
+        <text x="12" y="62">+0.53</text>
+        <text x="35" y="62">-0.39</text>
+        <text x="58" y="62">+0.53</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.89</text>
+  </g>
+
+  <!-- Step 5 -->
+  <g transform="translate(594, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 5</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#c5d2e8" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.52</text>
+        <text x="35" y="14">-0.36</text>
+        <text x="58" y="14">+0.52</text>
+        <text x="12" y="38">-0.34</text>
+        <text x="35" y="38">+0.59</text>
+        <text x="58" y="38">-0.38</text>
+        <text x="12" y="62">+0.52</text>
+        <text x="35" y="62">-0.38</text>
+        <text x="58" y="62">+0.52</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.93</text>
+  </g>
+
+  <!-- Step 6 -->
+  <g transform="translate(702, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 6</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#b8c8e2" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.51</text>
+        <text x="35" y="14">-0.35</text>
+        <text x="58" y="14">+0.51</text>
+        <text x="12" y="38">-0.33</text>
+        <text x="35" y="38">+0.56</text>
+        <text x="58" y="38">-0.37</text>
+        <text x="12" y="62">+0.51</text>
+        <text x="35" y="62">-0.37</text>
+        <text x="58" y="62">+0.51</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.96</text>
+  </g>
+
+  <!-- Step 7 -->
+  <g transform="translate(810, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 7</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#abc1de" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.51</text>
+        <text x="35" y="14">-0.35</text>
+        <text x="58" y="14">+0.51</text>
+        <text x="12" y="38">-0.33</text>
+        <text x="35" y="38">+0.54</text>
+        <text x="58" y="38">-0.36</text>
+        <text x="12" y="62">+0.51</text>
+        <text x="35" y="62">-0.36</text>
+        <text x="58" y="62">+0.51</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#666" font-weight="bold">σ ≈ 0.98</text>
+  </g>
+
+  <!-- Step 8 (end of stage 1) -->
+  <g transform="translate(918, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="white" stroke="#a3b5d4" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a6e">Step 8</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#9eb9da" stroke="#cdd7e6" stroke-width="0.5"/>
+      <g font-size="9" fill="#1a3a6e" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.50</text>
+        <text x="35" y="14">-0.35</text>
+        <text x="58" y="14">+0.50</text>
+        <text x="12" y="38">-0.33</text>
+        <text x="35" y="38">+0.52</text>
+        <text x="58" y="38">-0.36</text>
+        <text x="12" y="62">+0.50</text>
+        <text x="35" y="62">-0.36</text>
+        <text x="58" y="62">+0.50</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">a=3.4445</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">b=-4.7750</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="#1a3a6e" font-family="monospace">c=2.0315</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#1a3a6e" font-weight="bold">σ ≈ 1.00</text>
+  </g>
+
+  <!-- Step 9 (stage 2 start) -->
+  <g transform="translate(1026, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="#1a3a6e" stroke="#0d1f3d" stroke-width="1.5" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Step 9</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#0d1f3d" stroke="#1a3a6e" stroke-width="0.5"/>
+      <g font-size="9" fill="white" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.50</text>
+        <text x="35" y="14">-0.35</text>
+        <text x="58" y="14">+0.50</text>
+        <text x="12" y="38">-0.33</text>
+        <text x="35" y="38">+0.50</text>
+        <text x="58" y="38">-0.35</text>
+        <text x="12" y="62">+0.50</text>
+        <text x="35" y="62">-0.35</text>
+        <text x="58" y="62">+0.50</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="white" font-family="monospace">a=2.0</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="white" font-family="monospace">b=-1.5</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="white" font-family="monospace">c=0.5</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="white" font-weight="bold">σ ≈ 1.000</text>
+  </g>
+
+  <!-- Step 10 (final) - placed to right -->
+  <g transform="translate(1140, 150)">
+    <rect x="0" y="0" width="100" height="200" fill="#0d1f3d" stroke="#000" stroke-width="2" rx="3"/>
+    <text x="50" y="20" text-anchor="middle" font-size="13" font-weight="bold" fill="white">Step 10</text>
+    <text x="50" y="34" text-anchor="middle" font-size="9" fill="#a3b5d4">FINAL</text>
+    <g transform="translate(15, 50)">
+      <rect x="0" y="0" width="70" height="70" fill="#000814" stroke="#1a3a6e" stroke-width="0.5"/>
+      <g font-size="9" fill="white" text-anchor="middle" font-family="monospace">
+        <text x="12" y="14">+0.50</text>
+        <text x="35" y="14">-0.35</text>
+        <text x="58" y="14">+0.50</text>
+        <text x="12" y="38">-0.33</text>
+        <text x="35" y="38">+0.50</text>
+        <text x="58" y="38">-0.35</text>
+        <text x="12" y="62">+0.50</text>
+        <text x="35" y="62">-0.35</text>
+        <text x="58" y="62">+0.50</text>
+      </g>
+    </g>
+    <text x="50" y="140" text-anchor="middle" font-size="9" fill="white" font-family="monospace">a=2.0</text>
+    <text x="50" y="155" text-anchor="middle" font-size="9" fill="white" font-family="monospace">b=-1.5</text>
+    <text x="50" y="170" text-anchor="middle" font-size="9" fill="white" font-family="monospace">c=0.5</text>
+    <text x="50" y="192" text-anchor="middle" font-size="9" fill="#a3b5d4" font-weight="bold">UV^⊤</text>
+  </g>
+
+  <!-- Arrows between blocks -->
+  <g stroke="#666" stroke-width="1.2" fill="none" marker-end="url(#arr)">
+    <line x1="150" y1="250" x2="162" y2="250"/>
+    <line x1="262" y1="250" x2="270" y2="250"/>
+    <line x1="370" y1="250" x2="378" y2="250"/>
+    <line x1="478" y1="250" x2="486" y2="250"/>
+    <line x1="586" y1="250" x2="594" y2="250"/>
+    <line x1="694" y1="250" x2="702" y2="250"/>
+    <line x1="802" y1="250" x2="810" y2="250"/>
+    <line x1="910" y1="250" x2="918" y2="250"/>
+    <line x1="1018" y1="250" x2="1026" y2="250"/>
+    <line x1="1126" y1="250" x2="1140" y2="250"/>
+  </g>
+
+  <!-- Divider line between stage 1 and stage 2 -->
+  <line x1="1010" y1="135" x2="1010" y2="355" stroke="#0d1f3d" stroke-width="1.5" stroke-dasharray="4 3"/>
+
+  <!-- Sigma trajectory (subtle hint) -->
+  <g transform="translate(50, 380)">
+    <text x="500" y="0" text-anchor="middle" font-size="12" font-weight="bold" fill="#333">
+      奇异值收敛轨迹 (示意 — 全部 σ_i 同步趋向 1.0)
+    </text>
+    <rect x="0" y="10" width="1240" height="120" fill="white" stroke="#aaa" stroke-width="0.5"/>
+    <!-- axes -->
+    <line x1="40" y1="10" x2="40" y2="120" stroke="#333" stroke-width="1"/>
+    <line x1="40" y1="120" x2="1240" y2="120" stroke="#333" stroke-width="1"/>
+    <!-- y axis labels -->
+    <text x="35" y="20" text-anchor="end" font-size="9" fill="#666">1.0</text>
+    <text x="35" y="70" text-anchor="end" font-size="9" fill="#666">0.5</text>
+    <text x="35" y="120" text-anchor="end" font-size="9" fill="#666">0.0</text>
+    <!-- x axis labels -->
+    <text x="100" y="135" text-anchor="middle" font-size="8" fill="#666">M₀</text>
+    <text x="212" y="135" text-anchor="middle" font-size="8" fill="#666">S1</text>
+    <text x="320" y="135" text-anchor="middle" font-size="8" fill="#666">S2</text>
+    <text x="428" y="135" text-anchor="middle" font-size="8" fill="#666">S3</text>
+    <text x="536" y="135" text-anchor="middle" font-size="8" fill="#666">S4</text>
+    <text x="644" y="135" text-anchor="middle" font-size="8" fill="#666">S5</text>
+    <text x="752" y="135" text-anchor="middle" font-size="8" fill="#666">S6</text>
+    <text x="860" y="135" text-anchor="middle" font-size="8" fill="#666">S7</text>
+    <text x="968" y="135" text-anchor="middle" font-size="8" fill="#666">S8</text>
+    <text x="1076" y="135" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">S9</text>
+    <text x="1190" y="135" text-anchor="middle" font-size="8" fill="#666" font-weight="bold">S10</text>
+    <!-- trajectory: y=120-110*sigma, sigma 0.7, 0.78, 0.84, 0.89, 0.93, 0.96, 0.98, 1.00, 1.000, 1.000 -->
+    <!-- y = 120 - 110*sigma. So sigma=1.0 -> y=10; sigma=0 -> y=120 -->
+    <g stroke="#1a3a6e" stroke-width="2" fill="none" marker-end="url(#arr)">
+      <path d="M 100,43 L 212,34.2 L 320,27.6 L 428,22.1 L 536,17.7 L 644,14.4 L 752,12.2 L 860,10 L 968,10 L 1076,10 L 1190,10"/>
+    </g>
+    <g fill="#1a3a6e">
+      <circle cx="100" cy="43" r="3"/>
+      <circle cx="212" cy="34.2" r="3"/>
+      <circle cx="320" cy="27.6" r="3"/>
+      <circle cx="428" cy="22.1" r="3"/>
+      <circle cx="536" cy="17.7" r="3"/>
+      <circle cx="644" cy="14.4" r="3"/>
+      <circle cx="752" cy="12.2" r="3"/>
+      <circle cx="860" cy="10" r="3"/>
+      <circle cx="968" cy="10" r="3.5" fill="#0d1f3d"/>
+      <circle cx="1076" cy="10" r="3.5" fill="#0d1f3d"/>
+      <circle cx="1190" cy="10" r="4" fill="#0d1f3d"/>
+    </g>
+  </g>
+
+  <!-- ============== Bottom annotations ============== -->
+  <g transform="translate(50, 600)">
+    <rect x="0" y="0" width="1240" height="100" fill="#f5f5f5" stroke="#aaa" stroke-width="0.5" rx="3"/>
+    <text x="20" y="22" font-size="12" font-weight="bold" fill="#1a3a6e">关键注释：</text>
+
+    <g font-size="11" fill="#333">
+      <text x="20" y="44">
+        <tspan font-weight="bold" fill="#1a3a6e">前 8 步</tspan>：快速收敛系数 (3.4445, -4.7750, 2.0315) — 把 σ 从 (0, 1] 推到 ≈ 1
+      </text>
+      <text x="20" y="62">
+        <tspan font-weight="bold" fill="#0d1f3d">后 2 步</tspan>：精确稳定系数 (2, -1.5, 0.5) — Chebyshev 迭代，σ 几何级数收敛到 1
+      </text>
+      <text x="20" y="80">
+        <tspan font-weight="bold" fill="#333">超参</tspan>：n_iters=10, hc_eps=1e-8 (Frobenius 归一化稳定项，保证 σ_max ≤ 1)
+      </text>
+      <text x="20" y="98">
+        <tspan font-weight="bold" fill="#333">输出</tspan>：O' ≈ UV^⊤ (半正交) → 再乘 √max(n,m)·γ 得到与 AdamW 同尺度的更新
+      </text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" width="1200" height="720" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arr7" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#333"/>
+    </marker>
+    <marker id="arrYa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#5a7fb8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="720" fill="#fafaf7"/>
+
+  <!-- title -->
+  <text x="600" y="38" text-anchor="middle" font-size="22" font-weight="bold" fill="#222">RoPE 1M 上下文扩展（YaRN，factor=16）</text>
+  <text x="600" y="62" text-anchor="middle" font-size="13" fill="#666">V3 64K base=10000 → V4 1M via YaRN（NTK-aware + 频率插值 + 注意力缩放）</text>
+
+  <!-- ===== Step 1: 64K training ===== -->
+  <g transform="translate(70, 110)">
+    <rect x="0" y="0" width="280" height="200" rx="8" fill="#fff" stroke="#888" stroke-width="1.5"/>
+    <text x="140" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#444">阶段 1：64K 预训练</text>
+    <text x="140" y="50" text-anchor="middle" font-size="11" fill="#666">base=10000, seqlen=65536</text>
+
+    <!-- 64K wavelength bar -->
+    <line x1="30" y1="120" x2="250" y2="120" stroke="#999" stroke-width="1"/>
+    <g transform="translate(30,120)">
+      <!-- 2pi sin wave (compressed for one period) -->
+      <path d="M0,0 Q 27.5,-25 55,0 T 110,0 T 165,0 T 220,0" fill="none" stroke="#5a7fb8" stroke-width="2.5"/>
+    </g>
+    <text x="140" y="155" text-anchor="middle" font-size="11" fill="#444">波长 λ = 2π·base^(2k/d)</text>
+    <text x="140" y="172" text-anchor="middle" font-size="10" fill="#888">最细粒度可分辨 64K 相对位置</text>
+    <text x="140" y="188" text-anchor="middle" font-size="10" fill="#888">最高维分量对应 ~1 圈 / 64K</text>
+  </g>
+
+  <!-- ===== Arrow + YaRN label ===== -->
+  <g>
+    <line x1="370" y1="210" x2="540" y2="210" stroke="#5a7fb8" stroke-width="2.5" marker-end="url(#arrYa)"/>
+    <text x="455" y="195" text-anchor="middle" font-size="14" font-weight="bold" fill="#5a7fb8">YaRN 扩展</text>
+    <text x="455" y="232" text-anchor="middle" font-size="11" fill="#5a7fb8">factor=16, β_fast=32, β_slow=1</text>
+  </g>
+
+  <!-- ===== Step 2: YaRN 3 components ===== -->
+  <g transform="translate(560, 110)">
+    <rect x="0" y="0" width="280" height="200" rx="8" fill="#fff" stroke="#5a7fb8" stroke-width="1.5"/>
+    <text x="140" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#5a7fb8">YaRN 三组件</text>
+
+    <!-- 3 mini boxes -->
+    <g transform="translate(15, 45)">
+      <rect x="0" y="0" width="80" height="50" rx="4" fill="#eef3f9" stroke="#5a7fb8" stroke-width="1"/>
+      <text x="40" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#2a4d7a">NTK-aware</text>
+      <text x="40" y="38" text-anchor="middle" font-size="9" fill="#2a4d7a">高维 → 大 base</text>
+    </g>
+    <g transform="translate(100, 45)">
+      <rect x="0" y="0" width="80" height="50" rx="4" fill="#eef3f9" stroke="#5a7fb8" stroke-width="1"/>
+      <text x="40" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#2a4d7a">频率插值</text>
+      <text x="40" y="38" text-anchor="middle" font-size="9" fill="#2a4d7a">低维 → 线性 ramp</text>
+    </g>
+    <g transform="translate(185, 45)">
+      <rect x="0" y="0" width="80" height="50" rx="4" fill="#eef3f9" stroke="#5a7fb8" stroke-width="1"/>
+      <text x="40" y="22" text-anchor="middle" font-size="11" font-weight="bold" fill="#2a4d7a">attn scale</text>
+      <text x="40" y="38" text-anchor="middle" font-size="9" fill="#2a4d7a">log 缩放</text>
+    </g>
+
+    <text x="140" y="125" text-anchor="middle" font-size="10" fill="#444">s(f_d) = (1-γ)·(f_d/16) + γ·f_d</text>
+    <text x="140" y="142" text-anchor="middle" font-size="10" fill="#444">γ = ramp(β_fast=32, β_slow=1)</text>
+    <text x="140" y="162" text-anchor="middle" font-size="11" font-weight="bold" fill="#5a7fb8">波长扩展：2π → 32π</text>
+    <text x="140" y="180" text-anchor="middle" font-size="10" fill="#888">保留高频（局部），拉伸低频（远程）</text>
+  </g>
+
+  <!-- ===== Step 3: 1M inference ===== -->
+  <g transform="translate(870, 110)">
+    <rect x="0" y="0" width="280" height="200" rx="8" fill="#fff" stroke="#5a7fb8" stroke-width="1.5"/>
+    <text x="140" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#2a4d7a">阶段 2：1M 推理</text>
+    <text x="140" y="50" text-anchor="middle" font-size="11" fill="#666">seqlen=1,048,576</text>
+
+    <!-- 1M wavelength bar (stretched) -->
+    <line x1="30" y1="120" x2="250" y2="120" stroke="#999" stroke-width="1"/>
+    <g transform="translate(30,120)">
+      <!-- one period of much longer wave (visible as half-wave) -->
+      <path d="M0,0 Q 55,-15 110,0 T 220,0" fill="none" stroke="#5a7fb8" stroke-width="2.5"/>
+    </g>
+    <text x="140" y="155" text-anchor="middle" font-size="11" fill="#444">λ_low = 16·2π = 32π</text>
+    <text x="140" y="172" text-anchor="middle" font-size="10" fill="#888">最细粒度可分辨 1M 相对位置</text>
+    <text x="140" y="188" text-anchor="middle" font-size="10" fill="#888">最高维分量对应 ~1 圈 / 1M</text>
+  </g>
+
+  <!-- ===== Bottom: 1D frequency spectrum comparison ===== -->
+  <g transform="translate(70, 350)">
+    <text x="540" y="0" text-anchor="middle" font-size="14" font-weight="bold" fill="#333">频率维度的视觉对比（d/2 = 64 维 → 示意）</text>
+
+    <!-- 64K freq bar -->
+    <g transform="translate(0, 30)">
+      <text x="0" y="15" font-size="11" font-weight="bold" fill="#444">64K 预训练</text>
+      <g transform="translate(120, 5)">
+        <rect x="0" y="0" width="700" height="22" fill="#fff" stroke="#888" stroke-width="1"/>
+        <!-- color bar from low to high freq -->
+        <g>
+          <rect x="0" y="0" width="100" height="22" fill="#5a7fb8"/>
+          <rect x="100" y="0" width="100" height="22" fill="#7a9bc8"/>
+          <rect x="200" y="0" width="100" height="22" fill="#9bb6d8"/>
+          <rect x="300" y="0" width="100" height="22" fill="#bbd0e8"/>
+          <rect x="400" y="0" width="100" height="22" fill="#dbe5f4"/>
+          <rect x="500" y="0" width="100" height="22" fill="#e8eef8"/>
+          <rect x="600" y="0" width="100" height="22" fill="#f4f6fb"/>
+        </g>
+        <text x="0" y="38" font-size="9" fill="#666">低频 (λ 长)</text>
+        <text x="700" y="38" text-anchor="end" font-size="9" fill="#666">高频 (λ 短)</text>
+      </g>
+    </g>
+
+    <!-- 1M freq bar with YaRN ramp -->
+    <g transform="translate(0, 95)">
+      <text x="0" y="15" font-size="11" font-weight="bold" fill="#2a4d7a">1M 推理 (YaRN)</text>
+      <g transform="translate(120, 5)">
+        <rect x="0" y="0" width="700" height="22" fill="#fff" stroke="#5a7fb8" stroke-width="1"/>
+        <!-- low-freq stretched: deeper color; high-freq preserved: same gradient -->
+        <g>
+          <rect x="0" y="0" width="100" height="22" fill="#1e3a5f"/>
+          <rect x="100" y="0" width="100" height="22" fill="#3a5a7f"/>
+          <rect x="200" y="0" width="100" height="22" fill="#5a7fb8"/>
+          <rect x="300" y="0" width="100" height="22" fill="#9bb6d8"/>
+          <rect x="400" y="0" width="100" height="22" fill="#bbd0e8"/>
+          <rect x="500" y="0" width="100" height="22" fill="#e8eef8"/>
+          <rect x="600" y="0" width="100" height="22" fill="#f4f6fb"/>
+        </g>
+        <text x="0" y="38" font-size="9" fill="#2a4d7a">低频: s=1/16 (拉伸 16x)</text>
+        <text x="700" y="38" text-anchor="end" font-size="9" fill="#2a4d7a">高频: s=1 (保留)</text>
+        <!-- ramp arrow -->
+        <path d="M300,5 L450,5" stroke="#c84a3a" stroke-width="1.5" marker-end="url(#arr7)"/>
+        <text x="375" y="0" text-anchor="middle" font-size="9" fill="#c84a3a">ramp 区间 (β_slow→β_fast)</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ===== Eval results ===== -->
+  <g transform="translate(70, 540)">
+    <rect x="0" y="0" width="1060" height="120" rx="6" fill="#f4f6fb" stroke="#5a7fb8" stroke-width="1"/>
+    <text x="20" y="25" font-size="14" font-weight="bold" fill="#2a4d7a">1M 上下文实测效果（来自 V4 报告 §3）</text>
+
+    <g transform="translate(20, 45)">
+      <rect x="0" y="0" width="500" height="55" rx="4" fill="#fff" stroke="#888"/>
+      <text x="15" y="22" font-size="12" font-weight="bold" fill="#444">长文档检索 MRCR (1M)</text>
+      <text x="15" y="44" font-size="20" font-weight="bold" fill="#2a4d7a">83.5%</text>
+      <text x="490" y="44" text-anchor="end" font-size="10" fill="#888">V3 64K 同指标 60% 区间</text>
+    </g>
+
+    <g transform="translate(540, 45)">
+      <rect x="0" y="0" width="500" height="55" rx="4" fill="#fff" stroke="#888"/>
+      <text x="15" y="22" font-size="12" font-weight="bold" fill="#444">长文档 QA CorpusQA (1M)</text>
+      <text x="15" y="44" font-size="20" font-weight="bold" fill="#2a4d7a">62.0%</text>
+      <text x="490" y="44" text-anchor="end" font-size="10" fill="#888">长文档 needle-in-haystack 92%</text>
+    </g>
+  </g>
+
+  <!-- footer -->
+  <text x="600" y="700" text-anchor="middle" font-size="10" fill="#888">来源：config.json（L48-L52 rope_scaling）+ inference/model.py L199-L229 precompute_freqs_cis</text>
+  <text x="600" y="715" text-anchor="middle" font-size="10" fill="#888">参数：factor=16, beta_fast=32, beta_slow=1, base=10000, dim=128</text>
+</svg>

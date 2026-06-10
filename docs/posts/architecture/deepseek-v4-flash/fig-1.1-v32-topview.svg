@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 380" width="720" height="380" font-family="Courier New, monospace" font-size="12">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.5; stroke-dasharray: 4 2; }
+    .label { fill: #000; }
+    .annot { fill: #444; font-size: 10px; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="360" y="22" text-anchor="middle" font-weight="bold" font-size="14">V3.2 顶层架构 (671B / 37B activated, L=60)</text>
+
+  <!-- Input + Embedding -->
+  <rect class="box" x="40" y="55" width="120" height="36"/>
+  <text class="label" x="100" y="78" text-anchor="middle">Input tokens</text>
+  <line class="arrow" x1="160" y1="73" x2="200" y2="73"/>
+
+  <rect class="box" x="200" y="55" width="140" height="36"/>
+  <text class="label" x="270" y="72" text-anchor="middle">Embedding</text>
+  <text class="annot" x="270" y="86" text-anchor="middle">T x d (d=7168)</text>
+  <line class="arrow" x1="340" y1="73" x2="400" y2="73"/>
+
+  <!-- repeat N=60 分组框 -->
+  <rect class="box-grp" x="50" y="115" width="600" height="200" rx="4"/>
+  <text class="annot" x="60" y="132" font-weight="bold">repeat x N (=60 layers)</text>
+
+  <!-- MLA 块 -->
+  <rect class="box" x="80" y="155" width="200" height="80"/>
+  <text class="label" x="180" y="178" text-anchor="middle" font-weight="bold">MLA (Multi-head Latent)</text>
+  <text class="annot" x="180" y="200" text-anchor="middle">K/V 压缩到 d_c=512</text>
+  <text class="annot" x="180" y="216" text-anchor="middle">Q: T x h x d_h  (h=128)</text>
+  <text class="annot" x="180" y="230" text-anchor="middle">KV cache: T x d_c (low-rank)</text>
+
+  <!-- DeepSeekMoE 块 -->
+  <rect class="box" x="420" y="155" width="200" height="80"/>
+  <text class="label" x="520" y="178" text-anchor="middle" font-weight="bold">DeepSeekMoE</text>
+  <text class="annot" x="520" y="200" text-anchor="middle">1 shared + 256 routed</text>
+  <text class="annot" x="520" y="216" text-anchor="middle">top-k=8 (sigmoid score)</text>
+  <text class="annot" x="520" y="230" text-anchor="middle">+ Aux-Loss-Free bias b_i</text>
+
+  <!-- MLA -> MoE 箭头 -->
+  <line class="arrow" x1="280" y1="195" x2="420" y2="195"/>
+  <text class="annot" x="350" y="190" text-anchor="middle">y = x + f(x)</text>
+
+  <!-- 左侧标注：Pre-Norm -->
+  <text class="annot" x="40" y="180" text-anchor="end">Pre-Norm</text>
+  <line class="arrow" x1="42" y1="175" x2="78" y2="175" stroke-dasharray="2 2"/>
+  <text class="annot" x="40" y="240" text-anchor="end">Post-Norm</text>
+  <line class="arrow" x1="42" y1="235" x2="78" y2="235" stroke-dasharray="2 2"/>
+
+  <!-- 下方箭头 (整个 block 出) -->
+  <line class="arrow" x1="350" y1="315" x2="350" y2="340"/>
+
+  <!-- Norm + LM Head -->
+  <rect class="box" x="280" y="340" width="140" height="30"/>
+  <text class="label" x="350" y="360" text-anchor="middle">Norm</text>
+  <line class="arrow" x1="350" y1="370" x2="350" y2="378"/>
+
+  <!-- 关键超参标注 (顶部) -->
+  <text class="annot" x="680" y="78" text-anchor="end">N=60  d=7168  h=128  d_c=512</text>
+
+</svg>

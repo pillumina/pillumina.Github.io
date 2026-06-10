@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 740" width="760" height="740" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl-ch3 { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-hl-ch4 { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-hl-ch5 { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-grp { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; stroke-dasharray: 4 2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="380" y="22" text-anchor="middle" font-weight="bold" font-size="14">V4-Flash 顶层框图 (单个 Block, 43 layers stacked)</text>
+
+  <!-- 超参标注 (右上角) -->
+  <text class="annot" x="740" y="22" text-anchor="end">L=43  d=4096  h=64  kv=1(MQA)  256 exp  k=6</text>
+
+  <!-- Input x -->
+  <rect class="box" x="320" y="50" width="120" height="30"/>
+  <text class="label" x="380" y="69" text-anchor="middle">Input x &#8712; &#8477;<tspan baseline-shift="super" font-size="smaller">T&#215;d</tspan></text>
+  <line class="arrow" x1="380" y1="80" x2="380" y2="98"/>
+
+  <!-- Pre-Norm 1 -->
+  <rect class="box" x="320" y="100" width="120" height="28"/>
+  <text class="label" x="380" y="118" text-anchor="middle">RMSNorm (Pre-Norm)</text>
+
+  <!-- 下降箭头到分支 -->
+  <line class="arrow" x1="380" y1="128" x2="380" y2="148"/>
+  <line class="arrow" x1="200" y1="148" x2="200" y2="160"/>
+  <line class="arrow" x1="560" y1="148" x2="560" y2="160"/>
+
+  <!-- ============ CSA branch (CH3 highlighted) ============ -->
+  <rect class="box-hl-ch3" x="50" y="160" width="300" height="160" rx="3"/>
+  <text class="label-hl" x="200" y="178" text-anchor="middle" font-weight="bold">CSA branch (CH3.2)</text>
+  <text class="annot-hl" x="345" y="178" text-anchor="end">CH3</text>
+
+  <!-- CSA 内部：Compress (m=4) -->
+  <rect class="box" x="70" y="190" width="260" height="28"/>
+  <text class="label" x="200" y="208" text-anchor="middle">Compressor: m = 4 (softmax-pool)</text>
+
+  <line class="arrow" x1="200" y1="218" x2="200" y2="232"/>
+
+  <!-- CSA 内部：Indexer -->
+  <rect class="box" x="70" y="234" width="260" height="28"/>
+  <text class="label" x="200" y="252" text-anchor="middle">Indexer: 64 h &#215; 128 dim, FP4</text>
+
+  <line class="arrow" x1="200" y1="262" x2="200" y2="276"/>
+
+  <!-- CSA 内部：Sparse Attn -->
+  <rect class="box" x="70" y="278" width="260" height="32"/>
+  <text class="label" x="200" y="296" text-anchor="middle">Sparse Attention</text>
+  <text class="annot" x="200" y="306" text-anchor="middle">top-k = 512, FlashAttn index-gather</text>
+
+  <!-- ============ HCA branch (CH3 highlighted) ============ -->
+  <rect class="box-hl-ch3" x="410" y="160" width="300" height="160" rx="3"/>
+  <text class="label-hl" x="560" y="178" text-anchor="middle" font-weight="bold">HCA branch (CH3.3)</text>
+  <text class="annot-hl" x="705" y="178" text-anchor="end">CH3</text>
+
+  <!-- HCA 内部：Compress (m=128) -->
+  <rect class="box" x="430" y="190" width="260" height="28"/>
+  <text class="label" x="560" y="208" text-anchor="middle">Compressor: m = 128 (same op)</text>
+
+  <line class="arrow" x1="560" y1="218" x2="560" y2="232"/>
+
+  <!-- HCA 内部：Position top-k -->
+  <rect class="box" x="430" y="234" width="260" height="28"/>
+  <text class="label" x="560" y="252" text-anchor="middle">Position top-k = 512 (no Indexer)</text>
+
+  <line class="arrow" x1="560" y1="262" x2="560" y2="276"/>
+
+  <!-- HCA 内部：Sparse Attn -->
+  <rect class="box" x="430" y="278" width="260" height="32"/>
+  <text class="label" x="560" y="296" text-anchor="middle">Sparse Attention</text>
+  <text class="annot" x="560" y="306" text-anchor="middle">位置索引直接 gather K/V 段</text>
+
+  <!-- CSA/HCA 输出汇聚到 combine -->
+  <line class="arrow" x1="200" y1="320" x2="200" y2="345"/>
+  <line class="arrow" x1="560" y1="320" x2="560" y2="345"/>
+  <line class="arrow" x1="200" y1="345" x2="340" y2="345"/>
+  <line class="arrow" x1="560" y1="345" x2="420" y2="345"/>
+
+  <!-- Combine 公式 -->
+  <rect class="box" x="280" y="345" width="200" height="32"/>
+  <text class="label" x="380" y="365" text-anchor="middle" font-weight="bold">o = &#945;&#183;o_csa + (1-&#945;)&#183;o_hca</text>
+
+  <line class="arrow" x1="380" y1="377" x2="380" y2="395"/>
+
+  <!-- ============ mHC 残差 1 (CH5 highlighted) ============ -->
+  <rect class="box-hl-ch5" x="260" y="395" width="240" height="40" rx="3"/>
+  <text class="label-hl" x="380" y="413" text-anchor="middle" font-weight="bold">mHC residual mix</text>
+  <text class="annot" x="380" y="428" text-anchor="middle">hc_mult=4, Sinkhorn-Knopp &#215; 20 iters</text>
+  <text class="annot-hl" x="495" y="413" text-anchor="end">CH5</text>
+
+  <line class="arrow" x1="380" y1="435" x2="380" y2="453"/>
+
+  <!-- Pre-Norm 2 -->
+  <rect class="box" x="320" y="453" width="120" height="28"/>
+  <text class="label" x="380" y="471" text-anchor="middle">RMSNorm (Pre-Norm)</text>
+
+  <line class="arrow" x1="380" y1="481" x2="380" y2="498"/>
+
+  <!-- ============ MoE (CH4 highlighted) ============ -->
+  <rect class="box-hl-ch4" x="50" y="498" width="660" height="120" rx="3"/>
+  <text class="label-hl" x="380" y="516" text-anchor="middle" font-weight="bold">MoE: 1 shared + 256 routed, top-k = 6</text>
+  <text class="annot-hl" x="705" y="516" text-anchor="end">CH4</text>
+
+  <!-- MoE 内部：Gate -->
+  <rect class="box" x="70" y="528" width="160" height="80"/>
+  <text class="label" x="150" y="550" text-anchor="middle" font-weight="bold">Gate</text>
+  <text class="annot" x="150" y="568" text-anchor="middle">sqrtsoftplus</text>
+  <text class="annot" x="150" y="584" text-anchor="middle">+ aux-loss-free b</text>
+  <text class="annot" x="150" y="600" text-anchor="middle">hash routing (前 3 层)</text>
+
+  <!-- MoE 内部：Routed Experts -->
+  <rect class="box" x="250" y="528" width="220" height="80"/>
+  <text class="label" x="360" y="550" text-anchor="middle" font-weight="bold">256 routed experts</text>
+  <text class="annot" x="360" y="568" text-anchor="middle">FP4, block=32, E8M0 scale</text>
+  <text class="annot" x="360" y="584" text-anchor="middle">top-6 selected per token</text>
+  <text class="annot" x="360" y="600" text-anchor="middle">weighted sum &#215; route_scale=1.5</text>
+
+  <!-- MoE 内部：Shared Expert -->
+  <rect class="box" x="490" y="528" width="200" height="80"/>
+  <text class="label" x="590" y="550" text-anchor="middle" font-weight="bold">1 shared expert</text>
+  <text class="annot" x="590" y="568" text-anchor="middle">FP8, e4m3, block=128</text>
+  <text class="annot" x="590" y="584" text-anchor="middle">always active (SiLU/GLU)</text>
+  <text class="annot" x="590" y="600" text-anchor="middle">additive to routed output</text>
+
+  <line class="arrow" x1="380" y1="618" x2="380" y2="635"/>
+
+  <!-- ============ mHC 残差 2 (CH5 highlighted) ============ -->
+  <rect class="box-hl-ch5" x="260" y="635" width="240" height="32" rx="3"/>
+  <text class="label-hl" x="380" y="653" text-anchor="middle" font-weight="bold">mHC residual mix</text>
+  <text class="annot-hl" x="495" y="653" text-anchor="end">CH5</text>
+
+  <line class="arrow" x1="380" y1="667" x2="380" y2="685"/>
+
+  <!-- 下一个 Block -->
+  <rect class="box" x="320" y="685" width="120" height="30"/>
+  <text class="label" x="380" y="705" text-anchor="middle" font-weight="bold">&#8594; next Block (&#215;N=43)</text>
+
+  <!-- 左下角图例 -->
+  <text class="annot" x="20" y="732" font-weight="bold">Legend:</text>
+  <rect class="box-hl-ch3" x="80" y="722" width="14" height="14"/>
+  <text class="annot" x="98" y="733">CH3 (CSA/HCA)</text>
+  <rect class="box-hl-ch4" x="200" y="722" width="14" height="14"/>
+  <text class="annot" x="218" y="733">CH4 (MoE)</text>
+  <rect class="box-hl-ch5" x="300" y="722" width="14" height="14"/>
+  <text class="annot" x="318" y="733">CH5 (mHC)</text>
+  <text class="annot" x="420" y="733">逐层模式: ratio=0 (首尾) | ratio=4 (CSA) | ratio=128 (HCA)</text>
+
+</svg>

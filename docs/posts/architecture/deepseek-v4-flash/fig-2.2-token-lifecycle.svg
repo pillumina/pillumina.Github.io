@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 780 260" width="780" height="260" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 9px; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="390" y="20" text-anchor="middle" font-weight="bold" font-size="13">Token 生命周期 (prompt &#8594; next token, 6 steps)</text>
+
+  <!-- Step 1: encoding -->
+  <rect class="box" x="20" y="40" width="105" height="160"/>
+  <text class="label" x="72" y="62" text-anchor="middle" font-weight="bold">1. encoding</text>
+  <text class="annot" x="72" y="84" text-anchor="middle">str &#8594; str</text>
+  <text class="annot" x="72" y="100" text-anchor="middle">encode_messages</text>
+  <text class="annot" x="72" y="116" text-anchor="middle">(encoding_dsv4.py</text>
+  <text class="annot" x="72" y="132" text-anchor="middle">L506)</text>
+  <text class="annot" x="72" y="156" text-anchor="middle">thinking_mode in</text>
+  <text class="annot" x="72" y="172" text-anchor="middle">{chat, thinking}</text>
+
+  <!-- Arrow 1->2 -->
+  <line class="arrow" x1="125" y1="120" x2="145" y2="120"/>
+
+  <!-- Step 2: tokenize -->
+  <rect class="box" x="145" y="40" width="105" height="160"/>
+  <text class="label" x="197" y="62" text-anchor="middle" font-weight="bold">2. tokenize</text>
+  <text class="annot" x="197" y="84" text-anchor="middle">str &#8594; [T] int64</text>
+  <text class="annot" x="197" y="100" text-anchor="middle">AutoTokenizer</text>
+  <text class="annot" x="197" y="116" text-anchor="middle">.encode(prompt)</text>
+  <text class="annot" x="197" y="140" text-anchor="middle">vocab_size =</text>
+  <text class="annot" x="197" y="156" text-anchor="middle">129,280</text>
+
+  <!-- Arrow 2->3 -->
+  <line class="arrow" x1="250" y1="120" x2="270" y2="120"/>
+
+  <!-- Step 3: embedding -->
+  <rect class="box" x="270" y="40" width="105" height="160"/>
+  <text class="label" x="322" y="62" text-anchor="middle" font-weight="bold">3. embedding</text>
+  <text class="annot" x="322" y="84" text-anchor="middle">[T] &#8594; [T, 4096]</text>
+  <text class="annot" x="322" y="100" text-anchor="middle">ParallelEmbedding</text>
+  <text class="annot" x="322" y="116" text-anchor="middle">(model.py L83)</text>
+  <text class="annot" x="322" y="140" text-anchor="middle">d=4096, bf16</text>
+  <text class="annot" x="322" y="156" text-anchor="middle">no tied weights</text>
+
+  <!-- Arrow 3->4 -->
+  <line class="arrow" x1="375" y1="120" x2="395" y2="120"/>
+
+  <!-- Step 4: Nx V4-Block (highlighted) -->
+  <rect class="box-hl" x="395" y="40" width="125" height="160"/>
+  <text class="label-hl" x="457" y="62" text-anchor="middle" font-weight="bold">4. N&#215;V4-Block</text>
+  <text class="annot" x="457" y="84" text-anchor="middle">[T, 4096] &#8594; [T, 4096]</text>
+  <text class="annot" x="457" y="100" text-anchor="middle">Transformer.forward</text>
+  <text class="annot" x="457" y="116" text-anchor="middle">(model.py L802)</text>
+  <text class="annot" x="457" y="140" text-anchor="middle">N=43 blocks, each</text>
+  <text class="annot" x="457" y="156" text-anchor="middle">CSA|HCA + MoE + mHC</text>
+
+  <!-- Arrow 4->5 -->
+  <line class="arrow" x1="520" y1="120" x2="540" y2="120"/>
+
+  <!-- Step 5: Norm + LM Head -->
+  <rect class="box" x="540" y="40" width="105" height="160"/>
+  <text class="label" x="592" y="62" text-anchor="middle" font-weight="bold">5. Norm + Head</text>
+  <text class="annot" x="592" y="84" text-anchor="middle">[T, 4096] &#8594; [T, V]</text>
+  <text class="annot" x="592" y="100" text-anchor="middle">RMSNorm +</text>
+  <text class="annot" x="592" y="116" text-anchor="middle">ParallelHead</text>
+  <text class="annot" x="592" y="140" text-anchor="middle">(model.py L703)</text>
+  <text class="annot" x="592" y="156" text-anchor="middle">V = 129,280 logits</text>
+
+  <!-- Arrow 5->6 -->
+  <line class="arrow" x1="645" y1="120" x2="665" y2="120"/>
+
+  <!-- Step 6: sample (highlighted as output) -->
+  <rect class="box-hl" x="665" y="40" width="95" height="160"/>
+  <text class="label-hl" x="712" y="62" text-anchor="middle" font-weight="bold">6. sample</text>
+  <text class="annot" x="712" y="84" text-anchor="middle">[V] &#8594; [1]</text>
+  <text class="annot" x="712" y="100" text-anchor="middle">generate.py</text>
+  <text class="annot" x="712" y="116" text-anchor="middle">.sample (L19)</text>
+  <text class="annot" x="712" y="140" text-anchor="middle">Gumbel-max</text>
+  <text class="annot" x="712" y="156" text-anchor="middle">T=1.0, top_p=1.0</text>
+
+  <!-- 底部注释 -->
+  <text class="annot" x="20" y="220" font-weight="bold">Step 1 入口:</text>
+  <text class="annot" x="90" y="220">encoding/encoding_dsv4.py::encode_messages(messages, thinking_mode, reasoning_effort=None)</text>
+  <text class="annot" x="20" y="234" font-weight="bold">Step 6 入口:</text>
+  <text class="annot" x="90" y="234">inference/generate.py:51  logits = model.forward(tokens[:, prev_pos:cur_pos], prev_pos)</text>
+  <text class="annot" x="20" y="248" font-weight="bold">Think Max 推荐:</text>
+  <text class="annot" x="130" y="248" fill="#1a3a6e">context window &#8805; 384K tokens (V4 官方 README, 采样 T=1.0 / top_p=1.0)</text>
+
+</svg>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 620" width="1000" height="620" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-formula { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; }
+    .box-mem { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 1.5; }
+    .token { fill: #fff; stroke: #000; stroke-width: 1; }
+    .token-a { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 1.5; }
+    .token-b { fill: #fdf4e3; stroke: #b8721a; stroke-width: 1.5; }
+    .token-overlap { fill: #d9e3f4; stroke: #1a3a6e; stroke-width: 2; stroke-dasharray: 3 2; }
+    .group-frame { fill: none; stroke-width: 2.5; }
+    .group-a { stroke: #1a3a6e; }
+    .group-b { stroke: #b8721a; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .label-b { fill: #b8721a; font-weight: bold; }
+    .annot { fill: #444; font-size: 10px; }
+    .annot-hl { fill: #1a3a6e; font-size: 10px; font-weight: bold; }
+    .annot-b { fill: #b8721a; font-size: 10px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .arrow-b { stroke: #b8721a; stroke-width: 2; fill: none; marker-end: url(#a-b); }
+    .divider { stroke: #888; stroke-width: 1.5; stroke-dasharray: 4 3; }
+    .bar { stroke: #000; stroke-width: 1; }
+    .bar-csa { fill: #1a3a6e; }
+    .bar-hca { fill: #b8721a; }
+    .axis { stroke: #000; stroke-width: 1.5; }
+    .grid { stroke: #ccc; stroke-width: 0.5; stroke-dasharray: 2 2; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="a-b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 (y=0-40) -->
+  <text x="500" y="20" text-anchor="middle" font-weight="bold" font-size="14">Compressor overlap=True: 2m=8-token sliding window split/merge (m=4, CSA)</text>
+  <text class="annot" x="500" y="36" text-anchor="middle">overlap=True 当且仅当 compress_ratio==4; coff=1+overlap=2; kv_state 容量 2*ratio=8 token</text>
+
+  <!-- ============================================== -->
+  <!-- Section 1: 原始 8-token 输入 (y=60-150)        -->
+  <!-- ============================================== -->
+  <g transform="translate(40, 60)">
+    <text class="label-hl" x="0" y="0" font-size="13" font-weight="bold">1. 原始 8-token 输入 (decode 阶段累加一窗口)</text>
+
+    <g transform="translate(0, 12)">
+      <rect class="token-a" x="0"   y="0" width="60" height="36"/>
+      <rect class="token-a" x="60"  y="0" width="60" height="36"/>
+      <rect class="token-a" x="120" y="0" width="60" height="36"/>
+      <rect class="token-a" x="180" y="0" width="60" height="36"/>
+      <rect class="token-b" x="240" y="0" width="60" height="36"/>
+      <rect class="token-b" x="300" y="0" width="60" height="36"/>
+      <rect class="token-b" x="360" y="0" width="60" height="36"/>
+      <rect class="token-b" x="420" y="0" width="60" height="36"/>
+      <text class="label" x="30"  y="22" text-anchor="middle">t1</text>
+      <text class="label" x="90"  y="22" text-anchor="middle">t2</text>
+      <text class="label" x="150" y="22" text-anchor="middle">t3</text>
+      <text class="label" x="210" y="22" text-anchor="middle">t4</text>
+      <text class="label" x="270" y="22" text-anchor="middle">t5</text>
+      <text class="label" x="330" y="22" text-anchor="middle">t6</text>
+      <text class="label" x="390" y="22" text-anchor="middle">t7</text>
+      <text class="label" x="450" y="22" text-anchor="middle">t8</text>
+    </g>
+    <text class="annot" x="240" y="68" text-anchor="middle">boundary cuts at ratio=4 (前 4 token → group A | 后 4 token → group B)</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- Section 2: Group A/B 框 (y=160-250)            -->
+  <!-- ============================================== -->
+  <g transform="translate(40, 160)">
+    <rect class="group-frame group-a" x="-2" y="0" width="244" height="76" rx="3"/>
+    <text class="label-hl" x="0" y="-4" font-weight="bold">Group A  (前 4 token, m=4)</text>
+    <text class="annot-hl" x="122" y="20" text-anchor="middle">A 段 4 token softmax-pool</text>
+    <text class="annot" x="122" y="36" text-anchor="middle">kv_A = (kv * score.softmax).sum</text>
+    <text class="annot" x="122" y="52" text-anchor="middle">overlap slot 0..3</text>
+    <text class="annot" x="122" y="68" text-anchor="middle">(kv_state[:, :ratio, :d])</text>
+  </g>
+
+  <g transform="translate(296, 160)">
+    <rect class="group-frame group-b" x="-2" y="0" width="244" height="76" rx="3"/>
+    <text class="label-b" x="0" y="-4" font-weight="bold">Group B  (后 4 token, m=4)</text>
+    <text class="annot-b" x="122" y="20" text-anchor="middle">B 段 4 token softmax-pool</text>
+    <text class="annot" x="122" y="36" text-anchor="middle">kv_B = (kv * score.softmax).sum</text>
+    <text class="annot" x="122" y="52" text-anchor="middle">overlap slot 4..7</text>
+    <text class="annot" x="122" y="68" text-anchor="middle">(kv_state[:, ratio:, d:])</text>
+  </g>
+
+  <!-- 左侧 concat 提示 -->
+  <text class="annot" x="290" y="252" text-anchor="middle" font-weight="bold">↑ cat 沿 d 维拼接 →</text>
+
+  <!-- ============================================== -->
+  <!-- Section 3: Overlap 边界处理 (y=270-380)        -->
+  <!-- ============================================== -->
+  <g transform="translate(40, 270)">
+    <text class="label-hl" x="0" y="0" font-weight="bold" font-size="13">2. Overlap 边界处理 (overlap window 2m=8)</text>
+    <text class="annot" x="0" y="16">kv_state 容量 = 2*ratio = 8 token, 一次性 softmax-pool 出 2 段 c_A, c_B</text>
+    <text class="annot" x="0" y="30">src line 71-74: cat([kv_state[:, :ratio, :d], kv_state[:, ratio:, d:]], dim=1) → 沿 d 维拼接</text>
+
+    <!-- Visual: 8-token row, with bracket showing full window -->
+    <g transform="translate(0, 44)">
+      <rect class="token-a" x="0"   y="0" width="60" height="32"/>
+      <rect class="token-a" x="60"  y="0" width="60" height="32"/>
+      <rect class="token-a" x="120" y="0" width="60" height="32"/>
+      <rect class="token-a" x="180" y="0" width="60" height="32"/>
+      <rect class="token-b" x="240" y="0" width="60" height="32"/>
+      <rect class="token-b" x="300" y="0" width="60" height="32"/>
+      <rect class="token-b" x="360" y="0" width="60" height="32"/>
+      <rect class="token-b" x="420" y="0" width="60" height="32"/>
+
+      <!-- Bracket showing the full 2m=8 window -->
+      <line class="divider" x1="-8" y1="44" x2="488" y2="44"/>
+      <line class="divider" x1="-8" y1="40" x2="-8" y2="48"/>
+      <line class="divider" x1="488" y1="40" x2="488" y2="48"/>
+      <text class="annot-hl" x="240" y="60" text-anchor="middle">2m = 8 token 全窗口 (kv_state 一行)</text>
+    </g>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- Section 4: HCA 对比 (右上角, x=700+, y=60+)  -->
+  <!-- ============================================== -->
+  <g transform="translate(700, 60)">
+    <rect class="box-hl" x="0" y="0" width="280" height="200" rx="4"/>
+    <text class="label-hl" x="10" y="18" font-weight="bold" font-size="12">HCA 对比 (m=128, overlap=False)</text>
+
+    <text class="annot" x="10" y="36">overlap = (compress_ratio == 4)</text>
+    <text class="annot" x="10" y="50">HCA m=128: overlap = False</text>
+    <text class="annot" x="10" y="64">每 128 个 token 压缩 1 次</text>
+    <text class="annot" x="10" y="78">边界处不重叠 — kv_state 容量 1*ratio=128</text>
+
+    <!-- Mini diagram showing HCA boundaries -->
+    <g transform="translate(10, 90)">
+      <rect class="token" x="0"   y="0" width="28" height="22"/>
+      <rect class="token" x="28"  y="0" width="28" height="22"/>
+      <rect class="token" x="56"  y="0" width="28" height="22"/>
+      <rect class="token" x="84"  y="0" width="28" height="22"/>
+      <rect class="token" x="112" y="0" width="28" height="22"/>
+      <rect class="token" x="140" y="0" width="28" height="22"/>
+      <rect class="token" x="168" y="0" width="28" height="22"/>
+      <rect class="token" x="196" y="0" width="28" height="22"/>
+      <text class="annot" x="6"   y="14" text-anchor="middle">...</text>
+      <text class="annot" x="34"  y="14" text-anchor="middle">...</text>
+      <text class="annot" x="62"  y="14" text-anchor="middle">...</text>
+      <text class="annot" x="90"  y="14" text-anchor="middle">...</text>
+      <text class="annot" x="118" y="14" text-anchor="middle">...</text>
+      <text class="annot" x="146" y="14" text-anchor="middle">...</text>
+      <text class="annot" x="174" y="14" text-anchor="middle">...</text>
+      <text class="annot" x="202" y="14" text-anchor="middle">...</text>
+    </g>
+    <text class="annot" x="10" y="138" text-anchor="middle">← 128 token 一组 (无 overlap) →</text>
+    <text class="annot" x="10" y="156">kv_state 容量 = 1*ratio = 128</text>
+    <text class="annot" x="10" y="172">should_compress = (start_pos+1) % 128 == 0</text>
+    <text class="annot-hl" x="10" y="190" font-weight="bold">→ HCA 永不触发 overlap</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- Section 5: Decode 流程公式 (y=440-540)         -->
+  <!-- ============================================== -->
+  <g transform="translate(40, 440)">
+    <rect class="box-formula" x="0" y="0" width="940" height="84"/>
+    <text class="label-hl" x="10" y="18" font-weight="bold" font-size="12">3. Decode 路径公式 (start_pos &gt; 0): 边走边压缩</text>
+    <text class="annot" x="10" y="36">step 1 (per token):  kv_state[:bsz, start_pos % ratio] = kv.squeeze(1)     // 写入新槽位</text>
+    <text class="annot" x="10" y="50">step 2 (every ratio):  kv = (kv_state * score_state.softmax(dim=1)).sum(dim=1, keepdim=True)  // 凑齐后压缩</text>
+    <text class="annot-hl" x="10" y="64">HCA: ratio=128, 一次性 softmax-pool 出 1 段 c_k     |     CSA overlap: ratio=4 + 2 段 c_A / c_B 拼接</text>
+    <text class="annot" x="10" y="78">kv_state 容量差: HCA 1*ratio (128)  vs  CSA 2*ratio (8)  → overlap 仅在 ratio 极小时启用</text>
+  </g>
+
+  <!-- ============================================== -->
+  <!-- Section 6: HCA vs CSA 内存账对比 (y=560-600)   -->
+  <!-- ============================================== -->
+  <g transform="translate(40, 560)">
+    <rect class="box-mem" x="0" y="0" width="940" height="44" rx="3"/>
+    <text class="label-hl" x="10" y="16" font-weight="bold" font-size="11">4. 内存账对比 (kv_state 容量)</text>
+
+    <!-- CSA bar (small) -->
+    <text class="annot" x="10" y="34" font-weight="bold">CSA overlap:</text>
+    <rect class="bar bar-csa" x="110" y="24" width="80" height="14"/>
+    <text class="annot-hl" x="196" y="34">2*ratio = 8 token</text>
+
+    <!-- HCA bar (large) -->
+    <text class="annot" x="360" y="34" font-weight="bold">HCA no-overlap:</text>
+    <rect class="bar bar-hca" x="460" y="20" width="320" height="18"/>
+    <text class="annot" x="788" y="34" font-weight="bold">1*ratio = 128 token  (16x larger)</text>
+  </g>
+</svg>

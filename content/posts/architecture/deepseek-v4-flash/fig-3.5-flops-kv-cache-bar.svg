@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" width="880" height="660" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-warn { fill: #fde8e8; stroke: #b22; stroke-width: 1.5; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .annot { fill: #444; font-size: 10px; }
+    .annot-hl { fill: #1a3a6e; font-size: 10px; font-weight: bold; }
+    .annot-warn { fill: #b22; font-size: 10px; font-weight: bold; }
+    .bar-flops { fill: #1a3a6e; stroke: #000; stroke-width: 1; }
+    .bar-cache { fill: #b8721a; stroke: #000; stroke-width: 1; }
+    .bar-flops-target { fill: #4a7ab0; stroke: #000; stroke-width: 1; }
+    .bar-cache-target { fill: #d49a4a; stroke: #000; stroke-width: 1; }
+    .bar-flops-base { fill: #bbb; stroke: #000; stroke-width: 1; }
+    .bar-cache-base { fill: #ddd; stroke: #000; stroke-width: 1; }
+    .axis { stroke: #000; stroke-width: 1.5; }
+    .grid { stroke: #ccc; stroke-width: 0.5; stroke-dasharray: 2 2; }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">FLOPs / KV Cache Savings: V3.2 vs V4 (1M context)</text>
+  <text class="annot" x="440" y="38" text-anchor="middle">V4-Flash 实测: ~10% FLOPs, ~7% KV cache  (V4 official numbers, v0.1 草稿)</text>
+
+  <!-- ================================================================== -->
+  <!-- V4 视图 (默认显示) — 4 组对比柱状: V3.2 / CSA only / HCA only / V4-Flash -->
+  <!-- ================================================================== -->
+  <g class="v4-view">
+    <!-- 左侧 Y 轴标签: FLOPs -->
+    <text class="label-hl" x="80" y="60" text-anchor="middle" font-size="12" font-weight="bold">FLOPs / token (log scale)</text>
+    <text class="annot" x="80" y="76" text-anchor="middle" font-size="9">unit: GFLOPs @ 1M</text>
+
+    <!-- 主绘图区: 4 组柱状 -->
+    <g transform="translate(110, 100)">
+      <!-- Y 轴 (log scale): 1, 10, 100, 1000, 10000 -->
+      <line x1="0" y1="0" x2="0" y2="360" class="axis"/>
+      <line x1="0" y1="360" x2="720" y2="360" class="axis"/>
+
+      <text class="annot" x="-10" y="0" text-anchor="end">10^5</text>
+      <text class="annot" x="-10" y="90" text-anchor="end">10^4</text>
+      <text class="annot" x="-10" y="180" text-anchor="end">10^3</text>
+      <text class="annot" x="-10" y="270" text-anchor="end">10^2</text>
+      <text class="annot" x="-10" y="360" text-anchor="end">10^1</text>
+
+      <line x1="0" y1="0" x2="720" y2="0" class="grid"/>
+      <line x1="0" y1="90" x2="720" y2="90" class="grid"/>
+      <line x1="0" y1="180" x2="720" y2="180" class="grid"/>
+      <line x1="0" y1="270" x2="720" y2="270" class="grid"/>
+
+      <!-- Group 1: V3.2 MLA -->
+      <g transform="translate(60, 0)">
+        <rect class="bar-flops" x="0" y="90" width="40" height="270"/>
+        <text class="annot-hl" x="20" y="84" text-anchor="middle">100%</text>
+        <text class="annot" x="20" y="376" text-anchor="middle">17 TFLOPs</text>
+
+        <rect class="bar-cache" x="45" y="0" width="40" height="360"/>
+        <text class="annot-hl" x="65" y="-6" text-anchor="middle">240 GB</text>
+        <text class="annot" x="65" y="376" text-anchor="middle">100%</text>
+
+        <text class="label" x="65" y="394" text-anchor="middle" font-weight="bold">V3.2 MLA</text>
+      </g>
+
+      <!-- Group 2: V4 CSA only -->
+      <g transform="translate(210, 0)">
+        <rect class="bar-flops" x="0" y="216" width="40" height="144"/>
+        <text class="annot-hl" x="20" y="210" text-anchor="middle">25%</text>
+        <text class="annot" x="20" y="376" text-anchor="middle">4.3 TFLOPs</text>
+
+        <rect class="bar-cache" x="45" y="36" width="40" height="324"/>
+        <text class="annot-hl" x="65" y="30" text-anchor="middle">60 GB</text>
+        <text class="annot" x="65" y="376" text-anchor="middle">25%</text>
+
+        <text class="label" x="65" y="394" text-anchor="middle" font-weight="bold">V4 CSA only</text>
+      </g>
+
+      <!-- Group 3: V4 HCA only -->
+      <g transform="translate(360, 0)">
+        <rect class="bar-flops" x="0" y="306" width="40" height="54"/>
+        <text class="annot-hl" x="20" y="300" text-anchor="middle">1%</text>
+        <text class="annot" x="20" y="376" text-anchor="middle">0.17 TFLOPs</text>
+
+        <rect class="bar-cache" x="45" y="180" width="40" height="180"/>
+        <text class="annot-hl" x="65" y="174" text-anchor="middle">2.4 GB</text>
+        <text class="annot" x="65" y="376" text-anchor="middle">1%</text>
+
+        <text class="label" x="65" y="394" text-anchor="middle" font-weight="bold">V4 HCA only</text>
+      </g>
+
+      <!-- Group 4: V4 CSA+HCA (actual) -->
+      <g transform="translate(510, 0)">
+        <rect class="bar-flops-target" x="0" y="270" width="40" height="90"/>
+        <text class="annot-hl" x="20" y="264" text-anchor="middle" fill="#1a3a6e">10%</text>
+        <text class="annot" x="20" y="376" text-anchor="middle">1.7 TFLOPs</text>
+
+        <rect class="bar-cache-target" x="45" y="104" width="40" height="256"/>
+        <text class="annot-hl" x="65" y="98" text-anchor="middle" fill="#b8721a">17 GB</text>
+        <text class="annot" x="65" y="376" text-anchor="middle">7%</text>
+
+        <text class="label-hl" x="65" y="394" text-anchor="middle" font-weight="bold">V4-Flash (actual)</text>
+      </g>
+    </g>
+
+    <!-- 图例 -->
+    <g transform="translate(40, 530)">
+      <rect class="box" x="0" y="0" width="800" height="40"/>
+      <rect class="bar-flops" x="20" y="12" width="20" height="16"/>
+      <text class="annot" x="48" y="24">FLOPs / token @ 1M context  (GFLOPs, log scale)</text>
+      <rect class="bar-cache" x="380" y="12" width="20" height="16"/>
+      <text class="annot" x="408" y="24">KV cache size  (GB, log scale)</text>
+      <rect class="bar-flops-target" x="600" y="12" width="20" height="16"/>
+      <text class="annot" x="628" y="24">V4 actual</text>
+    </g>
+
+    <!-- 底部注释 -->
+    <g transform="translate(0, 580)">
+      <rect class="box" x="20" y="0" width="840" height="68"/>
+      <text class="label-hl" x="30" y="18">数字来源:</text>
+      <text class="annot" x="30" y="34">- V3.2 (100%, 240 GB): 1M x 512 x 60 x 2 float = 240 GB, FLOPs ~ 17e12 (T=1M).</text>
+      <text class="annot" x="30" y="48">- V4 CSA only: 25% FLOPs (m=4省4x), 25% cache (T/4 = 1/4 of V3.2 raw).</text>
+      <text class="annot" x="30" y="62">- V4 HCA only: 1% FLOPs (m=128省128x), 1% cache (T/128 = 1/128 of V3.2 raw).</text>
+      <text class="annot-hl" x="30" y="76">- V4-Flash actual: 10% FLOPs, 7% cache — 比纯 HCA 多消耗 FLOPs (CSA 层补细节), 但 cache 更省 (hc_mult=4 + FP4 + MQA-KV 复用).</text>
+    </g>
+  </g>
+
+  <!-- ================================================================== -->
+  <!-- V3.2 视图 (隐藏) — V3.2-only 基线 vs V4-Flash 终值 简化对比 -->
+  <!-- ================================================================== -->
+  <g class="v32-view" style="display:none">
+    <!-- 视图标题 -->
+    <text class="label-hl" x="440" y="62" text-anchor="middle" font-size="13" font-weight="bold">V3.2 视角: MLA only — 只压 cache, 不省 compute</text>
+    <text class="annot" x="440" y="80" text-anchor="middle">V3.2 把 attention 头数压到 1 (MQA), KV 维度压到 d_c=512, 但 N x N 矩阵全保留</text>
+
+    <!-- 主绘图区: 2 组对比 V3.2 baseline vs V4-Flash -->
+    <g transform="translate(110, 110)">
+      <line x1="0" y1="0" x2="0" y2="360" class="axis"/>
+      <line x1="0" y1="360" x2="720" y2="360" class="axis"/>
+
+      <!-- Y 轴: log scale -->
+      <text class="annot" x="-10" y="0" text-anchor="end">100%</text>
+      <text class="annot" x="-10" y="90" text-anchor="end">30%</text>
+      <text class="annot" x="-10" y="180" text-anchor="end">10%</text>
+      <text class="annot" x="-10" y="270" text-anchor="end">3%</text>
+      <text class="annot" x="-10" y="360" text-anchor="end">1%</text>
+
+      <line x1="0" y1="0" x2="720" y2="0" class="grid"/>
+      <line x1="0" y1="90" x2="720" y2="90" class="grid"/>
+      <line x1="0" y1="180" x2="720" y2="180" class="grid"/>
+      <line x1="0" y1="270" x2="720" y2="270" class="grid"/>
+
+      <!-- V3.2 (baseline, both bars 100%) -->
+      <g transform="translate(140, 0)">
+        <rect class="bar-flops-base" x="0" y="0" width="60" height="360"/>
+        <text class="annot-hl" x="30" y="-6" text-anchor="middle">100%</text>
+        <text class="annot" x="30" y="376" text-anchor="middle">FLOPs: 17 TFLOPs</text>
+
+        <rect class="bar-cache-base" x="70" y="0" width="60" height="360"/>
+        <text class="annot-hl" x="100" y="-6" text-anchor="middle">100%</text>
+        <text class="annot" x="100" y="376" text-anchor="middle">cache: 240 GB</text>
+
+        <text class="label" x="65" y="394" text-anchor="middle" font-weight="bold" font-size="12">V3.2 MLA baseline</text>
+        <text class="annot" x="65" y="408" text-anchor="middle">(1 head, d_c=512)</text>
+      </g>
+
+      <!-- V4-Flash (10%, 7%) -->
+      <g transform="translate(450, 0)">
+        <!-- FLOPs: 10% -> y=180 in log scale -->
+        <rect class="bar-flops-target" x="0" y="180" width="60" height="180"/>
+        <text class="annot-hl" x="30" y="174" text-anchor="middle" fill="#1a3a6e">10%</text>
+        <text class="annot" x="30" y="376" text-anchor="middle">FLOPs: 1.7 TFLOPs</text>
+
+        <!-- Cache: 7% -> y~204 in log scale (log10(0.07)/log10(0.01) * 360 = 0.57 * 360 = 205) -->
+        <rect class="bar-cache-target" x="70" y="205" width="60" height="155"/>
+        <text class="annot-hl" x="100" y="199" text-anchor="middle" fill="#b8721a">7%</text>
+        <text class="annot" x="100" y="376" text-anchor="middle">cache: 17 GB</text>
+
+        <text class="label-hl" x="65" y="394" text-anchor="middle" font-weight="bold" font-size="12">V4-Flash (CSA+HCA)</text>
+        <text class="annot" x="65" y="408" text-anchor="middle">(64 heads, MQA-KV)</text>
+      </g>
+
+      <!-- 中间箭头 + 倍率标签 -->
+      <line class="axis" x1="295" y1="180" x2="425" y2="180" stroke-dasharray="6 3" marker-end="url(#a)"/>
+      <text class="annot-hl" x="360" y="170" text-anchor="middle" font-size="13" font-weight="bold">FLOPs: 10x</text>
+      <text class="annot-hl" x="360" y="195" text-anchor="middle" font-size="13" font-weight="bold">cache: 14x</text>
+    </g>
+
+    <!-- 底部说明框 -->
+    <g transform="translate(0, 530)">
+      <rect class="box-hl" x="20" y="0" width="840" height="40"/>
+      <text class="label-hl" x="30" y="16">V3.2 局限:</text>
+      <text class="annot" x="120" y="16">MLA 把 cache 压到 100% -> ~33% (按 d_c/d 比例)，但 attention 的 FLOPs O(T^2 d) 完全没省。</text>
+      <text class="annot" x="30" y="32">→ 在 T=1M 上 V3.2 的 attention 计算仍是 dense O(T^2)，单 token decode ~17 TFLOPs，比 V4-Flash 多 10 倍。</text>
+    </g>
+
+    <g transform="translate(0, 580)">
+      <rect class="box" x="20" y="0" width="840" height="68"/>
+      <text class="label-hl" x="30" y="18">解读:</text>
+      <text class="annot" x="80" y="18">V3.2 视角揭示 MLA 的"硬性下限"——cache 压缩到极限也救不了 compute 爆炸。</text>
+      <text class="annot" x="30" y="34">- 若仅靠 MLA (V3.2 路径)，要把 17 TFLOPs/token 跑到 1.7 TFLOPs 需要砍 attention 头数到 1/10，损失质量。</text>
+      <text class="annot" x="30" y="48">- V4 的破局: CSA 把 T^2 项稀疏化 (k=512)，HCA 进一步把 m 从 4 加到 128，达到 ~10% FLOPs。</text>
+      <text class="annot-hl" x="30" y="62">- 切回 V4 视图可见 CSA / HCA / Hybrid 三档贡献的拆解。</text>
+    </g>
+  </g>
+
+</svg>

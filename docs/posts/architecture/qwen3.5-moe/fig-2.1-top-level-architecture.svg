@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 650" width="900" height="650" font-family="Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#64748b"/>
+    </marker>
+    <marker id="arrow-blue" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#2563eb"/>
+    </marker>
+    <linearGradient id="embGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#dbeafe"/><stop offset="100%" stop-color="#bfdbfe"/>
+    </linearGradient>
+    <linearGradient id="layerGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f0fdf4"/><stop offset="100%" stop-color="#dcfce7"/>
+    </linearGradient>
+    <linearGradient id="moeGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#fef3c7"/><stop offset="100%" stop-color="#fde68a"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="900" height="650" fill="#ffffff" rx="8"/>
+
+  <!-- Title -->
+  <text x="450" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Qwen3.5-MoE-35B-A3B 顶层架构概览</text>
+  <text x="450" y="52" text-anchor="middle" font-size="12" fill="#64748b">Fig 2.1: Model Top-Level Architecture — Hybrid Gated DeltaNet + Mixture of Experts</text>
+
+  <!-- Embedding -->
+  <rect x="350" y="72" width="200" height="36" rx="6" fill="url(#embGrad)" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="450" y="94" text-anchor="middle" font-size="12" font-weight="600" fill="#1e40af">Input Embedding (248,320 x 2048)</text>
+
+  <line x1="450" y1="108" x2="450" y2="130" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layer block container -->
+  <rect x="60" y="135" width="780" height="240" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="450" y="155" text-anchor="middle" font-size="13" font-weight="600" fill="#475569">40x Decoder Layers (Pre-Norm, Double Residual)</text>
+
+  <!-- GDN block -->
+  <rect x="80" y="170" width="240" height="100" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1.5"/>
+  <text x="200" y="192" text-anchor="middle" font-size="12" font-weight="600" fill="#1d4ed8">Gated DeltaNet Layers (x30)</text>
+  <text x="200" y="210" text-anchor="middle" font-size="10" fill="#3b82f6">Linear Attention: O(n) complexity</text>
+  <text x="200" y="226" text-anchor="middle" font-size="10" fill="#3b82f6">16 key heads, 32 value heads</text>
+  <text x="200" y="242" text-anchor="middle" font-size="10" fill="#3b82f6">Conv kernel=4, QK L2 norm</text>
+  <text x="200" y="258" text-anchor="middle" font-size="10" fill="#3b82f6">Gated output: RMSNorm * SiLU(Z)</text>
+
+  <!-- Full Attn block -->
+  <rect x="340" y="170" width="240" height="100" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1.5"/>
+  <text x="460" y="192" text-anchor="middle" font-size="12" font-weight="600" fill="#166534">Full Attention Layers (x10)</text>
+  <text x="460" y="210" text-anchor="middle" font-size="10" fill="#22c55e">Standard Softmax: O(n^2)</text>
+  <text x="460" y="226" text-anchor="middle" font-size="10" fill="#22c55e">GQA: 16Q/2KV heads</text>
+  <text x="460" y="242" text-anchor="middle" font-size="10" fill="#22c55e">Partial RoPE (25% rotary)</text>
+  <text x="460" y="258" text-anchor="middle" font-size="10" fill="#22c55e">QK Norm + Output Gate</text>
+
+  <!-- Pattern indicator -->
+  <rect x="600" y="170" width="220" height="100" rx="6" fill="#faf5ff" stroke="#d8b4fe" stroke-width="1.5"/>
+  <text x="710" y="192" text-anchor="middle" font-size="12" font-weight="600" fill="#7c3aed">Layer Pattern (x10 repeats)</text>
+  <text x="710" y="215" text-anchor="middle" font-size="11" fill="#8b5cf6" font-family="monospace">GDN</text>
+  <text x="710" y="232" text-anchor="middle" font-size="11" fill="#8b5cf6" font-family="monospace">GDN</text>
+  <text x="710" y="249" text-anchor="middle" font-size="11" fill="#8b5cf6" font-family="monospace">GDN</text>
+  <text x="710" y="266" text-anchor="middle" font-size="11" fill="#22c55e" font-family="monospace">Full Attn</text>
+
+  <!-- MoE block -->
+  <rect x="80" y="280" width="740" height="50" rx="6" fill="url(#moeGrad)" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="450" y="300" text-anchor="middle" font-size="12" font-weight="600" fill="#92400e">MoE FFN (256 experts, top-8 routing + 1 shared expert) — ALL layers</text>
+  <text x="450" y="318" text-anchor="middle" font-size="10" fill="#b45309">SwiGLU: 256x (W_gate_up: 2x512x2048 + W_down: 2048x512) + shared expert + aux loss (coef=0.001)</text>
+
+  <line x1="450" y1="375" x2="450" y2="405" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Final Norm -->
+  <rect x="350" y="410" width="200" height="36" rx="6" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="450" y="432" text-anchor="middle" font-size="12" font-weight="600" fill="#334155">RMSNorm (Final)</text>
+
+  <line x1="450" y1="446" x2="450" y2="472" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- LM Head -->
+  <rect x="350" y="478" width="200" height="36" rx="6" fill="#fee2e2" stroke="#f87171" stroke-width="1.5"/>
+  <text x="450" y="500" text-anchor="middle" font-size="12" font-weight="600" fill="#991b1b">LM Head (2048 x 248,320)</text>
+
+  <!-- Right side: KV Cache and MTP -->
+  <rect x="60" y="530" width="370" height="60" rx="6" fill="#f0f9ff" stroke="#7dd3fc" stroke-width="1.5"/>
+  <text x="245" y="550" text-anchor="middle" font-size="11" font-weight="600" fill="#0369a1">KV Cache (only Full Attn layers)</text>
+  <text x="245" y="568" text-anchor="middle" font-size="10" fill="#0284c7">10 layers x 2 heads x head_dim=256 = compact</text>
+  <text x="245" y="582" text-anchor="middle" font-size="10" fill="#0284c7">Recurrent state: 32 x 128 x 128 per GDN layer</text>
+
+  <rect x="460" y="530" width="360" height="60" rx="6" fill="#fdf2f8" stroke="#f9a8d4" stroke-width="1.5"/>
+  <text x="640" y="550" text-anchor="middle" font-size="11" font-weight="600" fill="#9d174d">Multi-Token Prediction (MTP)</text>
+  <text x="640" y="568" text-anchor="middle" font-size="10" fill="#be185d">1 additional decoder layer for next-token prediction</text>
+  <text x="640" y="582" text-anchor="middle" font-size="10" fill="#be185d">mtp_num_hidden_layers=1</text>
+
+  <!-- Left side: Vision Encoder -->
+  <rect x="60" y="605" width="370" height="38" rx="6" fill="#e8f5e9" stroke="#81c784" stroke-width="1.5"/>
+  <text x="245" y="620" text-anchor="middle" font-size="11" font-weight="600" fill="#2e7d32">Vision Encoder: 27-layer ViT, 1152d, patch=16, 3D Conv patch embed</text>
+  <text x="245" y="634" text-anchor="middle" font-size="9" fill="#388e3c">Output: 2048d, merged via bilinear interpolation + M-RoPE positional encoding</text>
+
+  <!-- Legend -->
+  <rect x="460" y="605" width="360" height="38" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <rect x="472" y="614" width="12" height="10" rx="2" fill="#3b82f6"/>
+  <text x="490" y="623" font-size="9" fill="#475569">GDN</text>
+  <rect x="540" y="614" width="12" height="10" rx="2" fill="#22c55e"/>
+  <text x="558" y="623" font-size="9" fill="#475569">Full Attn</text>
+  <rect x="620" y="614" width="12" height="10" rx="2" fill="#f59e0b"/>
+  <text x="638" y="623" font-size="9" fill="#475569">MoE</text>
+  <rect x="690" y="614" width="12" height="10" rx="2" fill="#f87171"/>
+  <text x="708" y="623" font-size="9" fill="#475569">LM Head</text>
+  <rect x="765" y="614" width="12" height="10" rx="2" fill="#81c784"/>
+  <text x="783" y="623" font-size="9" fill="#475569">Vision</text>
+</svg>

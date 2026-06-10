@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 460" width="720" height="460" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .h { fill: #000; font-weight: bold; }
+    .row { fill: #f4f4f4; }
+    .alt { fill: #fff; }
+    .line { stroke: #000; stroke-width: 1; fill: none; }
+    .annot { fill: #444; font-size: 9px; }
+    .annot-hl { font-size: 10px; }
+    .label { fill: #000; }
+    .hi { fill: #1a3a6e; font-weight: bold; }
+    .hi-baseline { fill: #1a3a6e; font-weight: bold; }
+    .warn { fill: #b22; font-weight: bold; }
+  </style>
+
+  <!-- ============== v4-view: V3.2 vs V4-Flash 对比 ============== -->
+  <g class="v4-view">
+    <!-- 标题 -->
+    <text x="360" y="20" text-anchor="middle" font-weight="bold" font-size="13">V3.2 vs V4-Flash: 关键参数与架构对比</text>
+
+    <!-- 表头 -->
+    <rect x="40" y="40" width="640" height="30" fill="#000"/>
+    <text class="h" x="50" y="60" fill="#fff">Dimension</text>
+    <text class="h" x="280" y="60" fill="#fff">DeepSeek-V3.2</text>
+    <text class="h" x="470" y="60" fill="#fff">DeepSeek-V4-Flash</text>
+    <text class="h" x="640" y="60" fill="#fff">Delta</text>
+
+    <!-- 数据行 (10 行, 高 34px) -->
+    <!-- Row 1: Total params -->
+    <rect x="40" y="70" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="92">Total params</text>
+    <text class="label" x="280" y="92">671B</text>
+    <text class="label" x="470" y="92">284B</text>
+    <text class="hi" x="640" y="92">-58%</text>
+
+    <!-- Row 2: Activated / token -->
+    <rect x="40" y="104" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="126">Activated / token</text>
+    <text class="label" x="280" y="126">37B</text>
+    <text class="label" x="470" y="126">13B</text>
+    <text class="hi" x="640" y="126">-65%</text>
+
+    <!-- Row 3: Context length -->
+    <rect x="40" y="138" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="160">Context length</text>
+    <text class="label" x="280" y="160">128K</text>
+    <text class="label" x="470" y="160">1M</text>
+    <text class="hi" x="640" y="160">8x</text>
+
+    <!-- Row 4: Attention @1M tokens -->
+    <rect x="40" y="172" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="194">Attention @1M</text>
+    <text class="label" x="280" y="194">O(T^2) full MLA</text>
+    <text class="label" x="470" y="194">CSA + HCA sparse</text>
+    <text class="hi" x="640" y="194">27% FLOPs</text>
+
+    <!-- Row 5: KV cache @1M tokens -->
+    <rect x="40" y="206" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="228">KV cache @1M</text>
+    <text class="label" x="280" y="228">~240 GB/sample</text>
+    <text class="label" x="470" y="228">~24 GB/sample</text>
+    <text class="hi" x="640" y="228">10%</text>
+
+    <!-- Row 6: Residual connection -->
+    <rect x="40" y="240" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="262">Residual</text>
+    <text class="label" x="280" y="262">y = x + f(x)</text>
+    <text class="label" x="470" y="262">mHC (4-ch Sinkhorn)</text>
+    <text class="hi" x="640" y="262">stable</text>
+
+    <!-- Row 7: Optimizer -->
+    <rect x="40" y="274" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="296">Optimizer</text>
+    <text class="label" x="280" y="296">AdamW</text>
+    <text class="label" x="470" y="296">Muon orthogonal</text>
+    <text class="hi" x="640" y="296">faster</text>
+
+    <!-- Row 8: Precision -->
+    <rect x="40" y="308" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="330">Precision</text>
+    <text class="label" x="280" y="330">FP8 mixed</text>
+    <text class="label" x="470" y="330">FP4 expert + FP8</text>
+    <text class="hi" x="640" y="330">+FP4</text>
+
+    <!-- Row 9: MoE experts -->
+    <rect x="40" y="342" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="364">MoE experts</text>
+    <text class="label" x="280" y="364">1 + 256, k=8</text>
+    <text class="label" x="470" y="364">1 + 256, k=6</text>
+    <text class="hi" x="640" y="364">sqrtsoftplus</text>
+
+    <!-- Row 10: Post-training -->
+    <rect x="40" y="376" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="398">Post-training</text>
+    <text class="label" x="280" y="398">SFT + GRPO</text>
+    <text class="label" x="470" y="398">SFT + GRPO + OPD</text>
+    <text class="hi" x="640" y="398">+distill</text>
+
+    <!-- 底部外框 -->
+    <rect class="line" x="40" y="40" width="640" height="370"/>
+
+    <!-- 底部注释 -->
+    <text class="annot" x="40" y="430" fill="#888">// HTML 互动版：点击右上"显示 V3.2"切换至 V3.2 baseline 视角</text>
+    <text class="annot" x="40" y="446" fill="#888">// V4-Flash 优势：参数-58% / FLOPs 27% / KV 10% / 1M 上下文稳定</text>
+  </g>
+
+  <!-- ============== v32-view: V3.2 baseline 视角 ============== -->
+  <g class="v32-view" style="display:none">
+    <!-- 标题 -->
+    <text x="360" y="20" text-anchor="middle" font-weight="bold" font-size="13">V3.2 baseline: MLA 优化前的实际能力</text>
+
+    <!-- 副标题 (核心限制) -->
+    <text x="360" y="36" text-anchor="middle" class="annot-hl" fill="#b22" font-weight="bold">V3.2 MLA: 仅有 d_c=512 的 KV cache 压缩, attention 仍 O(T^2) -&gt; 1M 上下文实际不可用</text>
+
+    <!-- 表头 -->
+    <rect x="40" y="40" width="640" height="30" fill="#000"/>
+    <text class="h" x="50" y="60" fill="#fff">Dimension</text>
+    <text class="h" x="240" y="60" fill="#fff">V3.2 native</text>
+    <text class="h" x="420" y="60" fill="#fff">V3.2 @ 1M</text>
+    <text class="h" x="600" y="60" fill="#fff">Bottleneck</text>
+
+    <!-- Row 1: Total params -->
+    <rect x="40" y="70" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="92">Total params</text>
+    <text class="hi-baseline" x="240" y="92">671B</text>
+    <text class="label" x="420" y="92">671B</text>
+    <text class="label" x="600" y="92">-</text>
+
+    <!-- Row 2: Activated / token -->
+    <rect x="40" y="104" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="126">Activated / token</text>
+    <text class="hi-baseline" x="240" y="126">37B</text>
+    <text class="label" x="420" y="126">37B</text>
+    <text class="label" x="600" y="126">-</text>
+
+    <!-- Row 3: Context length -->
+    <rect x="40" y="138" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="160">Context length</text>
+    <text class="hi-baseline" x="240" y="160">128K</text>
+    <text class="warn" x="420" y="160">1M (YaRN)</text>
+    <text class="warn" x="600" y="160">未官方支持</text>
+
+    <!-- Row 4: Attention @1M -->
+    <rect x="40" y="172" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="194">Attention @1M</text>
+    <text class="label" x="240" y="194">O(T^2) full MLA</text>
+    <text class="warn" x="420" y="194">O(T^2) full</text>
+    <text class="warn" x="600" y="194">无 CSA/HCA</text>
+
+    <!-- Row 5: KV cache @1M -->
+    <rect x="40" y="206" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="228">KV cache @1M</text>
+    <text class="label" x="240" y="228">~240 GB/sample</text>
+    <text class="warn" x="420" y="228">~240 GB</text>
+    <text class="warn" x="600" y="228">显存爆炸</text>
+
+    <!-- Row 6: Residual -->
+    <rect x="40" y="240" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="262">Residual</text>
+    <text class="hi-baseline" x="240" y="262">y = x + f(x)</text>
+    <text class="label" x="420" y="262">y = x + f(x)</text>
+    <text class="label" x="600" y="262">标准式</text>
+
+    <!-- Row 7: Optimizer -->
+    <rect x="40" y="274" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="296">Optimizer</text>
+    <text class="hi-baseline" x="240" y="296">AdamW</text>
+    <text class="label" x="420" y="296">AdamW</text>
+    <text class="label" x="600" y="296">-</text>
+
+    <!-- Row 8: Precision -->
+    <rect x="40" y="308" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="330">Precision</text>
+    <text class="hi-baseline" x="240" y="330">FP8 mixed</text>
+    <text class="label" x="420" y="330">FP8 mixed</text>
+    <text class="label" x="600" y="330">-</text>
+
+    <!-- Row 9: MoE experts -->
+    <rect x="40" y="342" width="640" height="34" fill="#f4f4f4"/>
+    <text class="label" x="50" y="364">MoE experts</text>
+    <text class="hi-baseline" x="240" y="364">1 + 256, k=8</text>
+    <text class="label" x="420" y="364">1 + 256, k=8</text>
+    <text class="label" x="600" y="364">-</text>
+
+    <!-- Row 10: Post-training -->
+    <rect x="40" y="376" width="640" height="34" fill="#fff"/>
+    <text class="label" x="50" y="398">Post-training</text>
+    <text class="hi-baseline" x="240" y="398">SFT + GRPO</text>
+    <text class="label" x="420" y="398">SFT + GRPO</text>
+    <text class="warn" x="600" y="398">无 OPD</text>
+
+    <!-- 底部外框 -->
+    <rect class="line" x="40" y="40" width="640" height="370"/>
+
+    <!-- 底部注释 -->
+    <text class="annot" x="40" y="430" fill="#888">// 1M 上下文需 YaRN 外推, V3.2 release notes 未官方支持; O(T^2) attention + 240 GB KV 让 1M 实际不可用</text>
+    <text class="annot" x="40" y="446" fill="#888">// V4-Flash 通过 CSA + HCA 稀疏化 attention + mHC 稳定残差 + Muon 优化器 + FP4 专家 突破 1M 限制</text>
+  </g>
+
+</svg>

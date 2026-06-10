@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" width="900" height="700" font-family="Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="ar" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+      <polygon points="0 0, 7 2.5, 0 5" fill="#64748b"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="700" fill="#ffffff" rx="8"/>
+
+  <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Decoder Layer 完整流 — 层类型分支与双残差</text>
+  <text x="450" y="48" text-anchor="middle" font-size="12" fill="#64748b">Fig 5.2: Complete Decoder Layer Flow — GDN vs Full Attention Token Mixer + Shared MoE FFN</text>
+
+  <!-- Input -->
+  <rect x="340" y="72" width="220" height="32" rx="5" fill="#e0e7ff" stroke="#818cf8" stroke-width="1.2"/>
+  <text x="450" y="93" text-anchor="middle" font-size="11" font-weight="600" fill="#3730a3">Hidden States (B, L, 2048)</text>
+
+  <!-- Residual line -->
+  <line x1="320" y1="88" x2="270" y2="88" stroke="#cbd5e1" stroke-width="1.5"/>
+  <line x1="270" y1="88" x2="270" y2="370" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="270" y1="370" x2="340" y2="370" stroke="#cbd5e1" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <line x1="450" y1="104" x2="450" y2="125" stroke="#64748b" stroke-width="1.2" marker-end="url(#ar)"/>
+
+  <!-- input_layernorm -->
+  <rect x="340" y="125" width="220" height="30" rx="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="450" y="144" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">input_layernorm (RMSNorm, eps=1e-6)</text>
+
+  <line x1="450" y1="155" x2="450" y2="180" stroke="#64748b" stroke-width="1.2" marker-end="url(#ar)"/>
+
+  <!-- Branch: layer_type -->
+  <rect x="320" y="180" width="260" height="25" rx="4" fill="#fef3c7" stroke="#f59e0b" stroke-width="1"/>
+  <text x="450" y="196" text-anchor="middle" font-size="9" font-weight="600" fill="#92400e">switch(config.layer_types[layer_idx])</text>
+
+  <!-- Left branch: GDN -->
+  <line x1="360" y1="205" x2="190" y2="235" stroke="#3b82f6" stroke-width="1.2" marker-end="url(#ar)"/>
+  <text x="260" y="218" font-size="8" fill="#3b82f6">"linear_attention"</text>
+
+  <!-- Right branch: Full Attn -->
+  <line x1="540" y1="205" x2="710" y2="235" stroke="#22c55e" stroke-width="1.2" marker-end="url(#ar)"/>
+  <text x="640" y="218" font-size="8" fill="#22c55e">"full_attention"</text>
+
+  <!-- GDN Box -->
+  <rect x="30" y="235" width="320" height="95" rx="6" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
+  <text x="190" y="255" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Gated DeltaNet (Linear Attention)</text>
+  <text x="190" y="272" text-anchor="middle" font-size="9" fill="#3b82f6">1. in_proj: Q(2048)+K(2048)+V(4096)+Z(4096)+B(32)+A(32)</text>
+  <text x="190" y="288" text-anchor="middle" font-size="9" fill="#3b82f6">2. Causal Conv1D(kernel=4) + SiLU</text>
+  <text x="190" y="304" text-anchor="middle" font-size="9" fill="#3b82f6">3. Chunked Gated Delta Rule (QK L2 norm)</text>
+  <text x="190" y="320" text-anchor="middle" font-size="9" fill="#3b82f6">4. RMSNorm(x) * SiLU(Z) -> out_proj</text>
+
+  <!-- Full Attn Box -->
+  <rect x="550" y="235" width="320" height="95" rx="6" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.5"/>
+  <text x="710" y="255" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">Full Attention (GQA)</text>
+  <text x="710" y="272" text-anchor="middle" font-size="9" fill="#22c55e">1. Q(16h*256*2)+K(2h*256)+V(2h*256) proj</text>
+  <text x="710" y="288" text-anchor="middle" font-size="9" fill="#22c55e">2. QK RMSNorm (per-head)</text>
+  <text x="710" y="304" text-anchor="middle" font-size="9" fill="#22c55e">3. Partial RoPE (25%) + Softmax Attn</text>
+  <text x="710" y="320" text-anchor="middle" font-size="9" fill="#22c55e">4. sigmoid(gate) * attn_output -> out_proj</text>
+
+  <!-- Merging lines -->
+  <line x1="190" y1="330" x2="190" y2="360" stroke="#3b82f6" stroke-width="1.2" marker-end="url(#ar)"/>
+  <line x1="710" y1="330" x2="710" y2="360" stroke="#22c55e" stroke-width="1.2" marker-end="url(#ar)"/>
+  <line x1="190" y1="360" x2="435" y2="370" stroke="#64748b" stroke-width="1.2"/>
+  <line x1="710" y1="360" x2="465" y2="370" stroke="#64748b" stroke-width="1.2"/>
+
+  <!-- Residual add 1 -->
+  <rect x="340" y="365" width="220" height="25" rx="12" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="450" y="382" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">+ (Residual Add 1)</text>
+
+  <line x1="450" y1="390" x2="450" y2="412" stroke="#64748b" stroke-width="1.2" marker-end="url(#ar)"/>
+
+  <!-- post_attention_layernorm -->
+  <rect x="340" y="415" width="220" height="30" rx="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
+  <text x="450" y="434" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">post_attention_layernorm (RMSNorm)</text>
+
+  <line x1="450" y1="445" x2="450" y2="470" stroke="#64748b" stroke-width="1.2" marker-end="url(#ar)"/>
+
+  <!-- Second residual line -->
+  <line x1="580" y1="380" x2="610" y2="380" stroke="#cbd5e1" stroke-width="1.5"/>
+  <line x1="610" y1="380" x2="610" y2="605" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="610" y1="605" x2="560" y2="605" stroke="#cbd5e1" stroke-width="1.5" marker-end="url(#ar)"/>
+
+  <!-- MoE Block -->
+  <rect x="200" y="470" width="500" height="95" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+  <text x="450" y="492" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">MoE Sparse Block (ALL layers)</text>
+
+  <rect x="220" y="502" width="220" height="55" rx="4" fill="#dcfce7" stroke="#22c55e" stroke-width="1"/>
+  <text x="330" y="518" text-anchor="middle" font-size="9" font-weight="600" fill="#166534">Shared Expert</text>
+  <text x="330" y="532" text-anchor="middle" font-size="8" fill="#22c55e">SwiGLU(2048,512)</text>
+  <text x="330" y="546" text-anchor="middle" font-size="8" fill="#22c55e">x sigmoid(gate)</text>
+
+  <rect x="460" y="502" width="220" height="55" rx="4" fill="#dbeafe" stroke="#3b82f6" stroke-width="1"/>
+  <text x="570" y="518" text-anchor="middle" font-size="9" font-weight="600" fill="#1e40af">Routed Experts (256, top-8)</text>
+  <text x="570" y="532" text-anchor="middle" font-size="8" fill="#3b82f6">dispatch -> SwiGLU</text>
+  <text x="570" y="546" text-anchor="middle" font-size="8" fill="#3b82f6">-> weight * output</text>
+
+  <line x1="450" y1="565" x2="450" y2="595" stroke="#64748b" stroke-width="1.2" marker-end="url(#ar)"/>
+
+  <!-- Residual add 2 -->
+  <rect x="340" y="595" width="220" height="25" rx="12" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="450" y="612" text-anchor="middle" font-size="10" font-weight="600" fill="#475569">+ (Residual Add 2)</text>
+
+  <line x1="450" y1="620" x2="450" y2="645" stroke="#64748b" stroke-width="1.2" marker-end="url(#ar)"/>
+
+  <!-- Output -->
+  <rect x="340" y="648" width="220" height="32" rx="5" fill="#e0e7ff" stroke="#818cf8" stroke-width="1.2"/>
+  <text x="450" y="669" text-anchor="middle" font-size="11" font-weight="600" fill="#3730a3">Output (B, L, 2048)</text>
+
+  <!-- Key architectural note -->
+  <rect x="30" y="400" width="155" height="40" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="107" y="415" text-anchor="middle" font-size="8" fill="#64748b">Pre-Norm architecture</text>
+  <text x="107" y="430" text-anchor="middle" font-size="8" fill="#64748b">Norm BEFORE each sublayer</text>
+
+  <rect x="30" y="450" width="155" height="40" rx="5" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="107" y="465" text-anchor="middle" font-size="8" fill="#64748b">Mask selection:</text>
+  <text x="107" y="480" text-anchor="middle" font-size="8" fill="#64748b">GDN: linear_attn_mask</text>
+  <text x="107" y="492" font-size="8" fill="#64748b">Full: causal_mask</text>
+</svg>

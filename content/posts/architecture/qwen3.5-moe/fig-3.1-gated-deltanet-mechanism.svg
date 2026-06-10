@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 700" width="900" height="700" font-family="Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="arr" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+      <polygon points="0 0, 7 2.5, 0 5" fill="#64748b"/>
+    </marker>
+    <marker id="arr-b" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+      <polygon points="0 0, 7 2.5, 0 5" fill="#2563eb"/>
+    </marker>
+    <marker id="arr-g" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+      <polygon points="0 0, 7 2.5, 0 5" fill="#16a34a"/>
+    </marker>
+  </defs>
+
+  <rect width="900" height="700" fill="#ffffff" rx="8"/>
+
+  <text x="450" y="28" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Gated DeltaNet 机制详解</text>
+  <text x="450" y="48" text-anchor="middle" font-size="12" fill="#64748b">Fig 3.1: Gated DeltaNet — Linear Attention with Delta Rule, Convolution, and Gating</text>
+
+  <!-- Input -->
+  <rect x="370" y="65" width="160" height="32" rx="5" fill="#e0e7ff" stroke="#818cf8" stroke-width="1.2"/>
+  <text x="450" y="85" text-anchor="middle" font-size="11" font-weight="600" fill="#3730a3">Input: (B, L, 2048)</text>
+
+  <!-- Branches -->
+  <!-- QKV branch -->
+  <line x1="370" y1="81" x2="200" y2="125" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="530" y1="81" x2="700" y2="125" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- QKV proj -->
+  <rect x="80" y="125" width="220" height="40" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="190" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#1e40af">in_proj_qkv: 2048 -> Q+K+V</text>
+  <text x="190" y="156" text-anchor="middle" font-size="9" fill="#3b82f6">Q(2048) + K(2048) + V(4096) = 8192</text>
+
+  <!-- Z proj -->
+  <rect x="340" y="125" width="160" height="40" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="420" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e">in_proj_z: 2048->4096</text>
+  <text x="420" y="156" text-anchor="middle" font-size="9" fill="#b45309">Output gate Z</text>
+
+  <!-- B proj -->
+  <rect x="540" y="125" width="140" height="40" rx="5" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="610" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">in_proj_b: 2048->32</text>
+  <text x="610" y="156" text-anchor="middle" font-size="9" fill="#22c55e">Decay beta</text>
+
+  <!-- A proj -->
+  <rect x="700" y="125" width="140" height="40" rx="5" fill="#fce7f3" stroke="#ec4899" stroke-width="1.2"/>
+  <text x="770" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#9d174d">in_proj_a: 2048->32</text>
+  <text x="770" y="156" text-anchor="middle" font-size="9" fill="#be185d">Time-step dt</text>
+
+  <!-- Arrows down -->
+  <line x1="190" y1="165" x2="190" y2="195" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="420" y1="165" x2="420" y2="580" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="610" y1="165" x2="610" y2="260" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="770" y1="165" x2="770" y2="300" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- Causal Conv1D -->
+  <rect x="80" y="195" width="220" height="50" rx="5" fill="#e0e7ff" stroke="#6366f1" stroke-width="1.2"/>
+  <text x="190" y="213" text-anchor="middle" font-size="10" font-weight="600" fill="#3730a3">Causal Conv1D (kernel=4)</text>
+  <text x="190" y="228" text-anchor="middle" font-size="9" fill="#6366f1">Depthwise + SiLU activation</text>
+  <text x="190" y="241" text-anchor="middle" font-size="8" fill="#818cf8">8192 groups, causal masking</text>
+
+  <line x1="190" y1="245" x2="190" y2="275" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- Split QKV -->
+  <rect x="80" y="275" width="220" height="40" rx="5" fill="#f3f4f6" stroke="#9ca3af" stroke-width="1.2"/>
+  <text x="190" y="291" text-anchor="middle" font-size="10" font-weight="600" fill="#374151">Split -> Q(16h,128), K(16h,128), V(32h,128)</text>
+  <text x="190" y="306" text-anchor="middle" font-size="9" fill="#6b7280">Q/K repeat: 16h -> 32h (key heads -> value heads)</text>
+
+  <!-- Beta computation -->
+  <rect x="520" y="260" width="180" height="40" rx="5" fill="#f0fdf4" stroke="#22c55e" stroke-width="1.2"/>
+  <text x="610" y="276" text-anchor="middle" font-size="10" font-weight="600" fill="#166534">beta = sigmoid(B)</text>
+  <text x="610" y="291" text-anchor="middle" font-size="9" fill="#22c55e">Data-dependent decay (0 to 1)</text>
+
+  <!-- A computation -->
+  <rect x="680" y="300" width="180" height="40" rx="5" fill="#fce7f3" stroke="#ec4899" stroke-width="1.2"/>
+  <text x="770" y="316" text-anchor="middle" font-size="10" font-weight="600" fill="#9d174d">g = -exp(A_log) *</text>
+  <text x="770" y="331" text-anchor="middle" font-size="10" fill="#be185d">softplus(A + dt_bias)</text>
+
+  <!-- QK L2 norm -->
+  <rect x="80" y="335" width="220" height="30" rx="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1"/>
+  <text x="190" y="354" text-anchor="middle" font-size="9" fill="#475569">QK L2 Normalization (for stability)</text>
+
+  <line x1="190" y1="365" x2="190" y2="400" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="610" y1="300" x2="610" y2="400" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="770" y1="340" x2="770" y2="400" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- Core: Chunked Gated Delta Rule -->
+  <rect x="50" y="400" width="320" height="85" rx="6" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+  <text x="210" y="420" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">Chunked Gated Delta Rule</text>
+  <text x="210" y="438" text-anchor="middle" font-size="9" fill="#3b82f6">Prefill: Chunked parallel scan (chunk=64)</text>
+  <text x="210" y="454" text-anchor="middle" font-size="9" fill="#3b82f6">Decode: Recurrent step-by-step</text>
+  <text x="210" y="473" text-anchor="middle" font-size="9" fill="#3b82f6" font-family="monospace">S_t = S_t-1 * g_t + k_t^T * delta_t</text>
+  <text x="210" y="473" text-anchor="middle" font-size="9" fill="#3b82f6"/>
+  <text x="210" y="483" text-anchor="middle" font-size="0" fill="#3b82f6"/>
+
+  <text x="210" y="372" font-size="0"/>
+
+  <!-- Recurrent state -->
+  <rect x="420" y="410" width="150" height="55" rx="5" fill="#faf5ff" stroke="#a78bfa" stroke-width="1.2"/>
+  <text x="495" y="430" text-anchor="middle" font-size="9" font-weight="600" fill="#7c3aed">Recurrent State S</text>
+  <text x="495" y="445" text-anchor="middle" font-size="8" fill="#8b5cf6">(B, 32h, 128, 128)</text>
+  <text x="495" y="458" text-anchor="middle" font-size="8" fill="#8b5cf6">k_dim x v_dim matrix</text>
+
+  <!-- Bidirectional arrow between core and state -->
+  <line x1="370" y1="440" x2="420" y2="440" stroke="#8b5cf6" stroke-width="1.2" marker-end="url(#arr)"/>
+  <line x1="420" y1="435" x2="370" y2="435" stroke="#8b5cf6" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <line x1="210" y1="485" x2="210" y2="540" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- Output: Gated RMSNorm -->
+  <rect x="50" y="540" width="320" height="50" rx="5" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.2"/>
+  <text x="210" y="558" text-anchor="middle" font-size="10" font-weight="600" fill="#92400e">Gated Output: RMSNorm(x) * SiLU(Z)</text>
+  <text x="210" y="574" text-anchor="middle" font-size="9" fill="#b45309">Z gate (from in_proj_z) applied after norm</text>
+
+  <line x1="210" y1="590" x2="210" y2="620" stroke="#64748b" stroke-width="1.2" marker-end="url(#arr)"/>
+
+  <!-- Output proj -->
+  <rect x="80" y="620" width="260" height="35" rx="5" fill="#dbeafe" stroke="#3b82f6" stroke-width="1.2"/>
+  <text x="210" y="642" text-anchor="middle" font-size="10" font-weight="600" fill="#1e40af">out_proj: (32h x 128) -> 2048</text>
+
+  <!-- Equations box -->
+  <rect x="600" y="420" width="260" height="200" rx="6" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1"/>
+  <text x="730" y="440" text-anchor="middle" font-size="11" font-weight="700" fill="#1e293b">Key Equations</text>
+  <text x="730" y="462" text-anchor="middle" font-size="9" fill="#475569" font-family="monospace">beta_t = sigmoid(B(x_t))</text>
+  <text x="730" y="482" text-anchor="middle" font-size="9" fill="#475569" font-family="monospace">g_t = -exp(A_log) * softplus(A(x_t)+bias)</text>
+  <text x="730" y="508" text-anchor="middle" font-size="9" fill="#475569" font-family="monospace">S_t = S_t-1 * exp(g_t) + k_t^T * delta_t</text>
+  <text x="730" y="534" text-anchor="middle" font-size="9" fill="#475569" font-family="monospace">delta_t = (v_t - S_t-1 * k_t) * beta_t</text>
+  <text x="730" y="560" text-anchor="middle" font-size="9" fill="#475569" font-family="monospace">y_t = RMSNorm(S_t * q_t, z_t)</text>
+  <text x="730" y="586" text-anchor="middle" font-size="9" fill="#475569" font-family="monospace">z_t = in_proj_z(x_t)</text>
+
+  <text x="730" y="612" text-anchor="middle" font-size="9" fill="#94a3b8" font-style="italic">Qwen3.5 uses L2-norm on Q,K for</text>
+  <text x="730" y="626" text-anchor="middle" font-size="9" fill="#94a3b8" font-style="italic">stability (use_qk_l2norm_in_kernel=True)</text>
+
+  <!-- Legend -->
+  <rect x="600" y="640" width="260" height="35" rx="4" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1"/>
+  <rect x="610" y="650" width="10" height="8" rx="1" fill="#3b82f6"/><text x="624" y="658" font-size="8" fill="#475569">Linear</text>
+  <rect x="675" y="650" width="10" height="8" rx="1" fill="#f59e0b"/><text x="689" y="658" font-size="8" fill="#475569">Gate</text>
+  <rect x="725" y="650" width="10" height="8" rx="1" fill="#22c55e"/><text x="739" y="658" font-size="8" fill="#475569">Decay</text>
+  <rect x="780" y="650" width="10" height="8" rx="1" fill="#ec4899"/><text x="794" y="658" font-size="8" fill="#475569">Time</text>
+</svg>

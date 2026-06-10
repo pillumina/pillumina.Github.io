@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 660" width="880" height="660" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .box-shared { fill: #e8eef8; stroke: #1a3a6e; stroke-width: 2; stroke-dasharray: 4 2; }
+    .box-pos { fill: #e8f5e9; stroke: #2e7d32; stroke-width: 2; stroke-dasharray: 4 2; }
+    .box-formula { fill: #f4f4f4; stroke: #000; stroke-width: 1.2; }
+    .label { fill: #000; }
+    .label-hl { fill: #1a3a6e; font-weight: bold; }
+    .label-pos { fill: #2e7d32; font-weight: bold; }
+    .annot { fill: #444; font-size: 9.5px; }
+    .annot-hl { fill: #1a3a6e; font-size: 9.5px; font-weight: bold; }
+    .annot-pos { fill: #2e7d32; font-size: 9.5px; font-weight: bold; }
+    .arrow { stroke: #000; stroke-width: 1.5; fill: none; marker-end: url(#a); }
+    .arrow-hl { stroke: #1a3a6e; stroke-width: 2; fill: none; marker-end: url(#a-hl); }
+    .arrow-pos { stroke: #2e7d32; stroke-width: 2; fill: none; marker-end: url(#a-pos); }
+  </style>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#000"/>
+    </marker>
+    <marker id="a-hl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="a-pos" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#2e7d32"/>
+    </marker>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="440" y="22" text-anchor="middle" font-weight="bold" font-size="14">HCA: Heavily Compressed Attention</text>
+  <text class="annot" x="440" y="38" text-anchor="middle">x -> Compressor(m=128) -> Position top-k=512 -> Sparse Attention (NO Indexer)</text>
+
+  <!-- 步骤 1: x -->
+  <g transform="translate(40, 70)">
+    <rect class="box-hl" x="0" y="0" width="120" height="50"/>
+    <text class="label-hl" x="60" y="20" text-anchor="middle">1. Input x</text>
+    <text class="annot" x="60" y="35" text-anchor="middle">shape: [T, d]</text>
+    <text class="annot-hl" x="60" y="46" text-anchor="middle">T x d = 1M x 4096</text>
+  </g>
+
+  <!-- 步骤 2: 共享 Compressor (m=128, no overlap) -->
+  <g transform="translate(40, 170)">
+    <rect class="box-shared" x="0" y="0" width="320" height="180"/>
+    <text class="label-hl" x="160" y="20" text-anchor="middle">2. Shared Compressor (m=128, overlap=False)</text>
+    <text class="annot" x="160" y="35" text-anchor="middle">公式 (3.4):  c_hat_K, c_hat_V = CComp_KV(x)</text>
+
+    <!-- K 路径 -->
+    <rect class="box" x="20" y="50" width="130" height="40"/>
+    <text class="label" x="85" y="68" text-anchor="middle">wkv(x) [fp32]</text>
+    <text class="annot" x="85" y="80" text-anchor="middle">softmax-pool</text>
+
+    <!-- V 路径 -->
+    <rect class="box" x="170" y="50" width="130" height="40"/>
+    <text class="label" x="235" y="68" text-anchor="middle">wgate(x) [fp32]</text>
+    <text class="annot" x="235" y="80" text-anchor="middle">score weight</text>
+
+    <text class="annot" x="160" y="108" text-anchor="middle">kv = (kv * score.softmax(dim=2)).sum(dim=2)</text>
+    <text class="annot" x="160" y="122" text-anchor="middle">NO overlap (overlap = m==4 only)</text>
+    <text class="annot" x="160" y="138" text-anchor="middle">coff = 1 + 0 = 1  (vs CSA: 1 + 1 = 2)</text>
+    <text class="annot-hl" x="160" y="156" text-anchor="middle">Output: c_hat_K, c_hat_V in R^[T/128, d]</text>
+    <text class="annot-hl" x="160" y="170" text-anchor="middle">= 8,192 x 4096 (1/128 of raw)</text>
+  </g>
+
+  <!-- 步骤 3: Position top-k=512 (NO Indexer!) -->
+  <g transform="translate(40, 380)">
+    <rect class="box-pos" x="0" y="0" width="320" height="160"/>
+    <text class="label-pos" x="160" y="20" text-anchor="middle">3. Position top-k=512 (NO Indexer)</text>
+    <text class="annot-pos" x="160" y="35" text-anchor="middle">公式 (3.6):  positions only, NO score-based ranking</text>
+
+    <text class="annot" x="20" y="58">Source: get_compress_topk_idxs()  (model.py:L268-L276)</text>
+    <text class="annot" x="20" y="76">if start_pos == 0:</text>
+    <text class="annot" x="20" y="90">  matrix = torch.arange(seqlen // 128).repeat(seqlen, 1)</text>
+    <text class="annot" x="20" y="104">  matrix = torch.where(causal_mask, -1, matrix + offset)</text>
+    <text class="annot" x="20" y="122">saves entire Indexer cost (no FP4/Hadamard/q proj)</text>
+
+    <text class="annot-pos" x="20" y="142">shape: [B, T, 512]  (512 positions per query)</text>
+    <text class="annot-pos" x="20" y="156">positions are equally spaced along compressed segment</text>
+  </g>
+
+  <!-- 步骤 4: top-k=512 选位置 -->
+  <g transform="translate(420, 70)">
+    <rect class="box-hl" x="0" y="0" width="200" height="50"/>
+    <text class="label-hl" x="100" y="20" text-anchor="middle">4. top-k = 512</text>
+    <text class="annot" x="100" y="35" text-anchor="middle">512 positions</text>
+    <text class="annot-hl" x="100" y="46" text-anchor="middle">position-based (HCA only)</text>
+  </g>
+
+  <!-- 步骤 5: Sparse Attention -->
+  <g transform="translate(420, 170)">
+    <rect class="box-hl" x="0" y="0" width="200" height="180"/>
+    <text class="label-hl" x="100" y="20" text-anchor="middle">5. Sparse Attention</text>
+    <text class="annot" x="100" y="35" text-anchor="middle">公式 (3.6):</text>
+    <text class="annot" x="100" y="50" text-anchor="middle">o_t = softmax(q_t . c_hat_K^T / sqrt(d)) . c_hat_V</text>
+    <text class="annot" x="100" y="65" text-anchor="middle">(over 512 positions)</text>
+
+    <text class="annot" x="20" y="92">complexity:</text>
+    <text class="annot-hl" x="20" y="108">O(T^2/m' + T*k)</text>
+    <text class="annot-hl" x="20" y="124">= O(T^2/128 + T*512)</text>
+    <text class="annot" x="20" y="142">= 7.8e9 + 1.5e9 (T=1M)</text>
+    <text class="annot-hl" x="20" y="156">T^2 term is 32x smaller than CSA</text>
+    <text class="annot-hl" x="20" y="170">~ 1% of standard attention</text>
+  </g>
+
+  <!-- 步骤 6: 输出 o_hca -->
+  <g transform="translate(680, 70)">
+    <rect class="box-hl" x="0" y="0" width="160" height="50"/>
+    <text class="label-hl" x="80" y="20" text-anchor="middle">6. Output o_hca</text>
+    <text class="annot" x="80" y="35" text-anchor="middle">shape: [T, d]</text>
+    <text class="annot-hl" x="80" y="46" text-anchor="middle">1M x 4096</text>
+  </g>
+
+  <!-- 箭头连接 -->
+  <line x1="100" y1="120" x2="100" y2="166" class="arrow-hl"/>
+  <!-- Compressor -> c_hat_K, c_hat_V (水平进入 Sparse Attention) -->
+  <path d="M 360 260 L 416 260" class="arrow-hl" fill="none"/>
+  <text class="annot-hl" x="362" y="255" text-anchor="end">c_hat_K, c_hat_V</text>
+
+  <!-- x -> Position top-k (向下) -->
+  <line x1="100" y1="120" x2="100" y2="376" class="arrow-pos"/>
+  <text class="annot-pos" x="110" y="250" text-anchor="start">positions</text>
+
+  <!-- Position top-k -> top-k box (L 形: 向右 -> 向上 -> 向右) -->
+  <path d="M 360 460 L 388 460 L 388 95 L 416 95" class="arrow-pos" fill="none"/>
+
+  <!-- c_hat_K c_hat_V -> Sparse Attention (水平) -->
+  <path d="M 360 280 L 416 280" class="arrow-hl" fill="none"/>
+
+  <!-- top-k -> Sparse Attention (向下) -->
+  <line x1="520" y1="120" x2="520" y2="166" class="arrow-hl"/>
+
+  <!-- Sparse Attention -> output (L 形: 向右 -> 向上 -> 向右) -->
+  <path d="M 620 210 L 640 210 L 640 95 L 676 95" class="arrow-hl" fill="none"/>
+
+  <!-- 底部注释 -->
+  <g transform="translate(0, 580)">
+    <rect class="box-formula" x="20" y="0" width="840" height="68"/>
+    <text class="label-hl" x="30" y="18">HCA 关键简化:</text>
+    <text class="annot" x="30" y="34">top-k 用位置而非分数排序, 节省 Indexer 计算 (无独立 Compressor / Hadamard / FP4 模拟 / q proj).</text>
+    <text class="annot" x="30" y="50">HCA 假设: 重度压缩后 (T/128=8192) 的所有位置都"重要", 均匀采样 k=512 个比 Indexer 评分更便宜.</text>
+    <text class="annot" x="30" y="64">Source: model.py L268-L276 (get_compress_topk_idxs), L467 (Compressor 实例化), L513 (Attention.forward 调用).</text>
+  </g>
+</svg>

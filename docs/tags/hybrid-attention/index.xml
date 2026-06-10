@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Hybrid-Attention on CctoctoFX</title>
+    <link>https://pillumina.github.io/tags/hybrid-attention/</link>
+    <description>Recent content in Hybrid-Attention on CctoctoFX</description>
+    <image>
+      <title>CctoctoFX</title>
+      <url>https://pillumina.github.io/imgs/icon_head.png</url>
+      <link>https://pillumina.github.io/imgs/icon_head.png</link>
+    </image>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <lastBuildDate>Wed, 10 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://pillumina.github.io/tags/hybrid-attention/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Qwen3.5-MoE 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/qwen3.5-moe/</link>
+      <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/qwen3.5-moe/</guid>
+      <description>Qwen3.5-MoE（255B 总参 / 30B 激活）是阿里 Qwen 团队的 MoE 旗舰模型。核心创新为 Gated DeltaNet（GDN）线性注意力与传统 Full Attention 的混合架构（Hybrid-Attn）、2048 专家细粒度 MoE（k=8 激活 + 1 共享）、FW4a 量化部署。本期拆解 GDN chunkwise-parallel 递归机制、混合注意力层分布策略、MoE 拓扑及与 M2.7/GLM-5.1/V4-Flash 的对比。</description>
+    </item>
+  </channel>
+</rss>
