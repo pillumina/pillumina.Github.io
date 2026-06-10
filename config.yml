@@ -59,6 +59,13 @@ languages:
           weight: 17
           params:
             group: AI
+        - name: Q & A
+          identifier: qa
+          parent: tech
+          url: /posts/qa/
+          weight: 19
+          params:
+            group: AI
         - name: Programming
           identifier: programming
           parent: tech
