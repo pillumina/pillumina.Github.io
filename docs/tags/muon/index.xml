@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 10 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/muon/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>DeepSeek-V4-Flash 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</guid>
+      <description>基于 V4-Flash 主报告的配套 QA。覆盖 V3.2→V4 演进、CSA+HCA 混合注意力、MoE 路由（Aux-Loss-Free/Sinkhorn-Knopp）、mHC 多通道残差、Muon 优化器等核心主题。</description>
+    </item>
     <item>
       <title>DeepSeek-V4-Flash 架构深度拆解</title>
       <link>https://pillumina.github.io/posts/architecture/deepseek-v4-flash/</link>

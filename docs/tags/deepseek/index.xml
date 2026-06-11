@@ -11,14 +11,14 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 10 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/deepseek/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>DeepSeek-V4-Flash 架构 QA（共 287 问）</title>
+      <title>DeepSeek-V4-Flash 架构 QA</title>
       <link>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</link>
-      <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</guid>
-      <description>基于 V4-Flash 主报告的配套 QA，共 287 问。覆盖 LLM 预备知识、V3.2→V4 演进、注意力系统（CSA/HCA）、MoE 路由（Aux-Loss-Free/Sinkhorn-Knopp）、残差与优化器（mHC/Muon）、上下文与量化（1M/RoPE/FP4/FP8）、训练与推理部署。由浅入深，可作面试准备。</description>
+      <description>基于 V4-Flash 主报告的配套 QA。覆盖 V3.2→V4 演进、CSA+HCA 混合注意力、MoE 路由（Aux-Loss-Free/Sinkhorn-Knopp）、mHC 多通道残差、Muon 优化器等核心主题。</description>
     </item>
     <item>
       <title>DeepSeek-V4-Flash 架构深度拆解</title>

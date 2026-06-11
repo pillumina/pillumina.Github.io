@@ -11,14 +11,35 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 10 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/posts/qa/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>DeepSeek-V4-Flash 架构 QA（共 287 问）</title>
+      <title>DeepSeek-V4-Flash 架构 QA</title>
       <link>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</link>
-      <pubDate>Wed, 10 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</guid>
-      <description>基于 V4-Flash 主报告的配套 QA，共 287 问。覆盖 LLM 预备知识、V3.2→V4 演进、注意力系统（CSA/HCA）、MoE 路由（Aux-Loss-Free/Sinkhorn-Knopp）、残差与优化器（mHC/Muon）、上下文与量化（1M/RoPE/FP4/FP8）、训练与推理部署。由浅入深，可作面试准备。</description>
+      <description>基于 V4-Flash 主报告的配套 QA。覆盖 V3.2→V4 演进、CSA+HCA 混合注意力、MoE 路由（Aux-Loss-Free/Sinkhorn-Knopp）、mHC 多通道残差、Muon 优化器等核心主题。</description>
+    </item>
+    <item>
+      <title>GLM-5.1 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/glm-5.1-qa/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/glm-5.1-qa/</guid>
+      <description>基于 GLM-5.1 主报告的配套 QA。覆盖三代演进、DSA 动态稀疏注意力、MLA 潜 KV 压缩、MoE 路由（256+1, k=8, scaling=2.5）、异步 Agent RL 训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>MiniMax-M2.7 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/minimax-m2.7-qa/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/minimax-m2.7-qa/</guid>
+      <description>基于 M2.7 主报告的配套 QA。覆盖五代演进、Full Attention 回归、GQA+QK Norm、MoE 路由（sigmoid+routing bias）、MTP×3、训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>Qwen3.5-MoE 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/qwen3.5-moe-qa/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/qwen3.5-moe-qa/</guid>
+      <description>基于 Qwen3.5-MoE 主报告的配套 QA。覆盖混合注意力（GDN+Full Attention）、Gated DeltaNet 线性注意力、2048 专家 MoE、262K 上下文等核心主题。</description>
     </item>
   </channel>
 </rss>
