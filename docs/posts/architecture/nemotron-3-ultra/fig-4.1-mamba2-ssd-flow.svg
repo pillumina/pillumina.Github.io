@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 800" width="1100" height="800">
+  <defs>
+    <style>
+      .fig-41-text { font-family: "Courier New", monospace; font-size: 13px; fill: #000; }
+      .fig-41-text-sm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig-41-text-xs { font-family: "Courier New", monospace; font-size: 9px; fill: #888; }
+      .fig-41-text-hl { font-family: "Courier New", monospace; font-size: 13px; fill: #1a3a6e; font-weight: bold; }
+      .fig-41-step-box { fill: #1a3a6e; fill-opacity: 0.08; stroke: #1a3a6e; stroke-width: 1.8; }
+      .fig-41-step-box-light { fill: none; stroke: #1a3a6e; stroke-width: 1.2; }
+      .fig-41-legend-box { fill: none; stroke: #888; stroke-width: 1; }
+      .fig-41-arrow { stroke: #1a3a6e; stroke-width: 1.8; fill: none; }
+      .fig-41-arrow-head { fill: #1a3a6e; }
+      .fig-41-sub-label { font-family: "Courier New", monospace; font-size: 9px; fill: #b8721a; }
+      .fig-41-line-dec { stroke: #1a3a6e; stroke-width: 1; fill: none; }
+      .fig-41-line-gray { stroke: #888; stroke-width: 0.8; fill: none; stroke-dasharray: 3,4; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#000">Fig 4.1 — Mamba-2 SSD (State Space Duality) Internal 7-Step Data Flow</text>
+  <line x1="30" y1="36" x2="780" y2="36" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- ===== MAIN PIPELINE (horizontal) ===== -->
+
+  <!-- Step 1: Input -->
+  <rect x="30" y="70" width="130" height="52" class="fig-41-step-box"/>
+  <text x="95" y="90" text-anchor="middle" class="fig-41-text-sm">Step 1: Input</text>
+  <text x="95" y="106" text-anchor="middle" class="fig-41-text-xs">[B, S, 8192]</text>
+
+  <!-- Arrow 1->2 -->
+  <line x1="160" y1="96" x2="205" y2="96" class="fig-41-arrow"/>
+  <polygon points="200,91 210,96 200,101" class="fig-41-arrow-head"/>
+
+  <!-- Step 2: In-Proj (expand from h to 2*h) -->
+  <rect x="210" y="62" width="145" height="68" class="fig-41-step-box"/>
+  <text x="282" y="82" text-anchor="middle" class="fig-41-text-sm">Step 2: In-Proj</text>
+  <text x="282" y="98" text-anchor="middle" class="fig-41-text-xs">Linear + SiLU</text>
+  <text x="282" y="114" text-anchor="middle" class="fig-41-text-xs">[B,S,8192]&#8594;[B,S,16384]</text>
+
+  <!-- Arrow 2->3 -->
+  <line x1="355" y1="96" x2="400" y2="96" class="fig-41-arrow"/>
+  <polygon points="395,91 405,96 395,101" class="fig-41-arrow-head"/>
+
+  <!-- Step 3: Conv1D -->
+  <rect x="405" y="62" width="145" height="68" class="fig-41-step-box"/>
+  <text x="477" y="82" text-anchor="middle" class="fig-41-text-sm">Step 3: Conv1D</text>
+  <text x="477" y="98" text-anchor="middle" class="fig-41-text-xs">Kernel=4, Bias</text>
+  <text x="477" y="114" text-anchor="middle" class="fig-41-text-xs">Causal Depthwise</text>
+
+  <!-- Arrow 3->4 -->
+  <line x1="550" y1="96" x2="595" y2="96" class="fig-41-arrow"/>
+  <polygon points="590,91 600,96 590,101" class="fig-41-arrow-head"/>
+
+  <!-- Step 4: Split into Delta, B, C -->
+  <rect x="600" y="58" width="160" height="76" class="fig-41-step-box"/>
+  <text x="680" y="78" text-anchor="middle" class="fig-41-text-sm">Step 4: Split</text>
+  <text x="680" y="94" text-anchor="middle" class="fig-41-text-xs">&#916; (dt)  B_input  C_input</text>
+  <text x="680" y="110" text-anchor="middle" class="fig-41-text-xs">256 heads, n_groups=8</text>
+  <text x="680" y="126" text-anchor="middle" class="fig-41-text-xs">head_dim=64 + ssm_state=128</text>
+
+  <!-- Arrow 4->5 -->
+  <line x1="760" y1="96" x2="805" y2="96" class="fig-41-arrow"/>
+  <polygon points="800,91 810,96 800,101" class="fig-41-arrow-head"/>
+
+  <!-- Step 5: SSD Scan (core algorithm) -->
+  <rect x="810" y="58" width="160" height="76" class="fig-41-step-box"/>
+  <text x="890" y="78" text-anchor="middle" class="fig-41-text-sm">Step 5: SSD Scan</text>
+  <text x="890" y="94" text-anchor="middle" class="fig-41-text-xs">State Space Duality</text>
+  <text x="890" y="110" text-anchor="middle" class="fig-41-text-xs">diag(A)&#215;h + B&#215;x</text>
+  <text x="890" y="126" text-anchor="middle" class="fig-41-text-xs">chunk_size=128</text>
+
+  <!-- Arrow 5->6 -->
+  <line x1="970" y1="96" x2="1015" y2="96" class="fig-41-arrow"/>
+  <polygon points="1010,91 1020,96 1010,101" class="fig-41-arrow-head"/>
+
+  <!-- Step 6: Gated Norm -->
+  <rect x="1020" y="70" width="70" height="52" class="fig-41-step-box"/>
+  <text x="1055" y="90" text-anchor="middle" class="fig-41-text-sm">S6: Norm</text>
+  <text x="1055" y="106" text-anchor="middle" class="fig-41-text-xs">Gate+Layer</text>
+
+  <!-- Arrow 6->7 (wraps) -->
+  <line x1="1055" y1="122" x2="1055" y2="148" class="fig-41-arrow"/>
+  <polygon points="1050,143 1055,153 1060,143" class="fig-41-arrow-head"/>
+
+  <!-- Step 7: Out-Proj -->
+  <rect x="960" y="153" width="140" height="52" class="fig-41-step-box"/>
+  <text x="1030" y="173" text-anchor="middle" class="fig-41-text-sm">Step 7: Out-Proj</text>
+  <text x="1030" y="189" text-anchor="middle" class="fig-41-text-xs">[B,S,16384]&#8594;[B,S,8192]</text>
+
+  <!-- ===== DELTA/B/C DETAIL BELOW ===== -->
+  <line x1="30" y1="240" x2="1070" y2="240" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="270" class="fig-41-text-hl">SSD Scan Detail: Structured State Space as Matrix Multiplication</text>
+
+  <!-- SSM Equation -->
+  <rect x="30" y="285" width="1040" height="200" rx="0" ry="0" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.03"/>
+
+  <!-- State update -->
+  <text x="60" y="315" class="fig-41-text-sm">Continuous SSM:</text>
+  <text x="240" y="315" class="fig-41-text-sm" font-style="italic">h'(t) = A h(t) + B x(t)</text>
+  <text x="540" y="315" class="fig-41-text-sm">y(t) = C h(t)</text>
+
+  <text x="60" y="345" class="fig-41-text-sm">Discretization (ZOH):</text>
+  <text x="240" y="345" class="fig-41-text-sm" font-style="italic">&#916; = softplus(dt)  |  A_bar = exp(&#916; A)  |  B_bar = &#916; B</text>
+
+  <text x="60" y="375" class="fig-41-text-sm">Recurrent form:</text>
+  <text x="240" y="375" class="fig-41-text-sm" font-style="italic">h_k = A_bar h_{k-1} + B_bar x_k</text>
+  <text x="540" y="375" class="fig-41-text-sm">y_k = C h_k</text>
+
+  <text x="60" y="405" class="fig-41-text-sm">SSD Matrix form:</text>
+  <text x="240" y="405" class="fig-41-text-sm" font-style="italic">Y = M X   where   M_ij = C_i &#183; A_bar^{|i-j|} &#183; B_bar_j</text>
+
+  <text x="60" y="435" class="fig-41-text-sm">Key insight:</text>
+  <text x="240" y="435" class="fig-41-text-sm">M = Lower-triangular semi-separable matrix &#8594; O(N) via structured scan</text>
+
+  <text x="60" y="465" class="fig-41-text-sm">Chunked computation:</text>
+  <text x="240" y="465" class="fig-41-text-sm">Split sequence into chunks of 128, parallelize within chunks, sequential across</text>
+
+  <!-- ===== Multi-head and Grouping Detail ===== -->
+  <line x1="30" y1="520" x2="1070" y2="520" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="550" class="fig-41-text-hl">Multi-Head Layout with Grouped Parameters</text>
+
+  <rect x="30" y="565" width="1040" height="110" rx="0" ry="0" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.03"/>
+
+  <!-- 256 heads visual -->
+  <text x="60" y="590" class="fig-41-text-sm">256 heads: head_dim=64, ssm_state=128, n_groups=8 (32 heads share Delta/B/C, 1 head=1 A)</text>
+
+  <!-- A: 256 independent values -->
+  <rect x="60" y="605" width="60" height="22" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.05"/>
+  <text x="90" y="620" text-anchor="middle" class="fig-41-text-xs">A (256&#215;1&#215;128)</text>
+  <text x="130" y="620" class="fig-41-text-xs">A: per-head scalar diagonal, 256 independent values</text>
+
+  <!-- Delta: 8 groups -->
+  <rect x="60" y="633" width="60" height="22" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.05"/>
+  <text x="90" y="648" text-anchor="middle" class="fig-41-text-xs">dt (8&#215;1&#215;128)</text>
+  <text x="130" y="648" class="fig-41-text-xs">dt (Delta), B, C: 8 groups (32 heads share the same projection)</text>
+
+  <!-- B, C grouped -->
+  <rect x="60" y="661" width="60" height="22" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.05"/>
+  <text x="90" y="676" text-anchor="middle" class="fig-41-text-xs">B,C (8&#215;1&#215;128)</text>
+  <text x="130" y="676" class="fig-41-text-xs">Each group: 32 heads &#215; 64 head_dim = 2048 input dim mapped to 128 ssm_state</text>
+
+  <!-- Dimensions summary -->
+  <text x="550" y="605" class="fig-41-text-sm">Dimension Trace:</text>
+  <text x="550" y="627" class="fig-41-text-xs">Hidden 8192 &#8594; Expand (&#215;2) &#8594; 16384 &#8594; 256 heads &#215; 64 = 16384</text>
+  <text x="550" y="647" class="fig-41-text-xs">Projection to dt/B/C: 256 heads / 32-per-group = 8 groups &#215; 128 state &#215; 3 = 3072</text>
+  <text x="550" y="667" class="fig-41-text-xs">Output: 8 groups &#215; 16384 &#8594; OutProj &#8594; 8192 hidden</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="710" width="380" height="80" class="fig-41-legend-box"/>
+  <text x="45" y="731" font-family="Courier New, monospace" font-size="12" font-weight="bold" fill="#000">Legend</text>
+
+  <rect x="45" y="744" width="18" height="12" class="fig-41-step-box"/>
+  <text x="73" y="755" class="fig-41-text-xs">Primary computation step (1&#8211;7)</text>
+
+  <rect x="250" y="744" width="18" height="12" stroke="#888" stroke-width="1" fill="#888" fill-opacity="0.08"/>
+  <text x="278" y="755" class="fig-41-text-xs">Equation / parameter details</text>
+
+  <line x1="45" y1="776" x2="63" y2="776" class="fig-41-arrow"/>
+  <polygon points="60,772 63,776 60,780" class="fig-41-arrow-head"/>
+  <text x="73" y="781" class="fig-41-text-xs">Tensor flow direction</text>
+</svg>

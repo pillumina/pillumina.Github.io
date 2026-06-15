@@ -1,0 +1,154 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 750" width="1050" height="750">
+  <defs>
+    <style>
+      .fig-81-text { font-family: "Courier New", monospace; font-size: 13px; fill: #000; }
+      .fig-81-text-sm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig-81-text-xs { font-family: "Courier New", monospace; font-size: 9px; fill: #888; }
+      .fig-81-text-hl { font-family: "Courier New", monospace; font-size: 13px; fill: #1a3a6e; font-weight: bold; }
+      .fig-81-text-accent { font-family: "Courier New", monospace; font-size: 12px; fill: #b8721a; }
+      .fig-81-box { fill: #1a3a6e; fill-opacity: 0.08; stroke: #1a3a6e; stroke-width: 1.5; }
+      .fig-81-box-accent { fill: #b8721a; fill-opacity: 0.08; stroke: #b8721a; stroke-width: 1.5; }
+      .fig-81-box-gray { fill: #888; fill-opacity: 0.06; stroke: #888; stroke-width: 1.2; }
+      .fig-81-legend-box { fill: none; stroke: #888; stroke-width: 1; }
+      .fig-81-arrow { stroke: #1a3a6e; stroke-width: 1.5; fill: none; }
+      .fig-81-arrow-head { fill: #1a3a6e; }
+      .fig-81-line-gray { stroke: #888; stroke-width: 0.8; fill: none; stroke-dasharray: 3,4; }
+      .fig-81-step-num { font-family: "Courier New", monospace; font-size: 24px; font-weight: bold; fill: #1a3a6e; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#000">Fig 8.1 — Training System Overview: NVFP4 Precision, 20T Tokens, Multi-Environment RLVR</text>
+  <line x1="30" y1="36" x2="950" y2="36" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- ===== Training Pipeline Overview ===== -->
+  <text x="30" y="70" class="fig-81-text-hl">Training Pipeline</text>
+
+  <!-- Stage 1: Pretraining -->
+  <rect x="60" y="90" width="220" height="80" class="fig-81-box"/>
+  <text x="170" y="112" text-anchor="middle" class="fig-81-text-sm">Stage 1: Pretraining</text>
+  <text x="170" y="130" text-anchor="middle" class="fig-81-text-xs">20T tokens, 1M context</text>
+  <text x="170" y="146" text-anchor="middle" class="fig-81-text-xs">NVFP4 mixed precision</text>
+  <text x="170" y="162" text-anchor="middle" class="fig-81-text-xs">Next-token prediction loss</text>
+
+  <!-- Arrow -->
+  <line x1="280" y1="130" x2="320" y2="130" class="fig-81-arrow"/>
+  <polygon points="315,126 320,130 315,134" class="fig-81-arrow-head"/>
+
+  <!-- Stage 2: SFT -->
+  <rect x="320" y="90" width="200" height="80" class="fig-81-box"/>
+  <text x="420" y="112" text-anchor="middle" class="fig-81-text-sm">Stage 2: SFT</text>
+  <text x="420" y="130" text-anchor="middle" class="fig-81-text-xs">Instruction tuning</text>
+  <text x="420" y="146" text-anchor="middle" class="fig-81-text-xs">Multi-turn dialogue</text>
+  <text x="420" y="162" text-anchor="middle" class="fig-81-text-xs">Code + math + chat</text>
+
+  <!-- Arrow -->
+  <line x1="520" y1="130" x2="560" y2="130" class="fig-81-arrow"/>
+  <polygon points="555,126 560,130 555,134" class="fig-81-arrow-head"/>
+
+  <!-- Stage 3: RLVR -->
+  <rect x="560" y="85" width="250" height="90" class="fig-81-box-accent"/>
+  <text x="685" y="107" text-anchor="middle" class="fig-81-text-accent">Stage 3: Multi-Env RLVR</text>
+  <text x="685" y="125" text-anchor="middle" class="fig-81-text-sm">Reinforcement Learning with</text>
+  <text x="685" y="141" text-anchor="middle" class="fig-81-text-sm">Verifiable Rewards</text>
+  <text x="685" y="159" text-anchor="middle" class="fig-81-text-xs">Multiple parallel environments</text>
+  <text x="685" y="173" text-anchor="middle" class="fig-81-text-xs">Non-staged, continuous training</text>
+
+  <!-- ===== NVFP4 Training Detail ===== -->
+  <line x1="30" y1="210" x2="1020" y2="210" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="245" class="fig-81-text-hl">NVFP4 Mixed-Precision Training Strategy</text>
+
+  <rect x="30" y="260" width="990" height="150" rx="0" ry="0" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.03"/>
+
+  <!-- FP4 precision overview -->
+  <text x="60" y="286" class="fig-81-text-sm">NVFP4 (NVIDIA 4-bit Floating Point): First large-scale FP4 training of a 550B model</text>
+
+  <rect x="60" y="300" width="200" height="50" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.06"/>
+  <text x="160" y="320" text-anchor="middle" class="fig-81-text-sm">NVFP4 Weights</text>
+  <text x="160" y="338" text-anchor="middle" class="fig-81-text-xs">4-bit storage, fp4 compute</text>
+
+  <line x1="260" y1="325" x2="300" y2="325" class="fig-81-arrow"/>
+  <polygon points="295,321 300,325 295,329" class="fig-81-arrow-head"/>
+
+  <rect x="300" y="300" width="180" height="50" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.06"/>
+  <text x="390" y="320" text-anchor="middle" class="fig-81-text-sm">BF16 Master Weights</text>
+  <text x="390" y="338" text-anchor="middle" class="fig-81-text-xs">16-bit optimizer states</text>
+
+  <line x1="480" y1="325" x2="520" y2="325" class="fig-81-arrow"/>
+  <polygon points="515,321 520,325 515,329" class="fig-81-arrow-head"/>
+
+  <rect x="520" y="298" width="200" height="54" stroke="#b8721a" stroke-width="1.5" fill="#b8721a" fill-opacity="0.04" stroke-dasharray="4,3"/>
+  <text x="620" y="317" text-anchor="middle" class="fig-81-text-accent">Sensitive Layer Exceptions</text>
+  <text x="620" y="333" text-anchor="middle" class="fig-81-text-xs">Mamba out_proj, QKV, Attn proj</text>
+  <text x="620" y="347" text-anchor="middle" class="fig-81-text-xs">Keep in BF16 for stability</text>
+
+  <text x="60" y="378" class="fig-81-text-sm">Key insight: Training loss gap &lt; 1% vs full BF16 training, while using ~1/4 the memory bandwidth.</text>
+  <text x="60" y="398" class="fig-81-text-sm">Forward pass: fp4 &#215; fp4 (low precision). Backward pass: BF16 gradients. Master weights: BF16.</text>
+
+  <!-- ===== Multi-Environment RLVR ===== -->
+  <line x1="30" y1="450" x2="1020" y2="450" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="485" class="fig-81-text-accent">Multi-Environment RLVR Architecture</text>
+
+  <rect x="30" y="500" width="990" height="100" rx="0" ry="0" stroke="#b8721a" stroke-width="1" fill="#b8721a" fill-opacity="0.03"/>
+
+  <!-- Env 1 -->
+  <rect x="60" y="520" width="130" height="36" stroke="#b8721a" stroke-width="1.2" fill="#b8721a" fill-opacity="0.06"/>
+  <text x="125" y="536" text-anchor="middle" class="fig-81-text-sm">Math Env</text>
+  <text x="125" y="550" text-anchor="middle" class="fig-81-text-xs">Autoformalization</text>
+
+  <!-- Env 2 -->
+  <rect x="210" y="520" width="130" height="36" stroke="#b8721a" stroke-width="1.2" fill="#b8721a" fill-opacity="0.06"/>
+  <text x="275" y="536" text-anchor="middle" class="fig-81-text-sm">Code Env</text>
+  <text x="275" y="550" text-anchor="middle" class="fig-81-text-xs">Execution feedback</text>
+
+  <!-- Env 3 -->
+  <rect x="360" y="520" width="130" height="36" stroke="#b8721a" stroke-width="1.2" fill="#b8721a" fill-opacity="0.06"/>
+  <text x="425" y="536" text-anchor="middle" class="fig-81-text-sm">Reasoning Env</text>
+  <text x="425" y="550" text-anchor="middle" class="fig-81-text-xs">Chain verification</text>
+
+  <!-- Env 4 -->
+  <rect x="510" y="520" width="130" height="36" stroke="#b8721a" stroke-width="1.2" fill="#b8721a" fill-opacity="0.06"/>
+  <text x="575" y="536" text-anchor="middle" class="fig-81-text-sm">Safety Env</text>
+  <text x="575" y="550" text-anchor="middle" class="fig-81-text-xs">Harmlessness check</text>
+
+  <!-- Arrows to policy update -->
+  <line x1="125" y1="556" x2="125" y2="575" stroke="#b8721a" stroke-width="0.8"/>
+  <line x1="275" y1="556" x2="275" y2="575" stroke="#b8721a" stroke-width="0.8"/>
+  <line x1="425" y1="556" x2="425" y2="575" stroke="#b8721a" stroke-width="0.8"/>
+  <line x1="575" y1="556" x2="575" y2="575" stroke="#b8721a" stroke-width="0.8"/>
+
+  <!-- Merge -->
+  <line x1="125" y1="575" x2="575" y2="575" stroke="#b8721a" stroke-width="1"/>
+  <line x1="350" y1="575" x2="350" y2="588" stroke="#b8721a" stroke-width="1.2"/>
+  <polygon points="345,584 350,594 355,584" fill="#b8721a"/>
+
+  <rect x="270" y="594" width="160" height="24" stroke="#b8721a" stroke-width="1.2" fill="#b8721a" fill-opacity="0.08"/>
+  <text x="350" y="610" text-anchor="middle" font-family="Courier New, monospace" font-size="10" fill="#b8721a">Unified Policy Update</text>
+
+  <!-- Right side: benefits -->
+  <text x="660" y="540" class="fig-81-text-sm">Benefits:</text>
+  <text x="660" y="560" class="fig-81-text-xs">&#8226; Continuous training (not staged)</text>
+  <text x="660" y="576" class="fig-81-text-xs">&#8226; Prevents reward hacking &amp; forgetting</text>
+  <text x="660" y="592" class="fig-81-text-xs">&#8226; Better generalization across tasks</text>
+
+  <!-- ===== Key Training Statistics ===== -->
+  <line x1="30" y1="655" x2="1020" y2="655" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="685" class="fig-81-text-hl">Key Training Statistics</text>
+
+  <rect x="30" y="700" width="990" height="40" rx="0" ry="0" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.03"/>
+  <text x="60" y="718" class="fig-81-text-sm">Data: 20T tokens | Context: 1M (262K config, 1M declared) | Precision: NVFP4 + BF16 | LR schedule: Cosine</text>
+  <text x="60" y="734" class="fig-81-text-xs">Max LR: unknown | Warmup: unknown | Batch size: unknown (undisclosed) | Optimizer: AdamW-like | Weight decay: unknown</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="740" y="630" width="280" height="60" class="fig-81-legend-box"/>
+  <text x="755" y="646" font-family="Courier New, monospace" font-size="12" font-weight="bold" fill="#000">Legend</text>
+
+  <rect x="755" y="655" width="20" height="10" stroke="#1a3a6e" stroke-width="1.2" fill="#1a3a6e" fill-opacity="0.08"/>
+  <text x="785" y="664" class="fig-81-text-xs">Pretraining / Standard stage</text>
+
+  <rect x="755" y="675" width="20" height="10" stroke="#b8721a" stroke-width="1.2" fill="#b8721a" fill-opacity="0.08"/>
+  <text x="785" y="684" class="fig-81-text-xs">RLVR / Sensitivity / Exception</text>
+</svg>

@@ -11,8 +11,29 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/posts/qa/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MiniMax-M3 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/minimax-m3-qa/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/minimax-m3-qa/</guid>
+      <description>基于 MiniMax-M3 主报告的配套 QA。覆盖 MSA 多阶段稀疏注意力、GQA 配置、MoE 路由、视觉编码器、MTP 投机解码、训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>Kimi-K2.5 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/kimi-k2.5-qa/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/kimi-k2.5-qa/</guid>
+      <description>基于 Kimi-K2.5 主报告的配套 QA。覆盖 MLA 潜注意力压缩、MuonClip 优化器、MoE 路由等核心主题。</description>
+    </item>
+    <item>
+      <title>Nemotron-3-Ultra 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/nemotron-3-ultra-qa/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/nemotron-3-ultra-qa/</guid>
+      <description>基于 Nemotron-3-Ultra 主报告的配套 QA。覆盖 Mamba-2 SSD 混合架构、LatentMoE 潜空间路由、MTP 投机解码、训练体系等核心主题。</description>
+    </item>
     <item>
       <title>DeepSeek-V4-Flash 架构 QA</title>
       <link>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</link>
@@ -26,6 +47,13 @@
       <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/qa/glm-5.1-qa/</guid>
       <description>基于 GLM-5.1 主报告的配套 QA。覆盖三代演进、DSA 动态稀疏注意力、MLA 潜 KV 压缩、MoE 路由（256+1, k=8, scaling=2.5）、异步 Agent RL 训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>Mimo-V2-Flash 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/mimo-v2-flash-qa/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/mimo-v2-flash-qa/</guid>
+      <description>基于 Mimo-V2-Flash 主报告的配套 QA。覆盖 Hybrid Dispatch MoE 路由、MTP×2 投机解码、SwiGLU FFN 等核心主题。</description>
     </item>
     <item>
       <title>MiniMax-M2.7 架构 QA</title>

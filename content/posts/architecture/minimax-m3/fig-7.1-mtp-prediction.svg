@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 660" width="1000" height="660" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 -- MTP (Multi-Token Prediction) Chain</text>
+  <line x1="30" y1="38" x2="620" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- Note -->
+  <text x="30" y="55" font-size="8" fill="#888">Note: MTP code is closed-source. This diagram shows the architectural concept based on config.json + general MTP design patterns.</text>
+
+  <!-- ===== MAIN LLM ===== -->
+  <rect x="30" y="75" width="180" height="80" rx="0" fill="none" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="120" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Main LLM (60L)</text>
+  <line x1="50" y1="103" x2="190" y2="103" stroke="#1a3a6e" stroke-width="0.5"/>
+  <text x="120" y="120" text-anchor="middle" font-size="9" fill="#000">hidden_states</text>
+  <text x="120" y="138" text-anchor="middle" font-size="8" fill="#888">(last layer output)</text>
+
+  <!-- Main LM Head -->
+  <line x1="210" y1="115" x2="245" y2="115" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="250" y="95" width="120" height="40" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="310" y="112" text-anchor="middle" font-size="10" fill="#000">Main Head</text>
+  <text x="310" y="128" text-anchor="middle" font-size="8" fill="#888">token t0 prediction</text>
+
+  <line x1="370" y1="115" x2="405" y2="115" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="410" y="95" width="100" height="40" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="460" y="115" text-anchor="middle" font-size="10" fill="#000">Token t0</text>
+
+  <!-- ===== MTP MODULES ===== -->
+  <text x="30" y="185" font-size="11" font-weight="bold" fill="#b8721a">MTP Module Chain (7 modules, each produces 1 future token prediction)</text>
+
+  <!-- MTP Module 1 -->
+  <rect x="30" y="200" width="520" height="100" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="290" y="218" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">MTP Module 1 (predicts token t1)</text>
+  <line x1="50" y1="226" x2="530" y2="226" stroke="#b8721a" stroke-width="0.5"/>
+
+  <!-- MTP-1 components -->
+  <rect x="50" y="236" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="100" y="252" text-anchor="middle" font-size="9" fill="#000">Hidden Merge</text>
+
+  <line x1="150" y1="249" x2="175" y2="249" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="180" y="236" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="230" y="252" text-anchor="middle" font-size="9" fill="#000">1-Layer Decoder</text>
+
+  <line x1="280" y1="249" x2="305" y2="249" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="310" y="236" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="360" y="252" text-anchor="middle" font-size="9" fill="#000">MTP Head 1</text>
+
+  <line x1="410" y1="249" x2="435" y2="249" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="440" y="236" width="90" height="26" rx="0" fill="#4a7ab0" fill-opacity="0.05" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="485" y="252" text-anchor="middle" font-size="9" fill="#000">Token t1</text>
+
+  <!-- Inputs annotation -->
+  <text x="50" y="284" font-size="8" fill="#888">Inputs: (1) last-layer hidden from LLM  (2) embedding of t0 prediction</text>
+
+  <!-- MTP Module 2 -->
+  <rect x="30" y="310" width="520" height="100" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="290" y="328" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">MTP Module 2 (predicts token t2)</text>
+  <line x1="50" y1="336" x2="530" y2="336" stroke="#b8721a" stroke-width="0.5"/>
+
+  <rect x="50" y="346" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="100" y="362" text-anchor="middle" font-size="9" fill="#000">Hidden Merge</text>
+
+  <line x1="150" y1="359" x2="175" y2="359" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="180" y="346" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="230" y="362" text-anchor="middle" font-size="9" fill="#000">1-Layer Decoder</text>
+
+  <line x1="280" y1="359" x2="305" y2="359" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="310" y="346" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="360" y="362" text-anchor="middle" font-size="9" fill="#000">MTP Head 2</text>
+
+  <line x1="410" y1="359" x2="435" y2="359" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="440" y="346" width="90" height="26" rx="0" fill="#4a7ab0" fill-opacity="0.05" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="485" y="362" text-anchor="middle" font-size="9" fill="#000">Token t2</text>
+
+  <text x="50" y="394" font-size="8" fill="#888">Inputs: (1) last-layer hidden from LLM  (2) embedding of t1 prediction  (3) MTP-1 decoder output</text>
+
+  <!-- MTP module 3..7 indicator -->
+  <rect x="30" y="420" width="520" height="35" rx="0" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="290" y="442" text-anchor="middle" font-size="10" fill="#888">MTP Modules 3-7 (same structure, predict tokens t3..t7)</text>
+
+  <!-- MTP Module 7 -->
+  <rect x="30" y="465" width="520" height="100" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="290" y="483" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">MTP Module 7 (predicts token t7)</text>
+  <line x1="50" y1="491" x2="530" y2="491" stroke="#b8721a" stroke-width="0.5"/>
+
+  <rect x="50" y="501" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="100" y="517" text-anchor="middle" font-size="9" fill="#000">Hidden Merge</text>
+
+  <line x1="150" y1="514" x2="175" y2="514" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="180" y="501" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="230" y="517" text-anchor="middle" font-size="9" fill="#000">1-Layer Decoder</text>
+
+  <line x1="280" y1="514" x2="305" y2="514" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="310" y="501" width="100" height="26" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="360" y="517" text-anchor="middle" font-size="9" fill="#000">MTP Head 7</text>
+
+  <line x1="410" y1="514" x2="435" y2="514" stroke="#b8721a" stroke-width="0.5" marker-end="url(#arrow-orange)"/>
+
+  <rect x="440" y="501" width="90" height="26" rx="0" fill="#4a7ab0" fill-opacity="0.05" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="485" y="517" text-anchor="middle" font-size="9" fill="#000">Token t7</text>
+
+  <text x="50" y="549" font-size="8" fill="#888">Inputs: (1) last-layer hidden from LLM  (2) embedding of t6 prediction  (3) MTP-6 decoder output</text>
+
+  <!-- ===== RIGHT SIDE: Config &amp; Loss ===== -->
+  <rect x="575" y="75" width="395" height="200" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="772" y="95" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">MTP Configuration (config.json)</text>
+  <line x1="595" y1="103" x2="950" y2="103" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="595" y="122" font-size="9" fill="#000">num_mtp_modules:</text>
+  <text x="800" y="122" font-size="9" font-weight="bold" fill="#b8721a">7</text>
+  <text x="840" y="122" font-size="8" fill="#888">future tokens predicted</text>
+
+  <text x="595" y="142" font-size="9" fill="#000">num_nextn_predict_layers:</text>
+  <text x="800" y="142" font-size="9" font-weight="bold" fill="#b8721a">1</text>
+  <text x="840" y="142" font-size="8" fill="#888">thin decoder per module</text>
+
+  <rect x="595" y="160" width="355" height="100" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="772" y="178" text-anchor="middle" font-size="9" font-weight="bold" fill="#b8721a">Training: Cross-Entropy Loss</text>
+  <line x1="610" y1="186" x2="935" y2="186" stroke="#b8721a" stroke-width="0.5"/>
+
+  <text x="610" y="204" font-size="9" fill="#000">L_total = L_main + sum_{i=1..7} lambda_i * L_mtp(i)</text>
+  <text x="610" y="224" font-size="8" fill="#888">Each MTP loss: CE(predicted_token_i, ground_truth_i)</text>
+  <text x="610" y="244" font-size="8" fill="#888">lambda_i: per-module loss weight</text>
+  <text x="610" y="260" font-size="8" fill="#888">8 total losses (1 main + 7 MTP) backpropagated jointly</text>
+
+  <!-- ===== RIGHT BOTTOM: MTP Module Internals ===== -->
+  <rect x="575" y="290" width="395" height="145" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="772" y="310" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">MTP Module Internal Structure (conceptual)</text>
+  <line x1="595" y1="318" x2="950" y2="318" stroke="#b8721a" stroke-width="0.5"/>
+
+  <text x="595" y="338" font-size="9" fill="#000">1. Embed look-up: get embedding of prev prediction</text>
+  <text x="595" y="356" font-size="9" fill="#000">2. Hidden merge: concat/linear fuse all inputs</text>
+  <text x="595" y="374" font-size="8" fill="#888">   - LLM last hidden (6144d)</text>
+  <text x="595" y="392" font-size="8" fill="#888">   - token embedding of prev prediction (6144d)</text>
+  <text x="595" y="410" font-size="8" fill="#888">   - prev MTP decoder output (if not MTP-1) (6144d)</text>
+  <text x="595" y="430" font-size="8" fill="#888">3. 1-layer Transformer decoder block (Self-attn + FFN)</text>
+  <text x="595" y="448" font-size="8" fill="#888">4. Linear head: 6144 -> vocab_size (200064)</text>
+
+  <!-- ===== TOKEN FLOW DIAGRAM ===== -->
+  <rect x="575" y="450" width="395" height="130" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="772" y="470" text-anchor="middle" font-size="10" font-weight="bold" fill="#4a7ab0">Inference: Token Generation Order</text>
+  <line x1="595" y1="478" x2="950" y2="478" stroke="#4a7ab0" stroke-width="0.5"/>
+
+  <text x="595" y="500" font-size="9" fill="#000">Main Model predicts t0 (next token)</text>
+  <text x="595" y="520" font-size="9" fill="#000">MTP-1 predicts t1 using t0's embedding</text>
+  <text x="595" y="540" font-size="9" fill="#000">MTP-2 predicts t2 using t1's embedding</text>
+  <text x="595" y="560" font-size="8" fill="#888">... chain continues to MTP-7 predicting t7 ...</text>
+  <text x="595" y="576" font-size="8" fill="#888">All 8 tokens generated in one forward pass</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="585" width="500" height="55" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="603" font-size="10" font-weight="bold" fill="#1a3a6e">Legend</text>
+  <rect x="45" y="613" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="72" y="623" font-size="9" fill="#000">MTP module / pathway</text>
+  <rect x="45" y="629" width="20" height="10" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="72" y="639" font-size="9" fill="#000">Main LLM / main head</text>
+  <rect x="230" y="613" width="20" height="10" rx="0" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="257" y="623" font-size="9" fill="#000">Closed-source / unverified</text>
+  <rect x="230" y="629" width="20" height="10" rx="0" fill="#4a7ab0" fill-opacity="0.05" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="257" y="639" font-size="9" fill="#000">Output / config parameter</text>
+</svg>

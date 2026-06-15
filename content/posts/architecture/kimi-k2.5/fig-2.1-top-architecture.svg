@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600" width="1000" height="600" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <text x="500" y="28" text-anchor="middle" font-size="15" font-weight="bold" fill="#000">Kimi K2.5 顶层架构</text>
+
+  <!-- Input -->
+  <rect x="330" y="48" width="340" height="28" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="500" y="67" text-anchor="middle" font-size="11" fill="#000">Text Tokens (163,840 vocab) + Visual Tokens (ViT)</text>
+
+  <line x1="500" y1="76" x2="500" y2="98" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layer 0 (Dense) -->
+  <rect x="280" y="102" width="440" height="44" rx="2" fill="#f0f4ff" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="500" y="120" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">Layer 0: Dense FFN + MHA (64Q/64KV, no GQA)</text>
+  <text x="500" y="137" text-anchor="middle" font-size="10" fill="#888">first_k_dense_replace=1 | intermediate=18,432 | MLA q_lora=1536 kv_lora=512</text>
+
+  <line x1="500" y1="146" x2="500" y2="168" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layers 1-60 MoE -->
+  <rect x="170" y="172" width="660" height="175" rx="4" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="6,3"/>
+  <text x="500" y="192" text-anchor="middle" font-size="11" fill="#888">Layers 1-60: MoE 384E + MHA × 60</text>
+
+  <!-- Single MoE layer -->
+  <rect x="200" y="202" width="600" height="55" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="215" y="222" font-size="10" fill="#000">MHA (64Q/64KV, MLA compressed)</text>
+  <text x="215" y="240" font-size="10" fill="#1a3a6e">MoE: 384 routed experts + 1 shared, top-8, sigmoid, noaux_tc</text>
+  <text x="720" y="232" text-anchor="middle" font-size="9" fill="#888">×60</text>
+
+  <!-- Repetition indicator -->
+  <text x="500" y="280" text-anchor="middle" font-size="9" fill="#888">↑ identical structure, routed_scaling_factor=2.827 ↑</text>
+
+  <text x="500" y="300" text-anchor="middle" font-size="10" fill="#888">384 experts × 60 layers × 44M/expert ≈ 1T total params</text>
+
+  <line x1="500" y1="347" x2="500" y2="370" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- RMSNorm + LM Head -->
+  <rect x="370" y="374" width="260" height="28" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="500" y="393" text-anchor="middle" font-size="11" fill="#000">RMSNorm → LM Head (tied=false)</text>
+
+  <!-- Right side: key stats -->
+  <rect x="590" y="420" width="380" height="145" rx="2" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="780" y="442" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8721a">关键架构指标</text>
+  <text x="610" y="462" font-size="10" fill="#000">1T 总参 / 32B 激活</text>
+  <text x="610" y="480" font-size="10" fill="#000">61 层 (1 Dense + 60 MoE)</text>
+  <text x="610" y="498" font-size="10" fill="#000">384 路由专家 + 1 共享, top-8</text>
+  <text x="610" y="516" font-size="10" fill="#000">MLA: q_lora=1536, kv_lora=512</text>
+  <text x="610" y="534" font-size="10" fill="#000">全 MHA: 64Q/64KV (no GQA)</text>
+  <text x="610" y="552" font-size="10" fill="#000">YaRN RoPE: factor=64, 4K→256K</text>
+
+  <!-- Left side: ViT -->
+  <rect x="25" y="420" width="280" height="145" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="165" y="442" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">视觉编码器</text>
+  <text x="40" y="462" font-size="10" fill="#000">27-layer ViT (MoonViT3dEncoder)</text>
+  <text x="40" y="480" font-size="10" fill="#000">hidden=1152, intermediate=4304</text>
+  <text x="40" y="498" font-size="10" fill="#000">16 attention heads</text>
+  <text x="40" y="516" font-size="10" fill="#000">patch_size=14</text>
+  <text x="40" y="534" font-size="10" fill="#000">merge_kernel_size=[2,2]</text>
+  <text x="40" y="552" font-size="10" fill="#000">spatial_temporal video attn</text>
+
+  <!-- Optimizer -->
+  <rect x="330" y="420" width="240" height="145" rx="2" fill="none" stroke="#4a7ab0" stroke-width="1.5"/>
+  <text x="450" y="442" text-anchor="middle" font-size="11" font-weight="bold" fill="#4a7ab0">训练优化器</text>
+  <text x="345" y="462" font-size="10" fill="#000">MuonClip</text>
+  <text x="345" y="480" font-size="10" fill="#000">Newton-Schulz + QK-Clip</text>
+  <text x="345" y="498" font-size="10" fill="#000">2× token efficiency</text>
+  <text x="345" y="516" font-size="10" fill="#000">W4A8 quantization</text>
+  <text x="345" y="534" font-size="10" fill="#000">compressed-tensors</text>
+  <text x="345" y="552" font-size="10" fill="#000">attention/MLP BF16 exempt</text>
+
+  <text x="20" y="595" font-size="9" fill="#888">Modified MIT License | HuggingFace moonshotai/Kimi-K2.5 | arXiv 2602.02276</text>
+</svg>

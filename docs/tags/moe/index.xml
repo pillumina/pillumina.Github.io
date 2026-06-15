@@ -11,8 +11,50 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/moe/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MiniMax-M3 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/minimax-m3-qa/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/minimax-m3-qa/</guid>
+      <description>基于 MiniMax-M3 主报告的配套 QA。覆盖 MSA 多阶段稀疏注意力、GQA 配置、MoE 路由、视觉编码器、MTP 投机解码、训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>MiniMax-M3 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/minimax-m3/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/minimax-m3/</guid>
+      <description>MiniMax-M3 是 MiniMax 的旗舰多模态 MoE 模型。核心创新为 MSA（Multi-stage Sparse Attention）索引机制实现长上下文稀疏注意力、GQA（64Q/8KV）、256E MoE（k=8, sigmoid+bias）、视觉编码器（ViT+MLP投影）、MTP×1 投机解码。本期完整拆解 MSA 三阶段索引、MoE 路由数据流、视觉编码架构及训练体系。</description>
+    </item>
+    <item>
+      <title>Kimi-K2.5 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/kimi-k2.5-qa/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/kimi-k2.5-qa/</guid>
+      <description>基于 Kimi-K2.5 主报告的配套 QA。覆盖 MLA 潜注意力压缩、MuonClip 优化器、MoE 路由等核心主题。</description>
+    </item>
+    <item>
+      <title>Kimi-K2.5 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/kimi-k2.5/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/kimi-k2.5/</guid>
+      <description>Kimi-K2.5 是 Moonshot AI 的旗舰 MoE 模型。核心创新为 MLA 潜注意力压缩、MuonClip 优化器（Muon + 梯度裁剪）、大规模 MoE 路由等。本期完整拆解整体架构、MLA 机制、MuonClip 设计及与同期模型的对比。</description>
+    </item>
+    <item>
+      <title>Nemotron-3-Ultra 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/nemotron-3-ultra-qa/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/nemotron-3-ultra-qa/</guid>
+      <description>基于 Nemotron-3-Ultra 主报告的配套 QA。覆盖 Mamba-2 SSD 混合架构、LatentMoE 潜空间路由、MTP 投机解码、训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>Nemotron-3-Ultra 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/nemotron-3-ultra/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/nemotron-3-ultra/</guid>
+      <description>Nemotron-3-Ultra 是 NVIDIA 的旗舰开源模型。核心创新为 Mamba-2 SSD（状态空间对偶）混合架构替代传统 Attention、LatentMoE 潜空间路由（256E, k=8）、MTP×1 投机解码。本期拆解 94 层 Hybrid SSM-Attention 架构、SSD 结构化状态空间对偶机制、LatentMoE 路由及完整训练体系。</description>
+    </item>
     <item>
       <title>DeepSeek-V4-Flash 架构 QA</title>
       <link>https://pillumina.github.io/posts/qa/deepseek-v4-flash-qa/</link>
@@ -26,6 +68,20 @@
       <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/qa/glm-5.1-qa/</guid>
       <description>基于 GLM-5.1 主报告的配套 QA。覆盖三代演进、DSA 动态稀疏注意力、MLA 潜 KV 压缩、MoE 路由（256+1, k=8, scaling=2.5）、异步 Agent RL 训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>Mimo-V2-Flash 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/mimo-v2-flash-qa/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/mimo-v2-flash-qa/</guid>
+      <description>基于 Mimo-V2-Flash 主报告的配套 QA。覆盖 Hybrid Dispatch MoE 路由、MTP×2 投机解码、SwiGLU FFN 等核心主题。</description>
+    </item>
+    <item>
+      <title>Mimo-V2-Flash 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/mimo-v2-flash/</link>
+      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/mimo-v2-flash/</guid>
+      <description>Mimo-V2-Flash 是小米 Mimo 团队的开源 MoE 模型。核心创新为 Hybrid Dispatch（Sink+Bias 双机制）MoE 路由、MTP×2 投机解码、SwiGLU FFN 等。本期拆解整体架构、混合路由机制、MTP 设计及与同期模型的对比。</description>
     </item>
     <item>
       <title>MiniMax-M2.7 架构 QA</title>

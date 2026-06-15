@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" width="1100" height="700" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 -- MoE FFN: 7-Step Internal Data Flow</text>
+  <line x1="30" y1="38" x2="650" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- ===== INPUT ===== -->
+  <rect x="30" y="55" width="180" height="32" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="120" y="71" text-anchor="middle" font-size="10" fill="#000">Residual Stream</text>
+  <text x="120" y="83" text-anchor="middle" font-size="8" fill="#888">[B*S, 6144] (flattened)</text>
+
+  <line x1="210" y1="71" x2="245" y2="71" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 1: Router Logits ===== -->
+  <rect x="250" y="55" width="300" height="40" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="400" y="70" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 1: Compute Router Logits</text>
+  <text x="400" y="86" text-anchor="middle" font-size="8" fill="#888">logits = x @ W_router^T  [B*S, 128]</text>
+
+  <line x1="550" y1="75" x2="585" y2="75" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== STEP 2: Sigmoid Scoring ===== -->
+  <rect x="590" y="55" width="300" height="40" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="740" y="70" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 2: Sigmoid + Bias</text>
+  <text x="740" y="86" text-anchor="middle" font-size="8" fill="#888">scores = sigmoid(logits) + bias [128]</text>
+
+  <line x1="740" y1="95" x2="740" y2="117" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== STEP 3: Top-k Selection ===== -->
+  <rect x="540" y="120" width="300" height="40" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="690" y="136" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 3: Top-4 Selection</text>
+  <text x="690" y="152" text-anchor="middle" font-size="8" fill="#888">top_k_idx, top_k_w = argtopk(scores, 4)</text>
+
+  <line x1="690" y1="160" x2="690" y2="182" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== STEP 4: Weight Normalization ===== -->
+  <rect x="540" y="185" width="300" height="40" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="690" y="201" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 4: L1-Normalize Weights</text>
+  <text x="690" y="217" text-anchor="middle" font-size="8" fill="#888">w_i = sigmoid(logits_i) / sum(sigmoid(logits_j))</text>
+
+  <line x1="690" y1="225" x2="690" y2="247" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== STEP 5: Expert Dispatch ===== -->
+  <rect x="490" y="250" width="400" height="45" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="690" y="266" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 5: Expert Dispatch (one_hot mask)</text>
+  <text x="690" y="282" text-anchor="middle" font-size="8" fill="#888">mask = one_hot(top_k_idx, 128).permute(2,1,0) -- [128, 4, N]</text>
+
+  <line x1="690" y1="295" x2="690" y2="317" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== STEP 6: Expert Forward ===== -->
+  <rect x="420" y="320" width="540" height="90" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="690" y="340" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 6: Expert Forward (per active expert, loop)</text>
+  <line x1="440" y1="348" x2="940" y2="348" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="440" y="368" font-size="9" fill="#000">6a. gate_up = x[token_idx] @ gate_up_proj[expert_idx]  -- [N_e, 2*3072]</text>
+  <text x="440" y="386" font-size="9" fill="#000">6b. gate, up = gate_up.chunk(2); gate = clamp(gate, max=7) * sigmoid(gate * 1.702)</text>
+  <text x="440" y="404" font-size="9" fill="#000">6c. y = (up+1) * gate; y = y @ down_proj[expert_idx] * weight</text>
+
+  <line x1="690" y1="410" x2="690" y2="432" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 7: index_add ===== -->
+  <rect x="490" y="435" width="400" height="40" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="690" y="451" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 7: Accumulate (index_add_)</text>
+  <text x="690" y="467" text-anchor="middle" font-size="8" fill="#888">output.index_add_(0, token_idx, expert_output)</text>
+
+  <line x1="690" y1="475" x2="690" y2="497" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== OUTPUT ===== -->
+  <rect x="525" y="500" width="330" height="40" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="690" y="516" text-anchor="middle" font-size="10" fill="#000">MoE Output + Residual Stream</text>
+  <text x="690" y="532" text-anchor="middle" font-size="8" fill="#888">final = routed_output + shared_expert_output</text>
+
+  <!-- ===== BOTTOM LEFT: Shape Trace ===== -->
+  <rect x="30" y="120" width="380" height="280" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="220" y="140" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Tensor Shape Trace (batch=1, seq=1)</text>
+  <line x1="50" y1="148" x2="390" y2="148" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="50" y="168" font-size="9" fill="#000">Input (flattened)</text>
+  <text x="300" y="168" font-size="9" fill="#888">[N, 6144]</text>
+
+  <text x="50" y="188" font-size="9" fill="#000">Router logits</text>
+  <text x="300" y="188" font-size="9" fill="#888">[N, 128]</text>
+
+  <text x="50" y="208" font-size="9" fill="#000">Router weights</text>
+  <text x="300" y="208" font-size="9" fill="#888">[N, 128] (sigmoid)</text>
+
+  <text x="50" y="228" font-size="9" fill="#000">Scores (+ bias)</text>
+  <text x="300" y="228" font-size="9" fill="#888">[N, 128]</text>
+
+  <text x="50" y="248" font-size="9" fill="#000">Top-k index</text>
+  <text x="300" y="248" font-size="9" fill="#b8721a">[N, 4]</text>
+
+  <text x="50" y="268" font-size="9" fill="#000">Top-k weights (L1 norm)</text>
+  <text x="300" y="268" font-size="9" fill="#b8721a">[N, 4]</text>
+
+  <text x="50" y="288" font-size="9" fill="#000">Expert mask (one_hot)</text>
+  <text x="300" y="288" font-size="9" fill="#888">[128, 4, N]</text>
+
+  <text x="50" y="308" font-size="9" fill="#000">E_i output</text>
+  <text x="300" y="308" font-size="9" fill="#888">[N_e, 6144]</text>
+
+  <text x="50" y="328" font-size="9" fill="#000">Gate_up after expert</text>
+  <text x="300" y="328" font-size="9" fill="#888">[N_e, 6144] (after down_proj)</text>
+
+  <text x="50" y="348" font-size="9" fill="#000">Final output</text>
+  <text x="300" y="348" font-size="9" fill="#888">[N, 6144]</text>
+
+  <text x="50" y="368" font-size="9" fill="#000">Gate_up weights</text>
+  <text x="300" y="368" font-size="9" fill="#888">[128, 6144, 6144]</text>
+
+  <text x="50" y="388" font-size="9" fill="#000">Down weights</text>
+  <text x="300" y="388" font-size="9" fill="#888">[128, 3072, 6144] (transposed)</text>
+
+  <!-- ===== RIGHT: Formula-Code Table ===== -->
+  <rect x="30" y="420" width="380" height="280" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="220" y="440" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Formula-Code Correspondence</text>
+  <line x1="50" y1="448" x2="390" y2="448" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="55" y="466" font-size="8" font-weight="bold" fill="#1a3a6e">Formula / Step</text>
+  <text x="280" y="466" font-size="8" font-weight="bold" fill="#1a3a6e">Source L#</text>
+
+  <text x="55" y="486" font-size="8" fill="#000">L = x @ W_r^T</text>
+  <text x="280" y="486" font-size="8" fill="#888">Router.forward L232</text>
+
+  <text x="55" y="504" font-size="8" fill="#000">S = sigmoid(L) + bias</text>
+  <text x="280" y="504" font-size="8" fill="#888">Router L233-234</text>
+
+  <text x="55" y="522" font-size="8" fill="#000">I, W = topk(S, 4)</text>
+  <text x="280" y="522" font-size="8" fill="#888">Router L235-236</text>
+
+  <text x="55" y="540" font-size="8" fill="#000">W' = W / sum(W)</text>
+  <text x="280" y="540" font-size="8" fill="#888">Router L237</text>
+
+  <text x="55" y="558" font-size="8" fill="#000">mask = one_hot(I), permute</text>
+  <text x="280" y="558" font-size="8" fill="#888">Experts L190</text>
+
+  <text x="55" y="576" font-size="8" fill="#000">Linear(x, W_gate_up[e])</text>
+  <text x="280" y="576" font-size="8" fill="#888">Experts L200-201</text>
+
+  <text x="55" y="594" font-size="8" fill="#000">g,u = chunk(gate_up, 2)</text>
+  <text x="280" y="594" font-size="8" fill="#888">_apply_gate L210</text>
+
+  <text x="55" y="612" font-size="8" fill="#000">g' = g * sigmoid(g*alpha) clamp</text>
+  <text x="280" y="612" font-size="8" fill="#888">_apply_gate L211-212</text>
+
+  <text x="55" y="630" font-size="8" fill="#000">y = (up+1) * g' @ W_down</text>
+  <text x="280" y="630" font-size="8" fill="#888">Experts L202-203</text>
+
+  <text x="55" y="648" font-size="8" fill="#000">final += y * W'[i]      (index_add)</text>
+  <text x="280" y="648" font-size="8" fill="#888">Experts L204</text>
+
+  <text x="55" y="666" font-size="8" fill="#000">output = routed + shared_expert(x)</text>
+  <text x="280" y="666" font-size="8" fill="#888">SparseMoEBlock</text>
+
+  <text x="55" y="684" font-size="8" fill="#000">Swish(oai): y = (x+1)*sigmoid(x*a)</text>
+  <text x="280" y="684" font-size="8" fill="#888">_apply_gate L213</text>
+
+  <!-- ===== BOTTOM SECTION: Dense vs MoE ===== -->
+  <rect x="420" y="560" width="650" height="125" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="745" y="580" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Layer Type Distribution</text>
+  <line x1="440" y1="588" x2="1050" y2="588" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <rect x="440" y="600" width="280" height="40" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="580" y="616" text-anchor="middle" font-size="9" fill="#000">L1-L3: Dense MLP (no MoE)</text>
+  <text x="580" y="632" text-anchor="middle" font-size="8" fill="#888">SwiGLU-OAI, intermediate=12288</text>
+
+  <rect x="740" y="600" width="310" height="40" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="895" y="616" text-anchor="middle" font-size="9" fill="#000">L4-L60: MoE (routed + shared)</text>
+  <text x="895" y="632" text-anchor="middle" font-size="8" fill="#888">128 experts x 4 active, SigLU-OAI, inter=3072</text>
+
+  <text x="440" y="662" font-size="8" fill="#888">moe_layer_freq[i]=0 (L1-3) -> 1 (L4-60). Total 57 MoE layers out of 60.</text>
+  <text x="440" y="678" font-size="8" fill="#888">Dense_intermediate=12288 (3 dense layers). Shared_intermediate=3072 (shared expert per MoE layer).</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="585" width="370" height="55" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="603" font-size="10" font-weight="bold" fill="#1a3a6e">Legend</text>
+  <rect x="45" y="613" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="72" y="623" font-size="9" fill="#000">Router / routing step</text>
+  <rect x="210" y="613" width="20" height="10" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="237" y="623" font-size="9" fill="#000">Expert forward / non-routing</text>
+</svg>

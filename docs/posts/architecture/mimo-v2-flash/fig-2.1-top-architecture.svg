@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 580" width="1000" height="580" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="500" y="30" text-anchor="middle" font-size="15" font-weight="bold" fill="#000">MiMo-V2-Flash 顶层架构</text>
+
+  <!-- Embedding -->
+  <rect x="380" y="55" width="240" height="36" rx="2" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="500" y="78" text-anchor="middle" font-size="12" fill="#000">Embedding (152,576 × 4,096)</text>
+
+  <!-- Arrow: Embed → Layer 0 -->
+  <line x1="500" y1="91" x2="500" y2="115" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Layer 0 (special) -->
+  <rect x="330" y="118" width="340" height="52" rx="2" fill="#f0f4ff" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="500" y="138" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">Layer 0: GA + Dense FFN</text>
+  <text x="500" y="155" text-anchor="middle" font-size="10" fill="#888">Global Attention (64Q/4KV) + Dense SwiGLU (4,096→16,384)</text>
+
+  <!-- Arrow down -->
+  <line x1="500" y1="170" x2="500" y2="195" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Hybrid Block ×8 label -->
+  <text x="500" y="215" text-anchor="middle" font-size="11" fill="#888">Hybrid Block × 8 (每 Block = 5 SWA + 1 GA)</text>
+
+  <!-- Block bracket -->
+  <rect x="170" y="228" width="660" height="170" rx="4" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="6,3"/>
+
+  <!-- SWA layers -->
+  <text x="195" y="250" font-size="10" fill="#888">SWA×5</text>
+  <rect x="250" y="240" width="270" height="28" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="385" y="258" text-anchor="middle" font-size="10" fill="#000">Sliding Window Attention (W=128, 64Q/8KV, sink bias)</text>
+
+  <rect x="250" y="272" width="270" height="28" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="385" y="290" text-anchor="middle" font-size="10" fill="#000">MoE FFN (256E, top-8, sigmoid, no shared)</text>
+
+  <text x="195" y="325" font-size="10" fill="#888">GA×1</text>
+  <rect x="250" y="315" width="270" height="28" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="385" y="333" text-anchor="middle" font-size="10" fill="#1a3a6e">Global Attention (64Q/4KV, no sink)</text>
+
+  <rect x="250" y="347" width="270" height="28" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="385" y="365" text-anchor="middle" font-size="10" fill="#000">MoE FFN (256E, top-8, sigmoid)</text>
+
+  <!-- Arrow: 5:1 ratio annotation -->
+  <text x="555" y="290" font-size="10" fill="#888">← 5:1 混合比例 →</text>
+
+  <!-- Right side: MTP -->
+  <rect x="590" y="260" width="220" height="100" rx="2" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="700" y="280" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">MTP 模块 × 3</text>
+  <text x="700" y="298" text-anchor="middle" font-size="9" fill="#888">每块 0.33B 参数</text>
+  <text x="700" y="314" text-anchor="middle" font-size="9" fill="#888">Dense FFN + SWA</text>
+  <text x="700" y="330" text-anchor="middle" font-size="9" fill="#888">tied LM Head</text>
+  <text x="700" y="348" text-anchor="middle" font-size="9" fill="#888">投机解码 2.6× 加速</text>
+
+  <!-- Arrow down after block -->
+  <line x1="500" y1="403" x2="500" y2="430" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- RMSNorm -->
+  <rect x="400" y="433" width="200" height="28" rx="2" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="500" y="452" text-anchor="middle" font-size="11" fill="#000">RMSNorm</text>
+
+  <!-- Arrow to LM Head -->
+  <line x1="500" y1="461" x2="500" y2="485" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- LM Head -->
+  <rect x="380" y="488" width="240" height="36" rx="2" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="500" y="511" text-anchor="middle" font-size="12" fill="#000">LM Head (tied, 4,096 → 152,576)</text>
+
+  <!-- Legend -->
+  <rect x="20" y="500" width="250" height="70" rx="2" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="35" y="518" font-size="9" font-weight="bold" fill="#000">图例</text>
+  <line x1="35" y1="535" x2="65" y2="535" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="72" y="539" font-size="9" fill="#888">Global Attention 层 (GA)</text>
+  <line x1="35" y1="552" x2="65" y2="552" stroke="#000" stroke-width="1"/>
+  <text x="72" y="556" font-size="9" fill="#888">Sliding Window Attention 层 (SWA)</text>
+  <line x1="130" y1="552" x2="160" y2="552" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="167" y="556" font-size="9" fill="#888">MTP 模块</text>
+
+  <!-- Key stats -->
+  <text x="20" y="580" font-size="9" fill="#888">总参 309B | 激活 15B | 48层 (39SWA+9GA) | 256E/top-8 | SWA W=128 | 训练 27T tokens | FP8</text>
+</svg>

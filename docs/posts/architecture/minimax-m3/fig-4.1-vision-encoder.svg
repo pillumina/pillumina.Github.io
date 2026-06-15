@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 680" width="1000" height="680" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 -- Vision Encoder &amp; Projector Pipeline</text>
+  <line x1="30" y1="38" x2="670" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- ===== INPUT ===== -->
+  <rect x="30" y="58" width="180" height="32" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="120" y="74" text-anchor="middle" font-size="10" fill="#000">Input Image/Video</text>
+  <text x="120" y="86" text-anchor="middle" font-size="8" fill="#888">dynamic_res up to 2016x2016</text>
+
+  <line x1="210" y1="74" x2="245" y2="74" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 1: Patch Embed ===== -->
+  <rect x="250" y="55" width="230" height="38" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="365" y="70" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 1: Conv3d Patch Embed</text>
+  <text x="365" y="86" text-anchor="middle" font-size="8" fill="#888">kernel=[2,14,14], C=3, stride=same</text>
+
+  <line x1="480" y1="74" x2="515" y2="74" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 2: Pre-LN ===== -->
+  <rect x="520" y="57" width="180" height="34" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="610" y="72" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 2: Pre-LayerNorm</text>
+  <text x="610" y="86" text-anchor="middle" font-size="8" fill="#888">LayerNorm(1280)</text>
+
+  <line x1="700" y1="74" x2="735" y2="74" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 3: 3D RoPE ===== -->
+  <rect x="740" y="57" width="220" height="34" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="850" y="72" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 3: 3D RoPE (T,H,W)</text>
+  <text x="850" y="86" text-anchor="middle" font-size="8" fill="#888">theta=10000, per-axis position encoding</text>
+
+  <line x1="850" y1="91" x2="850" y2="113" stroke="#1a3a6e" stroke-width="0.5" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 4: ViT Encoder ===== -->
+  <rect x="300" y="116" width="500" height="200" rx="0" fill="none" stroke="#1a3a6e" stroke-width="2"/>
+  <text x="550" y="138" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">Step 4: ViT Encoder (32 Layers)</text>
+  <line x1="320" y1="146" x2="780" y2="146" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- ViT layer detail -->
+  <text x="320" y="166" font-size="9" font-weight="bold" fill="#4a7ab0">ViT Layer (x32):</text>
+
+  <rect x="320" y="178" width="460" height="24" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="550" y="194" text-anchor="middle" font-size="9" fill="#000">Multi-Head Self-Attention: 16 heads, h=1280, d=80</text>
+
+  <line x1="320" y1="202" x2="320" y2="212" stroke="#4a7ab0" stroke-width="0.5"/>
+  <rect x="320" y="212" width="48" height="18" rx="0" fill="#b8721a" fill-opacity="0.08" stroke="#b8721a" stroke-width="1"/>
+  <text x="344" y="224" text-anchor="middle" font-size="7" fill="#b8721a">3D RoPE</text>
+
+  <rect x="320" y="236" width="460" height="24" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="550" y="252" text-anchor="middle" font-size="9" fill="#000">FFN: GELU, intermediate=5120</text>
+
+  <rect x="320" y="266" width="460" height="22" rx="0" fill="none" stroke="#888" stroke-width="0.5" stroke-dasharray="2,1"/>
+  <text x="550" y="281" text-anchor="middle" font-size="8" fill="#888">Post-Norm (LayerNorm) after each sub-layer</text>
+
+  <text x="320" y="300" font-size="8" fill="#888">Full Attention (no mask) -- all patches attend to all patches</text>
+
+  <!-- Arrow from ViT -->
+  <line x1="550" y1="316" x2="550" y2="340" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 5: Patch Merge ===== -->
+  <rect x="400" y="343" width="300" height="40" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="550" y="359" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 5: Patch Merge Compression</text>
+  <text x="550" y="376" text-anchor="middle" font-size="8" fill="#888">spatial_merge_size=2, temporal_patch_size=2</text>
+
+  <line x1="550" y1="383" x2="550" y2="405" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 6: Projector ===== -->
+  <rect x="400" y="408" width="300" height="40" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="550" y="424" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 6: Multi-Modal Projector</text>
+  <text x="550" y="440" text-anchor="middle" font-size="8" fill="#888">1280 -> 6144, GELU activation, bias=True</text>
+
+  <line x1="550" y1="448" x2="550" y2="470" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== OUTPUT ===== -->
+  <rect x="420" y="473" width="260" height="34" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="550" y="489" text-anchor="middle" font-size="10" fill="#000">Visual Features [N_patches, 6144]</text>
+  <text x="550" y="503" text-anchor="middle" font-size="8" fill="#888">scatter into image_token placeholder positions</text>
+
+  <!-- ===== BOTTOM LEFT: ViT Config ===== -->
+  <rect x="30" y="120" width="250" height="195" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="155" y="142" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">ViT Configuration</text>
+  <line x1="50" y1="150" x2="260" y2="150" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="50" y="170" font-size="9" fill="#000">hidden_size:</text>
+  <text x="200" y="170" font-size="9" fill="#1a3a6e">1280</text>
+
+  <text x="50" y="190" font-size="9" fill="#000">num_hidden_layers:</text>
+  <text x="200" y="190" font-size="9" fill="#1a3a6e">32</text>
+
+  <text x="50" y="210" font-size="9" fill="#000">num_attention_heads:</text>
+  <text x="200" y="210" font-size="9" fill="#1a3a6e">16</text>
+
+  <text x="50" y="230" font-size="9" fill="#000">head_dim:</text>
+  <text x="200" y="230" font-size="9" fill="#1a3a6e">80</text>
+
+  <text x="50" y="250" font-size="9" fill="#000">intermediate_size:</text>
+  <text x="200" y="250" font-size="9" fill="#1a3a6e">5120</text>
+
+  <text x="50" y="270" font-size="9" fill="#000">patch_size:</text>
+  <text x="200" y="270" font-size="9" fill="#1a3a6e">14</text>
+
+  <text x="50" y="290" font-size="9" fill="#000">position_embedding:</text>
+  <text x="200" y="290" font-size="9" fill="#b8721a">3D RoPE</text>
+
+  <text x="50" y="310" font-size="9" fill="#000">hidden_act:</text>
+  <text x="200" y="310" font-size="9" fill="#1a3a6e">GELU</text>
+
+  <!-- ===== BOTTOM RIGHT: Projector Detail ===== -->
+  <rect x="30" y="340" width="250" height="175" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="155" y="362" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Projector Detail</text>
+  <line x1="50" y1="370" x2="260" y2="370" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="50" y="390" font-size="9" fill="#000">Input dim:</text>
+  <text x="200" y="390" font-size="9" fill="#888">1280 (ViT output)</text>
+
+  <text x="50" y="410" font-size="9" fill="#000">Output dim:</text>
+  <text x="200" y="410" font-size="9" fill="#888">6144 (LLM input)</text>
+
+  <text x="50" y="430" font-size="9" fill="#000">Activation:</text>
+  <text x="200" y="430" font-size="9" fill="#888">GELU</text>
+
+  <text x="50" y="450" font-size="9" fill="#000">Bias:</text>
+  <text x="200" y="450" font-size="9" fill="#888">True</text>
+
+  <text x="50" y="470" font-size="9" fill="#000">Architecture:</text>
+  <text x="200" y="470" font-size="9" fill="#888">Linear+GELU+Linear</text>
+
+  <text x="50" y="490" font-size="9" fill="#000">Compression:</text>
+  <text x="200" y="490" font-size="9" fill="#b8721a">Patch Merge (2x2)</text>
+
+  <text x="50" y="510" font-size="9" fill="#000">Temporal:</text>
+  <text x="200" y="510" font-size="9" fill="#b8721a">2-frame merge</text>
+
+  <!-- ===== RIGHT: Compression Detail ===== -->
+  <rect x="810" y="120" width="160" height="195" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="890" y="142" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Patch Merge</text>
+  <line x1="830" y1="150" x2="950" y2="150" stroke="#b8721a" stroke-width="0.5"/>
+
+  <text x="830" y="170" font-size="9" fill="#000">Spatial:</text>
+  <text x="830" y="190" font-size="9" fill="#000">2x2 patches -></text>
+  <text x="830" y="210" font-size="9" fill="#000">1 merged patch</text>
+  <text x="830" y="230" font-size="8" fill="#888">4x token reduction</text>
+
+  <text x="830" y="255" font-size="9" fill="#000">Temporal:</text>
+  <text x="830" y="275" font-size="9" fill="#000">2 consecutive</text>
+  <text x="830" y="295" font-size="9" fill="#000">frames -> 1</text>
+  <text x="830" y="313" font-size="8" fill="#888">(video only)</text>
+
+  <!-- ===== RIGHT BOTTOM: Image Grid ===== -->
+  <rect x="810" y="340" width="160" height="170" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="890" y="360" text-anchor="middle" font-size="10" font-weight="bold" fill="#4a7ab0">Dynamic Resolution</text>
+  <line x1="830" y1="368" x2="950" y2="368" stroke="#4a7ab0" stroke-width="0.5"/>
+
+  <text x="830" y="388" font-size="8" fill="#000">Min grid: 336x336</text>
+  <text x="830" y="406" font-size="8" fill="#000">Max grid: 2016x2016</text>
+  <text x="830" y="424" font-size="8" fill="#000">36 grid combos</text>
+  <text x="830" y="442" font-size="8" fill="#888">(see config for</text>
+  <text x="830" y="460" font-size="8" fill="#888">image_grid_pinpoints)</text>
+  <text x="830" y="482" font-size="8" fill="#000">image_seq_length:</text>
+  <text x="830" y="500" font-size="8" fill="#1a3a6e">576 tokens</text>
+
+  <!-- ===== TOKEN FLOW ===== -->
+  <rect x="30" y="540" width="940" height="55" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="500" y="560" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Token Embedding Merge (masked_scatter)</text>
+  <line x1="50" y1="568" x2="950" y2="568" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="50" y="586" font-size="9" fill="#000">Text tokens (embed): [B, St, 6144]</text>
+  <text x="320" y="586" font-size="9" fill="#000">+</text>
+  <text x="340" y="586" font-size="9" fill="#b8721a">Image features (scatter): [N_patches, 6144]</text>
+  <text x="640" y="586" font-size="9" fill="#000">+</text>
+  <text x="660" y="586" font-size="9" fill="#b8721a">Video features (scatter): [N_vpatches, 6144]</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="610" width="420" height="55" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="628" font-size="10" font-weight="bold" fill="#1a3a6e">Legend</text>
+  <rect x="45" y="638" width="20" height="10" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="72" y="648" font-size="9" fill="#000">Standard ViT component</text>
+  <rect x="230" y="638" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="257" y="648" font-size="9" fill="#000">MiniMax-specific (3D RoPE / Merge)</text>
+</svg>

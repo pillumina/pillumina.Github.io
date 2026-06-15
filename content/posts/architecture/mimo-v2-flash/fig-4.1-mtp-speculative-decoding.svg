@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 520" width="1000" height="520" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-green" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2d8a56"/>
+    </marker>
+    <marker id="arrow-red" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#c0392b"/>
+    </marker>
+  </defs>
+
+  <text x="500" y="28" text-anchor="middle" font-size="14" font-weight="bold" fill="#000">MTP 投机解码 — 3 层轻量 MTP 实现 2.6× 解码加速</text>
+
+  <!-- Main Model -->
+  <text x="130" y="62" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">主模型 (Step 1)</text>
+  <rect x="15" y="72" width="230" height="50" rx="2" fill="#f0f4ff" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="130" y="92" text-anchor="middle" font-size="10" fill="#000">生成 token T, 输出 h_t</text>
+  <text x="130" y="108" text-anchor="middle" font-size="9" fill="#888">(完整 48 层, MoE, GA+SWA)</text>
+
+  <!-- MTP Block 1 -->
+  <line x1="245" y1="97" x2="285" y2="97" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="340" y="62" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8721a">MTP Block 1 (0.33B)</text>
+  <rect x="295" y="72" width="230" height="50" rx="2" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="410" y="92" text-anchor="middle" font-size="10" fill="#000">h_t → 预测 token T+1</text>
+  <text x="410" y="108" text-anchor="middle" font-size="9" fill="#888">SWA(128) + Dense FFN + tied LM Head</text>
+
+  <!-- MTP Block 2 -->
+  <line x1="525" y1="97" x2="565" y2="97" stroke="#b8721a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="620" y="62" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8721a">MTP Block 2 (0.33B)</text>
+  <rect x="575" y="72" width="230" height="50" rx="2" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="690" y="92" text-anchor="middle" font-size="10" fill="#000">h_t+1 → 预测 token T+2</text>
+  <text x="690" y="108" text-anchor="middle" font-size="9" fill="#888">SWA(128) + Dense FFN + tied LM Head</text>
+
+  <!-- MTP Block 3 -->
+  <line x1="805" y1="97" x2="845" y2="97" stroke="#b8721a" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="855" y="72" width="120" height="50" rx="2" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="915" y="92" text-anchor="middle" font-size="10" fill="#000">预测 T+3</text>
+  <text x="915" y="108" text-anchor="middle" font-size="9" fill="#888">0.33B</text>
+
+  <!-- Verification step -->
+  <text x="500" y="160" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">主模型验证 (Step 2) — 一次前向 = 确认 4 个 token</text>
+
+  <!-- Draft tokens -->
+  <text x="130" y="200" text-anchor="middle" font-size="10" fill="#888">Draft: [T, T+1, T+2, T+3]</text>
+
+  <rect x="95" y="210" width="710" height="80" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="130" y="232" text-anchor="middle" font-size="10" fill="#000">主模型一次前向</text>
+  <text x="130" y="250" text-anchor="middle" font-size="9" fill="#888">验证 4 个 draft token (并行)</text>
+
+  <!-- Acceptance check -->
+  <text x="380" y="232" text-anchor="middle" font-size="10" fill="#2d8a56">T+1 ✓</text>
+  <text x="460" y="232" text-anchor="middle" font-size="10" fill="#2d8a56">T+2 ✓</text>
+  <text x="540" y="232" text-anchor="middle" font-size="10" fill="#2d8a56">T+3 ✓</text>
+  <text x="630" y="232" text-anchor="middle" font-size="10" fill="#c0392b">T+4 ✗</text>
+  <text x="720" y="232" text-anchor="middle" font-size="9" fill="#888">→ 接受 3/4 draft</text>
+
+  <text x="130" y="275" text-anchor="middle" font-size="9" fill="#888">从 T+4 位置继续（主模型重新生成 + MTP draft）</text>
+
+  <!-- Stats -->
+  <text x="500" y="320" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">实测性能</text>
+
+  <rect x="60" y="335" width="200" height="60" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="160" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">平均接受长度</text>
+  <text x="160" y="380" text-anchor="middle" font-size="18" fill="#1a3a6e">3.6</text>
+
+  <rect x="290" y="335" width="200" height="60" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="390" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">解码加速比</text>
+  <text x="390" y="380" text-anchor="middle" font-size="18" fill="#1a3a6e">2.6×</text>
+
+  <rect x="520" y="335" width="200" height="60" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="620" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">Draft 接受率</text>
+  <text x="620" y="380" text-anchor="middle" font-size="18" fill="#1a3a6e">~90%</text>
+
+  <rect x="750" y="335" width="200" height="60" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="850" y="358" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">MTP 总参数</text>
+  <text x="850" y="380" text-anchor="middle" font-size="18" fill="#1a3a6e">~1B</text>
+
+  <!-- Design rationale -->
+  <text x="500" y="430" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">轻量设计原理</text>
+
+  <rect x="40" y="442" width="440" height="65" rx="2" fill="#f8f8f8" stroke="#000" stroke-width="0.5"/>
+  <text x="55" y="460" font-size="10" fill="#000">Dense FFN 而非 MoE: MTP 任务单一（预测 next token），不需要 256E</text>
+  <text x="55" y="480" font-size="10" fill="#000">SWA 而非 GA: 主模型 h_t 已含全局信息，MTP 仅需局部补充</text>
+  <text x="55" y="500" font-size="10" fill="#000">tied LM Head: 与主模型共享嵌入，节省 0.6B 参数</text>
+
+  <rect x="510" y="442" width="460" height="65" rx="2" fill="#f8f8f8" stroke="#000" stroke-width="0.5"/>
+  <text x="525" y="460" font-size="10" fill="#888">训练: 主预测 loss + λ × Σ MTP_k_prediction_loss  → 信号密度 4×</text>
+  <text x="525" y="480" font-size="10" fill="#888">推理: MTP draft → 主模型验证 → 接受正确/丢弃错误 → 循环</text>
+  <text x="525" y="500" font-size="10" fill="#888">梯度隔离: MTP 损失不回传主模型，防止目标冲突</text>
+</svg>

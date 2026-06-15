@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 — MSA (MiniMax Sparse Attention) Mechanism</text>
+  <line x1="30" y1="38" x2="730" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- ===== LEFT: Full Attention (Layers 1-3) ===== -->
+  <text x="30" y="65" font-size="11" font-weight="bold" fill="#1a3a6e">Layers 1-3: Full (Dense) Attention</text>
+
+  <!-- Dense attention grid -->
+  <rect x="30" y="80" width="220" height="180" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="140" y="98" text-anchor="middle" font-size="9" fill="#000">Full Q @ K^T matrix</text>
+
+  <!-- Grid visualization -->
+  <g>
+    <!-- Small dense grid -->
+    <rect x="45" y="108" width="190" height="140" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="none"/>
+    <!-- Row labels -->
+    <text x="40" y="125" font-size="8" fill="#888">Q</text>
+    <text x="40" y="140" font-size="7" fill="#888">tokens</text>
+    <text x="240" y="125" font-size="7" fill="#888">all K</text>
+    <text x="240" y="140" font-size="7" fill="#888">positions</text>
+    <!-- Dot pattern -->
+    <circle cx="80" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="95" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="110" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="125" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="140" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="155" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="170" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="185" cy="135" r="1.5" fill="#4a7ab0"/>
+    <circle cx="200" cy="135" r="1.5" fill="#4a7ab0"/>
+    <text x="230" y="135" font-size="7" fill="#888">...</text>
+
+    <!-- Dense pattern: full row -->
+    <rect x="55" y="160" width="170" height="12" rx="0" fill="#4a7ab0" fill-opacity="0.3" stroke="none"/>
+    <rect x="55" y="178" width="170" height="12" rx="0" fill="#4a7ab0" fill-opacity="0.3" stroke="none"/>
+    <rect x="55" y="196" width="170" height="12" rx="0" fill="#4a7ab0" fill-opacity="0.3" stroke="none"/>
+    <rect x="55" y="214" width="170" height="12" rx="0" fill="#4a7ab0" fill-opacity="0.3" stroke="none"/>
+    <rect x="55" y="232" width="170" height="12" rx="0" fill="#4a7ab0" fill-opacity="0.3" stroke="none"/>
+
+    <!-- Causal mask diagonal -->
+    <line x1="56" y1="163" x2="150" y2="245" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,2"/>
+  </g>
+
+  <text x="140" y="270" text-anchor="middle" font-size="9" fill="#000">O(T^2) complexity</text>
+  <text x="140" y="284" text-anchor="middle" font-size="8" fill="#888">Every Q attends to all past K</text>
+
+  <!-- Arrow to MSA -->
+  <line x1="250" y1="170" x2="320" y2="170" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="285" y="163" text-anchor="middle" font-size="8" fill="#888">Layer 3+</text>
+
+  <!-- ===== RIGHT: MSA Sparse Attention ===== -->
+  <text x="330" y="65" font-size="11" font-weight="bold" fill="#b8721a">Layers 4-60: MSA Sparse Attention</text>
+
+  <!-- Sparse attention grid -->
+  <rect x="330" y="80" width="280" height="180" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="470" y="98" text-anchor="middle" font-size="9" fill="#000">Sparse Q @ K^T (only top-16 blocks)</text>
+
+  <g>
+    <!-- Sparse pattern visualization -->
+    <rect x="345" y="108" width="250" height="140" rx="0" fill="#b8721a" fill-opacity="0.04" stroke="none"/>
+
+    <!-- Selected blocks -->
+    <!-- Block 0 -->
+    <rect x="345" y="110" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <!-- Block 3 -->
+    <rect x="435" y="110" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <!-- Block 7 -->
+    <rect x="495" y="110" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <!-- Block 12 -->
+    <rect x="555" y="110" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+
+    <!-- Row 2 -->
+    <rect x="345" y="145" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="405" y="145" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="525" y="145" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="555" y="145" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+
+    <!-- Row 3 -->
+    <rect x="375" y="180" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="435" y="180" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="495" y="180" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="555" y="180" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+
+    <!-- Row 4 -->
+    <rect x="345" y="215" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="465" y="215" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="495" y="215" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+    <rect x="555" y="215" width="30" height="14" rx="0" fill="#b8721a" fill-opacity="0.3" stroke="#b8721a" stroke-width="0.5"/>
+
+    <!-- Local window (always selected) -->
+    <rect x="345" y="215" width="120" height="35" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5" stroke-dasharray="3,1"/>
+    <text x="405" y="262" text-anchor="middle" font-size="7" fill="#b8721a">local block (forced)</text>
+
+    <!-- Causal mask diagonal -->
+    <line x1="346" y1="113" x2="470" y2="245" stroke="#1a3a6e" stroke-width="1" stroke-dasharray="4,2"/>
+
+    <!-- Legend annotations -->
+    <text x="360" y="140" font-size="7" fill="#888">block size=128 tokens</text>
+  </g>
+
+  <text x="470" y="270" text-anchor="middle" font-size="9" fill="#000">O(T x topk x block_size)</text>
+  <text x="470" y="284" text-anchor="middle" font-size="8" fill="#888">16 blocks x 128 tokens = 2048 per query</text>
+
+  <!-- ===== PARAMETER TABLE (bottom left) ===== -->
+  <rect x="30" y="310" width="450" height="185" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="255" y="332" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">MSA Configuration</text>
+  <line x1="50" y1="340" x2="460" y2="340" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="50" y="360" font-size="9" fill="#000">block_size</text>
+  <text x="200" y="360" font-size="9" fill="#1a3a6e">128</text>
+  <text x="300" y="360" font-size="8" fill="#888"># tokens per key block</text>
+
+  <text x="50" y="380" font-size="9" fill="#000">sparse_num_index_heads</text>
+  <text x="200" y="380" font-size="9" fill="#1a3a6e">4</text>
+  <text x="300" y="380" font-size="8" fill="#888">indexer attention heads</text>
+
+  <text x="50" y="400" font-size="9" fill="#000">sparse_index_dim</text>
+  <text x="200" y="400" font-size="9" fill="#1a3a6e">128</text>
+  <text x="300" y="400" font-size="8" fill="#888">indexer head dimension</text>
+
+  <text x="50" y="420" font-size="9" fill="#000">sparse_topk_blocks</text>
+  <text x="200" y="420" font-size="9" fill="#1a3a6e">16</text>
+  <text x="300" y="420" font-size="8" fill="#888"># selected blocks per query</text>
+
+  <text x="50" y="440" font-size="9" fill="#000">sparse_init_block</text>
+  <text x="200" y="440" font-size="9" fill="#1a3a6e">0</text>
+  <text x="300" y="440" font-size="8" fill="#888">initial blocks in first layer</text>
+
+  <text x="50" y="460" font-size="9" fill="#000">sparse_local_block</text>
+  <text x="200" y="460" font-size="9" fill="#1a3a6e">1</text>
+  <text x="300" y="460" font-size="8" fill="#888">forced local window blocks</text>
+
+  <text x="50" y="480" font-size="9" fill="#000">sparse_score_type</text>
+  <text x="200" y="480" font-size="9" fill="#b8721a">max</text>
+  <text x="300" y="480" font-size="8" fill="#888">per-block max-pool scoring</text>
+
+  <!-- ===== RIGHT: Block-level indexing ===== -->
+  <text x="520" y="332" font-size="11" font-weight="bold" fill="#b8721a">Block-level Indexing</text>
+
+  <rect x="520" y="348" width="420" height="147" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+
+  <!-- Sequence -> Blocks -->
+  <rect x="535" y="365" width="180" height="28" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="625" y="383" text-anchor="middle" font-size="9" fill="#000">K Sequence (Sk tokens)</text>
+
+  <line x1="715" y1="379" x2="745" y2="379" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="750" y="365" width="170" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="835" y="383" text-anchor="middle" font-size="9" fill="#000">ceil(Sk/128) blocks</text>
+
+  <!-- Block indexing -->
+  <rect x="535" y="408" width="180" height="28" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="625" y="426" text-anchor="middle" font-size="9" fill="#000">Index Q (4 heads, 128d)</text>
+
+  <line x1="715" y1="422" x2="745" y2="422" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <rect x="750" y="408" width="170" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="835" y="426" text-anchor="middle" font-size="9" fill="#000">Score per block (max-pool)</text>
+
+  <!-- Top-k selection -->
+  <rect x="535" y="451" width="385" height="30" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="727" y="470" text-anchor="middle" font-size="9" fill="#b8721a">Top-16 blocks selected (exp-free argmax)</text>
+
+  <!-- Final note -->
+  <text x="520" y="505" font-size="8" fill="#888">Selected blocks -> dense additive mask for attention</text>
+
+  <!-- ===== BOTTOM: Comparison table ===== -->
+  <text x="30" y="525" font-size="11" font-weight="bold" fill="#1a3a6e">Full Attention vs MSA: Cost Comparison</text>
+
+  <rect x="30" y="538" width="910" height="70" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <line x1="260" y1="538" x2="260" y2="608" stroke="#1a3a6e" stroke-width="0.5"/>
+  <line x1="560" y1="538" x2="560" y2="608" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="145" y="555" text-anchor="middle" font-size="9" font-weight="bold" fill="#1a3a6e">Full Attention</text>
+  <text x="410" y="555" text-anchor="middle" font-size="9" font-weight="bold" fill="#b8721a">MSA (1M context)</text>
+  <text x="735" y="555" text-anchor="middle" font-size="9" font-weight="bold" fill="#000">Savings</text>
+
+  <text x="145" y="575" text-anchor="middle" font-size="9" fill="#000">O(T^2) = 10^12 MAC</text>
+  <text x="410" y="575" text-anchor="middle" font-size="9" fill="#000">O(T x 2048) = 2x10^9 MAC</text>
+  <text x="735" y="575" text-anchor="middle" font-size="9" fill="#b8721a">~500x reduction</text>
+
+  <text x="145" y="595" text-anchor="middle" font-size="9" fill="#000">KV Cache: 1M x 4 x 128 x BF16</text>
+  <text x="410" y="595" text-anchor="middle" font-size="9" fill="#000">Same KV cache (4 heads)</text>
+  <text x="735" y="595" text-anchor="middle" font-size="9" fill="#000">~2GB per layer (raw)</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="625" width="400" height="55" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="643" font-size="10" font-weight="bold" fill="#1a3a6e">Legend</text>
+  <rect x="45" y="653" width="20" height="10" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="72" y="662" font-size="9" fill="#000">Full Attention / standard op</text>
+  <rect x="230" y="653" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="257" y="662" font-size="9" fill="#000">MSA-specific / sparse op</text>
+</svg>

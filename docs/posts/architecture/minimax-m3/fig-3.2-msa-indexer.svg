@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700" width="1000" height="700" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 — MSA Lightning Indexer (Index Branch)</text>
+  <line x1="30" y1="38" x2="680" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- ===== LEFT: Indexer Input ===== -->
+  <rect x="30" y="55" width="160" height="32" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="110" y="75" text-anchor="middle" font-size="10" fill="#000">hidden_states</text>
+  <text x="110" y="83" text-anchor="middle" font-size="8" fill="#888">[B, Sq, 6144]</text>
+
+  <!-- Split into two paths -->
+  <line x1="190" y1="71" x2="230" y2="71" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+  <line x1="110" y1="87" x2="110" y2="110" stroke="#1a3a6e" stroke-width="0.5"/>
+  <line x1="110" y1="110" x2="450" y2="110" stroke="#1a3a6e" stroke-width="0.5"/>
+  <line x1="240" y1="87" x2="240" y2="102" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- ===== INDEX Q PATH ===== -->
+  <text x="255" y="65" font-size="10" font-weight="bold" fill="#b8721a">Index Q Path</text>
+
+  <rect x="250" y="75" width="160" height="30" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="88" text-anchor="middle" font-size="9" fill="#000">q_proj (6144 -> 512)</text>
+  <text x="330" y="100" text-anchor="middle" font-size="8" fill="#888">4 idx-heads x 128d</text>
+
+  <line x1="330" y1="105" x2="330" y2="125" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <rect x="250" y="128" width="160" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="146" text-anchor="middle" font-size="9" fill="#000">Reshape: [B,4,Sq,128]</text>
+
+  <line x1="330" y1="156" x2="330" y2="176" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <rect x="250" y="179" width="160" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="197" text-anchor="middle" font-size="9" fill="#000">QK Norm (RMSNorm)</text>
+
+  <line x1="330" y1="207" x2="330" y2="227" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <rect x="250" y="230" width="160" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="248" text-anchor="middle" font-size="9" fill="#000">RoPE (1st 128d)</text>
+
+  <line x1="410" y1="244" x2="450" y2="244" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== INDEX K PATH ===== -->
+  <text x="255" y="270" font-size="10" font-weight="bold" fill="#b8721a">Index K Path</text>
+
+  <rect x="250" y="280" width="160" height="30" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="293" text-anchor="middle" font-size="9" fill="#000">k_proj (6144 -> 128)</text>
+  <text x="330" y="305" text-anchor="middle" font-size="8" fill="#888">per-token (no MHA)</text>
+
+  <line x1="330" y1="310" x2="330" y2="328" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <rect x="250" y="331" width="160" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="349" text-anchor="middle" font-size="9" fill="#000">Reshape: [B,1,Sk,128]</text>
+
+  <line x1="330" y1="359" x2="330" y2="377" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <rect x="250" y="380" width="160" height="28" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="330" y="398" text-anchor="middle" font-size="9" fill="#000">QK Norm + RoPE</text>
+
+  <line x1="410" y1="394" x2="450" y2="394" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- ===== SCORING ENGINE (right) ===== -->
+  <rect x="460" y="55" width="490" height="370" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="705" y="75" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8721a">Block Scoring &amp; Top-k Selection</text>
+  <line x1="480" y1="83" x2="930" y2="83" stroke="#b8721a" stroke-width="0.5"/>
+
+  <!-- Step 1 -->
+  <rect x="480" y="98" width="220" height="35" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="590" y="114" text-anchor="middle" font-size="9" fill="#000">Step 1: QK^T (fp32)</text>
+  <text x="590" y="128" text-anchor="middle" font-size="8" fill="#888">scores = idx_q @ idx_k^T  [B,4,Sq,Sk]</text>
+
+  <line x1="590" y1="133" x2="590" y2="152" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- Step 2 -->
+  <rect x="480" y="155" width="220" height="35" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="590" y="171" text-anchor="middle" font-size="9" fill="#000">Step 2: Causal Mask</text>
+  <text x="590" y="185" text-anchor="middle" font-size="8" fill="#888">mask_fill(future=-inf)</text>
+
+  <line x1="590" y1="190" x2="590" y2="209" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- Step 3 -->
+  <rect x="480" y="212" width="220" height="35" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="590" y="228" text-anchor="middle" font-size="9" fill="#000">Step 3: Blockify</text>
+  <text x="590" y="242" text-anchor="middle" font-size="8" fill="#888">[B,4,Sq,Nb,128]</text>
+
+  <line x1="590" y1="247" x2="590" y2="266" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- Step 4 -->
+  <rect x="480" y="269" width="220" height="35" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="590" y="285" text-anchor="middle" font-size="9" fill="#000">Step 4: Max-pool (x2)</text>
+  <text x="590" y="299" text-anchor="middle" font-size="8" fill="#888">amax(heads) -> amax(tokens)</text>
+
+  <line x1="590" y1="304" x2="590" y2="323" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- Step 5 -->
+  <rect x="480" y="326" width="220" height="35" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="590" y="342" text-anchor="middle" font-size="9" fill="#000">Step 5: Local Boost</text>
+  <text x="590" y="356" text-anchor="middle" font-size="8" fill="#888">local_blocks=1 forced (score=inf)</text>
+
+  <line x1="590" y1="361" x2="590" y2="380" stroke="#b8721a" stroke-width="0.8" marker-end="url(#arrow-orange)"/>
+
+  <!-- Step 6 -->
+  <rect x="480" y="383" width="220" height="35" rx="0" fill="#b8721a" fill-opacity="0.08" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="590" y="399" text-anchor="middle" font-size="9" fill="#b8721a">Step 6: Top-16 Argmax</text>
+  <text x="590" y="413" text-anchor="middle" font-size="8" fill="#888">block_scores.topk(16) -> indices</text>
+
+  <!-- Right side annotations -->
+  <rect x="720" y="100" width="215" height="85" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="827" y="118" text-anchor="middle" font-size="9" font-weight="bold" fill="#4a7ab0">Key Design: Exp-Free</text>
+  <text x="827" y="136" text-anchor="middle" font-size="8" fill="#000">No softmax for block</text>
+  <text x="827" y="152" text-anchor="middle" font-size="8" fill="#000">selection. Pure score-</text>
+  <text x="827" y="168" text-anchor="middle" font-size="8" fill="#000">based argmax, avoiding</text>
+  <text x="827" y="184" text-anchor="middle" font-size="8" fill="#000">O(Nb) extra compute.</text>
+
+  <rect x="720" y="200" width="215" height="85" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="827" y="218" text-anchor="middle" font-size="9" font-weight="bold" fill="#4a7ab0">Why Max Score?</text>
+  <text x="827" y="236" text-anchor="middle" font-size="8" fill="#000">score_type="max":</text>
+  <text x="827" y="252" text-anchor="middle" font-size="8" fill="#000">A block is as important</text>
+  <text x="827" y="268" text-anchor="middle" font-size="8" fill="#000">as its highest-scoring</text>
+  <text x="827" y="284" text-anchor="middle" font-size="8" fill="#000">token. Conservative.</text>
+
+  <rect x="720" y="300" width="215" height="85" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="827" y="318" text-anchor="middle" font-size="9" font-weight="bold" fill="#4a7ab0">Local Window Guarantee</text>
+  <text x="827" y="336" text-anchor="middle" font-size="8" fill="#000">1 local block always</text>
+  <text x="827" y="352" text-anchor="middle" font-size="8" fill="#000">forced (score=inf).</text>
+  <text x="827" y="368" text-anchor="middle" font-size="8" fill="#000">Ensures locality.</text>
+
+  <!-- ===== OUTPUT (bottom) ===== -->
+  <rect x="460" y="440" width="490" height="45" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="705" y="458" text-anchor="middle" font-size="10" fill="#000">Output: block_indices [B, Sq, 16]</text>
+  <text x="705" y="476" text-anchor="middle" font-size="9" fill="#888">-1 marks invalid/future blocks; passed to attention_interface()</text>
+
+  <!-- ===== MASK BUILD (bottom) ===== -->
+  <rect x="460" y="500" width="490" height="60" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="705" y="518" text-anchor="middle" font-size="10" fill="#000">Mask Construction (build_block_mask)</text>
+  <text x="705" y="538" text-anchor="middle" font-size="9" fill="#888">block_indices -> dense additive mask (0 / -inf) for Flash/vanilla attention</text>
+  <text x="705" y="552" text-anchor="middle" font-size="8" fill="#888">Only used for eager/SDPA backends; FlashInfer handles sparse natively</text>
+
+  <!-- ===== LAYER ASSIGNMENT ===== -->
+  <rect x="30" y="320" width="200" height="100" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="130" y="342" text-anchor="middle" font-size="10" font-weight="bold" fill="#4a7ab0">Layer Assignment</text>
+  <line x1="50" y1="350" x2="210" y2="350" stroke="#4a7ab0" stroke-width="0.5"/>
+  <text x="130" y="368" text-anchor="middle" font-size="9" fill="#000">L1-L3: No Indexer</text>
+  <text x="130" y="386" text-anchor="middle" font-size="9" fill="#888">(Full Attention)</text>
+  <text x="130" y="404" text-anchor="middle" font-size="9" fill="#b8721a">L4-L60: Indexer ON</text>
+  <text x="130" y="420" text-anchor="middle" font-size="8" fill="#888">(MSA Sparse)</text>
+
+  <!-- ===== PARAMETER BOX ===== -->
+  <rect x="30" y="440" width="200" height="120" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="130" y="460" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Indexer Parameters</text>
+  <line x1="50" y1="468" x2="210" y2="468" stroke="#b8721a" stroke-width="0.5"/>
+  <text x="50" y="486" font-size="9" fill="#000">index_n_heads:</text>
+  <text x="160" y="486" font-size="9" fill="#b8721a">4</text>
+  <text x="50" y="504" font-size="9" fill="#000">index_head_dim:</text>
+  <text x="160" y="504" font-size="9" fill="#b8721a">128</text>
+  <text x="50" y="522" font-size="9" fill="#000">index_block_size:</text>
+  <text x="160" y="522" font-size="9" fill="#b8721a">128</text>
+  <text x="50" y="540" font-size="9" fill="#000">index_topk_blocks:</text>
+  <text x="160" y="540" font-size="9" fill="#b8721a">16</text>
+  <text x="50" y="558" font-size="9" fill="#000">index_local_blocks:</text>
+  <text x="160" y="558" font-size="9" fill="#b8721a">1</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="635" width="450" height="55" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="653" font-size="10" font-weight="bold" fill="#1a3a6e">Legend</text>
+  <rect x="45" y="663" width="20" height="10" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1.5"/>
+  <text x="72" y="672" font-size="9" fill="#000">Standard / shared mechanism</text>
+  <rect x="230" y="663" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="257" y="672" font-size="9" fill="#000">Indexer-specific / sparse op</text>
+  <rect x="395" y="660" width="20" height="16" rx="0" fill="#b8721a" fill-opacity="0.08" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="422" y="672" font-size="9" fill="#000">Key output</text>
+</svg>

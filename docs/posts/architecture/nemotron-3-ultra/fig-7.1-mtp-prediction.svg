@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1050 700" width="1050" height="700">
+  <defs>
+    <style>
+      .fig-71-text { font-family: "Courier New", monospace; font-size: 13px; fill: #000; }
+      .fig-71-text-sm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig-71-text-xs { font-family: "Courier New", monospace; font-size: 9px; fill: #888; }
+      .fig-71-text-hl { font-family: "Courier New", monospace; font-size: 13px; fill: #1a3a6e; font-weight: bold; }
+      .fig-71-text-accent { font-family: "Courier New", monospace; font-size: 12px; fill: #b8721a; }
+      .fig-71-box { fill: #1a3a6e; fill-opacity: 0.08; stroke: #1a3a6e; stroke-width: 1.8; }
+      .fig-71-box-attn { fill: #b8721a; fill-opacity: 0.08; stroke: #b8721a; stroke-width: 1.5; }
+      .fig-71-box-moe { fill: #4a7ab0; fill-opacity: 0.08; stroke: #4a7ab0; stroke-width: 1.5; }
+      .fig-71-box-shared { fill: #b8721a; fill-opacity: 0.06; stroke: #b8721a; stroke-width: 1.5; stroke-dasharray: 4,3; }
+      .fig-71-box-light { fill: none; stroke: #1a3a6e; stroke-width: 1; }
+      .fig-71-legend-box { fill: none; stroke: #888; stroke-width: 1; }
+      .fig-71-arrow { stroke: #1a3a6e; stroke-width: 1.5; fill: none; }
+      .fig-71-arrow-head { fill: #1a3a6e; }
+      .fig-71-arrow-accent { stroke: #b8721a; stroke-width: 1.5; fill: none; }
+      .fig-71-arrow-accent-head { fill: #b8721a; }
+      .fig-71-line-gray { stroke: #888; stroke-width: 0.8; fill: none; stroke-dasharray: 3,4; }
+      .fig-71-step-num { font-family: "Courier New", monospace; font-size: 10px; font-weight: bold; fill: #1a3a6e; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#000">Fig 7.1 — Multi-Token Prediction (MTP) Chain: Native Speculative Decoding</text>
+  <line x1="30" y1="36" x2="750" y2="36" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- ===== Main Architecture Flow (left to right) ===== -->
+
+  <!-- Input Tokens -->
+  <rect x="30" y="70" width="160" height="50" class="fig-71-box"/>
+  <text x="110" y="90" text-anchor="middle" class="fig-71-text-sm">Input Tokens</text>
+  <text x="110" y="108" text-anchor="middle" class="fig-71-text-xs">t_0, t_1, t_2, ..., t_n</text>
+
+  <!-- Arrow to embedding -->
+  <line x1="190" y1="95" x2="220" y2="95" class="fig-71-arrow"/>
+  <polygon points="215,91 220,95 215,99" class="fig-71-arrow-head"/>
+
+  <!-- Token Embed -->
+  <rect x="220" y="72" width="140" height="46" class="fig-71-box-light"/>
+  <text x="290" y="93" text-anchor="middle" class="fig-71-text-sm">Token Embed</text>
+  <text x="290" y="108" text-anchor="middle" class="fig-71-text-xs">131072 &#215; 8192</text>
+
+  <!-- Arrow to main model -->
+  <line x1="360" y1="95" x2="400" y2="95" class="fig-71-arrow"/>
+  <polygon points="395,91 400,95 395,99" class="fig-71-arrow-head"/>
+
+  <!-- Main Model (60 hybrid layers) -->
+  <rect x="400" y="58" width="200" height="74" class="fig-71-box"/>
+  <text x="500" y="79" text-anchor="middle" class="fig-71-text-hl">Main Model</text>
+  <text x="500" y="95" text-anchor="middle" class="fig-71-text-sm">60 Hybrid Layers</text>
+  <text x="500" y="112" text-anchor="middle" class="fig-71-text-xs">48 Mamba-2 + 12 Attn + 48 MoE</text>
+  <text x="500" y="126" text-anchor="middle" class="fig-71-text-xs">550B total / 55B active</text>
+
+  <!-- Arrow: main -> hidden_states -->
+  <line x1="600" y1="95" x2="640" y2="95" class="fig-71-arrow"/>
+  <polygon points="635,91 640,95 635,99" class="fig-71-arrow-head"/>
+
+  <!-- Hidden states from main model -->
+  <rect x="640" y="68" width="180" height="54" class="fig-71-box"/>
+  <text x="730" y="88" text-anchor="middle" class="fig-71-text-sm">Hidden States</text>
+  <text x="730" y="104" text-anchor="middle" class="fig-71-text-xs">h_main = Layer 60 output</text>
+  <text x="730" y="117" text-anchor="middle" class="fig-71-text-xs">[B, S, 8192]</text>
+
+  <!-- Token 0 from LM Head -->
+  <line x1="730" y1="122" x2="730" y2="155" class="fig-71-arrow"/>
+  <polygon points="725,150 730,160 735,150" class="fig-71-arrow-head"/>
+
+  <rect x="610" y="160" width="240" height="42" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.04"/>
+  <text x="730" y="177" text-anchor="middle" class="fig-71-text-sm">LM Head (shared)</text>
+  <text x="730" y="193" text-anchor="middle" class="fig-71-text-xs">8192 &#8594; 131072; predict token_0</text>
+
+  <!-- ===== MTP Layer (below) ===== -->
+  <line x1="30" y1="240" x2="1020" y2="240" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="275" class="fig-71-text-hl">MTP Layer (num_nextn_predict_layers=1)</text>
+
+  <!-- h_main --> mtp_input (with embedding of previous predicted token) -->
+  <line x1="730" y1="122" x2="730" y2="280" stroke="#1a3a6e" stroke-width="1.2" stroke-dasharray="4,3"/>
+  <text x="742" y="260" class="fig-71-text-xs">h_main + Emb(token_0)</text>
+
+  <!-- MTP Block -->
+  <rect x="400" y="290" width="320" height="85" stroke="#1a3a6e" stroke-width="2" fill="none"/>
+  <text x="560" y="312" text-anchor="middle" class="fig-71-text-hl">MTP Predictor Layer</text>
+
+  <!-- Inside MTP: Attention -->
+  <rect x="415" y="322" width="120" height="36" class="fig-71-box-attn"/>
+  <text x="475" y="338" text-anchor="middle" class="fig-71-text-sm">Attention</text>
+  <text x="475" y="352" text-anchor="middle" class="fig-71-text-xs">64Q/2KV GQA</text>
+
+  <!-- arrow attn -> norm -->
+  <line x1="535" y1="340" x2="555" y2="340" class="fig-71-arrow"/>
+
+  <!-- Inside MTP: Norm -->
+  <rect x="555" y="322" width="40" height="36" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.04"/>
+  <text x="575" y="346" text-anchor="middle" class="fig-71-text-xs">Norm</text>
+
+  <!-- arrow norm -> moe -->
+  <line x1="595" y1="340" x2="615" y2="340" class="fig-71-arrow"/>
+
+  <!-- Inside MTP: MoE -->
+  <rect x="615" y="322" width="90" height="36" class="fig-71-box-moe"/>
+  <text x="660" y="338" text-anchor="middle" class="fig-71-text-sm">MoE</text>
+  <text x="660" y="352" text-anchor="middle" class="fig-71-text-xs">512 exp</text>
+
+  <!-- MTP output -->
+  <line x1="560" y1="375" x2="560" y2="405" class="fig-71-arrow"/>
+  <polygon points="555,400 560,410 565,400" class="fig-71-arrow-head"/>
+
+  <!-- MTP hidden states -->
+  <rect x="430" y="410" width="260" height="36" class="fig-71-box"/>
+  <text x="560" y="426" text-anchor="middle" class="fig-71-text-sm">h_mtp [B, S, 8192]</text>
+  <text x="560" y="440" text-anchor="middle" class="fig-71-text-xs">MTP layer output</text>
+
+  <!-- Arrow to shared LM head for token 1 -->
+  <line x1="560" y1="446" x2="560" y2="478" class="fig-71-arrow"/>
+  <polygon points="555,473 560,483 565,473" class="fig-71-arrow-head"/>
+
+  <!-- Shared LM Head -->
+  <rect x="430" y="483" width="260" height="40" stroke="#b8721a" stroke-width="2" stroke-dasharray="5,4" fill="#b8721a" fill-opacity="0.04"/>
+  <text x="560" y="500" text-anchor="middle" class="fig-71-text-accent">LM Head (shared weight)</text>
+  <text x="560" y="516" text-anchor="middle" class="fig-71-text-xs">8192 &#8594; 131072</text>
+
+  <!-- Arrows to predicted tokens -->
+  <line x1="560" y1="523" x2="560" y2="555" class="fig-71-arrow"/>
+  <polygon points="555,550 560,560 565,550" class="fig-71-arrow-head"/>
+
+  <!-- Token predictions -->
+  <rect x="460" y="560" width="90" height="36" class="fig-71-box"/>
+  <text x="505" y="576" text-anchor="middle" class="fig-71-text-sm">Token 0</text>
+  <text x="505" y="590" text-anchor="middle" class="fig-71-text-xs">(main)</text>
+
+  <rect x="570" y="560" width="90" height="36" class="fig-71-box"/>
+  <text x="615" y="576" text-anchor="middle" class="fig-71-text-sm">Token 1</text>
+  <text x="615" y="590" text-anchor="middle" class="fig-71-text-xs">(mtp)</text>
+
+  <!-- ===== Speculative Decoding Detail ===== -->
+  <line x1="30" y1="630" x2="1020" y2="630" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="660" class="fig-71-text-accent">Inference: Native Speculative Decoding (97% acceptance rate)</text>
+
+  <text x="30" y="682" class="fig-71-text-sm">1. Main model predicts token_0 (autoregressive).</text>
+  <text x="30" y="700" class="fig-71-text-sm">2. MTP layer takes h_main + Embed(token_0) and predicts token_1 (single forward pass, no new autoregressive step).</text>
+  <text x="30" y="718" class="fig-71-text-sm">3. Both tokens are verified in parallel at next step; 97% of MTP token_1 predictions accepted.</text>
+  <text x="30" y="736" class="fig-71-text-sm">4. Effective 2&#215; throughput without 2&#215; the compute: 1 autoreg step + 1 cheap MTP forward.</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="580" y="640" width="330" height="55" class="fig-71-legend-box"/>
+  <text x="595" y="656" font-family="Courier New, monospace" font-size="12" font-weight="bold" fill="#000">Legend</text>
+
+  <rect x="595" y="667" width="20" height="10" class="fig-71-box-attn"/>
+  <text x="625" y="676" class="fig-71-text-xs">Attention sub-layer in MTP</text>
+
+  <rect x="800" y="667" width="20" height="10" class="fig-71-box-moe"/>
+  <text x="830" y="676" class="fig-71-text-xs">MoE sub-layer in MTP</text>
+
+  <rect x="595" y="683" width="20" height="10" class="fig-71-box-shared"/>
+  <text x="625" y="692" class="fig-71-text-xs">Shared LM Head (main + mtp)</text>
+</svg>

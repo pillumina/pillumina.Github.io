@@ -5,14 +5,104 @@
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/categories/architecture/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/architecture/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/tags/attention/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/categories/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/gqa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/minimax/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/qa/minimax-m3-qa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/minimax-m3/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/model-architecture/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/moe/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/msa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/mtp/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/multimodal/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/qa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/qa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/qa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/qa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/series/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/kimi/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/qa/kimi-k2.5-qa/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/kimi-k2.5/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/latent-moe/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/mamba/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/mla/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/muon/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/nemotron/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/qa/nemotron-3-ultra-qa/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/nemotron-3-ultra/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/ssd/</loc>
+    <lastmod>2026-06-12T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/csa/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
@@ -35,49 +125,25 @@
     <loc>https://pillumina.github.io/posts/qa/glm-5.1-qa/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/gqa/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/hca/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/hybrid-attention/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/minimax/</loc>
+    <loc>https://pillumina.github.io/tags/hybrid-dispatch/</loc>
+    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/mimo/</loc>
+    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/qa/mimo-v2-flash-qa/</loc>
+    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/architecture/mimo-v2-flash/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/qa/minimax-m2.7-qa/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/mla/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/model-architecture/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/moe/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/mtp/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/muon/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/qa/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/qa/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/series/qa/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/qa/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/qwen/</loc>
@@ -85,21 +151,6 @@
   </url><url>
     <loc>https://pillumina.github.io/posts/qa/qwen3.5-moe-qa/</loc>
     <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/series/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/</loc>
-    <lastmod>2026-06-11T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/architecture/</loc>
-    <lastmod>2026-06-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/architecture/</loc>
-    <lastmod>2026-06-10T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/series/architecture/</loc>
-    <lastmod>2026-06-10T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/architecture/deepseek-v4-flash/</loc>
     <lastmod>2026-06-10T00:00:00+00:00</lastmod>

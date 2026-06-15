@@ -11,8 +11,22 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/gqa/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>MiniMax-M3 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/minimax-m3-qa/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/minimax-m3-qa/</guid>
+      <description>基于 MiniMax-M3 主报告的配套 QA。覆盖 MSA 多阶段稀疏注意力、GQA 配置、MoE 路由、视觉编码器、MTP 投机解码、训练体系等核心主题。</description>
+    </item>
+    <item>
+      <title>MiniMax-M3 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/minimax-m3/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/minimax-m3/</guid>
+      <description>MiniMax-M3 是 MiniMax 的旗舰多模态 MoE 模型。核心创新为 MSA（Multi-stage Sparse Attention）索引机制实现长上下文稀疏注意力、GQA（64Q/8KV）、256E MoE（k=8, sigmoid+bias）、视觉编码器（ViT+MLP投影）、MTP×1 投机解码。本期完整拆解 MSA 三阶段索引、MoE 路由数据流、视觉编码架构及训练体系。</description>
+    </item>
     <item>
       <title>MiniMax-M2.7 架构 QA</title>
       <link>https://pillumina.github.io/posts/qa/minimax-m2.7-qa/</link>

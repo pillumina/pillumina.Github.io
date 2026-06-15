@@ -1,0 +1,244 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 620" width="900" height="620">
+  <defs>
+    <style>
+      .fig-23-text { font-family: "Courier New", monospace; font-size: 13px; fill: #000; }
+      .fig-23-text-sm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig-23-text-xs { font-family: "Courier New", monospace; font-size: 9px; fill: #888; }
+      .fig-23-text-hl { font-family: "Courier New", monospace; font-size: 13px; fill: #1a3a6e; font-weight: bold; }
+      .fig-23-text-accent { font-family: "Courier New", monospace; font-size: 12px; fill: #b8721a; }
+      .fig-23-line { stroke: #1a3a6e; stroke-width: 1.5; fill: none; }
+      .fig-23-line-gray { stroke: #888; stroke-width: 1; fill: none; stroke-dasharray: 3,3; }
+      .fig-23-head-q { fill: #1a3a6e; fill-opacity: 0.12; stroke: #1a3a6e; stroke-width: 1; }
+      .fig-23-head-k { fill: #4a7ab0; fill-opacity: 0.12; stroke: #4a7ab0; stroke-width: 1.2; }
+      .fig-23-head-v { fill: #b8721a; fill-opacity: 0.12; stroke: #b8721a; stroke-width: 1.2; }
+      .fig-23-legend-box { fill: none; stroke: #888; stroke-width: 1; }
+      .fig-23-arrow-qk { stroke: #4a7ab0; stroke-width: 0.6; fill: none; stroke-opacity: 0.6; }
+      .fig-23-arrow-qv { stroke: #b8721a; stroke-width: 0.6; fill: none; stroke-opacity: 0.5; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#000">Fig 2.3 — GQA Configuration: 64 Query Heads vs 2 Key/Value Heads (32:1 Grouping)</text>
+  <line x1="30" y1="36" x2="800" y2="36" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- ===== LEFT SIDE: Head visualization ===== -->
+
+  <!-- K heads (left side, vertical) -->
+  <text x="80" y="80" class="fig-23-text-hl">Key Heads (2)</text>
+  <rect x="80" y="90" width="36" height="36" class="fig-23-head-k"/>
+  <text x="98" y="113" text-anchor="middle" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#4a7ab0">K</text>
+  <text x="98" y="145" text-anchor="middle" class="fig-23-text-xs">0</text>
+
+  <rect x="80" y="160" width="36" height="36" class="fig-23-head-k"/>
+  <text x="98" y="183" text-anchor="middle" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#4a7ab0">K</text>
+  <text x="98" y="215" text-anchor="middle" class="fig-23-text-xs">1</text>
+
+  <!-- V heads (right side, vertical) -->
+  <text x="740" y="80" class="fig-23-text-accent">Value Heads (2)</text>
+  <rect x="745" y="90" width="36" height="36" class="fig-23-head-v"/>
+  <text x="763" y="113" text-anchor="middle" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#b8721a">V</text>
+  <text x="763" y="145" text-anchor="middle" class="fig-23-text-xs">0</text>
+
+  <rect x="745" y="160" width="36" height="36" class="fig-23-head-v"/>
+  <text x="763" y="183" text-anchor="middle" font-family="Courier New, monospace" font-size="16" font-weight="bold" fill="#b8721a">V</text>
+  <text x="763" y="215" text-anchor="middle" class="fig-23-text-xs">1</text>
+
+  <!-- Q heads (center block, 64 heads in 2 main groups) -->
+  <text x="430" y="70" class="fig-23-text-hl">Query Heads (64) — head_dim = 128</text>
+
+  <!-- Group 0 (32 Q heads connected to KV 0) -->
+  <text x="298" y="95" class="fig-23-text-sm">Group 0</text>
+  <line x1="280" y1="98" x2="280" y2="235" stroke="#4a7ab0" stroke-width="0.5" stroke-dasharray="2,3"/>
+
+  <!-- 32 Q heads in group 0, arranged in 4 rows of 8 -->
+  <rect x="160" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="182" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="204" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="226" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="248" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="270" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="292" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="314" y="108" width="18" height="14" class="fig-23-head-q"/>
+
+  <rect x="160" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="182" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="204" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="226" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="248" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="270" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="292" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="314" y="126" width="18" height="14" class="fig-23-head-q"/>
+
+  <rect x="160" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="182" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="204" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="226" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="248" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="270" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="292" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="314" y="144" width="18" height="14" class="fig-23-head-q"/>
+
+  <rect x="160" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="182" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="204" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="226" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="248" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="270" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="292" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="314" y="162" width="18" height="14" class="fig-23-head-q"/>
+
+  <text x="245" y="195" text-anchor="middle" class="fig-23-text-xs">&#215; 32 Query heads share 1 KV pair</text>
+
+  <!-- Group 1 (32 Q heads connected to KV 1) -->
+  <text x="640" y="95" class="fig-23-text-sm">Group 1</text>
+  <line x1="600" y1="98" x2="600" y2="235" stroke="#888" stroke-width="0.5" stroke-dasharray="2,6"/>
+
+  <rect x="500" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="522" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="544" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="566" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="588" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="610" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="632" y="108" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="654" y="108" width="18" height="14" class="fig-23-head-q"/>
+
+  <rect x="500" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="522" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="544" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="566" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="588" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="610" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="632" y="126" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="654" y="126" width="18" height="14" class="fig-23-head-q"/>
+
+  <rect x="500" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="522" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="544" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="566" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="588" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="610" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="632" y="144" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="654" y="144" width="18" height="14" class="fig-23-head-q"/>
+
+  <rect x="500" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="522" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="544" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="566" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="588" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="610" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="632" y="162" width="18" height="14" class="fig-23-head-q"/>
+  <rect x="654" y="162" width="18" height="14" class="fig-23-head-q"/>
+
+  <text x="590" y="195" text-anchor="middle" class="fig-23-text-xs">&#215; 32 Query heads share 1 KV pair</text>
+
+  <!-- Connection arrows from K0 to Q group 0 -->
+  <line x1="116" y1="108" x2="160" y2="121" class="fig-23-arrow-qk"/>
+  <line x1="116" y1="108" x2="300" y2="120" class="fig-23-arrow-qk"/>
+  <line x1="116" y1="160" x2="200" y2="157" class="fig-23-arrow-qk"/>
+
+  <!-- Connection arrows from K1 to Q group 1 -->
+  <line x1="116" y1="178" x2="500" y2="121" class="fig-23-arrow-qk"/>
+  <line x1="116" y1="178" x2="600" y2="120" class="fig-23-arrow-qk"/>
+  <line x1="116" y1="178" x2="680" y2="157" class="fig-23-arrow-qk"/>
+
+  <!-- Connection arrows from V0 to Q group 0 -->
+  <line x1="745" y1="108" x2="330" y2="121" class="fig-23-arrow-qv"/>
+  <line x1="745" y1="108" x2="200" y2="157" class="fig-23-arrow-qv"/>
+
+  <!-- ===== Computation Detail ===== -->
+  <line x1="30" y1="260" x2="860" y2="260" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="30" y="290" class="fig-23-text-hl">Attention Computation per Hybrid Block</text>
+
+  <rect x="30" y="305" width="830" height="185" rx="0" ry="0" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.03"/>
+
+  <!-- Hidden state -->
+  <rect x="50" y="320" width="140" height="30" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.08"/>
+  <text x="120" y="339" text-anchor="middle" class="fig-23-text-sm">Hidden [B,S,8192]</text>
+
+  <!-- Arrow -->
+  <line x1="190" y1="335" x2="220" y2="335" stroke="#1a3a6e" stroke-width="1"/>
+  <polygon points="215,331 220,335 215,339" fill="#1a3a6e"/>
+
+  <!-- Q projection -->
+  <rect x="220" y="315" width="150" height="40" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.06"/>
+  <text x="295" y="331" text-anchor="middle" class="fig-23-text-sm">Q Proj</text>
+  <text x="295" y="347" text-anchor="middle" class="fig-23-text-xs">8192&#8594;64&#215;128=8192</text>
+
+  <!-- Arrow -->
+  <line x1="370" y1="335" x2="400" y2="335" stroke="#1a3a6e" stroke-width="1"/>
+  <polygon points="395,331 400,335 395,339" fill="#1a3a6e"/>
+
+  <!-- Q reshape -->
+  <rect x="400" y="318" width="130" height="34" stroke="#1a3a6e" stroke-width="1" fill="#1a3a6e" fill-opacity="0.04"/>
+  <text x="465" y="334" text-anchor="middle" class="fig-23-text-sm">Q reshape</text>
+  <text x="465" y="347" text-anchor="middle" class="fig-23-text-xs">[B,S,64,128]</text>
+
+  <!-- K projection -->
+  <rect x="220" y="365" width="150" height="40" stroke="#4a7ab0" stroke-width="1.5" fill="#4a7ab0" fill-opacity="0.06"/>
+  <text x="295" y="381" text-anchor="middle" class="fig-23-text-sm">K Proj</text>
+  <text x="295" y="397" text-anchor="middle" class="fig-23-text-xs">8192&#8594;2&#215;128=256</text>
+
+  <!-- Arrow -->
+  <line x1="370" y1="385" x2="400" y2="385" stroke="#4a7ab0" stroke-width="1"/>
+  <polygon points="395,381 400,385 395,389" fill="#4a7ab0"/>
+
+  <!-- K reshape -->
+  <rect x="400" y="368" width="130" height="34" stroke="#4a7ab0" stroke-width="1" fill="#4a7ab0" fill-opacity="0.04"/>
+  <text x="465" y="384" text-anchor="middle" class="fig-23-text-sm">K reshape</text>
+  <text x="465" y="397" text-anchor="middle" class="fig-23-text-xs">[B,S,2,128]&#8594;expand</text>
+
+  <!-- V projection -->
+  <rect x="220" y="415" width="150" height="40" stroke="#b8721a" stroke-width="1.5" fill="#b8721a" fill-opacity="0.06"/>
+  <text x="295" y="431" text-anchor="middle" class="fig-23-text-sm">V Proj</text>
+  <text x="295" y="447" text-anchor="middle" class="fig-23-text-xs">8192&#8594;2&#215;128=256</text>
+
+  <!-- Arrow -->
+  <line x1="370" y1="435" x2="400" y2="435" stroke="#b8721a" stroke-width="1"/>
+  <polygon points="395,431 400,435 395,439" fill="#b8721a"/>
+
+  <!-- V reshape -->
+  <rect x="400" y="418" width="130" height="34" stroke="#b8721a" stroke-width="1" fill="#b8721a" fill-opacity="0.04"/>
+  <text x="465" y="434" text-anchor="middle" class="fig-23-text-sm">V reshape</text>
+  <text x="465" y="447" text-anchor="middle" class="fig-23-text-xs">[B,S,2,128]&#8594;expand</text>
+
+  <!-- Combine / SDPA -->
+  <rect x="560" y="340" width="160" height="60" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.06"/>
+  <text x="640" y="362" text-anchor="middle" class="fig-23-text-sm">SDPA</text>
+  <text x="640" y="378" text-anchor="middle" class="fig-23-text-xs">Q,K,V + Scale</text>
+  <text x="640" y="393" text-anchor="middle" class="fig-23-text-xs">No RoPE</text>
+
+  <!-- Arrows into SDPA -->
+  <line x1="530" y1="332" x2="560" y2="350" stroke="#1a3a6e" stroke-width="1"/>
+  <line x1="530" y1="385" x2="560" y2="365" stroke="#4a7ab0" stroke-width="1"/>
+  <line x1="530" y1="435" x2="560" y2="380" stroke="#b8721a" stroke-width="1"/>
+
+  <!-- Output -->
+  <line x1="720" y1="370" x2="750" y2="370" stroke="#1a3a6e" stroke-width="1"/>
+  <polygon points="745,366 750,370 745,374" fill="#1a3a6e"/>
+
+  <rect x="750" y="355" width="95" height="30" stroke="#1a3a6e" stroke-width="1.5" fill="#1a3a6e" fill-opacity="0.08"/>
+  <text x="797" y="374" text-anchor="middle" class="fig-23-text-sm">[B,S,8192]</text>
+
+  <!-- ===== Why No RoPE ===== -->
+  <text x="30" y="530" class="fig-23-text-accent">Why No RoPE?</text>
+  <text x="30" y="550" class="fig-23-text-sm">Mamba-2 layers provide implicit positional information through</text>
+  <text x="30" y="568" class="fig-23-text-sm">their sequential state-space structure. Attention layers embedded</text>
+  <text x="30" y="586" class="fig-23-text-sm">among Mamba layers inherit this implicit position awareness,</text>
+  <text x="30" y="604" class="fig-23-text-sm">eliminating the need for explicit RoPE positional encoding.</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="500" y="530" width="280" height="80" class="fig-23-legend-box"/>
+  <text x="515" y="550" font-family="Courier New, monospace" font-size="12" font-weight="bold" fill="#000">Legend</text>
+
+  <rect x="515" y="562" width="20" height="12" class="fig-23-head-q"/>
+  <text x="545" y="573" class="fig-23-text-xs">Query head</text>
+
+  <rect x="625" y="562" width="20" height="12" class="fig-23-head-k"/>
+  <text x="655" y="573" class="fig-23-text-xs">Key head</text>
+
+  <rect x="740" y="562" width="20" height="12" class="fig-23-head-v"/>
+  <text x="770" y="573" class="fig-23-text-xs">Value head</text>
+
+  <text x="515" y="600" class="fig-23-text-xs">Ratio: 64 Q-heads / 2 KV-heads = 32:1 GQA</text>
+</svg>

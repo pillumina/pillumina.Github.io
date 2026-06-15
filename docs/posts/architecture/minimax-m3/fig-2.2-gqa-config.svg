@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600" width="900" height="600" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 — GQA Head Configuration (64Q : 4KV)</text>
+  <line x1="30" y1="38" x2="650" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- ===== Q HEADS (top) ===== -->
+  <text x="30" y="65" font-size="11" font-weight="bold" fill="#1a3a6e">Query Heads: 64</text>
+
+  <!-- Row 1: Q heads 1-16 -->
+  <g>
+    <rect x="30" y="80" width="48" height="36" rx="0" fill="#4a7ab0" fill-opacity="0.12" stroke="#4a7ab0" stroke-width="1"/>
+    <text x="54" y="95" text-anchor="middle" font-size="8" fill="#000">Q0</text>
+    <text x="54" y="108" text-anchor="middle" font-size="7" fill="#888">d=128</text>
+  </g>
+  <g>
+    <rect x="82" y="80" width="48" height="36" rx="0" fill="#4a7ab0" fill-opacity="0.12" stroke="#4a7ab0" stroke-width="1"/>
+    <text x="106" y="95" text-anchor="middle" font-size="8" fill="#000">Q1</text>
+    <text x="106" y="108" text-anchor="middle" font-size="7" fill="#888">d=128</text>
+  </g>
+  <g>
+    <rect x="134" y="80" width="48" height="36" rx="0" fill="#4a7ab0" fill-opacity="0.12" stroke="#4a7ab0" stroke-width="1"/>
+    <text x="158" y="95" text-anchor="middle" font-size="8" fill="#000">Q2</text>
+    <text x="158" y="108" text-anchor="middle" font-size="7" fill="#888">d=128</text>
+  </g>
+  <text x="192" y="102" font-size="10" fill="#888">...</text>
+  <g>
+    <rect x="210" y="80" width="48" height="36" rx="0" fill="#4a7ab0" fill-opacity="0.12" stroke="#4a7ab0" stroke-width="1"/>
+    <text x="234" y="95" text-anchor="middle" font-size="8" fill="#000">Q15</text>
+    <text x="234" y="108" text-anchor="middle" font-size="7" fill="#888">d=128</text>
+  </g>
+
+  <!-- Group brackets for Q group 0 -->
+  <line x1="54" y1="120" x2="54" y2="140" stroke="#888" stroke-width="0.5"/>
+  <line x1="234" y1="120" x2="234" y2="140" stroke="#888" stroke-width="0.5"/>
+  <line x1="54" y1="140" x2="234" y2="140" stroke="#888" stroke-width="0.5"/>
+  <line x1="144" y1="140" x2="144" y2="152" stroke="#888" stroke-width="0.5" marker-end="url(#arrow)"/>
+  <text x="144" y="165" text-anchor="middle" font-size="8" fill="#888">Group 0 (16 Q-heads)</text>
+
+  <!-- Row 2-4: Remaining Q groups -->
+  <text x="30" y="130" font-size="8" fill="#888">...(48 more Q heads in Groups 1-3)...</text>
+
+  <!-- ===== KV HEADS (middle) ===== -->
+  <text x="30" y="195" font-size="11" font-weight="bold" fill="#1a3a6e">KV Heads: 4 (GQA 16:1 ratio)</text>
+
+  <g>
+    <rect x="30" y="210" width="80" height="42" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1.5"/>
+    <text x="70" y="226" text-anchor="middle" font-size="9" fill="#000">KV0</text>
+    <text x="70" y="240" text-anchor="middle" font-size="8" fill="#888">K: 128d</text>
+    <text x="70" y="252" text-anchor="middle" font-size="8" fill="#888">V: 128d</text>
+  </g>
+
+  <text x="120" y="236" font-size="10" fill="#888">...</text>
+
+  <g>
+    <rect x="140" y="210" width="80" height="42" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1.5"/>
+    <text x="180" y="226" text-anchor="middle" font-size="9" fill="#000">KV1</text>
+    <text x="180" y="240" text-anchor="middle" font-size="8" fill="#888">K: 128d</text>
+    <text x="180" y="252" text-anchor="middle" font-size="8" fill="#888">V: 128d</text>
+  </g>
+
+  <text x="230" y="236" font-size="10" fill="#888">...</text>
+
+  <g>
+    <rect x="250" y="210" width="80" height="42" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1.5"/>
+    <text x="290" y="226" text-anchor="middle" font-size="9" fill="#000">KV2</text>
+    <text x="290" y="240" text-anchor="middle" font-size="8" fill="#888">K: 128d</text>
+    <text x="290" y="252" text-anchor="middle" font-size="8" fill="#888">V: 128d</text>
+  </g>
+
+  <text x="340" y="236" font-size="10" fill="#888">...</text>
+
+  <g>
+    <rect x="360" y="210" width="80" height="42" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1.5"/>
+    <text x="400" y="226" text-anchor="middle" font-size="9" fill="#000">KV3</text>
+    <text x="400" y="240" text-anchor="middle" font-size="8" fill="#888">K: 128d</text>
+    <text x="400" y="252" text-anchor="middle" font-size="8" fill="#888">V: 128d</text>
+  </g>
+
+  <!-- ===== GROUPING DIAGRAM (main) ===== -->
+  <text x="30" y="285" font-size="11" font-weight="bold" fill="#1a3a6e">GQA Grouping: 64 Query heads -> 4 KV heads</text>
+
+  <!-- Visual mapping -->
+  <!-- Group 0 -->
+  <rect x="30" y="305" width="500" height="55" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="50" y="320" font-size="9" fill="#000">Q0..Q15 (16 heads)</text>
+
+  <rect x="230" y="315" width="80" height="35" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1"/>
+  <text x="270" y="330" text-anchor="middle" font-size="9" fill="#000">KV0</text>
+  <text x="270" y="344" text-anchor="middle" font-size="8" fill="#888">K0, V0</text>
+
+  <line x1="140" y1="332" x2="220" y2="332" stroke="#1a3a6e" stroke-width="0.8" marker-end="url(#arrow)"/>
+  <text x="180" y="325" text-anchor="middle" font-size="7" fill="#888">share</text>
+
+  <!-- Group 1 -->
+  <rect x="30" y="368" width="500" height="55" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="50" y="383" font-size="9" fill="#000">Q16..Q31 (16 heads)</text>
+
+  <rect x="230" y="378" width="80" height="35" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1"/>
+  <text x="270" y="393" text-anchor="middle" font-size="9" fill="#000">KV1</text>
+  <text x="270" y="407" text-anchor="middle" font-size="8" fill="#888">K1, V1</text>
+
+  <line x1="140" y1="395" x2="220" y2="395" stroke="#1a3a6e" stroke-width="0.8" marker-end="url(#arrow)"/>
+  <text x="180" y="388" text-anchor="middle" font-size="7" fill="#888">share</text>
+
+  <!-- Group 2 -->
+  <rect x="30" y="431" width="500" height="55" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="50" y="446" font-size="9" fill="#000">Q32..Q47 (16 heads)</text>
+
+  <rect x="230" y="441" width="80" height="35" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1"/>
+  <text x="270" y="456" text-anchor="middle" font-size="9" fill="#000">KV2</text>
+  <text x="270" y="470" text-anchor="middle" font-size="8" fill="#888">K2, V2</text>
+
+  <line x1="140" y1="458" x2="220" y2="458" stroke="#1a3a6e" stroke-width="0.8" marker-end="url(#arrow)"/>
+  <text x="180" y="451" text-anchor="middle" font-size="7" fill="#888">share</text>
+
+  <!-- Group 3 -->
+  <rect x="30" y="494" width="500" height="55" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="50" y="509" font-size="9" fill="#000">Q48..Q63 (16 heads)</text>
+
+  <rect x="230" y="504" width="80" height="35" rx="0" fill="#b8721a" fill-opacity="0.1" stroke="#b8721a" stroke-width="1"/>
+  <text x="270" y="519" text-anchor="middle" font-size="9" fill="#000">KV3</text>
+  <text x="270" y="533" text-anchor="middle" font-size="8" fill="#888">K3, V3</text>
+
+  <line x1="140" y1="521" x2="220" y2="521" stroke="#1a3a6e" stroke-width="0.8" marker-end="url(#arrow)"/>
+  <text x="180" y="514" text-anchor="middle" font-size="7" fill="#888">share</text>
+
+  <!-- ===== RIGHT SIDE: Projection matrices ===== -->
+  <text x="580" y="65" font-size="11" font-weight="bold" fill="#1a3a6e">Projection Dimensions</text>
+
+  <!-- Q projection -->
+  <rect x="580" y="80" width="260" height="70" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="710" y="98" text-anchor="middle" font-size="10" fill="#000">Q-Proj: 6144 -> 8192</text>
+  <text x="710" y="115" text-anchor="middle" font-size="9" fill="#888">(64 heads x 128d)</text>
+  <text x="710" y="132" text-anchor="middle" font-size="9" fill="#888">Wq: [8192, 6144]</text>
+
+  <!-- K projection -->
+  <rect x="580" y="162" width="260" height="70" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="710" y="180" text-anchor="middle" font-size="10" fill="#000">K-Proj: 6144 -> 512</text>
+  <text x="710" y="197" text-anchor="middle" font-size="9" fill="#888">(4 heads x 128d)</text>
+  <text x="710" y="214" text-anchor="middle" font-size="9" fill="#888">Wk: [512, 6144]</text>
+
+  <!-- V projection -->
+  <rect x="580" y="244" width="260" height="70" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="710" y="262" text-anchor="middle" font-size="10" fill="#000">V-Proj: 6144 -> 512</text>
+  <text x="710" y="279" text-anchor="middle" font-size="9" fill="#888">(4 heads x 128d)</text>
+  <text x="710" y="296" text-anchor="middle" font-size="9" fill="#888">Wv: [512, 6144]</text>
+
+  <!-- O projection -->
+  <rect x="580" y="326" width="260" height="70" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="710" y="344" text-anchor="middle" font-size="10" fill="#000">O-Proj: 8192 -> 6144</text>
+  <text x="710" y="361" text-anchor="middle" font-size="9" fill="#888">(64 heads x 128d)</text>
+  <text x="710" y="378" text-anchor="middle" font-size="9" fill="#888">Wo: [6144, 8192]</text>
+
+  <!-- KV cache savings -->
+  <rect x="580" y="420" width="260" height="90" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="710" y="440" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">KV Cache Reduction</text>
+  <line x1="600" y1="448" x2="820" y2="448" stroke="#1a3a6e" stroke-width="0.5"/>
+  <text x="710" y="466" text-anchor="middle" font-size="9" fill="#000">MHA: 64 KV heads</text>
+  <text x="710" y="482" text-anchor="middle" font-size="9" fill="#000">GQA: 4 KV heads</text>
+  <text x="710" y="498" text-anchor="middle" font-size="9" font-weight="bold" fill="#b8721a">16x reduction</text>
+
+  <!-- ===== QK Norm ===== -->
+  <rect x="580" y="525" width="260" height="45" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="710" y="543" text-anchor="middle" font-size="10" fill="#000">Gemma-style per-head QK Norm</text>
+  <text x="710" y="560" text-anchor="middle" font-size="9" fill="#888">RMSNorm(d=128) on Q, K after proj</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="565" width="350" height="25" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="582" font-size="9" font-weight="bold" fill="#1a3a6e">Legend:</text>
+  <rect x="105" y="574" width="20" height="10" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="130" y="583" font-size="8" fill="#000">Q-projection</text>
+  <rect x="205" y="574" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="230" y="583" font-size="8" fill="#000">KV-projection / saving</text>
+</svg>

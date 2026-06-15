@@ -11,13 +11,118 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 11 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Attention</title>
       <link>https://pillumina.github.io/tags/attention/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/tags/attention/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Gqa</title>
+      <link>https://pillumina.github.io/tags/gqa/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/gqa/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Minimax</title>
+      <link>https://pillumina.github.io/tags/minimax/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/minimax/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Model-Architecture</title>
+      <link>https://pillumina.github.io/tags/model-architecture/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/model-architecture/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Moe</title>
+      <link>https://pillumina.github.io/tags/moe/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/moe/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Msa</title>
+      <link>https://pillumina.github.io/tags/msa/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/msa/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mtp</title>
+      <link>https://pillumina.github.io/tags/mtp/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/mtp/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Multimodal</title>
+      <link>https://pillumina.github.io/tags/multimodal/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/multimodal/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Qa</title>
+      <link>https://pillumina.github.io/tags/qa/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/qa/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kimi</title>
+      <link>https://pillumina.github.io/tags/kimi/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/kimi/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Latent-Moe</title>
+      <link>https://pillumina.github.io/tags/latent-moe/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/latent-moe/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mamba</title>
+      <link>https://pillumina.github.io/tags/mamba/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/mamba/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mla</title>
+      <link>https://pillumina.github.io/tags/mla/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/mla/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Muon</title>
+      <link>https://pillumina.github.io/tags/muon/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/muon/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Nemotron</title>
+      <link>https://pillumina.github.io/tags/nemotron/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/nemotron/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Ssd</title>
+      <link>https://pillumina.github.io/tags/ssd/</link>
+      <pubDate>Fri, 12 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/ssd/</guid>
       <description></description>
     </item>
     <item>
@@ -56,13 +161,6 @@
       <description></description>
     </item>
     <item>
-      <title>Gqa</title>
-      <link>https://pillumina.github.io/tags/gqa/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/gqa/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Hca</title>
       <link>https://pillumina.github.io/tags/hca/</link>
       <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
@@ -77,52 +175,17 @@
       <description></description>
     </item>
     <item>
-      <title>Minimax</title>
-      <link>https://pillumina.github.io/tags/minimax/</link>
+      <title>Hybrid-Dispatch</title>
+      <link>https://pillumina.github.io/tags/hybrid-dispatch/</link>
       <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/minimax/</guid>
+      <guid>https://pillumina.github.io/tags/hybrid-dispatch/</guid>
       <description></description>
     </item>
     <item>
-      <title>Mla</title>
-      <link>https://pillumina.github.io/tags/mla/</link>
+      <title>Mimo</title>
+      <link>https://pillumina.github.io/tags/mimo/</link>
       <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/mla/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Model-Architecture</title>
-      <link>https://pillumina.github.io/tags/model-architecture/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/model-architecture/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Moe</title>
-      <link>https://pillumina.github.io/tags/moe/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/moe/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Mtp</title>
-      <link>https://pillumina.github.io/tags/mtp/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/mtp/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Muon</title>
-      <link>https://pillumina.github.io/tags/muon/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/muon/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Qa</title>
-      <link>https://pillumina.github.io/tags/qa/</link>
-      <pubDate>Thu, 11 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/qa/</guid>
+      <guid>https://pillumina.github.io/tags/mimo/</guid>
       <description></description>
     </item>
     <item>

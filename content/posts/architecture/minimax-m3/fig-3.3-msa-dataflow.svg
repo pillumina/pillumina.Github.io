@@ -1,0 +1,239 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" width="1100" height="720" font-family="Courier New, monospace">
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#1a3a6e"/>
+    </marker>
+    <marker id="arrow-orange" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="30" font-size="14" font-weight="bold" fill="#1a3a6e">MiniMax M3 -- MSA Attention: 7-Step Internal Data Flow</text>
+  <line x1="30" y1="38" x2="750" y2="38" stroke="#1a3a6e" stroke-width="1"/>
+
+  <!-- ===== INPUT ===== -->
+  <rect x="30" y="55" width="180" height="32" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="120" y="75" text-anchor="middle" font-size="10" fill="#000">hidden_states</text>
+  <text x="120" y="83" text-anchor="middle" font-size="8" fill="#888">[B, Sq, 6144]</text>
+
+  <line x1="210" y1="71" x2="245" y2="71" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 1: Q/K/V Projection + QK Norm ===== -->
+  <rect x="250" y="55" width="270" height="40" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="385" y="70" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 1: Q/K/V Proj + QK Norm</text>
+  <text x="385" y="84" text-anchor="middle" font-size="8" fill="#888">Q: 6144->8192(d=128x64), K: 6144->512(4x128), V: 6144->512</text>
+  <text x="385" y="94" text-anchor="middle" font-size="8" fill="#888">Gemma-style RMSNorm per-head on Q, K only</text>
+
+  <line x1="520" y1="75" x2="555" y2="75" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 2: RoPE ===== -->
+  <rect x="560" y="57" width="230" height="36" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="675" y="72" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 2: Partial RoPE</text>
+  <text x="675" y="87" text-anchor="middle" font-size="8" fill="#888">cos, sin -> apply to 1st 64 dims</text>
+
+  <line x1="790" y1="75" x2="825" y2="75" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 3: KV Cache ===== -->
+  <rect x="830" y="57" width="240" height="36" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="950" y="72" text-anchor="middle" font-size="10" font-weight="bold" fill="#000">Step 3: KV Cache Update</text>
+  <text x="950" y="87" text-anchor="middle" font-size="8" fill="#888">past_kv.update(K, V, layer_idx)</text>
+
+  <line x1="950" y1="93" x2="950" y2="115" stroke="#1a3a6e" stroke-width="0.5"/>
+  <line x1="950" y1="115" x2="675" y2="115" stroke="#1a3a6e" stroke-width="0.5"/>
+  <line x1="675" y1="115" x2="675" y2="133" stroke="#1a3a6e" stroke-width="0.5" marker-end="url(#arrow)"/>
+
+  <!-- ===== BRANCH: Is Sparse Layer? ===== -->
+  <rect x="555" y="133" width="240" height="32" rx="0" fill="#b8721a" fill-opacity="0.06" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="675" y="148" text-anchor="middle" font-size="10" fill="#000">Is sparse layer? (L4-60)</text>
+  <text x="675" y="162" text-anchor="middle" font-size="8" fill="#888">self.indexer is not None?</text>
+
+  <!-- YES branch (sparse) -->
+  <line x1="675" y1="165" x2="675" y2="190" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+  <text x="685" y="182" font-size="8" fill="#b8721a">YES</text>
+
+  <rect x="530" y="193" width="290" height="30" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="675" y="206" text-anchor="middle" font-size="9" fill="#000">Indexer: block_indices = self.indexer(h, pos, kv, pos_ids)</text>
+  <text x="675" y="218" text-anchor="middle" font-size="8" fill="#888">top-16 blocks from 4-head indexer (see fig-3.2)</text>
+
+  <line x1="675" y1="223" x2="675" y2="248" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <rect x="530" y="251" width="290" height="30" rx="0" fill="none" stroke="#b8721a" stroke-width="1"/>
+  <text x="675" y="264" text-anchor="middle" font-size="9" fill="#000">build_block_mask(block_indices) -> mask</text>
+  <text x="675" y="278" text-anchor="middle" font-size="8" fill="#888">Eager/SDPA: dense mask; FlashInfer: native sparse</text>
+
+  <line x1="675" y1="281" x2="675" y2="308" stroke="#b8721a" stroke-width="1" marker-end="url(#arrow-orange)"/>
+
+  <!-- NO branch (dense) skips indexer -->
+  <text x="560" y="190" font-size="8" fill="#4a7ab0">L1-3 (Dense): NO</text>
+  <line x1="555" y1="149" x2="530" y2="149" stroke="#4a7ab0" stroke-width="0.5"/>
+  <line x1="530" y1="149" x2="530" y2="300" stroke="#4a7ab0" stroke-width="0.5"/>
+
+  <!-- ===== STEP 4: Indexer Mask (merged) ===== -->
+  <rect x="510" y="310" width="330" height="40" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="675" y="326" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 4: Sparse Block Selection (or Full Mask)</text>
+  <text x="675" y="342" text-anchor="middle" font-size="8" fill="#888">Sparse: block_indices [B,Sq,16] x 128 tokens = 2048 K-tokens per Q</text>
+
+  <line x1="675" y1="350" x2="675" y2="372" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 5: Attention Compute ===== -->
+  <rect x="510" y="375" width="330" height="50" rx="0" fill="#1a3a6e" fill-opacity="0.06" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="675" y="392" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 5: Attention Compute</text>
+  <text x="675" y="408" text-anchor="middle" font-size="8" fill="#000">Q @ K^T / sqrt(128) -> masked fill -> softmax</text>
+  <text x="675" y="422" text-anchor="middle" font-size="8" fill="#000">-> attn_weights @ V -> attn_output</text>
+
+  <line x1="675" y1="425" x2="675" y2="447" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 6: Output Projection ===== -->
+  <rect x="560" y="450" width="230" height="40" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="675" y="466" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Step 6: O-Proj + Reshape</text>
+  <text x="675" y="482" text-anchor="middle" font-size="8" fill="#888">8192 -> 6144, reshape back to [B,Sq,6144]</text>
+
+  <line x1="675" y1="490" x2="675" y2="510" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== STEP 7: Residual ===== -->
+  <rect x="585" y="513" width="180" height="30" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="675" y="532" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Step 7: Residual Add</text>
+
+  <line x1="675" y1="543" x2="675" y2="563" stroke="#1a3a6e" stroke-width="1" marker-end="url(#arrow)"/>
+
+  <!-- ===== OUTPUT ===== -->
+  <rect x="585" y="566" width="180" height="32" rx="0" fill="#4a7ab0" fill-opacity="0.08" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="675" y="586" text-anchor="middle" font-size="10" fill="#000">output + attn_weights</text>
+  <text x="675" y="594" text-anchor="middle" font-size="8" fill="#888">-> FFN (Dense or MoE)</text>
+
+  <!-- ===== BOTTOM LEFT: Shape trace ===== -->
+  <rect x="30" y="120" width="450" height="270" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="255" y="140" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Tensor Shape Trace (per layer, batch=1)</text>
+  <line x1="50" y1="148" x2="460" y2="148" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="50" y="168" font-size="9" fill="#000">Input hidden_states</text>
+  <text x="350" y="168" font-size="9" fill="#888">[1, Sq, 6144]</text>
+
+  <text x="50" y="188" font-size="9" fill="#000">Q after proj+reshape</text>
+  <text x="350" y="188" font-size="9" fill="#888">[1, Sq, 64, 128] -> [1, 64, Sq, 128]</text>
+
+  <text x="50" y="208" font-size="9" fill="#000">K after proj+reshape</text>
+  <text x="350" y="208" font-size="9" fill="#888">[1, Sk, 4, 128] -> [1, 4, Sk, 128]</text>
+
+  <text x="50" y="228" font-size="9" fill="#000">V after proj+reshape</text>
+  <text x="350" y="228" font-size="9" fill="#888">[1, Sk, 4, 128] -> [1, 4, Sk, 128]</text>
+
+  <text x="50" y="248" font-size="9" fill="#000">Attn scores (sparse)</text>
+  <text x="350" y="248" font-size="9" fill="#b8721a">[1, 64, Sq, 16*128] = [1, 64, Sq, 2048]</text>
+
+  <text x="50" y="268" font-size="9" fill="#000">Index Q (4 heads)</text>
+  <text x="350" y="268" font-size="9" fill="#b8721a">[1, 4, Sq, 128]</text>
+
+  <text x="50" y="288" font-size="9" fill="#000">Index K (per-tok)</text>
+  <text x="350" y="288" font-size="9" fill="#b8721a">[1, 1, Sk, 128]</text>
+
+  <text x="50" y="308" font-size="9" fill="#000">Block indices</text>
+  <text x="350" y="308" font-size="9" fill="#b8721a">[1, Sq, 16]</text>
+
+  <text x="50" y="328" font-size="9" fill="#000">K repeat_interleave(GQA)</text>
+  <text x="350" y="328" font-size="9" fill="#888">[1, 4, Sk, 128] -> [1, 64, Sk, 128] (16x)</text>
+
+  <text x="50" y="348" font-size="9" fill="#000">Attn output</text>
+  <text x="350" y="348" font-size="9" fill="#888">[1, Sq, 64, 128] -> [1, Sq, 8192]</text>
+
+  <text x="50" y="368" font-size="9" fill="#000">O-proj output</text>
+  <text x="350" y="368" font-size="9" fill="#888">[1, Sq, 6144]</text>
+
+  <!-- ===== MIDDLE BOTTOM: Formula-Code Table ===== -->
+  <rect x="30" y="410" width="450" height="200" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="255" y="430" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Formula-Code Correspondence</text>
+  <line x1="50" y1="438" x2="460" y2="438" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <!-- Headers -->
+  <text x="55" y="456" font-size="8" font-weight="bold" fill="#1a3a6e">Formula</text>
+  <text x="260" y="456" font-size="8" font-weight="bold" fill="#1a3a6e">Code (L#)</text>
+  <text x="350" y="456" font-size="8" font-weight="bold" fill="#1a3a6e">Key Op</text>
+
+  <text x="55" y="474" font-size="8" fill="#000">Q = Wq @ h</text>
+  <text x="260" y="474" font-size="8" fill="#888">L431-433</text>
+  <text x="350" y="474" font-size="8" fill="#888">q_proj + view</text>
+
+  <text x="55" y="492" font-size="8" fill="#000">Q' = RMSNorm(Q)</text>
+  <text x="260" y="492" font-size="8" fill="#888">L432</text>
+  <text x="350" y="492" font-size="8" fill="#888">self.q_norm()</text>
+
+  <text x="55" y="510" font-size="8" fill="#000">Q'',K'' = RoPE(Q',K',dim=64)</text>
+  <text x="260" y="510" font-size="8" fill="#888">L437</text>
+  <text x="350" y="510" font-size="8" fill="#888">apply_rotary_pos_emb</text>
+
+  <text x="55" y="528" font-size="8" fill="#000">A = softmax(QK^T/sqrt(d) + mask)</text>
+  <text x="260" y="528" font-size="8" fill="#888">L457-461</text>
+  <text x="350" y="528" font-size="8" fill="#888">attention_interface</text>
+
+  <text x="55" y="546" font-size="8" fill="#000">O = A @ V</text>
+  <text x="260" y="546" font-size="8" fill="#888">L457-461</text>
+  <text x="350" y="546" font-size="8" fill="#888">scaled_dot_product</text>
+
+  <text x="55" y="564" font-size="8" fill="#000">out = Wo @ O + residual</text>
+  <text x="260" y="564" font-size="8" fill="#888">L463-464</text>
+  <text x="350" y="564" font-size="8" fill="#888">o_proj + reshape</text>
+
+  <text x="55" y="582" font-size="8" fill="#000">idx_blocks = Indexer(h, pos, kv)</text>
+  <text x="260" y="582" font-size="8" fill="#888">L442-454</text>
+  <text x="350" y="582" font-size="8" fill="#888">self.indexer()</text>
+
+  <text x="55" y="600" font-size="8" fill="#000">mask = build_block_mask(idx_blocks)</text>
+  <text x="260" y="600" font-size="8" fill="#888">L452-454</text>
+  <text x="350" y="600" font-size="8" fill="#888">indexer.build_block_mask</text>
+
+  <!-- ===== GQA DETAIL (right column) ===== -->
+  <rect x="830" y="120" width="240" height="155" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="950" y="140" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">GQA Repeat (Step 5)</text>
+  <line x1="850" y1="148" x2="1050" y2="148" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <rect x="850" y="158" width="60" height="30" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="880" y="172" text-anchor="middle" font-size="8" fill="#000">K</text>
+  <text x="880" y="184" text-anchor="middle" font-size="7" fill="#888">[4,Sk,128]</text>
+
+  <line x1="910" y1="173" x2="935" y2="173" stroke="#1a3a6e" stroke-width="0.5" marker-end="url(#arrow)"/>
+
+  <rect x="940" y="158" width="110" height="30" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="995" y="172" text-anchor="middle" font-size="8" fill="#000">repeat_interleave(16)</text>
+  <text x="995" y="184" text-anchor="middle" font-size="7" fill="#888">num_key_value_groups</text>
+
+  <line x1="995" y1="188" x2="995" y2="208" stroke="#1a3a6e" stroke-width="0.5" marker-end="url(#arrow)"/>
+
+  <rect x="930" y="211" width="130" height="25" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="995" y="227" text-anchor="middle" font-size="8" fill="#000">K [64,Sk,128]</text>
+
+  <text x="960" y="248" font-size="7" fill="#888">Same for V repeat</text>
+
+  <!-- ===== Partial RoPE detail ===== -->
+  <rect x="830" y="288" width="240" height="120" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="950" y="308" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Partial RoPE (Step 2)</text>
+  <line x1="850" y1="316" x2="1050" y2="316" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="850" y="336" font-size="9" fill="#000">rotary_dim = 64</text>
+  <text x="850" y="356" font-size="9" fill="#888">(half of head_dim=128)</text>
+
+  <rect x="850" y="370" width="100" height="22" rx="0" fill="#b8721a" fill-opacity="0.08" stroke="#b8721a" stroke-width="1"/>
+  <text x="900" y="385" text-anchor="middle" font-size="8" fill="#b8721a">dims [0..63] rotated</text>
+
+  <rect x="960" y="370" width="95" height="22" rx="0" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="1007" y="385" text-anchor="middle" font-size="8" fill="#888">[64..127] frozen</text>
+
+  <!-- ===== QK Norm detail ===== -->
+  <rect x="830" y="420" width="240" height="100" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="950" y="440" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Gemma QK Norm (Step 1)</text>
+  <line x1="850" y1="448" x2="1050" y2="448" stroke="#1a3a6e" stroke-width="0.5"/>
+
+  <text x="850" y="468" font-size="9" fill="#000">RMSNorm(d=128) per-head</text>
+  <text x="850" y="486" font-size="9" fill="#000">Applied BEFORE RoPE</text>
+  <text x="850" y="504" font-size="8" fill="#888">Stabilizes attention logits</text>
+
+  <!-- ===== LEGEND ===== -->
+  <rect x="30" y="630" width="480" height="80" rx="0" fill="none" stroke="#888" stroke-width="0.5"/>
+  <text x="45" y="648" font-size="10" font-weight="bold" fill="#1a3a6e">Legend</text>
+  <rect x="45" y="658" width="20" height="10" rx="0" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="72" y="668" font-size="9" fill="#000">Main data flow (all layers)</text>
+  <rect x="45" y="674" width="20" height="10" rx="0" fill="none" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="72" y="684" font-size="9" fill="#000">Sparse-specific branch (L4-60)</text>
+  <rect x="45" y="690" width="20" height="10" rx="0" fill="none" stroke="#4a7ab0" stroke-width="1"/>
+  <text x="72" y="700" font-size="9" fill="#000">Input/Output / KV Cache / Detail</text>
+</svg>
