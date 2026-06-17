@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 580" width="920" height="580" width="920" height="580" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .fig-6-1-box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .fig-6-1-box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .fig-6-1-label { fill: #000; }
+    .fig-6-1-label-hl { fill: #1a3a6e; font-weight: bold; }
+    .fig-6-1-annot { fill: #444; font-size: 10px; }
+    .fig-6-1-annot-hl { fill: #1a3a6e; font-size: 10px; font-weight: bold; }
+    .fig-6-1-annot-warn { fill: #b22; font-size: 10px; font-weight: bold; }
+    .fig-6-1-annot-pos { fill: #1f7a3a; font-size: 10px; font-weight: bold; }
+    .fig-6-1-bar-5-1 { fill: #4a7ab0; stroke: #000; stroke-width: 0.8; }
+    .fig-6-1-bar-5-2 { fill: #1f7a3a; stroke: #000; stroke-width: 0.8; }
+    .fig-6-1-axis { stroke: #000; stroke-width: 1.5; }
+    .fig-6-1-grid { stroke: #ccc; stroke-width: 0.5; stroke-dasharray: 2 2; }
+  </style>
+  <defs>
+    <marker id="fig-6-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1f7a3a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="460" y="24" text-anchor="middle" font-weight="bold" font-size="14">GLM-5.1 vs GLM-5.2: 5 key benchmarks</text>
+  <text class="fig-6-1-annot" x="460" y="40" text-anchor="middle">long-horizon agent tasks (DeepSWE, FrontierSWE, SWE-Marathon) gain most from 1M context + IndexShare</text>
+
+  <!-- Y axis -->
+  <g transform="translate(110, 80)">
+    <line x1="0" y1="0" x2="0" y2="340" class="fig-6-1-axis"/>
+    <line x1="0" y1="340" x2="720" y2="340" class="fig-6-1-axis"/>
+
+    <!-- Y axis ticks: 0, 20, 40, 60, 80, 100 -->
+    <text class="fig-6-1-annot" x="-8" y="0" text-anchor="end">100</text>
+    <text class="fig-6-1-annot" x="-8" y="68" text-anchor="end">80</text>
+    <text class="fig-6-1-annot" x="-8" y="136" text-anchor="end">60</text>
+    <text class="fig-6-1-annot" x="-8" y="204" text-anchor="end">40</text>
+    <text class="fig-6-1-annot" x="-8" y="272" text-anchor="end">20</text>
+    <text class="fig-6-1-annot" x="-8" y="340" text-anchor="end">0</text>
+
+    <line x1="0" y1="0" x2="720" y2="0" class="fig-6-1-grid"/>
+    <line x1="0" y1="68" x2="720" y2="68" class="fig-6-1-grid"/>
+    <line x1="0" y1="136" x2="720" y2="136" class="fig-6-1-grid"/>
+    <line x1="0" y1="204" x2="720" y2="204" class="fig-6-1-grid"/>
+    <line x1="0" y1="272" x2="720" y2="272" class="fig-6-1-grid"/>
+
+    <!-- Y axis title -->
+    <text class="fig-6-1-label-hl" x="-72" y="170" text-anchor="middle" transform="rotate(-90, -72, 170)">Score (higher is better)</text>
+
+    <!-- ============ Group 1: Terminal-Bench 2.1 (63.5 / 81.0) ============ -->
+    <!-- scale: y = 340 - val * 3.4 -->
+    <!-- 5.1: 63.5 -> y = 124.1, h = 215.9 -->
+    <!-- 5.2: 81.0 -> y = 64.6,  h = 275.4 -->
+    <g transform="translate(60, 0)">
+      <rect class="fig-6-1-bar-5-1" x="0" y="124.1" width="40" height="215.9"/>
+      <text class="fig-6-1-annot-hl" x="20" y="118" text-anchor="middle" fill="#4a7ab0">63.5</text>
+
+      <rect class="fig-6-1-bar-5-2" x="44" y="64.6" width="40" height="275.4"/>
+      <text class="fig-6-1-annot-pos" x="64" y="58" text-anchor="middle">81.0</text>
+
+      <!-- Delta callout -->
+      <text class="fig-6-1-annot-pos" x="32" y="40" text-anchor="middle" font-size="11">+27%</text>
+      <line x1="20" y1="46" x2="20" y2="124.1" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+      <line x1="64" y1="46" x2="64" y2="64.6" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+      <text class="fig-6-1-label" x="42" y="358" text-anchor="middle" font-weight="bold">Terminal-Bench 2.1</text>
+      <text class="fig-6-1-annot" x="42" y="372" text-anchor="middle">terminal agent</text>
+    </g>
+
+    <!-- ============ Group 2: SWE-bench Pro (58.4 / 62.1) ============ -->
+    <!-- 5.1: 58.4 -> y = 141.4, h = 198.6 -->
+    <!-- 5.2: 62.1 -> y = 128.9, h = 211.1 -->
+    <g transform="translate(200, 0)">
+      <rect class="fig-6-1-bar-5-1" x="0" y="141.4" width="40" height="198.6"/>
+      <text class="fig-6-1-annot-hl" x="20" y="135" text-anchor="middle" fill="#4a7ab0">58.4</text>
+
+      <rect class="fig-6-1-bar-5-2" x="44" y="128.9" width="40" height="211.1"/>
+      <text class="fig-6-1-annot-pos" x="64" y="122" text-anchor="middle">62.1</text>
+
+      <text class="fig-6-1-annot-pos" x="32" y="108" text-anchor="middle" font-size="11">+6%</text>
+      <line x1="20" y1="114" x2="20" y2="141.4" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+      <line x1="64" y1="114" x2="64" y2="128.9" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+      <text class="fig-6-1-label" x="42" y="358" text-anchor="middle" font-weight="bold">SWE-bench Pro</text>
+      <text class="fig-6-1-annot" x="42" y="372" text-anchor="middle">single-repo patch</text>
+    </g>
+
+    <!-- ============ Group 3: FrontierSWE (30.5 / 74.4) ============ -->
+    <!-- 5.1: 30.5 -> y = 236.3, h = 103.7 -->
+    <!-- 5.2: 74.4 -> y = 87.0,  h = 253.0 -->
+    <g transform="translate(340, 0)">
+      <rect class="fig-6-1-bar-5-1" x="0" y="236.3" width="40" height="103.7"/>
+      <text class="fig-6-1-annot-hl" x="20" y="230" text-anchor="middle" fill="#4a7ab0">30.5</text>
+
+      <rect class="fig-6-1-bar-5-2" x="44" y="87.0" width="40" height="253.0"/>
+      <text class="fig-6-1-annot-pos" x="64" y="80" text-anchor="middle">74.4</text>
+
+      <text class="fig-6-1-annot-pos" x="32" y="44" text-anchor="middle" font-size="12">+144%</text>
+      <line x1="20" y1="50" x2="20" y2="236.3" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+      <line x1="64" y1="50" x2="64" y2="87.0" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+      <text class="fig-6-1-label" x="42" y="358" text-anchor="middle" font-weight="bold">FrontierSWE</text>
+      <text class="fig-6-1-annot" x="42" y="372" text-anchor="middle">long-horizon SWE</text>
+    </g>
+
+    <!-- ============ Group 4: DeepSWE (18.0 / 46.2) ============ -->
+    <!-- 5.1: 18.0 -> y = 278.8, h = 61.2 -->
+    <!-- 5.2: 46.2 -> y = 182.9, h = 157.1 -->
+    <g transform="translate(480, 0)">
+      <rect class="fig-6-1-bar-5-1" x="0" y="278.8" width="40" height="61.2"/>
+      <text class="fig-6-1-annot-hl" x="20" y="272" text-anchor="middle" fill="#4a7ab0">18.0</text>
+
+      <rect class="fig-6-1-bar-5-2" x="44" y="182.9" width="40" height="157.1"/>
+      <text class="fig-6-1-annot-pos" x="64" y="176" text-anchor="middle">46.2</text>
+
+      <text class="fig-6-1-annot-pos" x="32" y="156" text-anchor="middle" font-size="11">+157%</text>
+      <line x1="20" y1="162" x2="20" y2="278.8" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+      <line x1="64" y1="162" x2="64" y2="182.9" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+      <text class="fig-6-1-label" x="42" y="358" text-anchor="middle" font-weight="bold">DeepSWE</text>
+      <text class="fig-6-1-annot" x="42" y="372" text-anchor="middle">multi-step SWE</text>
+    </g>
+
+    <!-- ============ Group 5: HLE (31.0 / 40.5) ============ -->
+    <!-- 5.1: 31.0 -> y = 234.6, h = 105.4 -->
+    <!-- 5.2: 40.5 -> y = 202.3, h = 137.7 -->
+    <g transform="translate(620, 0)">
+      <rect class="fig-6-1-bar-5-1" x="0" y="234.6" width="40" height="105.4"/>
+      <text class="fig-6-1-annot-hl" x="20" y="228" text-anchor="middle" fill="#4a7ab0">31.0</text>
+
+      <rect class="fig-6-1-bar-5-2" x="44" y="202.3" width="40" height="137.7"/>
+      <text class="fig-6-1-annot-pos" x="64" y="196" text-anchor="middle">40.5</text>
+
+      <text class="fig-6-1-annot-pos" x="32" y="182" text-anchor="middle" font-size="11">+31%</text>
+      <line x1="20" y1="188" x2="20" y2="234.6" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+      <line x1="64" y1="188" x2="64" y2="202.3" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+
+      <text class="fig-6-1-label" x="42" y="358" text-anchor="middle" font-weight="bold">HLE</text>
+      <text class="fig-6-1-annot" x="42" y="372" text-anchor="middle">long-context reasoning</text>
+    </g>
+
+    <!-- X axis label -->
+    <text class="fig-6-1-label-hl" x="360" y="398" text-anchor="middle">benchmark</text>
+  </g>
+
+  <!-- Attribution callout box -->
+  <g transform="translate(20, 460)">
+    <rect class="fig-6-1-box" x="0" y="0" width="880" height="60" fill="#f4f7fc"/>
+    <text class="fig-6-1-label-hl" x="10" y="16">Why long-horizon tasks gain most:</text>
+    <text class="fig-6-1-annot" x="20" y="32">FrontierSWE (+144%) / DeepSWE (+157%) / SWE-Marathon (+1200%, not shown): single task spans 10K-100K steps, KV cache blows past 200K</text>
+    <text class="fig-6-1-annot-hl" x="20" y="46">1M context makes them feasible; IndexShare keeps per-token FLOPs at 0.34x baseline so 1M decode is affordable</text>
+    <text class="fig-6-1-annot" x="20" y="60">HLE (+31%) / Terminal-Bench (+27%) get token-level PPO advantage; AIME-like short-context tasks see &lt;+5% (1M irrelevant, just model quality)</text>
+  </g>
+
+  <!-- Legend (bottom-left) -->
+  <g transform="translate(20, 540)">
+    <rect class="fig-6-1-box-hl" x="0" y="0" width="880" height="30"/>
+    <rect class="fig-6-1-bar-5-1" x="10" y="9" width="16" height="14"/>
+    <text class="fig-6-1-annot" x="32" y="20">GLM-5.1 (baseline)</text>
+    <rect class="fig-6-1-bar-5-2" x="180" y="9" width="16" height="14"/>
+    <text class="fig-6-1-annot" x="202" y="20">GLM-5.2 (this report)</text>
+
+    <line x1="370" y1="16" x2="390" y2="16" stroke="#1f7a3a" stroke-width="0.6" stroke-dasharray="2 2"/>
+    <text class="fig-6-1-annot" x="396" y="20">delta guides the eye from 5.1 bar top to 5.2 bar top</text>
+
+    <text class="fig-6-1-annot-hl" x="660" y="20" fill="#1f7a3a">+ N% = relative gain</text>
+    <text class="fig-6-1-annot" x="660" y="32">  (GLM-5.2 - GLM-5.1) / GLM-5.1</text>
+  </g>
+
+</svg>

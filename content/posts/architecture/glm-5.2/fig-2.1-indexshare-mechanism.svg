@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" width="960" height="680" width="960" height="680" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .fig-2-1-box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .fig-2-1-box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .fig-2-1-label { fill: #000; }
+    .fig-2-1-label-hl { fill: #1a3a6e; font-weight: bold; }
+    .fig-2-1-annot { fill: #444; font-size: 10px; }
+    .fig-2-1-annot-hl { fill: #1a3a6e; font-size: 10px; font-weight: bold; }
+    .fig-2-1-annot-warn { fill: #b22; font-size: 10px; font-weight: bold; }
+    .fig-2-1-layer-full { fill: #1a3a6e; stroke: #000; stroke-width: 0.8; }
+    .fig-2-1-layer-shared { fill: #fff; stroke: #888; stroke-width: 0.8; }
+    .fig-2-1-layer-dense { fill: #4a7ab0; stroke: #000; stroke-width: 0.8; }
+    .fig-2-1-axis { stroke: #000; stroke-width: 1.2; }
+    .fig-2-1-grid { stroke: #ccc; stroke-width: 0.4; stroke-dasharray: 2 2; }
+  </style>
+  <defs>
+    <marker id="fig-2-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+    <marker id="fig-2-1-a-gray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#888"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="480" y="24" text-anchor="middle" font-weight="bold" font-size="14">IndexShare: 21 full + 57 shared = 78 layers</text>
+  <text class="fig-2-1-annot" x="480" y="40" text-anchor="middle">DSA Indexer 的二次稀疏化 — 每 4 层窗口仅第 1 层跑 top-2048, 后 3 层复用索引</text>
+
+  <!-- ============================ LEFT: 78-layer stack ============================ -->
+  <text class="fig-2-1-label-hl" x="200" y="68" text-anchor="middle" font-size="12">78-layer indexer_types pattern</text>
+  <text class="fig-2-1-annot" x="200" y="82" text-anchor="middle">(cold-start 6L) + 18 x (1 full + 3 shared) = 78L</text>
+
+  <g transform="translate(60, 100)">
+    <!-- Y axis line -->
+    <line x1="0" y1="0" x2="0" y2="420" class="fig-2-1-axis"/>
+    <line x1="0" y1="420" x2="280" y2="420" class="fig-2-1-axis"/>
+
+    <!-- Cold-start block: L0-2 full, L3-5 shared -->
+    <g transform="translate(60, 4)">
+      <!-- L0,1,2 Dense+Full -->
+      <rect class="fig-2-1-layer-dense" x="0" y="0" width="40" height="12"/>
+      <rect class="fig-2-1-layer-dense" x="0" y="14" width="40" height="12"/>
+      <rect class="fig-2-1-layer-dense" x="0" y="28" width="40" height="12"/>
+      <text class="fig-2-1-annot" x="-6" y="9" text-anchor="end">L0</text>
+      <text class="fig-2-1-annot" x="-6" y="23" text-anchor="end">L1</text>
+      <text class="fig-2-1-annot" x="-6" y="37" text-anchor="end">L2</text>
+      <text class="fig-2-1-annot-hl" x="48" y="9">Dense + full</text>
+      <text class="fig-2-1-annot-hl" x="48" y="23">Dense + full</text>
+      <text class="fig-2-1-annot-hl" x="48" y="37">Dense + full</text>
+
+      <!-- L3,4,5 MoE+Shared (cold-start shared block) -->
+      <rect class="fig-2-1-layer-shared" x="0" y="42" width="40" height="12"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="56" width="40" height="12"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="70" width="40" height="12"/>
+      <text class="fig-2-1-annot" x="-6" y="51" text-anchor="end">L3</text>
+      <text class="fig-2-1-annot" x="-6" y="65" text-anchor="end">L4</text>
+      <text class="fig-2-1-annot" x="-6" y="79" text-anchor="end">L5</text>
+      <text class="fig-2-1-annot" x="48" y="51">MoE + shared</text>
+      <text class="fig-2-1-annot" x="48" y="65">MoE + shared</text>
+      <text class="fig-2-1-annot" x="48" y="79">MoE + shared</text>
+
+      <!-- Bracket for cold start -->
+      <path d="M -10 4 L -14 4 L -14 82 L -10 82" fill="none" stroke="#1a3a6e" stroke-width="1.2"/>
+      <text class="fig-2-1-annot-hl" x="-22" y="46" text-anchor="end" transform="rotate(-90, -22, 46)">cold-start (3F + 3S)</text>
+    </g>
+
+    <!-- Main body: 18 groups of (1 full + 3 shared), compressed visualization -->
+    <g transform="translate(60, 132)">
+      <!-- Group 1: L6 full + L7-9 shared -->
+      <rect class="fig-2-1-layer-full" x="0" y="0" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="10" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="20" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="30" width="40" height="8"/>
+      <text class="fig-2-1-annot" x="-6" y="6" text-anchor="end">L6</text>
+      <text class="fig-2-1-annot" x="-6" y="36" text-anchor="end">L9</text>
+
+      <!-- Group 2: L10 + L11-13 -->
+      <rect class="fig-2-1-layer-full" x="0" y="48" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="58" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="68" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="78" width="40" height="8"/>
+      <text class="fig-2-1-annot" x="-6" y="54" text-anchor="end">L10</text>
+      <text class="fig-2-1-annot" x="-6" y="84" text-anchor="end">L13</text>
+
+      <!-- Dots indicating repetition -->
+      <text class="fig-2-1-annot" x="20" y="108" text-anchor="middle">. . .</text>
+
+      <!-- Group 18: L74 + L75-77 -->
+      <rect class="fig-2-1-layer-full" x="0" y="120" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="130" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="140" width="40" height="8"/>
+      <rect class="fig-2-1-layer-shared" x="0" y="150" width="40" height="8"/>
+      <text class="fig-2-1-annot" x="-6" y="126" text-anchor="end">L74</text>
+      <text class="fig-2-1-annot" x="-6" y="156" text-anchor="end">L77</text>
+
+      <!-- Bracket for main body -->
+      <path d="M -10 0 L -14 0 L -14 158 L -10 158" fill="none" stroke="#1a3a6e" stroke-width="1.2"/>
+      <text class="fig-2-1-annot-hl" x="-22" y="80" text-anchor="end" transform="rotate(-90, -22, 80)">18 x (1F + 3S) = 72L</text>
+
+      <!-- Right-side summary labels -->
+      <text class="fig-2-1-annot-hl" x="48" y="6">topk runs here</text>
+      <line x1="40" y1="22" x2="48" y2="22" stroke="#888" stroke-width="0.6"/>
+      <text class="fig-2-1-annot" x="48" y="26">reuse L6 topk</text>
+      <line x1="40" y1="162" x2="48" y2="162" stroke="#888" stroke-width="0.6"/>
+      <text class="fig-2-1-annot" x="48" y="166">reuse L74 topk</text>
+    </g>
+
+    <!-- Counting summary at the bottom -->
+    <g transform="translate(60, 388)">
+      <rect class="fig-2-1-box" x="-60" y="0" width="340" height="28" fill="#f4f7fc"/>
+      <text class="fig-2-1-annot-hl" x="-50" y="18">total: 21 full + 57 shared = 78 layers</text>
+    </g>
+  </g>
+
+  <!-- ============================ MIDDLE: sharing mechanism ============================ -->
+  <text class="fig-2-1-label-hl" x="620" y="68" text-anchor="middle" font-size="12">How a 4-layer window reuses topk</text>
+  <text class="fig-2-1-annot" x="620" y="82" text-anchor="middle">index_topk_freq = 4  /  index_skip_topk_offset = 3</text>
+
+  <g transform="translate(440, 110)">
+    <!-- Full layer (top of group) -->
+    <rect class="fig-2-1-layer-full" x="0" y="0" width="60" height="32"/>
+    <text x="30" y="14" text-anchor="middle" fill="#fff" font-weight="bold">L_full</text>
+    <text x="30" y="27" text-anchor="middle" fill="#fff" font-size="9">indexer</text>
+
+    <!-- Indexer module box -->
+    <rect class="fig-2-1-box-hl" x="100" y="0" width="160" height="32"/>
+    <text class="fig-2-1-label-hl" x="180" y="14" text-anchor="middle">GlmMoeDsaIndexer</text>
+    <text class="fig-2-1-annot" x="180" y="27" text-anchor="middle">32 heads x 128 dim, top-2048</text>
+
+    <line x1="60" y1="16" x2="100" y2="16" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig-2-1-a)"/>
+
+    <!-- Output: top-2048 indices -->
+    <rect class="fig-2-1-box-hl" x="100" y="56" width="160" height="32"/>
+    <text class="fig-2-1-label-hl" x="180" y="70" text-anchor="middle">shared_topk_indices</text>
+    <text class="fig-2-1-annot" x="180" y="83" text-anchor="middle">cached top-2048 token ids</text>
+
+    <line x1="180" y1="32" x2="180" y2="56" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig-2-1-a)"/>
+
+    <!-- 3 shared layers reusing cache -->
+    <g transform="translate(0, 110)">
+      <rect class="fig-2-1-layer-shared" x="0" y="0" width="60" height="22"/>
+      <text x="30" y="14" text-anchor="middle" fill="#444" font-weight="bold">L_shared</text>
+
+      <rect class="fig-2-1-layer-shared" x="0" y="26" width="60" height="22"/>
+      <text x="30" y="40" text-anchor="middle" fill="#444" font-weight="bold">L_shared</text>
+
+      <rect class="fig-2-1-layer-shared" x="0" y="52" width="60" height="22"/>
+      <text x="30" y="66" text-anchor="middle" fill="#444" font-weight="bold">L_shared</text>
+    </g>
+
+    <!-- Branch from cache to shared layers -->
+    <path d="M 100 72 L 80 72 L 80 130 L 60 130" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="4 2" marker-end="url(#fig-2-1-a-gray)"/>
+    <path d="M 100 72 L 80 72 L 80 156 L 60 156" fill="none" stroke="#888" stroke-width="1.2" stroke-dasharray="4 2" marker-end="url(#fig-2-1-a-gray)"/>
+    <line x1="100" y1="72" x2="60" y2="124" stroke="#888" stroke-width="1.2" stroke-dasharray="4 2" marker-end="url(#fig-2-1-a-gray)"/>
+
+    <!-- Skip topk label -->
+    <text class="fig-2-1-annot-warn" x="60" y="98" text-anchor="middle">skip_topk = True</text>
+    <text class="fig-2-1-annot" x="60" y="112" text-anchor="middle">(self.indexer = None)</text>
+
+    <!-- Right side: mechanism notes -->
+    <g transform="translate(280, 0)">
+      <rect class="fig-2-1-box" x="0" y="0" width="220" height="156" fill="#f4f7fc"/>
+      <text class="fig-2-1-label-hl" x="10" y="16">why this works:</text>
+      <text class="fig-2-1-annot" x="10" y="32">(1) cross-layer attention patterns</text>
+      <text class="fig-2-1-annot" x="10" y="46">    highly correlated (cos &gt; 0.8)</text>
+      <text class="fig-2-1-annot" x="10" y="62">(2) 4-layer window keeps top-2048</text>
+      <text class="fig-2-1-annot" x="10" y="76">    valid (&gt; 90% overlap)</text>
+      <text class="fig-2-1-annot" x="10" y="92">(3) first 3 tokens force full path</text>
+      <text class="fig-2-1-annot" x="10" y="106">    (skip_topk_offset=3)</text>
+      <text class="fig-2-1-annot-hl" x="10" y="126">modeling_glm_moe_dsa.py:L406:</text>
+      <text class="fig-2-1-annot" x="10" y="140">  skip_topk = types[idx]=='shared'</text>
+    </g>
+  </g>
+
+  <!-- ============================ RIGHT: FLOPs impact ============================ -->
+  <text class="fig-2-1-label-hl" x="620" y="298" text-anchor="middle" font-size="12">FLOPs impact @ 1M context</text>
+  <text class="fig-2-1-annot" x="620" y="312" text-anchor="middle">Indexer cost dominates at 1M; sharing it cuts per-token FLOPs 2.9x</text>
+
+  <g transform="translate(440, 330)">
+    <!-- Baseline: GLM-5.1 (78 full) -->
+    <rect x="0" y="0" width="40" height="220" fill="#bbb" stroke="#000" stroke-width="0.8"/>
+    <text x="20" y="-6" text-anchor="middle" class="fig-2-1-annot-hl" fill="#444">100%</text>
+    <text class="fig-2-1-annot" x="20" y="234" text-anchor="middle">78 x O(T^2)</text>
+    <text class="fig-2-1-label" x="20" y="250" text-anchor="middle" font-weight="bold">GLM-5.1</text>
+    <text class="fig-2-1-annot" x="20" y="264" text-anchor="middle">(all full)</text>
+
+    <!-- GLM-5.2 (21 full) -->
+    <rect x="120" y="161" width="40" height="59" fill="#1a3a6e" stroke="#000" stroke-width="0.8"/>
+    <text x="140" y="155" text-anchor="middle" class="fig-2-1-annot-hl" fill="#1a3a6e">34.5%</text>
+    <text class="fig-2-1-annot" x="140" y="234" text-anchor="middle">21 x O(T^2)</text>
+    <text class="fig-2-1-label-hl" x="140" y="250" text-anchor="middle" font-weight="bold">GLM-5.2</text>
+    <text class="fig-2-1-annot" x="140" y="264" text-anchor="middle">(21 full + 57 shared)</text>
+
+    <!-- Arrow showing 2.9x reduction -->
+    <path d="M 50 110 L 110 110" fill="none" stroke="#1a3a6e" stroke-width="2" marker-end="url(#fig-2-1-a)"/>
+    <rect x="60" y="86" width="40" height="20" fill="#fff" stroke="#1a3a6e" stroke-width="1.2"/>
+    <text x="80" y="100" text-anchor="middle" class="fig-2-1-annot-hl" font-size="11">2.9x</text>
+    <text class="fig-2-1-annot-hl" x="80" y="78" text-anchor="middle">lower</text>
+
+    <!-- Right side context table -->
+    <g transform="translate(200, 0)">
+      <rect class="fig-2-1-box" x="0" y="0" width="280" height="220" fill="#f4f7fc"/>
+      <text class="fig-2-1-label-hl" x="10" y="18">per-context FLOPs ratio:</text>
+      <line x1="10" y1="24" x2="270" y2="24" stroke="#1a3a6e" stroke-width="0.8"/>
+      <text class="fig-2-1-annot" x="10" y="40">context</text>
+      <text class="fig-2-1-annot" x="120" y="40">indexer share</text>
+      <text class="fig-2-1-annot" x="230" y="40">FLOPs ratio</text>
+      <line x1="10" y1="46" x2="270" y2="46" stroke="#888" stroke-width="0.4"/>
+      <text class="fig-2-1-annot" x="10" y="62">4K</text>
+      <text class="fig-2-1-annot" x="120" y="62">&lt; 5%</text>
+      <text class="fig-2-1-annot" x="230" y="62">~ 1.0x</text>
+      <text class="fig-2-1-annot" x="10" y="78">32K</text>
+      <text class="fig-2-1-annot" x="120" y="78">~ 15%</text>
+      <text class="fig-2-1-annot" x="230" y="78">~ 0.95x</text>
+      <text class="fig-2-1-annot" x="10" y="94">128K</text>
+      <text class="fig-2-1-annot" x="120" y="94">~ 40%</text>
+      <text class="fig-2-1-annot" x="230" y="94">~ 0.7x</text>
+      <text class="fig-2-1-annot-hl" x="10" y="112">1M</text>
+      <text class="fig-2-1-annot-hl" x="120" y="112">~ 70%</text>
+      <text class="fig-2-1-annot-hl" x="230" y="112">~ 0.34x</text>
+      <line x1="10" y1="118" x2="270" y2="118" stroke="#1a3a6e" stroke-width="0.6"/>
+      <text class="fig-2-1-annot" x="10" y="134">savings = 57 / 78 = 73% layers</text>
+      <text class="fig-2-1-annot" x="10" y="148">  skip indexer attention entirely</text>
+      <text class="fig-2-1-annot-hl" x="10" y="166">main attention FLOPs unchanged:</text>
+      <text class="fig-2-1-annot" x="10" y="180">  both full &amp; shared = O(2048 * d)</text>
+      <text class="fig-2-1-annot-warn" x="10" y="200">design is for 1M regime</text>
+    </g>
+  </g>
+
+  <!-- ============================ Legend (bottom-left) ============================ -->
+  <g transform="translate(20, 600)">
+    <rect class="fig-2-1-box" x="0" y="0" width="920" height="60"/>
+    <text class="fig-2-1-label-hl" x="10" y="16">Legend</text>
+    <rect class="fig-2-1-layer-dense" x="80" y="24" width="20" height="12"/>
+    <text class="fig-2-1-annot" x="106" y="34">cold-start full (Dense L0-2)</text>
+
+    <rect class="fig-2-1-layer-full" x="280" y="24" width="20" height="12"/>
+    <text class="fig-2-1-annot" x="306" y="34">full: indexer runs top-2048 (21 layers)</text>
+
+    <rect class="fig-2-1-layer-shared" x="560" y="24" width="20" height="12"/>
+    <text class="fig-2-1-annot" x="586" y="34">shared: skip indexer, reuse topk (57 layers)</text>
+
+    <line x1="80" y1="48" x2="100" y2="48" stroke="#888" stroke-width="1.2" stroke-dasharray="4 2" marker-end="url(#fig-2-1-a-gray)"/>
+    <text class="fig-2-1-annot" x="106" y="52">reuse path: shared layer reads shared_topk_indices cache</text>
+
+    <line x1="560" y1="48" x2="580" y2="48" stroke="#1a3a6e" stroke-width="1.5" marker-end="url(#fig-2-1-a)"/>
+    <text class="fig-2-1-annot" x="586" y="52">compute path: full layer runs indexer, writes topk to cache</text>
+  </g>
+
+</svg>

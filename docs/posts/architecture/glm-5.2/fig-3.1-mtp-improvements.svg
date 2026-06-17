@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 540" width="880" height="540" width="880" height="540" font-family="Courier New, monospace" font-size="11">
+  <style>
+    .fig-3-1-box { fill: #fff; stroke: #000; stroke-width: 1.5; }
+    .fig-3-1-box-hl { fill: #fff; stroke: #1a3a6e; stroke-width: 2.2; }
+    .fig-3-1-label { fill: #000; }
+    .fig-3-1-label-hl { fill: #1a3a6e; font-weight: bold; }
+    .fig-3-1-annot { fill: #444; font-size: 10px; }
+    .fig-3-1-annot-hl { fill: #1a3a6e; font-size: 10px; font-weight: bold; }
+    .fig-3-1-annot-warn { fill: #b22; font-size: 10px; font-weight: bold; }
+    .fig-3-1-bar-base { fill: #bbb; stroke: #000; stroke-width: 1; }
+    .fig-3-1-bar-1 { fill: #6a90c0; stroke: #000; stroke-width: 1; }
+    .fig-3-1-bar-2 { fill: #4a7ab0; stroke: #000; stroke-width: 1; }
+    .fig-3-1-bar-3 { fill: #2a5a90; stroke: #000; stroke-width: 1; }
+    .fig-3-1-bar-4 { fill: #1a3a6e; stroke: #000; stroke-width: 1; }
+    .fig-3-1-axis { stroke: #000; stroke-width: 1.5; }
+    .fig-3-1-grid { stroke: #ccc; stroke-width: 0.5; stroke-dasharray: 2 2; }
+  </style>
+  <defs>
+    <marker id="fig-3-1-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <polygon points="0 0,10 5,0 10" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="440" y="24" text-anchor="middle" font-weight="bold" font-size="14">MTP Acceptance Length: cumulative gains from 4 improvements</text>
+  <text class="fig-3-1-annot" x="440" y="40" text-anchor="middle">GLM-5.1 baseline 4.56  -->  GLM-5.2 5.47  (+20%)  |  breakdown is estimate (blog only discloses total)</text>
+
+  <!-- Y axis -->
+  <g transform="translate(110, 80)">
+    <line x1="0" y1="0" x2="0" y2="340" class="fig-3-1-axis"/>
+    <line x1="0" y1="340" x2="680" y2="340" class="fig-3-1-axis"/>
+
+    <!-- Y axis ticks: 4.0, 4.5, 5.0, 5.5, 6.0 -->
+    <!-- range 4.0..6.0 -> 340 .. 0, scale 170 per 1.0 -->
+    <text class="fig-3-1-annot" x="-8" y="0" text-anchor="end">6.0</text>
+    <text class="fig-3-1-annot" x="-8" y="85" text-anchor="end">5.5</text>
+    <text class="fig-3-1-annot" x="-8" y="170" text-anchor="end">5.0</text>
+    <text class="fig-3-1-annot" x="-8" y="255" text-anchor="end">4.5</text>
+    <text class="fig-3-1-annot" x="-8" y="340" text-anchor="end">4.0</text>
+
+    <line x1="0" y1="0" x2="680" y2="0" class="fig-3-1-grid"/>
+    <line x1="0" y1="85" x2="680" y2="85" class="fig-3-1-grid"/>
+    <line x1="0" y1="170" x2="680" y2="170" class="fig-3-1-grid"/>
+    <line x1="0" y1="255" x2="680" y2="255" class="fig-3-1-grid"/>
+
+    <!-- Y axis title -->
+    <text class="fig-3-1-label-hl" x="-72" y="170" text-anchor="middle" transform="rotate(-90, -72, 170)">Acceptance Length (tokens accepted per draft)</text>
+
+    <!-- Group 1: baseline 4.56 -> y = (6.0 - 4.56) * 170 = 244.8, height = (4.56 - 4.0) * 170 = 95.2 -->
+    <g transform="translate(50, 0)">
+      <rect class="fig-3-1-bar-base" x="0" y="244.8" width="100" height="95.2"/>
+      <text class="fig-3-1-annot-hl" x="50" y="238" text-anchor="middle" fill="#444">4.56</text>
+      <text class="fig-3-1-label" x="50" y="358" text-anchor="middle" font-weight="bold">baseline</text>
+      <text class="fig-3-1-annot" x="50" y="372" text-anchor="middle">GLM-5.1 MTP</text>
+      <text class="fig-3-1-annot" x="50" y="386" text-anchor="middle">(standard NextN)</text>
+    </g>
+
+    <!-- Group 2: +IndexShare+KVShare -> 5.10 -> y = (6.0-5.10)*170 = 153, height = (5.10-4.0)*170 = 187 -->
+    <g transform="translate(190, 0)">
+      <!-- base portion -->
+      <rect class="fig-3-1-bar-base" x="0" y="244.8" width="100" height="95.2"/>
+      <!-- incremental portion -->
+      <rect class="fig-3-1-bar-1" x="0" y="153" width="100" height="91.8"/>
+      <text class="fig-3-1-annot-hl" x="50" y="147" text-anchor="middle" fill="#1a3a6e">5.10</text>
+      <text class="fig-3-1-annot-hl" x="50" y="200" text-anchor="middle" fill="#fff">+0.54</text>
+      <text class="fig-3-1-label" x="50" y="358" text-anchor="middle" font-weight="bold">+ IndexShare</text>
+      <text class="fig-3-1-label" x="50" y="372" text-anchor="middle" font-weight="bold">+ KVShare</text>
+      <text class="fig-3-1-annot" x="50" y="386" text-anchor="middle">train-infer KV aligned</text>
+    </g>
+
+    <!-- Group 3: +Rejection Sampling -> 5.29 -> y = (6.0-5.29)*170 = 120.7, height = (5.29-4.0)*170 = 219.3 -->
+    <g transform="translate(330, 0)">
+      <rect class="fig-3-1-bar-base" x="0" y="244.8" width="100" height="95.2"/>
+      <rect class="fig-3-1-bar-1" x="0" y="153" width="100" height="91.8"/>
+      <rect class="fig-3-1-bar-2" x="0" y="120.7" width="100" height="32.3"/>
+      <text class="fig-3-1-annot-hl" x="50" y="114" text-anchor="middle" fill="#1a3a6e">5.29</text>
+      <text class="fig-3-1-annot-hl" x="50" y="140" text-anchor="middle" fill="#fff">+0.19</text>
+      <text class="fig-3-1-label" x="50" y="358" text-anchor="middle" font-weight="bold">+ Rejection</text>
+      <text class="fig-3-1-label" x="50" y="372" text-anchor="middle" font-weight="bold">  Sampling</text>
+      <text class="fig-3-1-annot" x="50" y="386" text-anchor="middle">tree draft + parallel verify</text>
+    </g>
+
+    <!-- Group 4: +TV Loss -> 5.47 -> y = (6.0-5.47)*170 = 90.1, height = (5.47-4.0)*170 = 249.9 -->
+    <g transform="translate(470, 0)">
+      <rect class="fig-3-1-bar-base" x="0" y="244.8" width="100" height="95.2"/>
+      <rect class="fig-3-1-bar-1" x="0" y="153" width="100" height="91.8"/>
+      <rect class="fig-3-1-bar-2" x="0" y="120.7" width="100" height="32.3"/>
+      <rect class="fig-3-1-bar-3" x="0" y="90.1" width="100" height="30.6"/>
+      <text class="fig-3-1-annot-hl" x="50" y="84" text-anchor="middle" fill="#1a3a6e">5.47</text>
+      <text class="fig-3-1-annot-hl" x="50" y="108" text-anchor="middle" fill="#fff">+0.18</text>
+      <text class="fig-3-1-label-hl" x="50" y="358" text-anchor="middle" font-weight="bold">+ TV Loss</text>
+      <text class="fig-3-1-annot" x="50" y="372" text-anchor="middle">GLM-5.2 final</text>
+      <text class="fig-3-1-annot" x="50" y="386" text-anchor="middle">draft distribution smoothing</text>
+    </g>
+
+    <!-- Right side: total summary box -->
+    <g transform="translate(620, 80)">
+      <rect class="fig-3-1-box-hl" x="0" y="0" width="60" height="200" fill="#f4f7fc"/>
+      <text class="fig-3-1-annot-hl" x="30" y="14" text-anchor="middle">total</text>
+      <text class="fig-3-1-annot-hl" x="30" y="34" text-anchor="middle" font-size="16">+20%</text>
+      <text class="fig-3-1-annot" x="30" y="52" text-anchor="middle">4.56</text>
+      <text class="fig-3-1-annot" x="30" y="68" text-anchor="middle">--&gt;</text>
+      <text class="fig-3-1-annot-hl" x="30" y="86" text-anchor="middle" font-size="14">5.47</text>
+      <line x1="8" y1="100" x2="52" y2="100" stroke="#1a3a6e" stroke-width="0.8"/>
+      <text class="fig-3-1-annot" x="30" y="116" text-anchor="middle">equiv.</text>
+      <text class="fig-3-1-annot-hl" x="30" y="132" text-anchor="middle">5.47x</text>
+      <text class="fig-3-1-annot" x="30" y="146" text-anchor="middle">speedup</text>
+      <text class="fig-3-1-annot" x="30" y="166" text-anchor="middle">(theoretical)</text>
+      <text class="fig-3-1-annot" x="30" y="186" text-anchor="middle">1/5.47 = 0.18</text>
+      <text class="fig-3-1-annot" x="30" y="198" text-anchor="middle">main forward</text>
+    </g>
+
+    <!-- X axis label -->
+    <text class="fig-3-1-label-hl" x="340" y="412" text-anchor="middle">cumulative improvements applied</text>
+  </g>
+
+  <!-- Right side: improvement attribution annotations -->
+  <g transform="translate(20, 440)">
+    <rect class="fig-3-1-box" x="0" y="0" width="840" height="60" fill="#f4f7fc"/>
+    <text class="fig-3-1-label-hl" x="10" y="16">Improvement sources:</text>
+    <text class="fig-3-1-annot" x="20" y="32">+ IndexShare on MTP  -- draft layer reuses main model topk cache (Indexer FLOPs cut)</text>
+    <text class="fig-3-1-annot" x="20" y="46">+ KVShare            -- train/infer share same KV source, eliminates distribution shift in draft</text>
+    <text class="fig-3-1-annot-hl" x="20" y="60">+ Rejection Sampling -- tree draft + parallel verify: 1 forward validates multiple candidates</text>
+    <!-- right column -->
+    <text class="fig-3-1-annot-hl" x="440" y="32">+ End-to-end TV Loss</text>
+    <text class="fig-3-1-annot" x="440" y="46">  D_TV = 0.5 * sum |p_draft - p_main|</text>
+    <text class="fig-3-1-annot" x="440" y="60">  forces draft to match main on reject branches too</text>
+  </g>
+
+  <!-- Legend (bottom-left) -->
+  <g transform="translate(20, 510)">
+    <rect class="fig-3-1-box-hl" x="0" y="0" width="840" height="24"/>
+    <rect class="fig-3-1-bar-base" x="10" y="6" width="16" height="12"/>
+    <text class="fig-3-1-annot" x="32" y="16">baseline (4.56)</text>
+    <rect class="fig-3-1-bar-1" x="160" y="6" width="16" height="12"/>
+    <text class="fig-3-1-annot" x="182" y="16">+ IndexShare + KVShare</text>
+    <rect class="fig-3-1-bar-2" x="380" y="6" width="16" height="12"/>
+    <text class="fig-3-1-annot" x="402" y="16">+ Rejection Sampling</text>
+    <rect class="fig-3-1-bar-3" x="580" y="6" width="16" height="12"/>
+    <text class="fig-3-1-annot" x="602" y="16">+ End-to-end TV Loss</text>
+  </g>
+
+</svg>
