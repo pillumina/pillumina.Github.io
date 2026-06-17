@@ -1,0 +1,2434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Architecture Calculator · 从 config.json 到推理显存</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e14;
+  --bg-elevated: #0d1117;
+  --card-bg: #131820;
+  --card-bg-2: #161b22;
+  --border: #21262d;
+  --border-light: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-mute: #6e7681;
+  --primary: #58a6ff;
+  --primary-dim: #1f6feb;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --purple: #a371f7;
+  --cyan: #39d2c0;
+  --pink: #f778ba;
+  --bar-h: 8px;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --transition: 0.15s ease;
+  --mono: "SF Mono", "JetBrains Mono", "Menlo", "Monaco", "Consolas", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+}
+
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(88,166,255,0.08), transparent 60%),
+    radial-gradient(800px 500px at -10% 10%, rgba(163,113,247,0.06), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px 24px 64px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1480px; margin: 0 auto; }
+
+/* ===== Header ===== */
+.header { margin-bottom: 28px; }
+.header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(110deg, #fff 0%, #c9d1d9 40%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.header .subtitle {
+  color: var(--text-dim);
+  font-size: 0.875rem;
+}
+.header .subtitle code {
+  font-family: var(--mono);
+  background: rgba(110,118,129,0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+
+/* ===== Card ===== */
+.card {
+  background: linear-gradient(180deg, var(--card-bg) 0%, var(--card-bg-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+}
+.card-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title .meta {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-mute);
+}
+
+/* ===== Controls ===== */
+.controls {
+  background: linear-gradient(180deg, var(--card-bg) 0%, var(--card-bg-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 22px;
+}
+.controls-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 22px;
+  align-items: flex-start;
+}
+.control-group { display: flex; flex-direction: column; gap: 7px; min-width: 130px; }
+.control-group.model-select { flex: 1 1 260px; }
+.control-group.compare-select { flex: 1 1 260px; }
+.control-group.mode-toggle-group { flex: 0 0 auto; margin-left: auto; align-self: flex-start; }
+.control-group.t-slider-group { flex: 2 1 320px; min-width: 240px; }
+.control-group.batch-group { flex: 1 1 130px; }
+.control-group.pill-group-wrap { flex: 1 1 130px; }
+.control-group label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+.control-group label .val {
+  font-family: var(--mono);
+  color: var(--primary);
+  margin-left: 6px;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* Select */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.875rem;
+  font-family: var(--sans);
+  padding: 8px 32px 8px 12px;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16' fill='%238b949e'%3E%3Cpath d='M4.427 7.427l3.396 3.396a.25.25 0 00.354 0l3.396-3.396a.25.25 0 00-.177-.427H4.604a.25.25 0 00-.177.427z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+select:hover { border-color: var(--primary-dim); }
+select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(88,166,255,0.15); }
+
+/* Slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--primary) var(--p, 0%), rgba(110,118,129,0.25) var(--p, 0%));
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(88,166,255,0.2), 0 2px 6px rgba(0,0,0,0.4);
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 5px rgba(88,166,255,0.25), 0 2px 8px rgba(0,0,0,0.5);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  border-radius: 50%;
+  border: 2px solid var(--primary);
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(88,166,255,0.2);
+}
+
+/* Radio pill group */
+.pill-group {
+  display: inline-flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+}
+.pill-group input[type="radio"] { display: none; }
+.pill-group label {
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  transition: all 0.15s;
+  user-select: none;
+  white-space: nowrap;
+}
+.pill-group label:hover { color: var(--text); }
+.pill-group input[type="radio"]:checked + label {
+  background: var(--primary-dim);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Button-style pills (for training section dynamic toggles) */
+.pill-group button.pill {
+  font-size: 0.78rem;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-dim);
+  font-weight: 500;
+  background: none;
+  border: none;
+  transition: all 0.15s;
+  user-select: none;
+  white-space: nowrap;
+  font-family: var(--sans);
+}
+.pill-group button.pill:hover { color: var(--text); }
+.pill-group button.pill.active {
+  background: var(--primary-dim);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* Number inputs */
+input[type="number"] {
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Preset chips */
+.presets {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.presets button {
+  background: transparent;
+  border: 1px solid var(--border-light);
+  color: var(--text-dim);
+  font-size: 0.7rem;
+  padding: 3px 9px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--mono);
+  transition: all 0.15s;
+}
+.presets button:hover {
+  border-color: var(--primary-dim);
+  color: var(--text);
+}
+.presets button.active {
+  background: var(--primary-dim);
+  border-color: var(--primary-dim);
+  color: #fff;
+}
+
+/* Mode toggle */
+.mode-toggle {
+  display: inline-flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+}
+.mode-toggle button {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  padding: 5px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.mode-toggle button:hover { color: var(--text); }
+.mode-toggle button.active {
+  background: linear-gradient(180deg, var(--primary-dim), #1a5fcc);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* ===== Grid Layouts ===== */
+.grid-main {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(0, 1.6fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.grid-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.grid-full { margin-bottom: 16px; }
+
+/* ===== Architecture SVG ===== */
+.arch-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.arch-svg-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  display: flex;
+  justify-content: center;
+}
+.arch-svg-box svg { display: block; }
+.arch-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.arch-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.arch-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+/* ===== Model Info ===== */
+.info-block { display: flex; flex-direction: column; gap: 14px; }
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--border);
+  gap: 12px;
+}
+.info-row:last-child { border-bottom: none; padding-bottom: 0; }
+.info-row .k {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.info-row .v {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  color: var(--text);
+  text-align: right;
+}
+.info-row .v.big {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary);
+}
+.info-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: rgba(88,166,255,0.06);
+  border-left: 2px solid var(--primary);
+  border-radius: 4px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  line-height: 1.55;
+}
+
+/* ===== Tables / Bars ===== */
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.breakdown-table th {
+  text-align: left;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.breakdown-table th.num { text-align: right; }
+.breakdown-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(33,38,45,0.5);
+  font-size: 0.86rem;
+  vertical-align: middle;
+}
+.breakdown-table tr:last-child td { border-bottom: none; }
+.breakdown-table td.num {
+  font-family: var(--mono);
+  text-align: right;
+  font-weight: 500;
+  color: var(--text);
+}
+.breakdown-table td.pct {
+  font-family: var(--mono);
+  text-align: right;
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+.breakdown-table .row-bar {
+  width: 30%;
+  padding-right: 8px;
+}
+.bar-track {
+  height: var(--bar-h);
+  background: rgba(110,118,129,0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  background: linear-gradient(90deg, var(--primary), var(--primary-dim));
+}
+.bar-fill.attn { background: linear-gradient(90deg, #58a6ff, #1f6feb); }
+.bar-fill.moe { background: linear-gradient(90deg, #a371f7, #6e40c9); }
+.bar-fill.mamba { background: linear-gradient(90deg, #3fb950, #238636); }
+.bar-fill.embed { background: linear-gradient(90deg, #d29922, #9e6a03); }
+.bar-fill.ffn { background: linear-gradient(90deg, #39d2c0, #1a9c8c); }
+.bar-fill.deltanet { background: linear-gradient(90deg, #f778ba, #b13d8a); }
+.bar-fill.kv { background: linear-gradient(90deg, #f85149, #a53737); }
+.bar-fill.weights { background: linear-gradient(90deg, #58a6ff, #1f6feb); }
+.bar-fill.act { background: linear-gradient(90deg, #d29922, #9e6a03); }
+
+.total-row {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.total-row .lbl { font-size: 0.78rem; color: var(--text-dim); font-weight: 600; }
+.total-row .val { font-family: var(--mono); font-size: 1.05rem; color: var(--text); font-weight: 600; }
+.total-row .val.flash { animation: flash 0.6s ease; }
+.total-row .sub {
+  font-size: 0.74rem;
+  color: var(--text-mute);
+  margin-top: 4px;
+}
+
+@keyframes flash {
+  0% { color: var(--primary); }
+  100% { color: var(--text); }
+}
+
+/* Number tooltip */
+.num-tip {
+  position: relative;
+  cursor: pointer;
+  border-bottom: 1px dotted rgba(139,148,158,0.4);
+  transition: color 0.15s;
+}
+.num-tip:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+/* Rich tooltip via JS (replaces CSS ::after for formula display) */
+.rich-tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+  background: #010409;
+  border: 1px solid var(--border-light);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  line-height: 1.6;
+  z-index: 200;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.7);
+  pointer-events: none;
+  max-width: 380px;
+  min-width: 200px;
+  text-align: left;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.num-tip:hover .rich-tip { opacity: 1; }
+.rich-tip .ft-layers { color: var(--primary); }
+.rich-tip .ft-dims { color: var(--green); }
+.rich-tip .ft-prec { color: var(--orange); }
+.rich-tip .ft-user { color: var(--purple); }
+.rich-tip .ft-result { color: var(--text); font-weight: 600; }
+.rich-tip .ft-source { color: var(--text-mute); font-size: 0.65rem; }
+
+/* Formula chip (always visible, compact) */
+.fchip {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-mute);
+  background: rgba(110,118,129,0.1);
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0;
+  text-transform: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fchip:hover { color: var(--primary); background: rgba(88,166,255,0.1); }
+
+/* Expandable formula panel */
+.expand-toggle {
+  display: inline-block;
+  cursor: pointer;
+  color: var(--text-mute);
+  font-size: 0.7rem;
+  margin-left: 4px;
+  transition: transform 0.2s, color 0.15s;
+  user-select: none;
+}
+.expand-toggle:hover { color: var(--primary); }
+.expand-toggle.open { transform: rotate(90deg); }
+
+.formula-panel {
+  grid-column: 1 / -1;
+  background: rgba(1,4,9,0.5);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  line-height: 1.7;
+  display: none;
+  overflow-x: auto;
+}
+.formula-panel.open { display: block; animation: fadeIn 0.2s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+.fp-step {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  white-space: nowrap;
+}
+.fp-label { color: var(--text-dim); min-width: 140px; text-align: right; }
+.fp-val { font-weight: 600; }
+.fp-source { color: var(--text-mute); font-size: 0.65rem; }
+.fp-eq { color: var(--text-mute); padding: 0 4px; }
+.fp-result { color: var(--primary); font-weight: 700; padding-top: 4px; border-top: 1px solid var(--border); margin-top: 4px; }
+
+.fc-layers { color: var(--primary); }
+.fc-dims { color: var(--green); }
+.fc-prec { color: var(--orange); }
+.fc-user { color: var(--purple); }
+.fc-const { color: var(--text-dim); }
+
+/* Deviation warning */
+.deviation-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.68rem;
+  color: var(--orange);
+  background: rgba(210,153,34,0.08);
+  border: 1px solid rgba(210,153,34,0.2);
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-left: 8px;
+}
+
+/* Memory cards */
+.mem-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 9px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.mem-line:last-child { border-bottom: none; }
+.mem-line .k {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+}
+.mem-line .v {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  color: var(--text);
+  font-weight: 500;
+}
+.mem-line .v.big {
+  font-size: 1.2rem;
+  color: var(--primary);
+  font-weight: 600;
+}
+.mem-bar {
+  height: 4px;
+  background: rgba(110,118,129,0.12);
+  border-radius: 2px;
+  margin-top: 6px;
+  overflow: hidden;
+}
+.mem-bar > div { height: 100%; transition: width 0.35s ease; border-radius: 2px; }
+.mem-summary {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mem-summary .cards {
+  color: var(--green);
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+/* ===== Compare Mode ===== */
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.84rem;
+}
+.compare-table th, .compare-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+}
+.compare-table th {
+  text-align: center;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+  font-weight: 600;
+  background: var(--bg-elevated);
+}
+.compare-table th:first-child, .compare-table td:first-child {
+  text-align: left;
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+.compare-table td.num {
+  font-family: var(--mono);
+  color: var(--text);
+}
+.compare-table td.diff {
+  font-family: var(--mono);
+  color: var(--text-dim);
+  font-size: 0.78rem;
+}
+.compare-table td.win {
+  color: var(--green) !important;
+  font-weight: 600;
+}
+.compare-table tr:hover { background: rgba(88,166,255,0.03); }
+.compare-table .header-a { color: var(--primary) !important; }
+.compare-table .header-b { color: var(--purple) !important; }
+
+/* ===== Footnotes ===== */
+.footnote {
+  margin-top: 24px;
+  padding: 14px 18px;
+  background: rgba(110,118,129,0.05);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+}
+.footnote code {
+  font-family: var(--mono);
+  background: rgba(110,118,129,0.15);
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 0.72rem;
+  color: var(--text);
+}
+.footnote strong { color: var(--text); }
+
+@media (max-width: 1100px) {
+  .grid-main { grid-template-columns: 1fr; }
+  .grid-pair { grid-template-columns: 1fr; }
+  .control-group.t-slider-group { flex: 1 1 100%; }
+  .control-group.model-select { flex: 1 1 200px; }
+}
+@media (max-width: 640px) {
+  body { padding: 16px 12px; }
+  .control-group { flex: 1 1 100% !important; min-width: 0; }
+  .control-group.mode-toggle-group { margin-left: 0; }
+  .card { padding: 14px; }
+}
+
+/* ============ TRAINING COST ESTIMATOR ============ */
+.train-section {
+  margin-top: 28px;
+  padding: 24px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.train-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.train-header h2 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+}
+.train-subtitle {
+  color: var(--text-dim);
+  font-size: 13px;
+}
+.train-header::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-light);
+  margin-left: 8px;
+}
+.train-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 16px 0 20px;
+}
+.train-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+  align-items: flex-start;
+}
+.train-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.train-control-group > label {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.train-control-group .hint {
+  font-size: 11px;
+  color: var(--primary);
+  margin-left: 6px;
+  text-transform: none;
+}
+.input-with-unit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 7px 10px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.input-with-unit:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(88,166,255,0.15);
+}
+.input-with-unit input {
+  background: none;
+  border: none;
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  font-variant-numeric: tabular-nums;
+}
+.input-with-unit .unit {
+  color: var(--text-dim);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.input-with-unit .unit-prefix {
+  color: var(--text-dim);
+  font-size: 14px;
+}
+.custom-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition);
+}
+.custom-select:hover, .custom-select:focus {
+  border-color: var(--primary);
+}
+.mfu-val {
+  color: var(--primary);
+  font-family: 'SF Mono', monospace;
+  font-weight: 600;
+}
+.mfu-marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+#mfu-slider {
+  width: 100%;
+}
+
+.train-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+.train-result-card {
+  padding: 14px 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  text-align: center;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.train-result-card:hover {
+  border-color: var(--primary-dim);
+  transform: translateY(-1px);
+}
+.train-result-card.highlight {
+  border-color: var(--primary);
+  background: rgba(88, 166, 255, 0.05);
+}
+.train-result-card.highlight:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 12px rgba(88, 166, 255, 0.12);
+}
+.trc-value {
+  font-size: 19px;
+  font-weight: 600;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+  transition: color 0.3s;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  line-height: 1.2;
+}
+.trc-value.flash { color: var(--primary); }
+.train-result-card.highlight .trc-value { color: var(--primary); }
+.trc-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.trc-detail {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+.train-note {
+  margin-top: 16px;
+  padding: 10px 14px;
+  background: rgba(210, 153, 34, 0.08);
+  border: 1px solid rgba(210, 153, 34, 0.3);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--orange);
+  line-height: 1.5;
+}
+
+@media (max-width: 700px) {
+  .train-row { flex-direction: column; }
+  .train-control-group { flex: 1 1 100% !important; }
+  .train-results { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="header">
+  <h1>LLM Architecture Calculator</h1>
+  <div class="subtitle">
+    从 <code>config.json</code> 到推理显存 · 8 个开源 SOTA 模型（Nemotron-3-Ultra / MiniMax-M3 / Kimi-K2.5 / DeepSeek-V4-Flash / GLM-5.1 / MiMo-V2-Flash / Qwen3.5-MoE / MiniMax-M2.7）的量化拆解
+  </div>
+</header>
+
+<!-- ============== CONTROLS ============== -->
+<div class="controls">
+  <div class="controls-row">
+    <div class="control-group model-select">
+      <label>Model</label>
+      <select id="modelA"></select>
+    </div>
+    <div class="control-group compare-select" id="modelB-group" style="display:none;">
+      <label>Compare with</label>
+      <select id="modelB"></select>
+    </div>
+    <div class="control-group mode-toggle-group">
+      <label>&nbsp;</label>
+      <div class="mode-toggle">
+        <button id="mode-single" class="active">Single</button>
+        <button id="mode-compare">Compare</button>
+      </div>
+    </div>
+
+    <div class="control-group t-slider-group">
+      <label>Sequence Length T <span class="val" id="t-val">262K</span></label>
+      <input type="range" id="t-slider" min="4096" max="1048576" step="4096" value="262144">
+      <div class="presets" id="t-presets">
+        <button data-t="4096">4K</button>
+        <button data-t="32768">32K</button>
+        <button data-t="131072">128K</button>
+        <button data-t="262144" class="active">256K</button>
+        <button data-t="524288">512K</button>
+        <button data-t="1048576">1M</button>
+      </div>
+    </div>
+
+    <div class="control-group batch-group">
+      <label>Batch Size <span class="val" id="batch-val">1</span></label>
+      <input type="range" id="batch-slider" min="1" max="128" step="1" value="1">
+    </div>
+
+    <div class="control-group pill-group-wrap">
+      <label>Precision</label>
+      <div class="pill-group" id="prec-group">
+        <input type="radio" name="prec" id="prec-bf16" value="2" checked>
+        <label for="prec-bf16">BF16</label>
+        <input type="radio" name="prec" id="prec-fp8" value="1">
+        <label for="prec-fp8">FP8</label>
+        <input type="radio" name="prec" id="prec-int4" value="0.5">
+        <label for="prec-int4">INT4</label>
+      </div>
+    </div>
+
+    <div class="control-group pill-group-wrap">
+      <label>Phase</label>
+      <div class="pill-group" id="phase-group">
+        <input type="radio" name="phase" id="phase-decode" value="decode" checked>
+        <label for="phase-decode">Decode</label>
+        <input type="radio" name="phase" id="phase-prefill" value="prefill">
+        <label for="phase-prefill">Prefill</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== SINGLE MODE ============== -->
+<div id="single-mode">
+
+  <!-- Row 1: Architecture + Model Info -->
+  <div class="grid-main">
+    <div class="card">
+      <div class="card-title">Architecture <span class="meta" id="arch-layers"></span></div>
+      <div class="arch-wrap">
+        <div class="arch-svg-box">
+          <svg id="arch-svg" width="240" height="320" viewBox="0 0 240 320"></svg>
+        </div>
+        <div class="arch-legend">
+          <span><i style="background:#58a6ff"></i> Attention</span>
+          <span><i style="background:#3fb950"></i> Mamba</span>
+          <span><i style="background:#a371f7"></i> MoE/FFN</span>
+          <span><i style="background:#d29922"></i> Dense</span>
+          <span><i style="background:#f778ba"></i> DeltaNet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Model Info <span class="meta" id="info-meta"></span></div>
+      <div class="info-block">
+        <div class="info-row"><span class="k">Vendor / Year</span><span class="v" id="info-vendor"></span></div>
+        <div class="info-row"><span class="k">Params (Total / Active)</span><span class="v big" id="info-params"></span></div>
+        <div class="info-row"><span class="k">Context Window</span><span class="v" id="info-ctx"></span></div>
+        <div class="info-row"><span class="k">Hidden Dim (d)</span><span class="v" id="info-d"></span></div>
+        <div class="info-row"><span class="k">Layers (L)</span><span class="v" id="info-layers"></span></div>
+        <div class="info-row"><span class="k">Attention Type</span><span class="v" id="info-attn"></span></div>
+        <div class="info-row"><span class="k">Heads (Q / KV)</span><span class="v" id="info-heads"></span></div>
+        <div class="info-row"><span class="k">MoE Experts</span><span class="v" id="info-moe"></span></div>
+        <div class="info-row"><span class="k">License</span><span class="v" id="info-license"></span></div>
+        <div class="info-note" id="info-note"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Params + FLOPs -->
+  <div class="grid-pair">
+    <div class="card">
+      <div class="card-title">Parameter Decomposition <span class="meta" id="params-meta"></span></div>
+      <table class="breakdown-table">
+        <thead>
+          <tr><th>Module</th><th class="num">Params</th><th class="num">%</th><th class="row-bar"></th></tr>
+        </thead>
+        <tbody id="params-tbody"></tbody>
+      </table>
+      <div class="total-row">
+        <div>
+          <div class="lbl">Sum</div>
+          <div class="sub" id="params-official"></div>
+        </div>
+        <div class="val" id="params-total">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">FLOPs / Token <span class="meta" id="flops-meta"></span></div>
+      <table class="breakdown-table">
+        <thead>
+          <tr><th>Component</th><th class="num">FLOPs</th><th class="num">%</th><th class="row-bar"></th></tr>
+        </thead>
+        <tbody id="flops-tbody"></tbody>
+      </table>
+      <div class="total-row">
+        <div>
+          <div class="lbl">Total</div>
+          <div class="sub" id="flops-sub"></div>
+        </div>
+        <div class="val" id="flops-total">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 3: KV Cache + Memory -->
+  <div class="grid-pair">
+    <div class="card">
+      <div class="card-title">KV Cache <span class="meta" id="kv-meta"></span></div>
+      <div id="kv-breakdown"></div>
+      <div class="total-row">
+        <div>
+          <div class="lbl">Per-sample KV cache</div>
+          <div class="sub" id="kv-sub"></div>
+        </div>
+        <div class="val" id="kv-total">—</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Inference Memory Footprint</div>
+      <div class="mem-line">
+        <span class="k">Weights</span>
+        <span class="v" id="mem-weights">—</span>
+      </div>
+      <div class="mem-bar"><div id="mem-bar-weights" style="background:linear-gradient(90deg,#58a6ff,#1f6feb); width:0%"></div></div>
+      <div class="mem-line">
+        <span class="k">KV Cache (× Batch)</span>
+        <span class="v" id="mem-kv">—</span>
+      </div>
+      <div class="mem-bar"><div id="mem-bar-kv" style="background:linear-gradient(90deg,#f85149,#a53737); width:0%"></div></div>
+      <div class="mem-line">
+        <span class="k">Activations</span>
+        <span class="v" id="mem-act">—</span>
+      </div>
+      <div class="mem-bar"><div id="mem-bar-act" style="background:linear-gradient(90deg,#d29922,#9e6a03); width:0%"></div></div>
+      <div class="total-row">
+        <div><div class="lbl">Total Footprint</div></div>
+        <div class="val" id="mem-total">—</div>
+      </div>
+      <div class="mem-summary">
+        <span>Minimum Deployment</span>
+        <span class="cards" id="mem-cards">—</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============== TRAINING COST ESTIMATOR ============== -->
+<div class="train-section" id="train-section">
+  <div class="train-header">
+    <h2>训练成本估算</h2>
+    <span class="train-subtitle">选择模型规模和硬件配置，预估训练时长与成本</span>
+  </div>
+
+  <div class="train-controls">
+    <!-- Row 1: Training tokens -->
+    <div class="train-row">
+      <div class="train-control-group" style="flex: 0 0 auto;">
+        <label>Tokens 策略</label>
+        <div class="pill-group" id="token-mode-group">
+          <button class="pill active" data-token-mode="industry">行业惯例</button>
+          <button class="pill" data-token-mode="chinchilla">Chinchilla</button>
+          <button class="pill" data-token-mode="custom">自定义</button>
+        </div>
+      </div>
+
+      <div class="train-control-group" id="token-tier-group-wrap" style="flex: 0 0 auto;">
+        <label>规模 <span class="hint" id="token-hint"></span></label>
+        <div class="pill-group" id="token-tier-group">
+          <button class="pill" data-token-tier="conservative">保守</button>
+          <button class="pill active" data-token-tier="standard">标准</button>
+          <button class="pill" data-token-tier="aggressive">激进</button>
+        </div>
+      </div>
+
+      <div class="train-control-group" id="token-custom-wrap" style="display:none; flex: 0 0 120px;">
+        <label>自定义</label>
+        <div class="input-with-unit">
+          <input type="number" id="token-custom-input" value="10" min="0.1" step="0.5">
+          <span class="unit">T</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Hardware config -->
+    <div class="train-row">
+      <div class="train-control-group" style="flex: 1 1 180px;">
+        <label>GPU 型号</label>
+        <select id="gpu-select">
+          <option value="ascend910c">昇腾 910C (A3) · 376 TF</option>
+          <option value="ascend910b">昇腾 910B · 320 TF</option>
+          <option value="h100">H100 SXM · 989 TF</option>
+          <option value="h200">H200 · 989 TF</option>
+          <option value="h800">H800 · 989 TF</option>
+          <option value="a100-80">A100 80G · 624 TF</option>
+          <option value="b200">B200 · 2,250 TF</option>
+        </select>
+      </div>
+
+      <div class="train-control-group" style="flex: 0 0 120px;">
+        <label>GPU 数量</label>
+        <div class="input-with-unit">
+          <input type="number" id="gpu-count-input" value="1024" min="1" step="64">
+          <span class="unit">张</span>
+        </div>
+      </div>
+
+      <div class="train-control-group" style="flex: 2 1 200px;">
+        <label>期望 MFU <span class="mfu-val" id="mfu-val">35%</span></label>
+        <input type="range" id="mfu-slider" min="15" max="60" value="35" step="5">
+        <div class="mfu-marks">
+          <span>15%</span><span>25%</span><span>35%</span><span>45%</span><span>60%</span>
+        </div>
+      </div>
+
+      <div class="train-control-group" style="flex: 0 0 110px;">
+        <label>单价 $/h</label>
+        <div class="input-with-unit">
+          <input type="number" id="gpu-price-input" value="2.0" min="0" step="0.1">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="train-results">
+    <div class="train-result-card">
+      <div class="trc-label">训练 Tokens</div>
+      <div class="trc-value" id="tr-tokens">—</div>
+      <div class="trc-detail" id="tr-tokens-detail"></div>
+    </div>
+    <div class="train-result-card">
+      <div class="trc-label">总训练 FLOPs</div>
+      <div class="trc-value" id="tr-flops">—</div>
+      <div class="trc-detail" id="tr-flops-detail"></div>
+    </div>
+    <div class="train-result-card highlight">
+      <div class="trc-label">预估训练时长</div>
+      <div class="trc-value" id="tr-duration">—</div>
+      <div class="trc-detail" id="tr-duration-detail"></div>
+    </div>
+    <div class="train-result-card">
+      <div class="trc-label">预估成本</div>
+      <div class="trc-value" id="tr-cost">—</div>
+      <div class="trc-detail" id="tr-cost-detail"></div>
+    </div>
+  </div>
+
+  <div class="train-note" id="train-note"></div>
+
+  <!-- Training compare table (shown only in compare mode) -->
+  <div class="train-compare" id="train-compare" style="display:none;">
+    <div class="card-title" style="margin-bottom:12px;">训练成本对比</div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>指标</th>
+          <th id="tc-name-a">Model A</th>
+          <th id="tc-name-b">Model B</th>
+          <th>Δ</th>
+        </tr>
+      </thead>
+      <tbody id="tc-body"></tbody>
+    </table>
+    <div class="train-note" id="train-note-cmp"></div>
+  </div>
+</div>
+
+<!-- ============== COMPARE MODE ============== -->
+<div id="compare-mode" style="display:none;">
+  <div class="card grid-full">
+    <div class="card-title">Side-by-Side Comparison <span class="meta" id="cmp-meta"></span></div>
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th class="header-a" id="cmp-h-a">Model A</th>
+          <th class="header-b" id="cmp-h-b">Model B</th>
+          <th>Δ (B − A)</th>
+          <th>Winner</th>
+        </tr>
+      </thead>
+      <tbody id="cmp-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footnote">
+  <p><strong>公式准确性说明：</strong></p>
+  <ul style="margin-left: 18px; margin-top: 6px;">
+    <li><strong>MLA KV Cache</strong>：<code>L × (d_kv + D_rope) × T × bytes</code>。k_rope 使用 MQA 共享，整层只存一个 64 维向量；c_KV（512 维）同时编码 K_nope 与 V，<strong>不乘 2</strong>。</li>
+    <li><strong>SWA Decode</strong>：解码阶段 T_new=1，仍 attend 到全部 T 个历史 token（窗口 W 在 W≥T 时不生效），SWA decode FLOPs = Full Attention decode FLOPs。SWA 只在 prefill 阶段省算力。</li>
+    <li><strong>Mamba-2 SSD</strong>：Diagonal <code>T × C × H × D</code>，Off-diagonal <code>2 × (T/C) × H × d_state²</code>，二者均为 O(T)，这是 Mamba 的核心优势。</li>
+    <li><strong>Verification</strong>：Kimi K2.5 @ T=256K → <code>61 × (512+64) × 262144 × 2 = 18.4 GB ≈ 17.15 GiB</code>（理论最小值，未含对齐开销）。</li>
+  </ul>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   MODEL PRESETS — 8 OPEN SOURCE SOTA, YEAR 2026
+   ============================================================ */
+const MODELS = {
+  "nemotron-3-ultra": {
+    name: "Nemotron 3 Ultra", vendor: "NVIDIA", year: 2026,
+    total: 550, active: 55, ctx: 1048576,
+    d: 8192, L: 60, Hq: 64, Hkv: 2, Dh: 128,
+    vocab: 131072, dff: 5120, dff_moe: 5120,
+    E: 512, k: 22, sharedE: 1, shared_ff: 10240,
+    d_latent: 2048, expert_gated: false,
+    type: "mamba_hybrid", L_attn: 12, L_mamba: 48,
+    mamba_H: 256, mamba_Dh: 64, d_state: 128, C: 128,
+    paper: "NVIDIA Nemotron 3 Ultra Technical Report",
+    note: "首个大规模 FP4 训练。Mamba-2 主导（48 层）+ 12 层稀疏 Attention。LatentMoE 在 2048 维低秩空间路由，非门控专家。",
+    license: "MIT (weights + data + recipe)",
+  },
+  "minimax-m3": {
+    name: "MiniMax M3", vendor: "MiniMax", year: 2026,
+    total: 428, active: 23, ctx: 1048576,
+    d: 6144, L: 60, Hq: 64, Hkv: 4, Dh: 128,
+    vocab: 200064, dff: 12288, dff_moe: 3072,
+    E: 128, k: 4, sharedE: 1, shared_ff: 3072,
+    type: "msa", L_full: 3, L_msa: 57,
+    msa_B: 128, msa_K: 16, msa_Hidx: 4,
+    hasVision: true, vis_L: 32, vis_d: 1280,
+    paper: "MiniMax M3 blog + MSA paper (arxiv 2606.13392)",
+    note: "Blockwise 稀疏注意力（B=128, K=16）。前 3 层 Full Attn 锚定，57 层 MSA。7-MTP 投机解码。",
+    license: "MIT",
+  },
+  "kimi-k2.5": {
+    name: "Kimi K2.5", vendor: "Moonshot AI", year: 2026,
+    total: 1000, active: 32, ctx: 262144,
+    d: 7168, L: 61, Hq: 64, Hkv: 64,
+    vocab: 163840, dff: 18432, dff_moe: 2048,
+    E: 384, k: 8, sharedE: 1, shared_ff: 2048,
+    type: "mla", d_kv: 512, d_q: 1536, D_rope: 64, D_nope: 128, D_v: 128,
+    hasVision: true, vis_L: 27, vis_d: 1152,
+    paper: "Kimi K2.5 Tech Blog",
+    note: "全 MHA (64 KV heads) + MLA 低秩压缩（c_KV=512, k_rope MQA 共享）。MuonClip 优化器。原生多模态。",
+    license: "MIT",
+  },
+  "deepseek-v4-flash": {
+    name: "DeepSeek V4 Flash", vendor: "DeepSeek", year: 2026,
+    total: 300, active: 37, ctx: 1048576,
+    d: 4096, L: 43, Hq: 64, Hkv: 1, Dh: 512,
+    vocab: 129280, dff_moe: 2048,
+    E: 256, k: 6, sharedE: 1, shared_ff: 2048,
+    type: "mla", d_kv: 512, d_q: 1024, D_rope: 64, D_nope: 448, D_v: 128,
+    paper: "DeepSeek V4 Technical Report",
+    note: "MLA + CSA/HCA 可切换稀疏注意力。FP4 量化专家。mHC 残差。",
+    license: "MIT",
+  },
+  "minimax-m2.7": {
+    name: "MiniMax M2.7", vendor: "MiniMax", year: 2026,
+    total: 275, active: 17, ctx: 204800,
+    d: 3072, L: 62, Hq: 48, Hkv: 8, Dh: 128,
+    vocab: 200064, dff: 1536, dff_moe: 1536,
+    E: 128, k: 8, sharedE: 0,
+    type: "gqa",
+    paper: "MiniMax M2 Technical Report",
+    note: "Full Attention + GQA 6:1。Muon 优化器 + lightning attention。",
+    license: "MIT",
+  },
+  "glm-5.1": {
+    name: "GLM-5.1", vendor: "Zhipu AI", year: 2026,
+    total: 744, active: 32, ctx: 202752,
+    d: 6144, L: 78, Hq: 64, Hkv: 64, Dh: 64,
+    vocab: 154880, dff: 12288, dff_moe: 2048,
+    E: 256, k: 8, sharedE: 1, shared_ff: 2048,
+    type: "mla", d_kv: 512, d_q: 2048, D_rope: 64, D_nope: 192, D_v: 256,
+    paper: "GLM Technical Report",
+    note: "MLA + DSA (DeepSeek Sparse Attention) Indexer。最大开源 MoE 之一。",
+    license: "MIT",
+  },
+  "mimo-v2-flash": {
+    name: "MiMo V2 Flash", vendor: "Xiaomi", year: 2026,
+    total: 140, active: 7, ctx: 262144,
+    d: 4096, L: 48, Hq: 64, Hkv: 4, Dh: 192,
+    vocab: 152576, dff: 16384, dff_moe: 2048,
+    E: 256, k: 8, sharedE: 0,
+    type: "swa", swa_window: 131072,
+    paper: "MiMo Technical Report",
+    note: "Sliding Window Attention (131K window) + GQA 16:1。",
+    license: "Apache 2.0",
+  },
+  "qwen3.5-moe": {
+    name: "Qwen3.5-MoE", vendor: "Alibaba", year: 2026,
+    total: 35, active: 3, ctx: 1048576,
+    d: 2048, L: 48, Hq: 32, Dh: 128,
+    vocab: 151936, dff_moe: 2048,
+    E: 256, k: 8, sharedE: 1, shared_ff: 2048,
+    type: "deltanet",
+    paper: "Qwen3 Technical Report",
+    note: "Gated DeltaNet 线性注意力。3:1 Gated DeltaNet : Gated Attention 混合层。",
+    license: "Apache 2.0",
+  }
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  modelA: "nemotron-3-ultra",
+  modelB: "minimax-m3",
+  mode: "single",
+  T: 262144,
+  batch: 1,
+  precision: 2,
+  phase: "decode",
+  tokenMode: "industry",
+  tokenTier: "standard",
+};
+
+/* ============================================================
+   FORMATTERS
+   ============================================================ */
+function fmt(n) {
+  if (n === 0) return "0";
+  const abs = Math.abs(n);
+  if (abs >= 1e12) return (n/1e12).toFixed(2) + "T";
+  if (abs >= 1e9)  return (n/1e9).toFixed(2)  + "B";
+  if (abs >= 1e6)  return (n/1e6).toFixed(2)  + "M";
+  if (abs >= 1e3)  return (n/1e3).toFixed(1)  + "K";
+  return n.toFixed(0);
+}
+function fmtBytes(bytes) {
+  if (bytes === 0) return "0 B";
+  const abs = Math.abs(bytes);
+  if (abs >= 1024**4) return (bytes/1024**4).toFixed(2) + " TiB";
+  if (abs >= 1024**3) return (bytes/1024**3).toFixed(2) + " GiB";
+  if (abs >= 1024**2) return (bytes/1024**2).toFixed(1) + " MiB";
+  if (abs >= 1024)    return (bytes/1024).toFixed(1)    + " KiB";
+  return bytes.toFixed(0) + " B";
+}
+function fmtBytesShort(bytes) {
+  if (bytes === 0) return "0";
+  const abs = Math.abs(bytes);
+  if (abs >= 1024**4) return (bytes/1024**4).toFixed(2) + " TB";
+  if (abs >= 1024**3) return (bytes/1024**3).toFixed(2) + " GB";
+  if (abs >= 1024**2) return (bytes/1024**2).toFixed(1) + " MB";
+  if (abs >= 1024)    return (bytes/1024).toFixed(1)    + " KB";
+  return bytes.toFixed(0) + " B";
+}
+function fmtFLOPs(f) {
+  if (f === 0) return "0";
+  const abs = Math.abs(f);
+  if (abs >= 1e21) return (f/1e21).toFixed(2) + " ZFLOPs";
+  if (abs >= 1e18) return (f/1e18).toFixed(1) + " EFLOPs";
+  if (abs >= 1e15) return (f/1e15).toFixed(2) + " PFLOPs";
+  if (abs >= 1e12) return (f/1e12).toFixed(2) + " TFLOPs";
+  if (abs >= 1e9)  return (f/1e9).toFixed(2)  + " GFLOPs";
+  if (abs >= 1e6)  return (f/1e6).toFixed(2)  + " MFLOPs";
+  return f.toFixed(0);
+}
+function fmtTShort(T) {
+  if (T >= 1048576) return (T/1048576).toFixed(T % 1048576 === 0 ? 0 : 1) + "M";
+  if (T >= 1024) return Math.round(T/1024) + "K";
+  return T.toString();
+}
+
+/* ============================================================
+   COMPUTATION — PARAMETERS
+   ============================================================ */
+function calcParams(m) {
+  const tieEmbeddings = false;
+  const embedding = m.vocab * m.d * (tieEmbeddings ? 1 : 2);
+  let attnParams = 0, ffnParams = 0, moeParams = 0, mambaParams = 0;
+  let breakdown = [];
+
+  if (m.type === "mla") {
+    const perLayer =
+      m.d * m.d_kv +                          // kv_a_proj (down)
+      m.d_kv * m.Hq * (m.D_nope + m.D_v) +    // kv_b_proj (up: K_nope + V)
+      m.d * m.d_q +                           // q_a_proj (down)
+      m.d_q * m.Hq * m.D_nope +               // q_b_proj (up: Q_nope)
+      m.d * m.Hq * m.D_rope +                 // q_rope proj
+      m.Hq * (m.D_nope + m.D_rope) * m.D_v;   // o_proj
+    attnParams = m.L * perLayer;
+    breakdown.push({k: "kv_a_proj (d→d_kv)", v: m.L * m.d * m.d_kv});
+    breakdown.push({k: "kv_b_proj (d_kv→K_nope+V)", v: m.L * m.d_kv * m.Hq * (m.D_nope + m.D_v)});
+    breakdown.push({k: "q_a_proj (d→d_q)", v: m.L * m.d * m.d_q});
+    breakdown.push({k: "q_b_proj (d_q→Q_nope)", v: m.L * m.d_q * m.Hq * m.D_nope});
+    breakdown.push({k: "q_rope proj", v: m.L * m.d * m.Hq * m.D_rope});
+    breakdown.push({k: "o_proj", v: m.L * m.Hq * (m.D_nope + m.D_rope) * m.D_v});
+  } else if (m.type === "mamba_hybrid") {
+    const attnPerLayer =
+      m.d * m.d +                  // Q
+      m.d * (m.Hkv * m.Dh) +       // K
+      m.d * (m.Hkv * m.Dh) +       // V
+      m.d * m.d;                   // O
+    attnParams = m.L_attn * attnPerLayer;
+
+    const mambaInner = m.mamba_H * m.mamba_Dh * 2;            // d_inner
+    const dConv = mambaInner + 2 * 8 * m.d_state + m.mamba_H; // conv_dim (in + gate + dt)
+    const mambaPerLayer =
+      m.d * (mambaInner * 2 + dConv + m.mamba_H) +  // in_proj (wide: x, z, conv, dt)
+      m.d_state * m.d +                              // conv1d bias-only approx (small)
+      mambaInner * m.d;                               // out_proj
+    mambaParams = m.L_mamba * mambaPerLayer;
+    breakdown.push({k: "Attn Q proj", v: m.L_attn * m.d * m.d});
+    breakdown.push({k: "Attn K proj", v: m.L_attn * m.d * m.Hkv * m.Dh});
+    breakdown.push({k: "Attn V proj", v: m.L_attn * m.d * m.Hkv * m.Dh});
+    breakdown.push({k: "Attn O proj", v: m.L_attn * m.d * m.d});
+    breakdown.push({k: "Mamba in_proj", v: m.L_mamba * m.d * (mambaInner * 2 + dConv + m.mamba_H)});
+    breakdown.push({k: "Mamba out_proj", v: m.L_mamba * mambaInner * m.d});
+  } else if (m.type === "deltanet") {
+    // DeltaNet per-layer: Q/K/V projections + β + output
+    const perLayer =
+      m.d * m.Hq * m.Dh +    // Q
+      m.d * m.Hq * m.Dh +    // K
+      m.d * m.Hq * m.Dh +    // V
+      m.d * m.Hq * m.Dh +    // β (input gate)
+      m.Hq * m.Dh * m.d;     // O
+    attnParams = m.L * perLayer;
+  } else {
+    // GQA / MHA / SWA / MSA
+    const perLayer =
+      m.d * m.d +                  // Q
+      m.d * (m.Hkv * m.Dh) +       // K
+      m.d * (m.Hkv * m.Dh) +       // V
+      m.d * m.d;                   // O
+    attnParams = m.L * perLayer;
+  }
+
+  // MoE / FFN
+  if (m.E) {
+    const expertInputDim = m.d_latent || m.d;  // LatentMoE uses latent dim
+    const matrices = m.expert_gated === false ? 2 : 3;  // non-gated = 2, SwiGLU = 3
+    const perExpert = matrices * expertInputDim * m.dff_moe;
+    const router = m.d * m.E;
+    const sharedMatrices = m.expert_gated === false ? 2 : 3;
+    const sharedInputDim = m.d_latent ? m.d : expertInputDim;  // shared expert uses full dim
+    const shared = m.sharedE ? sharedMatrices * sharedInputDim * (m.shared_ff || m.dff_moe) : 0;
+    // LatentMoE: add down/up projection per layer (d → d_latent → d)
+    const latentProj = m.d_latent ? 2 * m.d * m.d_latent : 0;
+    const moeLayers = m.type === "mamba_hybrid" ? m.L_mamba : m.L;
+    moeParams = moeLayers * (perExpert * m.E + router + shared + latentProj);
+  } else {
+    ffnParams = m.L * 3 * m.d * m.dff;
+  }
+
+  const total = embedding + attnParams + ffnParams + moeParams + mambaParams;
+  return { embedding, attnParams, ffnParams, moeParams, mambaParams, total, breakdown };
+}
+
+/* ============================================================
+   COMPUTATION — KV CACHE (CORRECT MLA / Mamba / DeltaNet)
+   ============================================================ */
+function calcKVCache(m, T, bytes) {
+  const lines = [];
+  let total = 0;
+
+  if (m.type === "mla") {
+    const perLayer = (m.d_kv + m.D_rope) * T * bytes;
+    total = m.L * perLayer;
+    lines.push({
+      k: `${m.L} MLA layers`, v: total,
+      chip: "L×(d_kv+D_rope)×T×B",
+      steps: [
+        fpStep("层数 L", m.L, "config: num_hidden_layers", "layers"),
+        fpStep("d_kv (c_KV)", m.d_kv, "config: kv_lora_rank", "dims"),
+        fpStep("D_rope", m.D_rope, "config: qk_rope_head_dim", "dims"),
+        fpStep("× T", fmt(T), "用户选择", "user"),
+        fpStep("× bytes", bytes+"B", "精度", "prec"),
+        fpStep("注", "无 ×2", "c_KV 同时编码 K+V", "const"),
+      ],
+    });
+  } else if (m.type === "mamba_hybrid") {
+    const attnKV = m.L_attn * 2 * m.Hkv * m.Dh * T * bytes;
+    const mambaState = m.L_mamba * m.mamba_H * m.d_state * 4;
+    total = attnKV + mambaState;
+    lines.push({
+      k: `${m.L_attn} Attn layers`, v: attnKV,
+      chip: "L_attn×2×Hkv×Dh×T×B",
+      steps: [
+        fpStep("Attn 层数", m.L_attn, "仅 Attention 层", "layers"),
+        fpStep("× 2", "2", "K+V 各一份", "const"),
+        fpStep("H_kv", m.Hkv, "config: num_key_value_heads", "dims"),
+        fpStep("D_h", m.Dh, "config: head_dim", "dims"),
+        fpStep("× T", fmt(T), "用户选择", "user"),
+        fpStep("× bytes", bytes+"B", "精度", "prec"),
+      ],
+    });
+    lines.push({
+      k: `${m.L_mamba} Mamba state`, v: mambaState,
+      chip: "L×H×d_state×4B",
+      steps: [
+        fpStep("Mamba 层数", m.L_mamba, "SSM 层", "layers"),
+        fpStep("H_mamba", m.mamba_H, "config: mamba_num_heads", "dims"),
+        fpStep("d_state", m.d_state, "config: ssm_state_size", "dims"),
+        fpStep("× 4B", "4", "FP32 state", "prec"),
+        fpStep("注", "固定大小", "不随 T 增长", "const"),
+      ],
+    });
+  } else if (m.type === "deltanet") {
+    const perLayer = m.Hq * m.Dh * m.Dh * bytes;
+    total = m.L * perLayer;
+    lines.push({
+      k: `${m.L} DeltaNet state`, v: total,
+      chip: "L×H×Dh²×B",
+      steps: [
+        fpStep("层数 L", m.L, "config", "layers"),
+        fpStep("H", m.Hq, "config: num_attention_heads", "dims"),
+        fpStep("D_h²", m.Dh+"²", "head_dim 平方", "dims"),
+        fpStep("× bytes", bytes+"B", "精度", "prec"),
+        fpStep("注", "矩阵 state", "固定大小，与 T 无关", "const"),
+      ],
+    });
+  } else {
+    const perLayer = 2 * m.Hkv * m.Dh * T * bytes;
+    total = m.L * perLayer;
+    lines.push({
+      k: `${m.L} layers (GQA/MHA)`, v: total,
+      chip: m.type==="msa"?"L×2×Hkv×Dh×T×B":"L×2×Hkv×Dh×T×B",
+      steps: [
+        fpStep("层数 L", m.L, "config: num_hidden_layers", "layers"),
+        fpStep("× 2", "2", "K+V 各一份", "const"),
+        fpStep("H_kv", m.Hkv, "config: num_key_value_heads", "dims"),
+        fpStep("D_h", m.Dh, "config: head_dim", "dims"),
+        fpStep("× T", fmt(T), "用户选择", "user"),
+        fpStep("× bytes", bytes+"B", "精度", "prec"),
+      ],
+    });
+  }
+
+  return { total, lines };
+}
+
+/* ============================================================
+   COMPUTATION — FLOPS PER TOKEN
+   ============================================================ */
+function calcFLOPs(m, T, phase) {
+  const Tnew = phase === "decode" ? 1 : T;
+  let attn = 0, mamba = 0, moe = 0, ffn = 0, deltanet = 0;
+  let qkDot = 0;
+
+  // Attention layers
+  const attnLayers = m.type === "mamba_hybrid" ? m.L_attn : m.L;
+
+  if (m.type === "mla") {
+    for (let i = 0; i < attnLayers; i++) {
+      attn += 2 * m.d * m.d_kv * Tnew;
+      attn += 2 * m.d_kv * m.Hq * (m.D_nope + m.D_v) * Tnew;
+      attn += 2 * m.d * m.d_q * Tnew;
+      attn += 2 * m.d_q * m.Hq * m.D_nope * Tnew;
+      attn += 2 * m.d * m.Hq * m.D_rope * Tnew;
+      qkDot += 2 * m.Hq * Tnew * T * (m.D_nope + m.D_rope);
+      attn += 2 * m.Hq * Tnew * m.D_v * (m.D_nope + m.D_rope); // V × weights
+      attn += 2 * m.Hq * (m.D_nope + m.D_rope) * m.D_v * Tnew; // o_proj
+    }
+  } else if (m.type === "deltanet") {
+    for (let i = 0; i < attnLayers; i++) {
+      // Q/K/V/β/O projections + 3 matrix ops, each O(H × Dh²)
+      attn += 4 * 2 * m.d * m.Hq * m.Dh * Tnew;
+      deltanet += 6 * m.Hq * m.Dh * m.Dh * Tnew;
+    }
+  } else {
+    // GQA / MHA / SWA / MSA
+    for (let i = 0; i < attnLayers; i++) {
+      attn += 2 * m.d * m.d * Tnew;             // Q
+      attn += 2 * m.d * (m.Hkv * m.Dh) * Tnew;  // K
+      attn += 2 * m.d * (m.Hkv * m.Dh) * Tnew;  // V
+      let effectiveT;
+      if (m.type === "msa") {
+        effectiveT = Math.min(T, m.msa_K * m.msa_B);
+      } else if (m.type === "swa") {
+        // SWA decode: T_new=1 still attends to all T (window W >= T)
+        // SWA prefill: limited by W
+        effectiveT = phase === "decode" ? T : Math.min(T, m.swa_window);
+      } else {
+        effectiveT = T;
+      }
+      qkDot += 2 * m.Hq * Tnew * effectiveT * m.Dh;
+      attn += 2 * m.Hq * Tnew * m.Dh * m.Dh;    // V × weights (approx)
+      attn += 2 * m.d * m.d * Tnew;             // O proj
+    }
+  }
+
+  // Mamba layers
+  if (m.type === "mamba_hybrid") {
+    const dInner = m.mamba_H * m.mamba_Dh;
+    const convDim = dInner + 2 * 8 * m.d_state + m.mamba_H;
+    for (let i = 0; i < m.L_mamba; i++) {
+      mamba += 2 * m.d * convDim * Tnew;        // in_proj
+      mamba += 2 * dInner * m.d * Tnew;         // out_proj
+      mamba += Tnew * m.C * m.mamba_H * m.mamba_Dh;       // SSD diagonal
+      mamba += 2 * (Tnew / m.C) * m.mamba_H * m.d_state * m.d_state; // off-diag
+    }
+  }
+
+  // MoE / dense FFN
+  if (m.E) {
+    moe += 2 * m.d * m.E * Tnew;                       // router
+    moe += m.k * 3 * 2 * m.d * m.dff_moe * Tnew;       // k experts × SwiGLU
+    if (m.sharedE) moe += 3 * 2 * m.d * (m.shared_ff || m.dff_moe) * Tnew;
+  } else {
+    ffn += 3 * 2 * m.d * m.dff * Tnew;
+  }
+
+  const total = attn + qkDot + mamba + moe + ffn + deltanet;
+  return { total, attn, qkDot, mamba, moe, ffn, deltanet };
+}
+
+/* ============================================================
+   COMPUTATION — MEMORY
+   ============================================================ */
+function calcMemory(m, T, batch, precBytes) {
+  const params = calcParams(m);
+  const weightBytes = params.total * precBytes;
+  const kv = calcKVCache(m, T, precBytes);
+  const kvBatch = kv.total * batch;
+  const phase = state.phase || "decode";
+  // Decode: per-token activation (constant). Prefill: scales with T (checkpointing reduces ~20×)
+  const Tnew = phase === "decode" ? 1 : T;
+  const actBytes = 2 * m.d * m.L * batch * Tnew * precBytes;
+  const total = weightBytes + kvBatch + actBytes;
+  return { weights: weightBytes, kv: kvBatch, act: actBytes, total, kvBreakdown: kv };
+}
+
+function calcMinCards(memoryBytes) {
+  // H200 = 141 GiB, H100 = 80 GiB, B200 = 192 GiB
+  const H200 = 141 * 1024**3;
+  const n = Math.ceil(memoryBytes / H200);
+  return { count: n, type: "H200 (141 GiB)" };
+}
+
+/* ============================================================
+   ARCH SVG RENDERING
+   ============================================================ */
+function renderArchSVG(m) {
+  const svg = document.getElementById("arch-svg");
+  svg.innerHTML = "";
+  const W = 240, H = 320;
+  const padding = 20;
+  const usableH = H - padding * 2;
+  const layerH = Math.max(2, Math.min(5, usableH / m.L));
+  const gap = (usableH - layerH * m.L) / Math.max(1, m.L - 1);
+
+  const ns = "http://www.w3.org/2000/svg";
+  const colors = {
+    attn: "#58a6ff",
+    mamba: "#3fb950",
+    moe: "#a371f7",
+    dense: "#d29922",
+    deltanet: "#f778ba",
+    msa: "#58a6ff",
+    full: "#58a6ff",
+  };
+
+  function layerColor(i) {
+    if (m.type === "mamba_hybrid") {
+      // first 12 attn, then 48 mamba, all with MoE FFN
+      if (i < m.L_attn) return colors.attn;
+      return colors.mamba;
+    }
+    if (m.type === "msa") {
+      if (m.L_full && i < m.L_full) return colors.full;
+      return colors.msa;
+    }
+    if (m.type === "mla") return colors.attn;
+    if (m.type === "swa") return colors.attn;
+    if (m.type === "gqa") return colors.attn;
+    if (m.type === "deltanet") {
+      // Qwen3.5-MoE: 3:1 ratio DeltaNet:Attn
+      return (i % 4 === 3) ? colors.attn : colors.deltanet;
+    }
+    return colors.attn;
+  }
+
+  function layerType(i) {
+    if (m.type === "mamba_hybrid") return i < m.L_attn ? "Attention" : "Mamba-2 SSD";
+    if (m.type === "msa") return (m.L_full && i < m.L_full) ? "Full Attention" : "MSA (Blockwise Sparse)";
+    if (m.type === "mla") return "MLA Attention";
+    if (m.type === "swa") return `SWA (W=${fmtTShort(m.swa_window)})`;
+    if (m.type === "gqa") return "GQA Attention";
+    if (m.type === "deltanet") return (i % 4 === 3) ? "Gated Attention" : "Gated DeltaNet";
+    return "Attention";
+  }
+
+  // Base rect for embedding (bottom)
+  const baseY = H - padding;
+  const embRect = document.createElementNS(ns, "rect");
+  embRect.setAttribute("x", padding);
+  embRect.setAttribute("y", baseY - 6);
+  embRect.setAttribute("width", W - padding * 2);
+  embRect.setAttribute("height", 4);
+  embRect.setAttribute("fill", colors.moe);
+  embRect.setAttribute("opacity", 0.5);
+  embRect.setAttribute("rx", 1);
+  svg.appendChild(embRect);
+
+  // Layer bars (bottom-up: layer 0 at bottom, layer L-1 at top)
+  for (let i = 0; i < m.L; i++) {
+    const y = baseY - 10 - (i + 1) * (layerH + gap);
+    const rect = document.createElementNS(ns, "rect");
+    rect.setAttribute("x", padding);
+    rect.setAttribute("y", y);
+    rect.setAttribute("width", W - padding * 2);
+    rect.setAttribute("height", layerH);
+    rect.setAttribute("fill", layerColor(i));
+    rect.setAttribute("rx", 1);
+    // Tooltip via title element
+    const title = document.createElementNS(ns, "title");
+    title.textContent = `Layer ${i}: ${layerType(i)}${m.E ? " + MoE/FFN" : ""}`;
+    rect.appendChild(title);
+    svg.appendChild(rect);
+  }
+
+  // Add label "Input" near bottom
+  const label = document.createElementNS(ns, "text");
+  label.setAttribute("x", padding);
+  label.setAttribute("y", baseY + 14);
+  label.setAttribute("fill", "#8b949e");
+  label.setAttribute("font-size", "9");
+  label.setAttribute("font-family", "monospace");
+  label.textContent = "embed → L0";
+  svg.appendChild(label);
+
+  const label2 = document.createElementNS(ns, "text");
+  label2.setAttribute("x", W - padding);
+  label2.setAttribute("y", baseY + 14);
+  label2.setAttribute("fill", "#8b949e");
+  label2.setAttribute("font-size", "9");
+  label2.setAttribute("font-family", "monospace");
+  label2.setAttribute("text-anchor", "end");
+  label2.textContent = `L${m.L - 1} → output`;
+  svg.appendChild(label2);
+}
+
+/* ============================================================
+   RENDER — MODEL INFO
+   ============================================================ */
+function renderModelInfo(m) {
+  document.getElementById("info-vendor").textContent = `${m.vendor} · ${m.year}`;
+  document.getElementById("info-params").textContent = `${fmt(m.total * 1e9)} total / ${fmt(m.active * 1e9)} active`;
+  document.getElementById("info-ctx").textContent = `${fmtTShort(m.ctx)} tokens`;
+  document.getElementById("info-d").textContent = `${m.d.toLocaleString()}`;
+  document.getElementById("info-layers").textContent = `${m.L} layers`;
+  document.getElementById("info-meta").textContent = `${m.vendor} · ${m.year}`;
+
+  let attnType;
+  if (m.type === "mla") attnType = `MLA (d_kv=${m.d_kv})`;
+  else if (m.type === "mamba_hybrid") attnType = `Mamba-2 (${m.L_mamba}/${m.L}) + Attn (${m.L_attn})`;
+  else if (m.type === "msa") attnType = `MSA (B=${m.msa_B}, K=${m.msa_K})`;
+  else if (m.type === "swa") attnType = `SWA (W=${fmtTShort(m.swa_window)})`;
+  else if (m.type === "gqa") attnType = `GQA`;
+  else if (m.type === "deltanet") attnType = `Gated DeltaNet`;
+  else attnType = m.type;
+  document.getElementById("info-attn").textContent = attnType;
+  document.getElementById("info-heads").textContent = `${m.Hq || "—"} / ${m.Hkv || "—"}`;
+  document.getElementById("info-moe").textContent = m.E
+    ? `E=${m.E}, top-${m.k}${m.sharedE ? ", +1 shared" : ""}`
+    : "dense";
+  document.getElementById("info-license").textContent = m.license;
+  document.getElementById("info-note").textContent = m.note;
+
+  document.getElementById("arch-layers").textContent = `${m.L} layers`;
+}
+
+/* ============================================================
+   FORMULA BUILDER SYSTEM
+   ============================================================ */
+function fpStep(label, val, source, type) {
+  return { label, val, source, type: type || "const" };
+}
+function buildPanel(steps, resultStr) {
+  const cls = { layers: "fc-layers", dims: "fc-dims", prec: "fc-prec", user: "fc-user", const: "fc-const" };
+  const html = steps.map(s =>
+    `<div class="fp-step"><span class="fp-label">${s.label}</span><span class="fp-eq">=</span><span class="fp-val ${cls[s.type]||""}">${s.val}</span><span class="fp-source">← ${s.source}</span></div>`
+  ).join("");
+  return `<div class="formula-panel">${html}<div class="fp-step"><span class="fp-label">结果</span><span class="fp-eq">=</span><span class="fp-result">${resultStr}</span></div></div>`;
+}
+function chip(label) { return `<span class="fchip">${label}</span>`; }
+function expandIcon() { return `<span class="expand-toggle">▸</span>`; }
+function deviationWarn(calcB, officialB) {
+  if (!officialB || officialB <= 0) return "";
+  const pct = ((calcB - officialB) / officialB * 100);
+  if (Math.abs(pct) <= 5) return "";
+  return `<span class="deviation-warn">⚠ Δ${pct>0?"+":""}${pct.toFixed(1)}%</span>`;
+}
+function wireExpandToggles(container) {
+  container.querySelectorAll(".expand-toggle").forEach(t => {
+    t.addEventListener("click", function() {
+      const isOpen = this.classList.toggle("open");
+      const nextRow = this.closest("tr").nextElementSibling;
+      if (nextRow) nextRow.style.display = isOpen ? "" : "none";
+    });
+  });
+}
+
+/* ============================================================
+   RENDER — PARAMS TABLE
+   ============================================================ */
+function renderParams(m) {
+  const p = calcParams(m);
+  const tbody = document.getElementById("params-tbody");
+  const rows = [];
+  const L_attn = m.type === "mamba_hybrid" ? m.L_attn : m.L;
+  const expertDim = m.d_latent || m.d;
+  const matrices = m.expert_gated === false ? 2 : 3;
+  const moeLayers = m.type === "mamba_hybrid" ? m.L_mamba : m.L;
+
+  rows.push({ k: "Embedding", v: p.embedding, cls: "embed", chip: "V×d×2",
+    steps: [fpStep("vocab V",fmt(m.vocab),"config: vocab_size","dims"),fpStep("hidden d",fmt(m.d),"config: hidden_size","dims"),fpStep("× 2","2","in+out 各一份","const"),fpStep("= V×d×2",`${fmt(m.vocab)}×${fmt(m.d)}×2`,"","const")],
+    result: fmt(p.embedding)+" ("+(p.embedding/1e9).toFixed(2)+"B)" });
+
+  if (p.attnParams > 0) {
+    if (m.type === "mla") {
+      rows.push({ k: "Attention (MLA)", v: p.attnParams, cls: "attn", chip: "6 low-rank proj",
+        steps: [fpStep("层数 L",L_attn,"config","layers"),fpStep("kv_a","d×d_kv","下投影","dims"),fpStep("kv_b","d_kv×H×(D_nope+D_v)","上投影","dims"),fpStep("q_a","d×d_q","Q 下投影","dims"),fpStep("q_b+rope+o","3 additional proj","Q上投影+rope+输出","dims"),fpStep("× L",L_attn+" layers","","layers")],
+        result: fmt(p.attnParams)+" ("+(p.attnParams/1e9).toFixed(2)+"B)" });
+    } else {
+      rows.push({ k: "Attention (QKVO)", v: p.attnParams, cls: "attn", chip: `L×(${m.d}²+2×${m.d}×${m.Hkv*m.Dh}+${m.d}²)`,
+        steps: [fpStep("层数 L",L_attn,m.type==="mamba_hybrid"?"仅 Attn 层":"config: num_hidden_layers","layers"),fpStep("Q proj",`d×d = ${m.d}²`,"hidden→hidden","dims"),fpStep("K proj",`d×(${m.Hkv}×${m.Dh}) = ${m.d}×${m.Hkv*m.Dh}`,"GQA 变窄","dims"),fpStep("V proj",`d×(${m.Hkv}×${m.Dh})`,"同 K","dims"),fpStep("O proj",`d×d = ${m.d}²`,"hidden→hidden","dims"),fpStep("× L",L_attn+" layers","","layers")],
+        result: fmt(p.attnParams)+" ("+(p.attnParams/1e9).toFixed(2)+"B)" });
+    }
+  }
+
+  if (p.mambaParams > 0) {
+    const dInner = m.mamba_H * m.mamba_Dh;
+    const convDim = dInner + 2*8*m.d_state + m.mamba_H;
+    rows.push({ k: "Mamba-2 (SSD)", v: p.mambaParams, cls: "mamba", chip: "L×(in_proj+out_proj)",
+      steps: [fpStep("层数 L_mamba",m.L_mamba,"config: layers_block_type","layers"),fpStep("d_inner",`${m.mamba_H}×${m.mamba_Dh}=${fmt(dInner)}`,"SSD 内部维度","dims"),fpStep("in_proj",`d×${fmt(convDim)}`,"宽投影(Δ+B+C+gate)","dims"),fpStep("out_proj",`${fmt(dInner)}×d`,"输出投影","dims"),fpStep("× L_mamba",m.L_mamba+" layers","","layers")],
+      result: fmt(p.mambaParams)+" ("+(p.mambaParams/1e9).toFixed(2)+"B)" });
+  }
+
+  if (p.moeParams > 0) {
+    const sArr = [fpStep("MoE 层数",moeLayers,m.type==="mamba_hybrid"?"Mamba 层附带 MoE":"= L","layers"),fpStep("专家数 E",m.E,"config: n_routed_experts","dims"),fpStep("每专家",`${matrices}×${expertDim}×${m.dff_moe}=${fmt(matrices*expertDim*m.dff_moe)}`,m.expert_gated===false?"非门控(2矩阵)":"SwiGLU(3矩阵)","dims"),fpStep("全部专家",`${m.E}×${fmt(matrices*expertDim*m.dff_moe)}`,"","dims")];
+    if (m.sharedE) sArr.push(fpStep("共享专家",`${matrices}×${m.d}×${m.shared_ff||m.dff_moe}`,"always active","dims"));
+    if (m.d_latent) { sArr.push(fpStep("latent down",`d×d_latent=${m.d}×${m.d_latent}`,"LatentMoE 下投影","dims")); sArr.push(fpStep("latent up",`d_latent×d=${m.d_latent}×${m.d}`,"LatentMoE 上投影","dims")); }
+    sArr.push(fpStep("× MoE 层数",moeLayers+"","","layers"));
+    rows.push({ k: `MoE (E=${m.E}, top-${m.k})`, v: p.moeParams, cls: "moe", chip: m.d_latent?`L×(E×${matrices}×d_lat×dff+proj)`:`L×(E×${matrices}×d×dff)`,
+      steps: sArr, result: fmt(p.moeParams)+" ("+(p.moeParams/1e9).toFixed(2)+"B)" });
+  }
+
+  if (p.ffnParams > 0) {
+    rows.push({ k: "FFN (dense)", v: p.ffnParams, cls: "ffn", chip: "L×3×d×d_ff",
+      steps: [fpStep("层数 L",m.L,"config: num_hidden_layers","layers"),fpStep("SwiGLU","3 matrices","gate+up+down","dims"),fpStep("d × d_ff",`${m.d} × ${m.dff}`,"hidden×intermediate","dims"),fpStep("× L",m.L+" layers","","layers")],
+      result: fmt(p.ffnParams)+" ("+(p.ffnParams/1e9).toFixed(2)+"B)" });
+  }
+
+  const maxV = Math.max(...rows.map(r => r.v));
+  tbody.innerHTML = rows.map(r => {
+    const pct = p.total > 0 ? (r.v / p.total * 100) : 0;
+    const w = maxV > 0 ? (r.v / maxV * 100) : 0;
+    return `<tr>
+      <td>${r.k}${chip(r.chip||"")}</td>
+      <td class="num">${fmt(r.v)} ${expandIcon()}</td>
+      <td class="pct">${pct.toFixed(1)}%</td>
+      <td class="row-bar"><div class="bar-track"><div class="bar-fill ${r.cls}" style="width:${w}%"></div></div></td>
+    </tr>
+    <tr style="display:none"><td colspan="4">${buildPanel(r.steps||[],r.result||"")}</td></tr>`;
+  }).join("");
+  wireExpandToggles(tbody);
+
+  const totalEl = document.getElementById("params-total");
+  totalEl.textContent = `≈ ${fmt(p.total)}`;
+  totalEl.classList.remove("flash"); void totalEl.offsetWidth; totalEl.classList.add("flash");
+
+  const officialEl = document.getElementById("params-official");
+  officialEl.innerHTML = `Official: ${fmt(m.total * 1e9)} ${deviationWarn(p.total/1e9, m.total)}`;
+  document.getElementById("params-meta").textContent = `calc: ${fmt(p.total)} · official: ${fmt(m.total * 1e9)}`;
+}
+
+/* ============================================================
+   RENDER — FLOPS TABLE
+   ============================================================ */
+function renderFLOPs(m, T, phase) {
+  const f = calcFLOPs(m, T, phase);
+  const tbody = document.getElementById("flops-tbody");
+  const rows = [];
+
+  if (f.attn > 0) rows.push({ k: "Attn Projections", v: f.attn, cls: "attn", tip: `Q/K/V/O proj × ${phase === "decode" ? "1 (T_new=1)" : T + " (T_new=T)"}` });
+  if (f.qkDot > 0) rows.push({ k: phase === "decode" ? "QK^T + softmax×V" : "QK^T + softmax×V", v: f.qkDot, cls: "attn", tip: phase === "decode" ? `2 × H × T_new=1 × T × D` : `2 × H × T × T × D` });
+  if (f.mamba > 0) rows.push({ k: "Mamba-2 SSD (diag+off-diag)", v: f.mamba, cls: "mamba", tip: `O(T): diag=T×C×H×D, off-diag=2×(T/C)×H×d_state²` });
+  if (f.deltanet > 0) rows.push({ k: "DeltaNet state update", v: f.deltanet, cls: "deltanet", tip: `6 × H × Dh² × T (3 matrix ops, O(T) total)` });
+  if (f.moe > 0) rows.push({ k: `MoE (router + top-${m.k})`, v: f.moe, cls: "moe", tip: `2×d×E + ${m.k}×3×2×d×d_ff_moe` });
+  if (f.ffn > 0) rows.push({ k: "FFN (SwiGLU dense)", v: f.ffn, cls: "ffn", tip: `3 × 2 × d × d_ff` });
+
+  const maxV = Math.max(...rows.map(r => r.v));
+  tbody.innerHTML = rows.map(r => {
+    const pct = f.total > 0 ? (r.v / f.total * 100) : 0;
+    const w = maxV > 0 ? (r.v / maxV * 100) : 0;
+    return `<tr>
+      <td>${r.k}</td>
+      <td class="num"><span class="num-tip" data-tip="${r.tip}">${fmtFLOPs(r.v)}F</span></td>
+      <td class="pct">${pct.toFixed(1)}%</td>
+      <td class="row-bar"><div class="bar-track"><div class="bar-fill ${r.cls}" style="width:${w}%"></div></div></td>
+    </tr>`;
+  }).join("");
+
+  const totalEl = document.getElementById("flops-total");
+  totalEl.textContent = `≈ ${fmtFLOPs(f.total)}FLOPs`;
+  totalEl.classList.remove("flash"); void totalEl.offsetWidth; totalEl.classList.add("flash");
+
+  const tflops = (f.total / 1e12).toFixed(2);
+  const phaseTxt = phase === "decode" ? "Decode (T_new=1)" : `Prefill (T_new=${fmtTShort(T)})`;
+  document.getElementById("flops-sub").textContent = `${phaseTxt} · ≈ ${tflops} TFLOPs/token`;
+  document.getElementById("flops-meta").textContent = `T=${fmtTShort(T)} · ${phase}`;
+}
+
+/* ============================================================
+   RENDER — KV CACHE
+   ============================================================ */
+function renderKV(m, T, precBytes) {
+  const kv = calcKVCache(m, T, precBytes);
+  const breakdown = document.getElementById("kv-breakdown");
+  const precName = precBytes === 2 ? "BF16" : precBytes === 1 ? "FP8" : "INT4";
+  breakdown.innerHTML = kv.lines.map(l => {
+    const c = l.chip ? chip(l.chip) : "";
+    const exp = l.steps ? expandIcon() : "";
+    const panel = l.steps ? `<div class="formula-panel" style="display:none;margin-top:4px">${buildPanel(l.steps, fmtBytes(l.v))}</div>` : "";
+    return `<div class="mem-line" style="${l.steps?'cursor:pointer':''}">
+      <span class="k">${l.k}${c}</span>
+      <span class="v">${fmtBytes(l.v)} ${exp}</span>
+    </div>${panel}`;
+  }).join("");
+  breakdown.querySelectorAll(".expand-toggle").forEach(t => {
+    t.addEventListener("click", function() {
+      const isOpen = this.classList.toggle("open");
+      const panel = this.closest(".mem-line").nextElementSibling;
+      if (panel && panel.classList.contains("formula-panel")) panel.style.display = isOpen ? "block" : "none";
+    });
+  });
+
+  const totalEl = document.getElementById("kv-total");
+  totalEl.textContent = fmtBytes(kv.total);
+  totalEl.classList.remove("flash"); void totalEl.offsetWidth; totalEl.classList.add("flash");
+  document.getElementById("kv-sub").textContent = `T=${fmtTShort(T)} · ${precName} (${precBytes}B/elem)`;
+  document.getElementById("kv-meta").textContent = `T=${fmtTShort(T)}`;
+}
+
+/* ============================================================
+   RENDER — MEMORY
+   ============================================================ */
+function renderMemory(m, T, batch, precBytes) {
+  const mem = calcMemory(m, T, batch, precBytes);
+  document.getElementById("mem-weights").textContent = fmtBytes(mem.weights);
+  document.getElementById("mem-kv").textContent = fmtBytes(mem.kv);
+  document.getElementById("mem-act").textContent = fmtBytes(mem.act);
+
+  const totalEl = document.getElementById("mem-total");
+  totalEl.textContent = fmtBytes(mem.total);
+  totalEl.classList.remove("flash"); void totalEl.offsetWidth; totalEl.classList.add("flash");
+
+  // Bars relative to total
+  const setBar = (id, v) => {
+    const pct = mem.total > 0 ? (v / mem.total * 100) : 0;
+    document.getElementById(id).style.width = pct + "%";
+  };
+  setBar("mem-bar-weights", mem.weights);
+  setBar("mem-bar-kv", mem.kv);
+  setBar("mem-bar-act", mem.act);
+
+  const cards = calcMinCards(mem.total);
+  document.getElementById("mem-cards").textContent = `${cards.count} × ${cards.type}`;
+}
+
+/* ============================================================
+   RENDER — COMPARE TABLE
+   ============================================================ */
+function renderCompare() {
+  const a = MODELS[state.modelA];
+  const b = MODELS[state.modelB];
+  const T = state.T;
+  const prec = state.precision;
+
+  document.getElementById("cmp-h-a").textContent = a.name;
+  document.getElementById("cmp-h-b").textContent = b.name;
+  document.getElementById("cmp-meta").textContent = `T=${fmtTShort(T)} · ${prec}B · ${state.phase}`;
+
+  const pa = calcParams(a);
+  const pb = calcParams(b);
+  const ka = calcKVCache(a, T, prec);
+  const kb = calcKVCache(b, T, prec);
+  const fa = calcFLOPs(a, T, state.phase);
+  const fb = calcFLOPs(b, T, state.phase);
+  const ma = calcMemory(a, T, state.batch, prec);
+  const mb = calcMemory(b, T, state.batch, prec);
+  const cardsA = calcMinCards(ma.total);
+  const cardsB = calcMinCards(mb.total);
+
+  const rows = [];
+
+  function row(label, va, vb, fmtFn, lowerBetter = true) {
+    const d = vb - va;
+    const aWins = lowerBetter ? va < vb : va > vb;
+    const winText = va === vb ? "—" : (aWins ? "← A" : "B →");
+    const aClass = aWins && va !== vb ? "win" : "";
+    const bClass = !aWins && va !== vb ? "win" : "";
+    rows.push(`<tr>
+      <td>${label}</td>
+      <td class="num ${aClass}">${fmtFn(va)}</td>
+      <td class="num ${bClass}">${fmtFn(vb)}</td>
+      <td class="diff">${va !== vb ? (d > 0 ? "+" : "") + fmtFn(Math.abs(d)).replace(/^[≈\s]/, "") : "—"}</td>
+      <td>${winText}</td>
+    </tr>`);
+  }
+
+  row("Total Params", pa.total, pb.total, (v) => fmt(v), false);
+  row("Active Params (declared)", a.active * 1e9, b.active * 1e9, (v) => fmt(v), false);
+  row("Context Window", a.ctx, b.ctx, (v) => fmtTShort(v), false);
+  row("Layers", a.L, b.L, (v) => v.toString(), false);
+  row("Hidden Dim (d)", a.d, b.d, (v) => v.toLocaleString(), false);
+  row("KV Heads", a.Hkv || 0, b.Hkv || 0, (v) => v.toString(), lowerBetter = true);
+  row("MoE Experts", a.E || 0, b.E || 0, (v) => v.toString(), false);
+  row(`FLOPs / token (${state.phase})`, fa.total, fb.total, (v) => fmtFLOPs(v) + "F", true);
+  row(`KV Cache @ T=${fmtTShort(T)}`, ka.total, kb.total, (v) => fmtBytes(v), true);
+  row(`Weight Memory (${prec}B)`, ma.weights, mb.weights, (v) => fmtBytes(v), true);
+  row(`Total Memory (×${state.batch})`, ma.total, mb.total, (v) => fmtBytes(v), true);
+  row("Min Cards (H200 141G)", cardsA.count, cardsB.count, (v) => v.toString(), true);
+
+  document.getElementById("cmp-tbody").innerHTML = rows.join("");
+}
+
+/* ============================================================
+   MAIN RENDER
+   ============================================================ */
+function renderAll() {
+  const m = MODELS[state.modelA];
+  renderModelInfo(m);
+  renderArchSVG(m);
+  renderParams(m);
+  renderFLOPs(m, state.T, state.phase);
+  renderKV(m, state.T, state.precision);
+  renderMemory(m, state.T, state.batch, state.precision);
+  renderTraining();
+
+  if (state.mode === "compare") renderCompare();
+}
+
+/* ============================================================
+   EVENT WIRING
+   ============================================================ */
+function populateSelectors() {
+  const selA = document.getElementById("modelA");
+  const selB = document.getElementById("modelB");
+  const keys = Object.keys(MODELS);
+  keys.forEach(k => {
+    const o1 = new Option(MODELS[k].name + " · " + MODELS[k].vendor, k);
+    const o2 = new Option(MODELS[k].name + " · " + MODELS[k].vendor, k);
+    if (k === state.modelA) { o1.defaultSelected = true; o1.selected = true; }
+    if (k === state.modelB) { o2.defaultSelected = true; o2.selected = true; }
+    selA.add(o1);
+    selB.add(o2);
+  });
+}
+
+function updateSliderFill(slider) {
+  const min = +slider.min, max = +slider.max, val = +slider.value;
+  const pct = ((val - min) / (max - min)) * 100;
+  slider.style.setProperty("--p", pct + "%");
+}
+
+function wireEvents() {
+  document.getElementById("modelA").addEventListener("change", e => {
+    state.modelA = e.target.value;
+    renderAll();
+  });
+  document.getElementById("modelB").addEventListener("change", e => {
+    state.modelB = e.target.value;
+    if (state.mode === "compare") renderCompare();
+  });
+
+  document.getElementById("mode-single").addEventListener("click", () => {
+    state.mode = "single";
+    document.getElementById("mode-single").classList.add("active");
+    document.getElementById("mode-compare").classList.remove("active");
+    document.getElementById("single-mode").style.display = "";
+    document.getElementById("compare-mode").style.display = "none";
+    document.getElementById("modelB-group").style.display = "none";
+  });
+  document.getElementById("mode-compare").addEventListener("click", () => {
+    state.mode = "compare";
+    document.getElementById("mode-compare").classList.add("active");
+    document.getElementById("mode-single").classList.remove("active");
+    document.getElementById("single-mode").style.display = "none";
+    document.getElementById("compare-mode").style.display = "";
+    document.getElementById("modelB-group").style.display = "flex";
+    renderCompare();
+  });
+
+  const tSlider = document.getElementById("t-slider");
+  tSlider.addEventListener("input", e => {
+    state.T = +e.target.value;
+    document.getElementById("t-val").textContent = fmtTShort(state.T);
+    updateSliderFill(tSlider);
+    // Update active preset
+    document.querySelectorAll("#t-presets button").forEach(b => {
+      b.classList.toggle("active", +b.dataset.t === state.T);
+    });
+    renderAll();
+  });
+  updateSliderFill(tSlider);
+
+  document.querySelectorAll("#t-presets button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      state.T = +btn.dataset.t;
+      tSlider.value = state.T;
+      document.getElementById("t-val").textContent = fmtTShort(state.T);
+      updateSliderFill(tSlider);
+      document.querySelectorAll("#t-presets button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderAll();
+    });
+  });
+
+  const batchSlider = document.getElementById("batch-slider");
+  batchSlider.addEventListener("input", e => {
+    state.batch = +e.target.value;
+    document.getElementById("batch-val").textContent = state.batch;
+    updateSliderFill(batchSlider);
+    renderAll();
+  });
+  updateSliderFill(batchSlider);
+
+  document.querySelectorAll('input[name="prec"]').forEach(r => {
+    r.addEventListener("change", e => {
+      state.precision = +e.target.value;
+      renderAll();
+    });
+  });
+
+  document.querySelectorAll('input[name="phase"]').forEach(r => {
+    r.addEventListener("change", e => {
+      state.phase = e.target.value;
+      renderAll();
+    });
+  });
+}
+
+/* ============================================================
+   TRAINING COST ESTIMATOR
+   ============================================================ */
+const GPU_SPECS = {
+  "ascend910c": { name: "昇腾 910C", peak: 376e12, note: "FP16, A3 节点" },
+  "ascend910b": { name: "昇腾 910B", peak: 320e12, note: "FP16" },
+  "h100":       { name: "H100 SXM",  peak: 989e12, note: "BF16" },
+  "h200":       { name: "H200",      peak: 989e12, note: "BF16" },
+  "h800":       { name: "H800",      peak: 989e12, note: "BF16" },
+  "a100-80":    { name: "A100 80G",  peak: 624e12, note: "BF16" },
+  "b200":       { name: "B200",      peak: 2250e12, note: "BF16" },
+};
+
+const TOKEN_PRESETS = {
+  conservative: { dense_small: 2e12, dense_large: 5e12, moe_small: 5e12, moe_large: 10e12, moe_xl: 15e12 },
+  standard:     { dense_small: 5e12, dense_large: 10e12, moe_small: 10e12, moe_large: 15e12, moe_xl: 20e12 },
+  aggressive:   { dense_small: 10e12, dense_large: 15e12, moe_small: 15e12, moe_large: 20e12, moe_xl: 30e12 },
+};
+
+function getModelClass(m) {
+  const isMoE = m.E && m.E > 1;
+  const total = m.total;
+  if (!isMoE) {
+    return total <= 10 ? "dense_small" : "dense_large";
+  }
+  if (total <= 50) return "moe_small";
+  if (total <= 300) return "moe_large";
+  return "moe_xl";
+}
+
+function getTrainingTokens(m, mode, tier, customVal) {
+  if (mode === "custom") return customVal * 1e12;
+  if (mode === "chinchilla") {
+    const N = m.active || m.total;
+    return 20 * N * 1e9;
+  }
+  const cls = getModelClass(m);
+  return TOKEN_PRESETS[tier][cls];
+}
+
+function calcTrainingFLOPs(m, tokens) {
+  const N = m.E ? m.active : m.total;
+  return 6 * N * 1e9 * tokens;
+}
+
+function computeTrainingFor(m) {
+  const mode = state.tokenMode || "industry";
+  const tier = state.tokenTier || "standard";
+  const customVal = +(document.getElementById("token-custom-input")?.value || 10);
+  const tokens = getTrainingTokens(m, mode, tier, customVal);
+  const gpuKey = document.getElementById("gpu-select")?.value || "ascend910c";
+  const gpu = GPU_SPECS[gpuKey];
+  const gpuCount = +(document.getElementById("gpu-count-input")?.value || 1024);
+  const mfu = +(document.getElementById("mfu-slider")?.value || 35) / 100;
+  const price = +(document.getElementById("gpu-price-input")?.value || 2.0);
+  const trainFLOPs = calcTrainingFLOPs(m, tokens);
+  const achieved = gpu.peak * mfu * gpuCount;
+  const seconds = trainFLOPs / achieved;
+  const hours = seconds / 3600;
+  const days = hours / 24;
+  const cost = hours * gpuCount * price;
+  const N = m.E ? m.active : m.total;
+  return { tokens, trainFLOPs, days, hours, cost, gpu, gpuCount, mfu, price, N, mode, tier };
+}
+
+function renderTraining() {
+  const isCompare = state.mode === "compare";
+  document.querySelector(".train-results").style.display = isCompare ? "none" : "";
+  document.getElementById("train-compare").style.display = isCompare ? "" : "none";
+  document.getElementById("train-note").style.display = isCompare ? "none" : "";
+
+  if (isCompare) {
+    renderTrainingCompare();
+    return;
+  }
+
+  const m = MODELS[state.modelA];
+  const r = computeTrainingFor(m);
+
+  document.getElementById("tr-tokens").textContent = fmtTokens(r.tokens);
+  document.getElementById("tr-tokens-detail").textContent =
+    r.mode === "chinchilla" ? `Chinchilla = 20 × ${fmt(r.N)}B`
+    : r.mode === "custom" ? `${+(document.getElementById("token-custom-input")?.value||10)}T (自定义)`
+    : `${r.tier === "conservative" ? "保守" : r.tier === "aggressive" ? "激进" : "标准"} · 同类典型值`;
+  document.getElementById("tr-flops").textContent = fmtFLOPs(r.trainFLOPs);
+  document.getElementById("tr-flops-detail").textContent = `6 × ${fmt(r.N)}B active × ${fmtTokens(r.tokens)}`;
+  document.getElementById("tr-duration").textContent = r.days >= 1 ? `${r.days.toFixed(1)} 天` : `${r.hours.toFixed(1)} 小时`;
+  document.getElementById("tr-duration-detail").textContent = `${r.gpu.name} × ${fmt(r.gpuCount)}张 · MFU ${(r.mfu*100).toFixed(0)}%`;
+  document.getElementById("tr-cost").textContent = fmtCost(r.cost);
+  document.getElementById("tr-cost-detail").textContent = `$${r.price.toFixed(1)}/h × ${fmt(r.gpuCount)} GPU`;
+
+  ["tr-tokens","tr-flops","tr-duration","tr-cost"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 300); }
+  });
+
+  const noteEl = document.getElementById("train-note");
+  const noteParts = buildTrainingNotes(r, m);
+  noteEl.innerHTML = noteParts.length ? noteParts.join("<br>") : "";
+  noteEl.style.display = noteParts.length ? "block" : "none";
+  updateTokenHint(m);
+}
+
+function renderTrainingCompare() {
+  const mA = MODELS[state.modelA];
+  const mB = MODELS[state.modelB];
+  const rA = computeTrainingFor(mA);
+  const rB = computeTrainingFor(mB);
+
+  document.getElementById("tc-name-a").textContent = mA.name;
+  document.getElementById("tc-name-b").textContent = mB.name;
+
+  const rows = [
+    { label: "训练 Tokens", a: fmtTokens(rA.tokens), b: fmtTokens(rB.tokens), lower: true,
+      tipA: `6×${fmt(rA.N)}B×${fmtTokens(rA.tokens)}`, tipB: `6×${fmt(rB.N)}B×${fmtTokens(rB.tokens)}` },
+    { label: "总训练 FLOPs", a: fmtFLOPs(rA.trainFLOPs), b: fmtFLOPs(rB.trainFLOPs), lower: true },
+    { label: "预估时长", a: rA.days >= 1 ? `${rA.days.toFixed(1)} 天` : `${rA.hours.toFixed(0)}h`,
+                       b: rB.days >= 1 ? `${rB.days.toFixed(1)} 天` : `${rB.hours.toFixed(0)}h`, lower: true },
+    { label: "预估成本", a: fmtCost(rA.cost), b: fmtCost(rB.cost), lower: true },
+  ];
+
+  const tbody = document.getElementById("tc-body");
+  tbody.innerHTML = rows.map(row => {
+    const va = parseFloat(row.a.replace(/[^0-9.\-]/g,""));
+    const vb = parseFloat(row.b.replace(/[^0-9.\-]/g,""));
+    const diffPct = va > 0 ? ((vb - va) / va * 100) : 0;
+    const isWin = row.lower ? (vb < va) : (vb > va);
+    const diffStr = (diffPct >= 0 ? "+" : "") + diffPct.toFixed(0) + "%";
+    return `<tr>
+      <td>${row.label}</td>
+      <td class="num" style="color:var(--primary)">${row.a}</td>
+      <td class="num" style="color:var(--purple)">${row.b}</td>
+      <td class="num ${isWin ? "win" : ""}" style="${!isWin ? "color:var(--red)" : ""}">${diffStr}</td>
+    </tr>`;
+  }).join("");
+
+  const notesA = buildTrainingNotes(rA, mA);
+  const notesB = buildTrainingNotes(rB, mB);
+  const allNotes = [...new Set([...notesA, ...notesB])];
+  const noteEl = document.getElementById("train-note-cmp");
+  noteEl.innerHTML = allNotes.length ? allNotes.join("<br>") : "";
+  noteEl.style.display = allNotes.length ? "block" : "none";
+}
+
+function buildTrainingNotes(r, m) {
+  const gpuKey = document.getElementById("gpu-select")?.value || "ascend910c";
+  const NVIDIA_GPUS = new Set(["h100","h200","h800","a100-80","b200"]);
+  const parts = [];
+  if (r.mode === "chinchilla") {
+    parts.push("⚠️ Chinchilla 最优是理论下限，现代主流模型普遍超出 5-25×");
+  }
+  if (gpuKey.startsWith("ascend") && r.mfu > 0.4) {
+    parts.push(`⚠️ 昇腾 MFU ${Math.round(r.mfu*100)}% 偏乐观，典型值 25-35%`);
+  }
+  if (NVIDIA_GPUS.has(gpuKey) && r.mfu < 0.25 && r.gpuCount > 512) {
+    parts.push(`💡 NVIDIA 大规模集群通常 35-50% MFU`);
+  }
+  if (m.E && m.E > 1) {
+    parts.push(`💡 MoE all-to-all 通信开销使实际效率低 10-20%`);
+  }
+  if (r.days > 90) {
+    parts.push(`⚠️ ${Math.round(r.days)} 天训练周期长，需考虑故障和续训`);
+  }
+  return parts;
+}
+
+function updateTokenHint(m) {
+  const hintEl = document.getElementById("token-hint");
+  if (!hintEl) return;
+  const mode = state.tokenMode || "industry";
+  if (mode !== "industry") { hintEl.textContent = ""; return; }
+  const clsLabels = {
+    dense_small: "≤10B Dense", dense_large: "10-70B Dense",
+    moe_small: "≤50B MoE", moe_large: "50-300B MoE", moe_xl: "300B+ MoE",
+  };
+  hintEl.textContent = `(${clsLabels[getModelClass(m)] || ""})`;
+}
+
+function fmtTokens(t) {
+  if (t >= 1e12) return (t/1e12).toFixed(1) + "T";
+  if (t >= 1e9) return (t/1e9).toFixed(1) + "B";
+  return fmt(t);
+}
+
+function fmtCost(c) {
+  if (c >= 1e6) return "$" + (c/1e6).toFixed(2) + "M";
+  if (c >= 1e3) return "$" + (c/1e3).toFixed(1) + "K";
+  return "$" + c.toFixed(0);
+}
+
+function wireTrainingEvents() {
+  document.querySelectorAll("#token-mode-group .pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#token-mode-group .pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.tokenMode = btn.dataset.tokenMode;
+      document.getElementById("token-tier-group-wrap").style.display = state.tokenMode === "industry" ? "" : "none";
+      document.getElementById("token-custom-wrap").style.display = state.tokenMode === "custom" ? "" : "none";
+      renderTraining();
+    });
+  });
+  document.querySelectorAll("#token-tier-group .pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#token-tier-group .pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.tokenTier = btn.dataset.tokenTier;
+      renderTraining();
+    });
+  });
+  ["gpu-select","gpu-count-input","gpu-price-input","token-custom-input"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("input", renderTraining);
+  });
+  const mfuSlider = document.getElementById("mfu-slider");
+  if (mfuSlider) {
+    mfuSlider.addEventListener("input", () => {
+      document.getElementById("mfu-val").textContent = mfuSlider.value + "%";
+      renderTraining();
+    });
+    updateSliderFill(mfuSlider);
+  }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+populateSelectors();
+wireEvents();
+wireTrainingEvents();
+renderAll();
+</script>
+</body>
+</html>

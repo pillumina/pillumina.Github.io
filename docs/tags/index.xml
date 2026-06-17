@@ -21,10 +21,45 @@
       <description></description>
     </item>
     <item>
+      <title>Computation</title>
+      <link>https://pillumina.github.io/tags/computation/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/computation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Flops</title>
+      <link>https://pillumina.github.io/tags/flops/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/flops/</guid>
+      <description></description>
+    </item>
+    <item>
       <title>Gqa</title>
       <link>https://pillumina.github.io/tags/gqa/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/tags/gqa/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Inference</title>
+      <link>https://pillumina.github.io/tags/inference/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/inference/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kv-Cache</title>
+      <link>https://pillumina.github.io/tags/kv-cache/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/kv-cache/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Methodology</title>
+      <link>https://pillumina.github.io/tags/methodology/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/methodology/</guid>
       <description></description>
     </item>
     <item>
@@ -67,6 +102,13 @@
       <link>https://pillumina.github.io/tags/multimodal/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/tags/multimodal/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Parameters</title>
+      <link>https://pillumina.github.io/tags/parameters/</link>
+      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/tags/parameters/</guid>
       <description></description>
     </item>
     <item>
@@ -459,13 +501,6 @@
       <link>https://pillumina.github.io/tags/framework/</link>
       <pubDate>Mon, 25 Aug 2025 11:30:12 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/framework/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Inference</title>
-      <link>https://pillumina.github.io/tags/inference/</link>
-      <pubDate>Wed, 13 Aug 2025 10:30:12 +0800</pubDate>
-      <guid>https://pillumina.github.io/tags/inference/</guid>
       <description></description>
     </item>
     <item>

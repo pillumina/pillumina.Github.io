@@ -5,6 +5,12 @@
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/aiinfra/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/categories/architecture/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
@@ -23,7 +29,25 @@
     <loc>https://pillumina.github.io/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/computation/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/flops/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/tags/gqa/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/inference/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/kv-cache/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/methodology/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/minimax/</loc>
@@ -48,6 +72,9 @@
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/multimodal/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/parameters/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/</loc>
@@ -189,9 +216,6 @@
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiagent/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/animation/</loc>
@@ -342,9 +366,6 @@
     <lastmod>2025-08-14T10:20:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/06-sglang-backend/</loc>
-    <lastmod>2025-08-13T10:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/inference/</loc>
     <lastmod>2025-08-13T10:30:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/series/sglang/</loc>
@@ -542,6 +563,8 @@
     <loc>https://pillumina.github.io/social/</loc>
   </url><url>
     <loc>https://pillumina.github.io/categories/study/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/tools/</loc>
   </url><url>
     <loc>https://pillumina.github.io/tags/workflows/</loc>
   </url>

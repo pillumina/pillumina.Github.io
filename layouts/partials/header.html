@@ -88,8 +88,6 @@
                 </button>
                 {{- end }}
 
-                {{- $lang := .Lang}}
-                {{- $separator := or $label_text (not site.Params.disableThemeToggle)}}
                 {{- /* i18n toggle 移至菜单右侧 (header.html 末尾) */}}
             </div>
         </div>
@@ -106,7 +104,6 @@
                             </svg>
                         </button>
                         <ul class="menu-dropdown-menu">
-                            {{- /* 按 group 分组 */}}
                             {{- $groups := slice }}
                             {{- range $child := $item.Children }}
                                 {{- $grp := "" }}
@@ -115,8 +112,21 @@
                                     {{- $groups = $groups | append $grp }}
                                 {{- end }}
                             {{- end }}
-                            {{- $colCount := len $groups }}
                             {{- range $grpName := $groups }}
+                                {{- if eq $grpName "" }}
+                                    {{- range $child := $item.Children }}
+                                        {{- $childGrp := "" }}
+                                        {{- with $child.Params.group }}{{ $childGrp = . }}{{ end }}
+                                        {{- if eq $childGrp "" }}
+                                        <li>
+                                            <a href="{{ $child.URL | relLangURL }}" title="{{ $child.Title | default $child.Name }}">
+                                                {{- with $child.Params.icon }}<span class="menu-item-icon">{{ . }}</span>{{- end }}
+                                                <span>{{- $child.Name -}}</span>
+                                            </a>
+                                        </li>
+                                        {{- end }}
+                                    {{- end }}
+                                {{- else }}
                                 <li class="menu-group">
                                     <span class="menu-group-title">{{ $grpName }}</span>
                                     <ul>
@@ -124,16 +134,31 @@
                                             {{- $childGrp := "" }}
                                             {{- with $child.Params.group }}{{ $childGrp = . }}{{ end }}
                                             {{- if eq $childGrp $grpName }}
-                                            <li>
+                                            <li{{ if eq $child.Identifier "architecture" }} class="menu-submenu-item"{{ end }}>
                                                 <a href="{{ $child.URL | relLangURL }}" title="{{ $child.Title | default $child.Name }}">
                                                     {{- with $child.Params.icon }}<span class="menu-item-icon">{{ . }}</span>{{- end }}
                                                     <span>{{- $child.Name -}}</span>
+                                                    {{- if eq $child.Identifier "architecture" }}
+                                                    <svg class="submenu-arrow" width="8" height="8" viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 1 5 5 9 1"></polyline></svg>
+                                                    {{- end }}
                                                 </a>
+                                                {{- if eq $child.Identifier "architecture" }}
+                                                <ul class="menu-submenu">
+                                                    {{- $archSection := site.GetPage "/posts/architecture" }}
+                                                    {{- with $archSection }}
+                                                    {{- range first 15 .Pages }}
+                                                    {{- $shortTitle := replaceRE " 架构深度拆解$" "" .Title }}
+                                                    <li><a href="{{ .Permalink }}" title="{{ .Title }}">{{ $shortTitle }}</a></li>
+                                                    {{- end }}
+                                                    {{- end }}
+                                                </ul>
+                                                {{- end }}
                                             </li>
                                             {{- end }}
                                         {{- end }}
                                     </ul>
                                 </li>
+                                {{- end }}
                             {{- end }}
                         </ul>
                     </li>
@@ -159,7 +184,6 @@
                     </li>
                 {{- end }}
             {{- end }}
-            {{- /* i18n 切换点 - 滑动 segmented control - 在菜单末尾 */}}
             <li class="menu-separator" aria-hidden="true"></li>
             <li class="menu-i18n">
                 <button id="lang-toggle" class="lang-toggle"
