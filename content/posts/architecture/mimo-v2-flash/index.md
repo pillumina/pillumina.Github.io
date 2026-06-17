@@ -3,6 +3,7 @@ date = '2026-06-11'
 draft = false
 title = 'Mimo-V2-Flash 架构深度拆解'
 categories = ['architecture']
+vendor = 'Xiaomi'
 tags = ['moe', 'attention', 'model-architecture', 'mimo', 'mtp', 'hybrid-dispatch']
 series = ['architecture']
 summary = 'Mimo-V2-Flash 是小米 Mimo 团队的开源 MoE 模型。核心创新为 Hybrid Dispatch（Sink+Bias 双机制）MoE 路由、MTP×2 投机解码、SwiGLU FFN 等。本期拆解整体架构、混合路由机制、MTP 设计及与同期模型的对比。'

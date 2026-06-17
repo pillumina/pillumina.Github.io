@@ -3,6 +3,7 @@ date = '2026-06-10'
 draft = false
 title = 'DeepSeek-V4-Flash 架构深度拆解'
 categories = ['architecture']
+vendor = 'DeepSeek'
 tags = ['moe', 'attention', 'model-architecture', 'mla', 'csa', 'hca', 'deepseek', 'training', 'muon']
 series = ['architecture']
 summary = 'V4-Flash（284B 总参 / 13B 激活）是 DeepSeek 2026-04-24 发布的旗舰 MoE 模型。核心创新为 CSA+HCA 混合稀疏注意力（长上下文 1M 支持）、62 层 384 专家 MoE、mHC 多通道残差替代 Pre-Norm、Muon 正交化优化器。本期完整拆解 V3.2→V4 演进、稀疏注意力双引擎、8 类 gating 负载均衡对比、FP4+FP8 混合量化，以及 13 类架构组合的 4D Parallelism 部署策略。'

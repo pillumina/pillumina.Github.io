@@ -3,6 +3,7 @@ date = '2026-06-15'
 draft = false
 title = 'MiniMax-M3 架构深度拆解'
 categories = ['architecture']
+vendor = 'MiniMax'
 tags = ['moe', 'attention', 'model-architecture', 'minimax', 'msa', 'gqa', 'mtp', 'multimodal']
 series = ['architecture']
 summary = 'MiniMax-M3 是 MiniMax 的旗舰多模态 MoE 模型。核心创新为 MSA（Multi-stage Sparse Attention）索引机制实现长上下文稀疏注意力、GQA（64Q/8KV）、256E MoE（k=8, sigmoid+bias）、视觉编码器（ViT+MLP投影）、MTP×1 投机解码。本期完整拆解 MSA 三阶段索引、MoE 路由数据流、视觉编码架构及训练体系。'

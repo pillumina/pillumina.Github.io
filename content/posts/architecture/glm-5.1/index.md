@@ -3,6 +3,7 @@ date = '2026-06-10'
 draft = false
 title = 'GLM-5.1 架构深度拆解'
 categories = ['architecture']
+vendor = 'Zhipu'
 tags = ['moe', 'attention', 'model-architecture', 'mla', 'dsa', 'glm', 'training', 'mqa']
 series = ['architecture']
 summary = 'GLM-5.1（744B 总参 / 40B 激活）是智谱 AI 与清华联合发布的旗舰 Agent 大模型。核心创新为 DSA 动态稀疏注意力（top-2048, 节省 72.5% 注意力计算）+ MLA 潜 KV 压缩（理论 ~19 GB）+ 256+1 MoE（routed_scaling_factor=2.5）。本期完整拆解 78 层架构、DSA Indexer 7 步算子、MLA Muon Split、异步 Agent RL 训练体系，并与 M2.7 做全维度对比。'

@@ -3,6 +3,7 @@ date = '2026-06-12'
 draft = false
 title = 'Nemotron-3-Ultra 架构深度拆解'
 categories = ['architecture']
+vendor = 'NVIDIA'
 tags = ['moe', 'attention', 'model-architecture', 'nemotron', 'mamba', 'ssd', 'latent-moe']
 series = ['architecture']
 summary = 'Nemotron-3-Ultra 是 NVIDIA 的旗舰开源模型。核心创新为 Mamba-2 SSD（状态空间对偶）混合架构替代传统 Attention、LatentMoE 潜空间路由（256E, k=8）、MTP×1 投机解码。本期拆解 94 层 Hybrid SSM-Attention 架构、SSD 结构化状态空间对偶机制、LatentMoE 路由及完整训练体系。'

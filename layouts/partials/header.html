@@ -146,9 +146,23 @@
                                                 <ul class="menu-submenu">
                                                     {{- $archSection := site.GetPage "/posts/architecture" }}
                                                     {{- with $archSection }}
-                                                    {{- range first 15 .Pages }}
-                                                    {{- $shortTitle := replaceRE " 架构深度拆解$" "" .Title }}
-                                                    <li><a href="{{ .Permalink }}" title="{{ .Title }}">{{ $shortTitle }}</a></li>
+                                                    {{- $vendors := slice }}
+                                                    {{- range $archSection.Pages }}
+                                                        {{- $v := .Params.vendor | default "Other" }}
+                                                        {{- if not (in $vendors $v) }}
+                                                            {{- $vendors = $vendors | append $v }}
+                                                        {{- end }}
+                                                    {{- end }}
+                                                    {{- range $vendorName := $vendors }}
+                                                    <li class="submenu-vendor-group">
+                                                        <span class="submenu-vendor-name">{{ $vendorName }}</span>
+                                                        <ul>
+                                                            {{- range where $archSection.Pages ".Params.vendor" $vendorName }}
+                                                            {{- $shortTitle := replaceRE " 架构深度拆解$" "" .Title }}
+                                                            <li><a href="{{ .Permalink }}" title="{{ .Title }}">{{ $shortTitle }}</a></li>
+                                                            {{- end }}
+                                                        </ul>
+                                                    </li>
                                                     {{- end }}
                                                     {{- end }}
                                                 </ul>

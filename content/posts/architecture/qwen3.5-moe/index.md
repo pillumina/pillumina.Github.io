@@ -3,6 +3,7 @@ date = '2026-06-10'
 draft = false
 title = 'Qwen3.5-MoE 架构深度拆解'
 categories = ['architecture']
+vendor = 'Alibaba'
 tags = ['moe', 'attention', 'model-architecture', 'gdn', 'qwen', 'hybrid-attention', 'linear-attention']
 series = ['architecture']
 summary = 'Qwen3.5-MoE（255B 总参 / 30B 激活）是阿里 Qwen 团队的 MoE 旗舰模型。核心创新为 Gated DeltaNet（GDN）线性注意力与传统 Full Attention 的混合架构（Hybrid-Attn）、2048 专家细粒度 MoE（k=8 激活 + 1 共享）、FW4a 量化部署。本期拆解 GDN chunkwise-parallel 递归机制、混合注意力层分布策略、MoE 拓扑及与 M2.7/GLM-5.1/V4-Flash 的对比。'

@@ -3,6 +3,7 @@ date = '2026-06-10'
 draft = false
 title = 'MiniMax-M2.7 架构深度拆解'
 categories = ['architecture']
+vendor = 'MiniMax'
 tags = ['moe', 'attention', 'model-architecture', 'gqa', 'mtp', 'minimax', 'training']
 series = ['architecture']
 summary = 'M2.7（229.9B/9.8B 激活）的核心不在规模而在自我进化与训练体系。本期拆解五代演进、62层 Full Attention + 256 MoE 设计空间、单 token 6.1 TFLOPs / 48.8GB KV Cache / ~510GB 推理显存的计算分析，以及 attention + MoE gate 的算子级拆解，另附完整训练体系（29.2T tokens / FP8 / 自进化）。'

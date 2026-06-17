@@ -1471,3 +1471,52 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 {{- partial "seo_meta.html" . }}
+
+<!-- 二级/三级菜单 hover 管理：JS 精确控制，避免重叠和中断 -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdowns = document.querySelectorAll('.menu-dropdown');
+    let closeTimer = null;
+    let currentDropdown = null;
+
+    function closeAll(except) {
+        dropdowns.forEach(function(d) {
+            if (d !== except) {
+                d.classList.remove('is-hovered');
+                d.querySelectorAll('.menu-submenu-item').forEach(function(s) {
+                    s.classList.remove('is-hovered');
+                });
+            }
+        });
+    }
+
+    dropdowns.forEach(function(dropdown) {
+        const submenuItems = dropdown.querySelectorAll('.menu-submenu-item');
+
+        dropdown.addEventListener('mouseenter', function() {
+            clearTimeout(closeTimer);
+            closeAll(dropdown);
+            currentDropdown = dropdown;
+            dropdown.classList.add('is-hovered');
+        });
+
+        dropdown.addEventListener('mouseleave', function() {
+            clearTimeout(closeTimer);
+            closeTimer = setTimeout(function() {
+                dropdown.classList.remove('is-hovered');
+                submenuItems.forEach(function(s) { s.classList.remove('is-hovered'); });
+                currentDropdown = null;
+            }, 100);
+        });
+
+        submenuItems.forEach(function(item) {
+            item.addEventListener('mouseenter', function() {
+                clearTimeout(closeTimer);
+                dropdown.classList.add('is-hovered');
+                submenuItems.forEach(function(s) { s.classList.remove('is-hovered'); });
+                item.classList.add('is-hovered');
+            });
+        });
+    });
+});
+</script>

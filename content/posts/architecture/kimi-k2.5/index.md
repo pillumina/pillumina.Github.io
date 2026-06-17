@@ -3,6 +3,7 @@ date = '2026-06-12'
 draft = false
 title = 'Kimi-K2.5 架构深度拆解'
 categories = ['architecture']
+vendor = 'Moonshot'
 tags = ['moe', 'attention', 'model-architecture', 'kimi', 'mla', 'muon']
 series = ['architecture']
 summary = 'Kimi-K2.5 是 Moonshot AI 的旗舰 MoE 模型。核心创新为 MLA 潜注意力压缩、MuonClip 优化器（Muon + 梯度裁剪）、大规模 MoE 路由等。本期完整拆解整体架构、MLA 机制、MuonClip 设计及与同期模型的对比。'
