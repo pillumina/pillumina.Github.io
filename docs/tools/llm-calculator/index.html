@@ -742,9 +742,10 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 .train-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
   margin-bottom: 4px;
+  flex-wrap: wrap;
 }
 .train-header h2 {
   font-size: 17px;
@@ -752,10 +753,12 @@ input[type="number"]::-webkit-inner-spin-button {
   margin: 0;
   color: var(--text);
 }
-.train-subtitle {
+.train-header .train-subtitle {
   color: var(--text-dim);
   font-size: 13px;
+  align-self: center;
 }
+.train-header .mode-toggle { margin-left: auto; flex: 0 0 auto; }
 .train-header::after {
   content: "";
   flex: 1;
@@ -924,6 +927,48 @@ input[type="number"]::-webkit-inner-spin-button {
   .train-control-group { flex: 1 1 100% !important; }
   .train-results { grid-template-columns: 1fr 1fr; }
 }
+
+.flops-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-top: 6px;
+  font-size: 11px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
+.flops-breakdown .fb-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+.flops-breakdown .fb-label { color: var(--text-dim); }
+.flops-breakdown .fb-val { color: var(--text); }
+.flops-breakdown .fb-row.total {
+  border-top: 1px solid var(--border-light);
+  margin-top: 3px;
+  padding-top: 4px;
+}
+.flops-breakdown .fb-row.total .fb-label,
+.flops-breakdown .fb-row.total .fb-val {
+  color: var(--primary);
+  font-weight: 600;
+}
+.mfu-tag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-top: 4px;
+}
+.mfu-tag.good { background: rgba(40, 167, 69, 0.15); color: var(--green); border: 1px solid rgba(40, 167, 69, 0.3); }
+.mfu-tag.fair { background: rgba(255, 193, 7, 0.12); color: var(--orange); border: 1px solid rgba(255, 193, 7, 0.3); }
+.mfu-tag.poor { background: rgba(220, 53, 69, 0.12); color: var(--red); border: 1px solid rgba(220, 53, 69, 0.3); }
 </style>
 </head>
 <body>
@@ -1119,12 +1164,17 @@ input[type="number"]::-webkit-inner-spin-button {
 <div class="train-section" id="train-section">
   <div class="train-header">
     <h2>训练成本估算</h2>
-    <span class="train-subtitle">选择模型规模和硬件配置，预估训练时长与成本</span>
+    <span class="train-subtitle" id="train-subtitle-plan">选择模型规模和硬件配置，预估训练时长与成本</span>
+    <span class="train-subtitle" id="train-subtitle-measure" style="display:none;">输入实测 step time，反推真实 MFU 与吞吐</span>
+    <div class="mode-toggle" id="train-mode-toggle">
+      <button class="active" id="train-plan-mode">规划模式</button>
+      <button id="train-measure-mode">实测模式</button>
+    </div>
   </div>
 
   <div class="train-controls">
-    <!-- Row 1: Training tokens -->
-    <div class="train-row">
+    <!-- Row 1: Training tokens (plan mode only) -->
+    <div class="train-row" id="train-row-tokens">
       <div class="train-control-group" style="flex: 0 0 auto;">
         <label>Tokens 策略</label>
         <div class="pill-group" id="token-mode-group">
@@ -1152,7 +1202,40 @@ input[type="number"]::-webkit-inner-spin-button {
       </div>
     </div>
 
-    <!-- Row 2: Hardware config -->
+    <!-- Row 1 (measure mode): Measured inputs -->
+    <div class="train-row" id="train-row-measure" style="display:none;">
+      <div class="train-control-group" style="flex: 0 0 150px;">
+        <label>实测 step time</label>
+        <div class="input-with-unit">
+          <input type="number" id="step-time-input" value="34.34" min="0.001" step="0.01">
+          <span class="unit">s/step</span>
+        </div>
+      </div>
+      <div class="train-control-group" style="flex: 0 0 120px;">
+        <label>Batch Size</label>
+        <div class="input-with-unit">
+          <input type="number" id="batch-size-input" value="512" min="1" step="1">
+          <span class="unit">×gbs</span>
+        </div>
+      </div>
+      <div class="train-control-group" style="flex: 0 0 130px;">
+        <label>序列长度 S</label>
+        <div class="input-with-unit">
+          <input type="number" id="train-seqlen-input" value="8192" min="64" step="64">
+          <span class="unit">tok</span>
+        </div>
+      </div>
+      <div class="train-control-group" style="flex: 0 0 160px;">
+        <label>tokens / step <span style="color:var(--text-mute);font-size:0.6rem">(推导)</span></label>
+        <div class="input-with-unit" style="opacity:0.7;">
+          <input type="text" id="tokens-per-step-display" value="4,194,304" readonly
+            style="color:var(--text-dim);cursor:default;">
+          <span class="unit">tok</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Hardware config (shared between modes) -->
     <div class="train-row">
       <div class="train-control-group" style="flex: 1 1 180px;">
         <label>GPU 型号</label>
@@ -1175,7 +1258,21 @@ input[type="number"]::-webkit-inner-spin-button {
         </div>
       </div>
 
-      <div class="train-control-group" style="flex: 2 1 200px;">
+      <div class="train-control-group" style="flex: 0 0 100px;">
+        <label>Batch Size</label>
+        <div class="input-with-unit">
+          <input type="number" id="plan-batch-input" value="512" min="1" step="1">
+        </div>
+      </div>
+
+      <div class="train-control-group" style="flex: 0 0 120px;">
+        <label>Seq Len</label>
+        <div class="input-with-unit">
+          <input type="number" id="plan-seqlen-input" value="8192" min="64" step="64">
+        </div>
+      </div>
+
+      <div class="train-control-group" id="mfu-slider-wrap" style="flex: 2 1 200px;">
         <label>期望 MFU <span class="mfu-val" id="mfu-val">35%</span></label>
         <input type="range" id="mfu-slider" min="15" max="60" value="35" step="5">
         <div class="mfu-marks">
@@ -1183,16 +1280,25 @@ input[type="number"]::-webkit-inner-spin-button {
         </div>
       </div>
 
-      <div class="train-control-group" style="flex: 0 0 110px;">
+      <div class="train-control-group" id="gpu-price-wrap" style="flex: 0 0 110px;">
         <label>单价 $/h</label>
         <div class="input-with-unit">
           <input type="number" id="gpu-price-input" value="2.0" min="0" step="0.1">
         </div>
       </div>
+
+      <div class="train-control-group" style="flex: 0 0 auto;">
+        <label>Gradient Checkpointing</label>
+        <div class="pill-group" id="ckpt-group">
+          <button class="pill active" data-ckpt="on">开启</button>
+          <button class="pill" data-ckpt="off">关闭</button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="train-results">
+  <!-- Plan mode result cards -->
+  <div class="train-results" id="train-results-plan">
     <div class="train-result-card">
       <div class="trc-label">训练 Tokens</div>
       <div class="trc-value" id="tr-tokens">—</div>
@@ -1212,6 +1318,30 @@ input[type="number"]::-webkit-inner-spin-button {
       <div class="trc-label">预估成本</div>
       <div class="trc-value" id="tr-cost">—</div>
       <div class="trc-detail" id="tr-cost-detail"></div>
+    </div>
+  </div>
+
+  <!-- Measure mode result cards -->
+  <div class="train-results" id="train-results-measure" style="display:none;">
+    <div class="train-result-card">
+      <div class="trc-label">理论 FLOPs / step</div>
+      <div class="trc-value" id="mr-flops">—</div>
+      <div class="trc-detail" id="mr-flops-detail"></div>
+    </div>
+    <div class="train-result-card">
+      <div class="trc-label">实测吞吐</div>
+      <div class="trc-value" id="mr-throughput">—</div>
+      <div class="trc-detail" id="mr-throughput-detail"></div>
+    </div>
+    <div class="train-result-card highlight">
+      <div class="trc-label">实测 MFU</div>
+      <div class="trc-value" id="mr-mfu">—</div>
+      <div class="trc-detail" id="mr-mfu-detail"></div>
+    </div>
+    <div class="train-result-card">
+      <div class="trc-label">行业对比</div>
+      <div class="trc-value" id="mr-bench" style="font-size:14px;">—</div>
+      <div class="trc-detail" id="mr-bench-detail"></div>
     </div>
   </div>
 
@@ -1379,6 +1509,8 @@ const state = {
   phase: "decode",
   tokenMode: "industry",
   tokenTier: "standard",
+  trainMode: "plan",  // "plan" or "measure"
+  ckpt: "on",          // "on" or "off"
 };
 
 /* ============================================================
@@ -2239,9 +2371,67 @@ function getTrainingTokens(m, mode, tier, customVal) {
   return TOKEN_PRESETS[tier][cls];
 }
 
-function calcTrainingFLOPs(m, tokens) {
+function calcTrainingFLOPs(m, tokens, seqlen, ckptOn) {
   const N = m.E ? m.active : m.total;
-  return 6 * N * 1e9 * tokens;
+  // QK and AV separated: coef_qk=4 (fwd+bwd+recompute), coef_av=3 (fwd+bwd), causal halved
+  // For D_qk=D_v: (4+3)*D = 7*D ✓
+  const coef_qk = ckptOn ? 4 : 3;
+  const coef_av = 3;
+  const stdAttnCoef = coef_qk + coef_av; // for standard attn where D_qk=D_v=Dh
+
+  // Linear projections (coefficient 6, always)
+  const linear = 6 * N * 1e9 * tokens;
+
+  // Attention FLOPs — QK and AV separated for MLA correctness
+  const S = seqlen || 8192;
+  const batch = tokens / S;
+  let attnFlops = 0;
+  const H = m.Hq || 64;
+  const Dh = m.Dh || 128;
+  const L = m.type === "mamba_hybrid" ? m.L_attn : m.L;
+
+  if (m.type === "mla") {
+    const Dqk = (m.D_nope || 128) + (m.D_rope || 64);
+    const Dv = m.D_v || 128;
+    attnFlops = (coef_qk * Dqk + coef_av * Dv) * batch * S * S * H * L;
+  } else if (m.type === "msa") {
+    // 3 Full attn layers: O(S²)
+    const L_full = m.L_full || 3;
+    attnFlops = (coef_qk * Dh + coef_av * Dh) * batch * S * S * H * L_full;
+    // 57 MSA layers: O(S × K_eff) where K_eff = topk_blocks × block_size
+    const L_msa = m.L_msa || 57;
+    const K_eff = (m.msa_K || 16) * (m.msa_B || 128);
+    attnFlops += (coef_qk * Dh + coef_av * Dh) * batch * S * K_eff * H * L_msa;
+    // Indexer FLOPs (coefficient 1, no_grad)
+    const Hidx = m.msa_Hidx || 4;
+    const Didx = 128; // index_head_dim
+    attnFlops += 1 * batch * S * S * Didx * Hidx * L_msa;
+  } else if (m.type === "mamba_hybrid") {
+    // 12 Attention layers: standard
+    attnFlops = stdAttnCoef * batch * S * S * Dh * H * L;
+    // 48 Mamba layers: O(T) - included in linear FLOPs via in_proj
+  } else if (m.type === "deltanet") {
+    // GDN recurrence: O(T) per layer
+    const Dk = m.Dh || 128;
+    const Dv = m.Dh || 128;
+    const numGdn = m.L * 3 / 4; // 3:1 ratio
+    attnFlops = 15 * Dk * Dv * H * tokens * numGdn; // 15 = fwd+bwd coefficient
+    // Full attn layers (1/4): O(S²)
+    const numFull = m.L / 4;
+    attnFlops += stdAttnCoef * batch * S * S * Dh * H * numFull;
+  } else {
+    // Standard GQA/SWA/MHA
+    const Teff = m.type === "swa" ? Math.min(S, m.swa_window || S) : S;
+    attnFlops = stdAttnCoef * batch * Teff * Teff * Dh * H * m.L;
+  }
+
+  // MoE router: d × E × tokens × 1 (no_grad)
+  let indexerFlops = 0;
+  if (m.E) {
+    indexerFlops += 1 * m.d * m.E * tokens;
+  }
+
+  return { linear, attention: attnFlops, indexer: indexerFlops, total: linear + attnFlops + indexerFlops, N };
 }
 
 function computeTrainingFor(m) {
@@ -2254,19 +2444,58 @@ function computeTrainingFor(m) {
   const gpuCount = +(document.getElementById("gpu-count-input")?.value || 1024);
   const mfu = +(document.getElementById("mfu-slider")?.value || 35) / 100;
   const price = +(document.getElementById("gpu-price-input")?.value || 2.0);
-  const trainFLOPs = calcTrainingFLOPs(m, tokens);
+  const planBatch = +(document.getElementById("plan-batch-input")?.value || 512);
+  const planSeqlen = +(document.getElementById("plan-seqlen-input")?.value || 8192);
+  const seqlen = planSeqlen;
+  const ckptOn = (state.ckpt || "on") === "on";
+  const flopsObj = calcTrainingFLOPs(m, tokens, seqlen, ckptOn);
+  const trainFLOPs = flopsObj.total;
   const achieved = gpu.peak * mfu * gpuCount;
   const seconds = trainFLOPs / achieved;
   const hours = seconds / 3600;
   const days = hours / 24;
   const cost = hours * gpuCount * price;
-  const N = m.E ? m.active : m.total;
-  return { tokens, trainFLOPs, days, hours, cost, gpu, gpuCount, mfu, price, N, mode, tier };
+  const N = flopsObj.N;
+  return { tokens, trainFLOPs, flopsBreakdown: flopsObj, days, hours, cost, gpu, gpuCount, mfu, price, N, mode, tier, seqlen, ckptOn };
+}
+
+function computeMeasureFor(m) {
+  const gpuKey = document.getElementById("gpu-select")?.value || "ascend910c";
+  const gpu = GPU_SPECS[gpuKey];
+  const gpuCount = +(document.getElementById("gpu-count-input")?.value || 1024);
+  const stepTime = +(document.getElementById("step-time-input")?.value || 34.34);
+  const batchSize = +(document.getElementById("batch-size-input")?.value || 512);
+  const seqlen = +(document.getElementById("train-seqlen-input")?.value || 8192);
+  const tokensPerStep = batchSize * seqlen;
+  // Update derived display
+  const tpsDisplay = document.getElementById("tokens-per-step-display");
+  if (tpsDisplay) tpsDisplay.value = tokensPerStep.toLocaleString();
+  const ckptOn = (state.ckpt || "on") === "on";
+  const flopsObj = calcTrainingFLOPs(m, tokensPerStep, seqlen, ckptOn);
+  const throughput = stepTime > 0 ? flopsObj.total / (stepTime * gpuCount) : 0;
+  const mfu = gpu.peak > 0 ? throughput / gpu.peak : 0;
+  return {
+    flopsBreakdown: flopsObj,
+    stepTime, tokensPerStep, seqlen, gpu, gpuCount, throughput, mfu, ckptOn,
+    isMoE: !!(m.E && m.E > 1),
+  };
 }
 
 function renderTraining() {
   const isCompare = state.mode === "compare";
-  document.querySelector(".train-results").style.display = isCompare ? "none" : "";
+  const isMeasure = state.trainMode === "measure";
+
+  // Mode toggling: hide/show control rows
+  document.getElementById("train-row-tokens").style.display = (!isMeasure) ? "" : "none";
+  document.getElementById("train-row-measure").style.display = isMeasure ? "" : "none";
+  document.getElementById("mfu-slider-wrap").style.display = isMeasure ? "none" : "";
+  document.getElementById("gpu-price-wrap").style.display = isMeasure ? "none" : "";
+  document.getElementById("train-subtitle-plan").style.display = isMeasure ? "none" : "";
+  document.getElementById("train-subtitle-measure").style.display = isMeasure ? "" : "none";
+
+  document.getElementById("train-results-plan").style.display = (isCompare || isMeasure) ? "none" : "";
+  document.getElementById("train-results-measure").style.display = (isCompare || !isMeasure) ? "none" : "";
+
   document.getElementById("train-compare").style.display = isCompare ? "" : "none";
   document.getElementById("train-note").style.display = isCompare ? "none" : "";
 
@@ -2276,6 +2505,12 @@ function renderTraining() {
   }
 
   const m = MODELS[state.modelA];
+
+  if (isMeasure) {
+    renderMeasure(m);
+    return;
+  }
+
   const r = computeTrainingFor(m);
 
   document.getElementById("tr-tokens").textContent = fmtTokens(r.tokens);
@@ -2284,7 +2519,7 @@ function renderTraining() {
     : r.mode === "custom" ? `${+(document.getElementById("token-custom-input")?.value||10)}T (自定义)`
     : `${r.tier === "conservative" ? "保守" : r.tier === "aggressive" ? "激进" : "标准"} · 同类典型值`;
   document.getElementById("tr-flops").textContent = fmtFLOPs(r.trainFLOPs);
-  document.getElementById("tr-flops-detail").textContent = `6 × ${fmt(r.N)}B active × ${fmtTokens(r.tokens)}`;
+  document.getElementById("tr-flops-detail").innerHTML = renderFlopsBreakdown(r.flopsBreakdown);
   document.getElementById("tr-duration").textContent = r.days >= 1 ? `${r.days.toFixed(1)} 天` : `${r.hours.toFixed(1)} 小时`;
   document.getElementById("tr-duration-detail").textContent = `${r.gpu.name} × ${fmt(r.gpuCount)}张 · MFU ${(r.mfu*100).toFixed(0)}%`;
   document.getElementById("tr-cost").textContent = fmtCost(r.cost);
@@ -2302,23 +2537,144 @@ function renderTraining() {
   updateTokenHint(m);
 }
 
+function renderFlopsBreakdown(fb) {
+  if (!fb) return "";
+  const rows = [];
+  rows.push(`<div class="flops-breakdown">`);
+  rows.push(`<div class="fb-row"><span class="fb-label">Linear (6·N·T)</span><span class="fb-val">${fmtFLOPs(fb.linear)}</span></div>`);
+  if (fb.attention > 0) {
+    rows.push(`<div class="fb-row"><span class="fb-label">Attention</span><span class="fb-val">${fmtFLOPs(fb.attention)}</span></div>`);
+  }
+  if (fb.indexer > 0) {
+    rows.push(`<div class="fb-row"><span class="fb-label">Indexer/Router</span><span class="fb-val">${fmtFLOPs(fb.indexer)}</span></div>`);
+  }
+  rows.push(`<div class="fb-row total"><span class="fb-label">Total</span><span class="fb-val">${fmtFLOPs(fb.total)}</span></div>`);
+  rows.push(`</div>`);
+  return rows.join("");
+}
+
+function renderMeasure(m) {
+  const r = computeMeasureFor(m);
+
+  // Card 1: Theoretical FLOPs / step with breakdown
+  document.getElementById("mr-flops").textContent = fmtFLOPs(r.flopsBreakdown.total);
+  document.getElementById("mr-flops-detail").innerHTML = renderFlopsBreakdown(r.flopsBreakdown);
+
+  // Card 2: Throughput (FLOPs/s achieved per GPU cluster total)
+  const totalThroughput = r.flopsBreakdown.total * (r.gpuCount || 1) / (r.stepTime * (r.gpuCount || 1) * (r.gpuCount || 1));
+  // Simpler: throughput already = total / (stepTime × gpuCount); show aggregate FLOPs/s
+  const aggThroughput = r.flopsBreakdown.total / r.stepTime; // total FLOPs/s for whole cluster
+  document.getElementById("mr-throughput").textContent = fmtFLOPs(aggThroughput) + "/s";
+  document.getElementById("mr-throughput-detail").textContent =
+    `${fmtFLOPs(r.flopsBreakdown.total)} ÷ ${r.stepTime.toFixed(2)}s · ${r.gpu.name} × ${fmt(r.gpuCount)}`;
+
+  // Card 3: Measured MFU (highlight)
+  const mfuPct = r.mfu * 100;
+  document.getElementById("mr-mfu").textContent = mfuPct.toFixed(1) + "%";
+  document.getElementById("mr-mfu-detail").textContent =
+    `${fmtFLOPs(r.flopsBreakdown.total)} / (${r.stepTime.toFixed(2)}s × ${fmt(r.gpuCount)} × ${fmtFLOPs(r.gpu.peak)})`;
+
+  // Card 4: Industry benchmark
+  const bench = benchMfuRange(m, r);
+  document.getElementById("mr-bench").innerHTML =
+    `典型 ${bench.typMin}–${bench.typMax}% · <span class="mfu-tag ${bench.cls}">${bench.tag}</span>`;
+  document.getElementById("mr-bench-detail").textContent = bench.note;
+
+  ["mr-flops","mr-throughput","mr-mfu","mr-bench"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.add("flash"); setTimeout(() => el.classList.remove("flash"), 300); }
+  });
+
+  // Notes
+  const noteEl = document.getElementById("train-note");
+  const parts = buildMeasureNotes(r, m);
+  noteEl.innerHTML = parts.length ? parts.join("<br>") : "";
+  noteEl.style.display = parts.length ? "block" : "none";
+}
+
+function benchMfuRange(m, r) {
+  const isMoE = !!(m.E && m.E > 1);
+  // Typical industry MFU windows
+  // Dense: 40-55% (small), 35-50% (large), 30-45% (XL)
+  // MoE: 25-40% (small/medium), 25-35% (large), 20-32% (XL)
+  const typMin = isMoE ? 25 : 35;
+  const typMax = isMoE ? 40 : 50;
+  const mfuPct = r.mfu * 100;
+  let cls, tag;
+  if (mfuPct >= typMax) { cls = "good"; tag = "优秀"; }
+  else if (mfuPct >= typMin) { cls = "fair"; tag = "达标"; }
+  else { cls = "poor"; tag = "偏低"; }
+  const note = isMoE
+    ? `MoE 受 all-to-all 通信影响，典型 25-40%`
+    : `Dense 大规模训练典型 35-50%`;
+  return { typMin, typMax, cls, tag, note };
+}
+
+function buildMeasureNotes(r, m) {
+  const parts = [];
+  const mfuPct = r.mfu * 100;
+  if (mfuPct > 80) {
+    parts.push(`⚠️ 实测 MFU ${mfuPct.toFixed(1)}% 异常偏高，请检查 step time / GPU 数量 / tokens-per-step`);
+  }
+  if (mfuPct < 10 && mfuPct > 0) {
+    parts.push(`⚠️ 实测 MFU ${mfuPct.toFixed(1)}% 偏低，可能存在通信/数据/编译瓶颈`);
+  }
+  // Attention share
+  const total = r.flopsBreakdown.total || 1;
+  const attnShare = (r.flopsBreakdown.attention / total * 100);
+  if (attnShare > 0 && attnShare > 8) {
+    parts.push(`💡 Attention FLOPs 占总 ${attnShare.toFixed(1)}%（长序列训练中 attention 占比上升）`);
+  }
+  if (r.tokensPerStep !== r.seqlen * Math.round(r.tokensPerStep / r.seqlen)) {
+    const gbs = r.tokensPerStep / r.seqlen;
+    if (Number.isInteger(gbs)) {
+      parts.push(`💡 Global batch size = ${fmt(gbs)} (= tokens/step ÷ S)`);
+    }
+  }
+  if (!r.ckptOn) {
+    parts.push(`💡 关闭 checkpointing 后 attention 系数 = 6（无 recompute），节省显存但影响 attn FLOPs`);
+  }
+  return parts;
+}
+
 function renderTrainingCompare() {
+  const isMeasure = state.trainMode === "measure";
   const mA = MODELS[state.modelA];
   const mB = MODELS[state.modelB];
-  const rA = computeTrainingFor(mA);
-  const rB = computeTrainingFor(mB);
 
   document.getElementById("tc-name-a").textContent = mA.name;
   document.getElementById("tc-name-b").textContent = mB.name;
 
-  const rows = [
-    { label: "训练 Tokens", a: fmtTokens(rA.tokens), b: fmtTokens(rB.tokens), lower: true,
-      tipA: `6×${fmt(rA.N)}B×${fmtTokens(rA.tokens)}`, tipB: `6×${fmt(rB.N)}B×${fmtTokens(rB.tokens)}` },
-    { label: "总训练 FLOPs", a: fmtFLOPs(rA.trainFLOPs), b: fmtFLOPs(rB.trainFLOPs), lower: true },
-    { label: "预估时长", a: rA.days >= 1 ? `${rA.days.toFixed(1)} 天` : `${rA.hours.toFixed(0)}h`,
-                       b: rB.days >= 1 ? `${rB.days.toFixed(1)} 天` : `${rB.hours.toFixed(0)}h`, lower: true },
-    { label: "预估成本", a: fmtCost(rA.cost), b: fmtCost(rB.cost), lower: true },
-  ];
+  let rows, notesA, notesB;
+  if (isMeasure) {
+    const rA = computeMeasureFor(mA);
+    const rB = computeMeasureFor(mB);
+    rows = [
+      { label: "理论 FLOPs/step", a: fmtFLOPs(rA.flopsBreakdown.total), b: fmtFLOPs(rB.flopsBreakdown.total), lower: true,
+        tipA: `Linear ${fmtFLOPs(rA.flopsBreakdown.linear)} + Attn ${fmtFLOPs(rA.flopsBreakdown.attention)}`,
+        tipB: `Linear ${fmtFLOPs(rB.flopsBreakdown.linear)} + Attn ${fmtFLOPs(rB.flopsBreakdown.attention)}` },
+      { label: "Attention FLOPs", a: fmtFLOPs(rA.flopsBreakdown.attention), b: fmtFLOPs(rB.flopsBreakdown.attention), lower: true },
+      { label: "实测吞吐", a: fmtFLOPs(rA.flopsBreakdown.total/rA.stepTime)+"/s", b: fmtFLOPs(rB.flopsBreakdown.total/rB.stepTime)+"/s", lower: false },
+      { label: "实测 MFU", a: (rA.mfu*100).toFixed(1)+"%", b: (rB.mfu*100).toFixed(1)+"%", lower: false },
+    ];
+    notesA = buildMeasureNotes(rA, mA);
+    notesB = buildMeasureNotes(rB, mB);
+  } else {
+    const rA = computeTrainingFor(mA);
+    const rB = computeTrainingFor(mB);
+    rows = [
+      { label: "训练 Tokens", a: fmtTokens(rA.tokens), b: fmtTokens(rB.tokens), lower: true,
+        tipA: `6×${fmt(rA.N)}B×${fmtTokens(rA.tokens)}`, tipB: `6×${fmt(rB.N)}B×${fmtTokens(rB.tokens)}` },
+      { label: "总训练 FLOPs", a: fmtFLOPs(rA.trainFLOPs), b: fmtFLOPs(rB.trainFLOPs), lower: true,
+        tipA: `Linear ${fmtFLOPs(rA.flopsBreakdown.linear)} + Attn ${fmtFLOPs(rA.flopsBreakdown.attention)}`,
+        tipB: `Linear ${fmtFLOPs(rB.flopsBreakdown.linear)} + Attn ${fmtFLOPs(rB.flopsBreakdown.attention)}` },
+      { label: "预估时长", a: rA.days >= 1 ? `${rA.days.toFixed(1)} 天` : `${rA.hours.toFixed(0)}h`,
+                         b: rB.days >= 1 ? `${rB.days.toFixed(1)} 天` : `${rB.hours.toFixed(0)}h`, lower: true },
+      { label: "预估成本", a: fmtCost(rA.cost), b: fmtCost(rB.cost), lower: true },
+    ];
+    notesA = buildTrainingNotes(rA, mA);
+    notesB = buildTrainingNotes(rB, mB);
+  }
 
   const tbody = document.getElementById("tc-body");
   tbody.innerHTML = rows.map(row => {
@@ -2335,8 +2691,6 @@ function renderTrainingCompare() {
     </tr>`;
   }).join("");
 
-  const notesA = buildTrainingNotes(rA, mA);
-  const notesB = buildTrainingNotes(rB, mB);
   const allNotes = [...new Set([...notesA, ...notesB])];
   const noteEl = document.getElementById("train-note-cmp");
   noteEl.innerHTML = allNotes.length ? allNotes.join("<br>") : "";
@@ -2390,6 +2744,26 @@ function fmtCost(c) {
 }
 
 function wireTrainingEvents() {
+  // Train mode toggle (规划/实测)
+  document.querySelectorAll("#train-mode-toggle button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#train-mode-toggle button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.trainMode = btn.id === "train-measure-mode" ? "measure" : "plan";
+      renderTraining();
+    });
+  });
+
+  // Gradient checkpointing toggle
+  document.querySelectorAll("#ckpt-group .pill").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#ckpt-group .pill").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      state.ckpt = btn.dataset.ckpt;
+      renderTraining();
+    });
+  });
+
   document.querySelectorAll("#token-mode-group .pill").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll("#token-mode-group .pill").forEach(b => b.classList.remove("active"));
@@ -2408,7 +2782,7 @@ function wireTrainingEvents() {
       renderTraining();
     });
   });
-  ["gpu-select","gpu-count-input","gpu-price-input","token-custom-input"].forEach(id => {
+  ["gpu-select","gpu-count-input","gpu-price-input","token-custom-input","step-time-input","batch-size-input","train-seqlen-input","plan-batch-input","plan-seqlen-input"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener("input", renderTraining);
   });
