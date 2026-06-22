@@ -281,7 +281,7 @@ $$\text{Speedup} \approx \frac{1 - 0.8^5}{(1 - 0.8)(4 \times 0.1 + 1)} \approx \
 
 ## CH 6 | 从 Roofline 到 TTFT 和 TPOT
 
-本节将 `computation-methodology.md` CH 7 的 Roofline 模型扩展到**单请求延迟**的精确估算，为后续章节的**并发场景**提供基础输入。
+本节将[系列第四篇](../part-4/) CH 7 的 Roofline 模型扩展到**单请求延迟**的精确估算，为后续章节的**并发场景**提供基础输入。
 
 ### 6.1 Prefill 延迟（TTFT）
 
@@ -641,4 +641,4 @@ MoE 模型 serving
 
 ---
 
-> **系列导航**：`computation-methodology.md`（参数 + FLOPs + KV Cache + 推理显存 + Roofline）→ 本系列[第五篇](../part-5/)（训练显存）→ `communication-methodology.md`（通信与掩盖分析）→ **本文（推理服务性能建模）**
+> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/) ← 当前（系列终篇）

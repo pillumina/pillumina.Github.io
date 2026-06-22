@@ -23,10 +23,22 @@
     <loc>https://pillumina.github.io/tags/communication/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/computation/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/flops/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/tags/gpu/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/inference/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/kv-cache/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-7/</loc>
@@ -57,6 +69,9 @@
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/parallelism/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/parameters/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/performance/</loc>
@@ -125,22 +140,10 @@
     <loc>https://pillumina.github.io/tags/qa/</loc>
     <lastmod>2026-06-17T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/computation/</loc>
-    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/flops/</loc>
-    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/gqa/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/kv-cache/</loc>
-    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/</loc>
-    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-3/</loc>
@@ -165,9 +168,6 @@
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/multimodal/</loc>
-    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/parameters/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/roofline/</loc>

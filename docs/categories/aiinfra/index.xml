@@ -14,6 +14,13 @@
     <lastBuildDate>Mon, 22 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/categories/aiinfra/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>LLM 系统分析方法论（一）：预备知识与参数分解</title>
+      <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</guid>
+      <description>从 config.json 到参数量、FLOPs、KV Cache、推理显存的完整计算推导。覆盖 Full Attention / MSA / MLA / Mamba-2 / SWA / GDN 六种注意力架构。第一篇：矩阵乘法基础与参数分解。</description>
+    </item>
+    <item>
       <title>LLM 系统分析方法论（七）：推理服务性能建模</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-7/</link>
       <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
@@ -33,13 +40,6 @@
       <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-6/</guid>
       <description>训练通信完整分析：从物理原理到框架实现，覆盖 TP/PP/DP/EP/CP/FSDP2 六种并行维度的通信模式、时间线建模和掩盖策略。含 M3 完整 step time 推演和 Dense 70B/M3 MoE 多场景实战。跨 NVIDIA + Ascend 双平台。</description>
-    </item>
-    <item>
-      <title>LLM 系统分析方法论（一）：预备知识与参数分解</title>
-      <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</link>
-      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</guid>
-      <description>从 config.json 到参数量、FLOPs、KV Cache、推理显存的完整计算推导。覆盖 Full Attention / MSA / MLA / Mamba-2 / SWA / GDN 六种注意力架构。第一篇：矩阵乘法基础与参数分解。</description>
     </item>
     <item>
       <title>LLM 系统分析方法论（三）：KV Cache 与推理显存</title>
