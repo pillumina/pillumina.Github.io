@@ -1,5 +1,5 @@
 +++
-date = '2026-06-22T09:06:00+08:00'
+date = '2026-06-22T09:00:00+08:00'
 draft = false
 title = 'LLM 系统分析方法论（七）：推理服务性能建模'
 categories = ['aiinfra']

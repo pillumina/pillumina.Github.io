@@ -1,5 +1,5 @@
 +++
-date = '2026-06-22T09:04:00+08:00'
+date = '2026-06-22T09:02:00+08:00'
 draft = false
 title = 'LLM 系统分析方法论（五）：训练显存估算'
 categories = ['aiinfra']

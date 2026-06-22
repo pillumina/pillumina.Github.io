@@ -1,5 +1,5 @@
 +++
-date = '2026-06-22T09:05:00+08:00'
+date = '2026-06-22T09:01:00+08:00'
 draft = false
 title = 'LLM 系统分析方法论（六）：训练通信与掩盖分析'
 categories = ['aiinfra']
