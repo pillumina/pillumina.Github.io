@@ -25,6 +25,26 @@ description: "Interactive tools for LLM architecture analysis"
   <span class="tool-card-arrow">&rarr;</span>
 </a>
 
+<a href="/tools/training-memory-calculator/" class="tool-card" target="_blank" rel="noopener">
+  <div class="tool-card-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/>
+      <line x1="9" y1="9" x2="15" y2="9"/>
+      <line x1="9" y1="13" x2="15" y2="13"/>
+      <line x1="9" y1="17" x2="13" y2="17"/>
+      <circle cx="6" cy="6" r="0.5" fill="currentColor"/>
+      <circle cx="6" cy="18" r="0.5" fill="currentColor"/>
+      <circle cx="18" cy="6" r="0.5" fill="currentColor"/>
+      <circle cx="18" cy="18" r="0.5" fill="currentColor"/>
+    </svg>
+  </div>
+  <div class="tool-card-body">
+    <span class="tool-card-name">LLM Training Memory Calculator</span>
+    <span class="tool-card-desc">训练显存完整估算：单卡四笔账 → TP/PP/DP/EP/CP 并行折扣 → ZeRO/FSDP → Checkpointing → 8 个 SOTA 模型预设 + 实时 GPU 容量对比</span>
+  </div>
+  <span class="tool-card-arrow">&rarr;</span>
+</a>
+
 </div>
 
 <style>

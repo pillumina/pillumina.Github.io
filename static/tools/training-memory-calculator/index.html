@@ -1,0 +1,1472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM 训练显存计算器 · 从 config.json 到 per-GPU 训练显存</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0a0e14;
+  --bg-elevated: #0d1117;
+  --card-bg: #131820;
+  --card-bg-2: #161b22;
+  --border: #21262d;
+  --border-light: #30363d;
+  --text: #e6edf3;
+  --text-dim: #8b949e;
+  --text-mute: #6e7681;
+  --primary: #58a6ff;
+  --primary-dim: #1f6feb;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --purple: #a371f7;
+  --cyan: #39d2c0;
+  --pink: #f778ba;
+  --yellow: #e3b341;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --transition: 0.15s ease;
+  --mono: "SF Mono", "JetBrains Mono", "Menlo", "Monaco", "Consolas", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+}
+
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  font-family: var(--sans);
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(88,166,255,0.08), transparent 60%),
+    radial-gradient(800px 500px at -10% 10%, rgba(163,113,247,0.06), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 28px 24px 64px;
+  line-height: 1.55;
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+}
+
+.container { max-width: 1480px; margin: 0 auto; }
+
+/* ===== Header ===== */
+.header { margin-bottom: 28px; }
+.header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(110deg, #fff 0%, #c9d1d9 40%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.header .subtitle {
+  color: var(--text-dim);
+  font-size: 0.875rem;
+}
+.header .subtitle code {
+  font-family: var(--mono);
+  background: rgba(110,118,129,0.15);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  color: var(--text);
+}
+.header .subtitle a {
+  color: var(--primary);
+  text-decoration: none;
+  border-bottom: 1px dashed rgba(88,166,255,0.4);
+}
+.header .subtitle a:hover { border-bottom-style: solid; }
+
+/* ===== Card ===== */
+.card {
+  background: linear-gradient(180deg, var(--card-bg) 0%, var(--card-bg-2) 100%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  position: relative;
+}
+.card + .card { margin-top: 14px; }
+.card-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title .meta {
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--text-mute);
+  text-transform: none;
+}
+
+/* ===== Layout ===== */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 18px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .layout { grid-template-columns: 1fr; }
+}
+.config-col, .result-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ===== Preset Grid ===== */
+.preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.preset-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 9px 11px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--sans);
+  transition: var(--transition);
+  position: relative;
+}
+.preset-btn:hover {
+  border-color: var(--primary-dim);
+  color: var(--text);
+}
+.preset-btn.active {
+  border-color: var(--primary);
+  color: var(--text);
+  background: rgba(88,166,255,0.08);
+  box-shadow: 0 0 0 1px var(--primary) inset;
+}
+.preset-btn .name {
+  display: block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
+}
+.preset-btn .meta {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--text-mute);
+  font-family: var(--mono);
+}
+.preset-btn.active .meta { color: var(--primary); }
+
+/* ===== Form Rows ===== */
+.form-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 80px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(48,54,61,0.4);
+}
+.form-row:last-child { border-bottom: none; }
+.form-row label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+.form-row input[type="number"],
+.form-row select {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 9px;
+  border-radius: var(--radius-sm);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  width: 100%;
+  transition: var(--transition);
+}
+.form-row input[type="number"]:focus,
+.form-row select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(88,166,255,0.15);
+}
+.form-row .unit {
+  font-size: 0.75rem;
+  color: var(--text-mute);
+  font-family: var(--mono);
+  text-align: right;
+}
+
+/* ===== Slider ===== */
+.slider-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.slider-row label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.slider-row .val {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--primary);
+  text-align: right;
+  font-weight: 600;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: var(--primary);
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+/* ===== Pill Group ===== */
+.pill-group {
+  display: inline-flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+  gap: 2px;
+}
+.pill-group input[type="radio"] { display: none; }
+.pill-group label {
+  padding: 5px 11px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: var(--transition);
+  font-family: var(--sans);
+  font-weight: 500;
+}
+.pill-group label:hover { color: var(--text); }
+.pill-group input[type="radio"]:checked + label {
+  background: var(--primary);
+  color: white;
+}
+.pill-group-wrap { padding: 6px 0; }
+.pill-group-wrap > label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+}
+
+/* ===== Toggle Switch ===== */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+.toggle input { display: none; }
+.toggle .track {
+  position: absolute;
+  inset: 0;
+  background: var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.toggle .track::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+.toggle input:checked + .track { background: var(--primary); }
+.toggle input:checked + .track::before { transform: translateX(16px); }
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px dashed rgba(48,54,61,0.4);
+}
+.toggle-row:last-child { border-bottom: none; }
+.toggle-row label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.toggle-row .desc {
+  font-size: 0.7rem;
+  color: var(--text-mute);
+  margin-top: 2px;
+}
+
+/* ===== Collapsible Section ===== */
+details.advanced {
+  margin-top: 10px;
+  border-top: 1px dashed var(--border);
+  padding-top: 10px;
+}
+details.advanced > summary {
+  cursor: pointer;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 4px 0;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+details.advanced > summary::-webkit-details-marker { display: none; }
+details.advanced > summary::before {
+  content: '▶';
+  font-size: 0.7em;
+  transition: transform 0.2s ease;
+}
+details.advanced[open] > summary::before { transform: rotate(90deg); }
+details.advanced > summary:hover { color: var(--primary); }
+
+/* ===== Result Cards ===== */
+.total-card {
+  background:
+    radial-gradient(400px 200px at 100% 0%, rgba(88,166,255,0.1), transparent 70%),
+    linear-gradient(180deg, var(--card-bg) 0%, var(--card-bg-2) 100%);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+}
+.total-card .label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.total-card .value {
+  font-family: var(--mono);
+  font-size: 2.4rem;
+  font-weight: 700;
+  background: linear-gradient(110deg, #fff 0%, var(--primary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+.total-card .value .unit {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  -webkit-text-fill-color: var(--text-dim);
+  margin-left: 6px;
+  font-weight: 500;
+}
+.total-card .sub {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.total-card .sub strong {
+  color: var(--text);
+  font-family: var(--mono);
+  font-weight: 600;
+}
+
+/* ===== GPU Capacity Bar ===== */
+.gpu-bars { margin-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+.gpu-bar-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 80px;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.8rem;
+}
+.gpu-bar-row .gpu-name {
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.78rem;
+}
+.gpu-bar-row .gpu-bar {
+  height: 18px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.gpu-bar-row .gpu-bar .fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 3px;
+  transition: width 0.3s var(--ease-out);
+}
+.gpu-bar-row .gpu-bar .fill.under { background: linear-gradient(90deg, #2ea043, #3fb950); }
+.gpu-bar-row .gpu-bar .fill.over { background: linear-gradient(90deg, #da3633, #f85149); }
+.gpu-bar-row .gpu-bar .fill.tight { background: linear-gradient(90deg, #d29922, #e3b341); }
+.gpu-bar-row .gpu-status {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  text-align: right;
+}
+.gpu-bar-row .gpu-status.ok { color: var(--green); }
+.gpu-bar-row .gpu-status.warn { color: var(--orange); }
+.gpu-bar-row .gpu-status.over { color: var(--red); }
+
+/* ===== Breakdown Bar ===== */
+.breakdown-bar {
+  display: flex;
+  height: 32px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin: 14px 0 10px;
+}
+.breakdown-bar .seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  color: white;
+  font-family: var(--mono);
+  font-weight: 600;
+  position: relative;
+  transition: filter 0.15s ease;
+  min-width: 0;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+.breakdown-bar .seg:hover { filter: brightness(1.15); }
+.breakdown-bar .seg.weight { background: var(--primary); }
+.breakdown-bar .seg.optimizer { background: var(--purple); }
+.breakdown-bar .seg.gradient { background: var(--cyan); }
+.breakdown-bar .seg.activation { background: var(--orange); }
+.breakdown-bar .seg.other { background: var(--pink); }
+
+/* ===== Breakdown Table ===== */
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+.breakdown-table th,
+.breakdown-table td {
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.breakdown-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  font-weight: 600;
+}
+.breakdown-table td.num {
+  font-family: var(--mono);
+  text-align: right;
+  font-weight: 500;
+}
+.breakdown-table tr.total-row {
+  background: rgba(88,166,255,0.04);
+}
+.breakdown-table tr.total-row td {
+  font-weight: 700;
+  border-top: 1px solid var(--border-light);
+  border-bottom: none;
+  color: var(--text);
+}
+.dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.dot.weight { background: var(--primary); }
+.dot.optimizer { background: var(--purple); }
+.dot.gradient { background: var(--cyan); }
+.dot.activation { background: var(--orange); }
+.dot.other { background: var(--pink); }
+
+/* ===== Notes ===== */
+.notes {
+  margin-top: 14px;
+  padding: 12px;
+  background: rgba(210,153,34,0.05);
+  border: 1px solid rgba(210,153,34,0.2);
+  border-radius: var(--radius-sm);
+}
+.notes-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+.notes ul { list-style: none; padding: 0; }
+.notes li {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  padding: 3px 0;
+  padding-left: 16px;
+  position: relative;
+  line-height: 1.5;
+}
+.notes li::before {
+  content: '•';
+  position: absolute;
+  left: 4px;
+  color: var(--orange);
+}
+
+/* ===== Per-GPU params info ===== */
+.info-strip {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  padding: 10px 0 0;
+  border-top: 1px dashed var(--border);
+  margin-top: 12px;
+}
+.info-strip .item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.info-strip .item .k {
+  font-size: 0.7rem;
+  color: var(--text-mute);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.info-strip .item .v {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ===== Validation cases ===== */
+.cases {
+  margin-top: 18px;
+}
+.case-row {
+  display: grid;
+  grid-template-columns: 200px 1fr 100px;
+  gap: 14px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.83rem;
+}
+.case-row:last-child { border-bottom: none; }
+.case-row .case-name { font-weight: 600; color: var(--text); }
+.case-row .case-desc { color: var(--text-dim); font-size: 0.78rem; }
+.case-row button {
+  background: rgba(88,166,255,0.1);
+  border: 1px solid var(--primary-dim);
+  color: var(--primary);
+  padding: 5px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: var(--sans);
+  transition: var(--transition);
+}
+.case-row button:hover {
+  background: var(--primary);
+  color: white;
+}
+
+/* ===== Utility ===== */
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.section-divider {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-mute);
+  font-weight: 600;
+  padding: 10px 0 4px;
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+}
+.formula {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-mute);
+  padding: 4px 8px;
+  background: rgba(110,118,129,0.08);
+  border-radius: 4px;
+  margin-top: 4px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>LLM 训练显存计算器</h1>
+    <div class="subtitle">
+      从 <code>config.json</code> 到 per-GPU 训练显存。基于
+      <a href="/posts/aiinfra/llm-computation-methodology/part-5/">LLM 系统分析方法论（五）</a>
+      的完整公式体系。
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- ============== LEFT: CONFIG ============== -->
+    <div class="config-col">
+
+      <!-- Model Preset -->
+      <div class="card">
+        <div class="card-title">
+          <span>模型预设</span>
+          <span class="meta" id="model-meta">—</span>
+        </div>
+        <div class="preset-grid" id="preset-grid"></div>
+
+        <details class="advanced">
+          <summary>模型参数（自动填充，可手动调整）</summary>
+          <div style="margin-top: 10px;">
+            <div class="form-row">
+              <label>总参数 N</label>
+              <input type="number" id="m-N" min="0.1" step="0.1" value="428">
+              <span class="unit">B</span>
+            </div>
+            <div class="grid-2">
+              <div class="form-row">
+                <label>hidden d</label>
+                <input type="number" id="m-d" value="6144">
+                <span class="unit"></span>
+              </div>
+              <div class="form-row">
+                <label>Layers L</label>
+                <input type="number" id="m-L" value="60">
+                <span class="unit"></span>
+              </div>
+            </div>
+            <div class="grid-3">
+              <div class="form-row">
+                <label>H_q</label>
+                <input type="number" id="m-Hq" value="64">
+              </div>
+              <div class="form-row">
+                <label>H_kv</label>
+                <input type="number" id="m-Hkv" value="4">
+              </div>
+              <div class="form-row">
+                <label>D_h</label>
+                <input type="number" id="m-D" value="128">
+              </div>
+            </div>
+            <div class="section-divider">MoE 配置</div>
+            <div class="toggle-row">
+              <div>
+                <label>MoE 架构</label>
+                <div class="desc">启用专家并行 EP</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="m-is-moe">
+                <span class="track"></span>
+              </label>
+            </div>
+            <div id="moe-fields" style="display:none;">
+              <div class="grid-3">
+                <div class="form-row">
+                  <label>Experts E</label>
+                  <input type="number" id="m-E" value="128">
+                </div>
+                <div class="form-row">
+                  <label>top-k</label>
+                  <input type="number" id="m-k" value="4">
+                </div>
+                <div class="form-row">
+                  <label>d_ff_moe</label>
+                  <input type="number" id="m-dff-moe" value="3072">
+                </div>
+              </div>
+              <div class="grid-2">
+                <div class="form-row">
+                  <label>N_non_expert</label>
+                  <input type="number" id="m-N-non" value="30" step="0.1">
+                  <span class="unit">B</span>
+                </div>
+                <div class="form-row">
+                  <label>N_expert</label>
+                  <input type="number" id="m-N-exp" value="398" step="0.1">
+                  <span class="unit">B</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Training Config -->
+      <div class="card">
+        <div class="card-title"><span>训练配置</span></div>
+
+        <div class="slider-row">
+          <label>Global Batch</label>
+          <input type="range" id="t-bg" min="1" max="512" step="1" value="32">
+          <span class="val" id="t-bg-val">32</span>
+        </div>
+        <div class="slider-row">
+          <label>Micro Batch</label>
+          <input type="range" id="t-bm" min="1" max="64" step="1" value="2">
+          <span class="val" id="t-bm-val">2</span>
+        </div>
+        <div class="slider-row">
+          <label>序列长度 T</label>
+          <input type="range" id="t-T" min="512" max="131072" step="512" value="8192">
+          <span class="val" id="t-T-val">8K</span>
+        </div>
+
+        <div class="pill-group-wrap">
+          <label>权重精度</label>
+          <div class="pill-group" id="prec-group">
+            <input type="radio" name="prec" id="prec-bf16" value="2" checked>
+            <label for="prec-bf16">BF16</label>
+            <input type="radio" name="prec" id="prec-fp8" value="1">
+            <label for="prec-fp8">FP8</label>
+            <input type="radio" name="prec" id="prec-fp32" value="4">
+            <label for="prec-fp32">FP32</label>
+          </div>
+        </div>
+
+        <div class="pill-group-wrap">
+          <label>优化器</label>
+          <div class="pill-group" id="opt-group">
+            <input type="radio" name="opt" id="opt-adam" value="adam" checked>
+            <label for="opt-adam">AdamW (12B)</label>
+            <input type="radio" name="opt" id="opt-muon" value="muon">
+            <label for="opt-muon">Muon (8B)</label>
+            <input type="radio" name="opt" id="opt-adafactor" value="adafactor">
+            <label for="opt-adafactor">Adafactor (4B)</label>
+            <input type="radio" name="opt" id="opt-fp8adam" value="fp8adam">
+            <label for="opt-fp8adam">FP8 Adam (6B)</label>
+          </div>
+          <div class="formula">bytes/param = master(FP32) + 一阶动量 + 二阶动量</div>
+        </div>
+
+        <div class="pill-group-wrap">
+          <label>Gradient Checkpointing</label>
+          <div class="pill-group" id="ckpt-group">
+            <input type="radio" name="ckpt" id="ckpt-none" value="none">
+            <label for="ckpt-none">None (C=34)</label>
+            <input type="radio" name="ckpt" id="ckpt-sel" value="selective">
+            <label for="ckpt-sel">Selective</label>
+            <input type="radio" name="ckpt" id="ckpt-full" value="full" checked>
+            <label for="ckpt-full">Full (C=2)</label>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <label>FlashAttention</label>
+            <div class="desc">移除 attention score 平方项</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="t-fa" checked>
+            <span class="track"></span>
+          </label>
+        </div>
+        <div class="toggle-row">
+          <div>
+            <label>FP8 Activation</label>
+            <div class="desc">激活存储字节减半（Transformer Engine）</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="t-fp8-act">
+            <span class="track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Parallelism Config -->
+      <div class="card">
+        <div class="card-title">
+          <span>并行策略</span>
+          <span class="meta" id="gpu-count-meta">—</span>
+        </div>
+
+        <div class="slider-row">
+          <label>TP <span style="color:var(--text-mute);font-size:0.7rem;">(切矩阵维)</span></label>
+          <input type="range" id="p-tp" min="1" max="16" step="1" value="4">
+          <span class="val" id="p-tp-val">4</span>
+        </div>
+        <div class="slider-row">
+          <label>PP <span style="color:var(--text-mute);font-size:0.7rem;">(切层)</span></label>
+          <input type="range" id="p-pp" min="1" max="16" step="1" value="4">
+          <span class="val" id="p-pp-val">4</span>
+        </div>
+        <div class="slider-row">
+          <label>DP <span style="color:var(--text-mute);font-size:0.7rem;">(切batch)</span></label>
+          <input type="range" id="p-dp" min="1" max="512" step="1" value="4">
+          <span class="val" id="p-dp-val">4</span>
+        </div>
+        <div class="slider-row">
+          <label>EP <span style="color:var(--text-mute);font-size:0.7rem;">(专家并行)</span></label>
+          <input type="range" id="p-ep" min="1" max="64" step="1" value="8">
+          <span class="val" id="p-ep-val">8</span>
+        </div>
+        <div class="slider-row">
+          <label>CP <span style="color:var(--text-mute);font-size:0.7rem;">(序列并行)</span></label>
+          <input type="range" id="p-cp" min="1" max="32" step="1" value="1">
+          <span class="val" id="p-cp-val">1</span>
+        </div>
+
+        <div class="section-divider">ZeRO Stage</div>
+        <div class="pill-group-wrap">
+          <div class="pill-group" id="zero-group">
+            <input type="radio" name="zero" id="zero-0" value="0">
+            <label for="zero-0">None</label>
+            <input type="radio" name="zero" id="zero-1" value="1">
+            <label for="zero-1">Stage 1 (Opt)</label>
+            <input type="radio" name="zero" id="zero-2" value="2" checked>
+            <label for="zero-2">Stage 2 (Opt+Grad)</label>
+            <input type="radio" name="zero" id="zero-3" value="3">
+            <label for="zero-3">Stage 3 (+Weight)</label>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <label>Sequence Parallelism</label>
+            <div class="desc">TP 附属，省 ~12% 激活</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="p-sp">
+            <span class="track"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Validation cases -->
+      <div class="card">
+        <div class="card-title"><span>验证案例</span><span class="meta">一键载入</span></div>
+        <div class="cases" id="cases-list"></div>
+      </div>
+    </div>
+
+    <!-- ============== RIGHT: RESULTS ============== -->
+    <div class="result-col">
+
+      <!-- Total Card -->
+      <div class="total-card">
+        <div class="label">Per-GPU 训练显存</div>
+        <div class="value"><span id="total-val">0</span><span class="unit">GB</span></div>
+        <div class="sub">
+          Per-GPU 参数：<strong id="n-per-gpu">0</strong> B ·
+          总 GPU 数：<strong id="gpu-count">0</strong> ·
+          激活系数 C = <strong id="c-act">34</strong>
+        </div>
+
+        <div class="gpu-bars" id="gpu-bars"></div>
+
+        <div class="info-strip">
+          <div class="item">
+            <div class="k">权重</div>
+            <div class="v" id="is-weight">0 GB</div>
+          </div>
+          <div class="item">
+            <div class="k">优化器</div>
+            <div class="v" id="is-optimizer">0 GB</div>
+          </div>
+          <div class="item">
+            <div class="k">梯度</div>
+            <div class="v" id="is-gradient">0 GB</div>
+          </div>
+          <div class="item">
+            <div class="k">激活</div>
+            <div class="v" id="is-activation">0 GB</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Breakdown Card -->
+      <div class="card">
+        <div class="card-title">
+          <span>显存组分分解</span>
+          <span class="meta">单位 GB</span>
+        </div>
+        <div class="breakdown-bar" id="breakdown-bar"></div>
+        <table class="breakdown-table">
+          <thead>
+            <tr>
+              <th>组分</th>
+              <th>公式</th>
+              <th class="num">值 (GB)</th>
+              <th class="num">占比</th>
+            </tr>
+          </thead>
+          <tbody id="breakdown-tbody"></tbody>
+        </table>
+        <div class="notes" id="notes" style="display:none;">
+          <div class="notes-title">⚠ 注意事项</div>
+          <ul id="notes-list"></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   MODEL PRESETS — 复用 llm-calculator 的 8 个模型
+   ============================================================ */
+const MODELS = {
+  "nemotron-3-ultra": {
+    name: "Nemotron 3 Ultra", vendor: "NVIDIA",
+    N: 550, d: 8192, L: 60, Hq: 64, Hkv: 2, D: 128,
+    is_moe: true, E: 512, k: 22, d_ff_moe: 5120,
+    N_non: 40, N_exp: 510,
+    note: "FP4 训练 + Mamba-2 主导 (48层) + 12层 Attn"
+  },
+  "minimax-m3": {
+    name: "MiniMax M3", vendor: "MiniMax",
+    N: 428, d: 6144, L: 60, Hq: 64, Hkv: 4, D: 128,
+    is_moe: true, E: 128, k: 4, d_ff_moe: 3072,
+    N_non: 30, N_exp: 398,
+    note: "MSA 稀疏注意力 + MoE + 7-MTP"
+  },
+  "kimi-k2.5": {
+    name: "Kimi K2.5", vendor: "Moonshot AI",
+    N: 1000, d: 7168, L: 61, Hq: 64, Hkv: 64, D: 128,
+    is_moe: true, E: 384, k: 8, d_ff_moe: 2048,
+    N_non: 80, N_exp: 920,
+    note: "全 MHA + MLA 低秩压缩, MuonClip"
+  },
+  "deepseek-v4-flash": {
+    name: "DeepSeek V4 Flash", vendor: "DeepSeek",
+    N: 300, d: 4096, L: 43, Hq: 64, Hkv: 1, D: 512,
+    is_moe: true, E: 256, k: 6, d_ff_moe: 2048,
+    N_non: 24, N_exp: 276,
+    note: "MLA + CSA/HCA + FP4 量化专家"
+  },
+  "minimax-m2.7": {
+    name: "MiniMax M2.7", vendor: "MiniMax",
+    N: 275, d: 3072, L: 62, Hq: 48, Hkv: 8, D: 128,
+    is_moe: true, E: 128, k: 8, d_ff_moe: 1536,
+    N_non: 35, N_exp: 240,
+    note: "GQA 6:1 + Muon + lightning attn"
+  },
+  "glm-5.1": {
+    name: "GLM-5.1", vendor: "Zhipu AI",
+    N: 744, d: 6144, L: 78, Hq: 64, Hkv: 64, D: 64,
+    is_moe: true, E: 256, k: 8, d_ff_moe: 2048,
+    N_non: 56, N_exp: 688,
+    note: "MLA + DSA Indexer, 最大开源 MoE 之一"
+  },
+  "mimo-v2-flash": {
+    name: "MiMo V2 Flash", vendor: "Xiaomi",
+    N: 140, d: 4096, L: 48, Hq: 64, Hkv: 4, D: 192,
+    is_moe: true, E: 256, k: 8, d_ff_moe: 2048,
+    N_non: 18, N_exp: 122,
+    note: "SWA (131K 窗口) + GQA 16:1"
+  },
+  "qwen3.5-moe": {
+    name: "Qwen3.5-MoE", vendor: "Alibaba",
+    N: 35, d: 2048, L: 48, Hq: 32, Hkv: 4, D: 128,
+    is_moe: true, E: 256, k: 8, d_ff_moe: 2048,
+    N_non: 5, N_exp: 30,
+    note: "Gated DeltaNet + Gated Attn 3:1 混合"
+  }
+};
+
+/* ============================================================
+   CONSTANTS (与文档 CH 1 一致)
+   ============================================================ */
+const OPTIMIZER_BYTES = {
+  adam: 12, muon: 8, adafactor: 4, "fp8adam": 6, sgd: 8, none: 0
+};
+const C_ACT_FA = 34;
+const C_ACT_NO_FA = 34;  // 线性项，平方项单独处理（简化）
+const C_ACT_CKPT = 2;
+
+/* ============================================================
+   GPU SPECS
+   ============================================================ */
+const GPUS = [
+  { name: "H100", capacity: 80 },
+  { name: "H200", capacity: 141 },
+  { name: "B200", capacity: 192 },
+  { name: "A100 80G", capacity: 80 }
+];
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  model: "minimax-m3",
+  // training
+  B_global: 32, B_micro: 2, T: 8192,
+  bytes_per_param: 2,
+  optimizer: "adam",
+  use_fa: true,
+  ckpt_mode: "full",
+  use_fp8_act: false,
+  // parallel
+  tp: 4, pp: 4, dp: 4, ep: 8, cp: 1,
+  zeero_stage: 2,
+  use_sp: false
+};
+
+/* ============================================================
+   READ FORM STATE
+   ============================================================ */
+function readModel() {
+  return {
+    N: parseFloat(document.getElementById("m-N").value),
+    d: parseInt(document.getElementById("m-d").value),
+    L: parseInt(document.getElementById("m-L").value),
+    Hq: parseInt(document.getElementById("m-Hq").value),
+    Hkv: parseInt(document.getElementById("m-Hkv").value),
+    D: parseInt(document.getElementById("m-D").value),
+    is_moe: document.getElementById("m-is-moe").checked,
+    E: parseInt(document.getElementById("m-E").value) || 1,
+    k: parseInt(document.getElementById("m-k").value) || 1,
+    d_ff_moe: parseInt(document.getElementById("m-dff-moe").value) || 0,
+    N_non: parseFloat(document.getElementById("m-N-non").value) || 0,
+    N_exp: parseFloat(document.getElementById("m-N-exp").value) || 0,
+  };
+}
+
+function syncStateFromUI() {
+  state.B_global = parseInt(document.getElementById("t-bg").value);
+  state.B_micro = parseInt(document.getElementById("t-bm").value);
+  state.T = parseInt(document.getElementById("t-T").value);
+  state.bytes_per_param = parseInt(document.querySelector('input[name="prec"]:checked').value);
+  state.optimizer = document.querySelector('input[name="opt"]:checked').value;
+  state.use_fa = document.getElementById("t-fa").checked;
+  state.ckpt_mode = document.querySelector('input[name="ckpt"]:checked').value;
+  state.use_fp8_act = document.getElementById("t-fp8-act").checked;
+  state.tp = parseInt(document.getElementById("p-tp").value);
+  state.pp = parseInt(document.getElementById("p-pp").value);
+  state.dp = parseInt(document.getElementById("p-dp").value);
+  state.ep = parseInt(document.getElementById("p-ep").value);
+  state.cp = parseInt(document.getElementById("p-cp").value);
+  state.zeero_stage = parseInt(document.querySelector('input[name="zero"]:checked').value);
+  state.use_sp = document.getElementById("p-sp").checked;
+}
+
+/* ============================================================
+   COMPUTE — 核心计算（与 Python 一致）
+   ============================================================ */
+function compute() {
+  const m = readModel();
+  const t = state;
+  const notes = [];
+
+  // 拆分 expert / 非 expert
+  let N_non, N_exp;
+  if (m.is_moe) {
+    N_non = m.N_non || m.N * 0.07;
+    N_exp = m.N_exp || m.N * 0.93;
+  } else {
+    N_non = m.N;
+    N_exp = 0;
+  }
+
+  // per-GPU params (B)
+  let N_per_gpu;
+  if (m.is_moe && t.ep > 1) {
+    N_per_gpu = N_non / (t.tp * t.pp) + N_exp / (t.tp * t.pp * t.ep);
+  } else {
+    N_per_gpu = m.N / (t.tp * t.pp);
+  }
+
+  const opt_bytes = OPTIMIZER_BYTES[t.optimizer] || 12;
+
+  // Base 方程（单卡，无并行折扣）
+  const weight_base_B = m.N * t.bytes_per_param;          // GB
+  const optimizer_base_B = m.N * opt_bytes;
+  const grad_base_B = m.N * t.bytes_per_param;  // 梯度同计算精度
+
+  // 激活系数 C
+  let C = t.use_fa ? C_ACT_FA : C_ACT_NO_FA;
+  if (t.use_fp8_act) C = Math.floor(C / 2);
+
+  // Checkpointing
+  let C_ckpt = C;
+  if (t.ckpt_mode === "full") C_ckpt = C_ACT_CKPT;
+  // selective 用默认 C（简化）
+
+  // T_eff（无视觉 token 简化）
+  const T_eff = t.T;
+
+  // SP factor
+  const sp_factor = t.use_sp ? (1 - 0.12 / t.tp) : 1.0;
+
+  // TP/PP 折扣
+  let weight = weight_base_B / (t.tp * t.pp);
+  let optimizer = optimizer_base_B / (t.tp * t.pp);
+  let gradient = grad_base_B / (t.tp * t.pp);
+  let activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * m.L / t.pp / 1e9 * sp_factor;
+  // 单位换算：C × B × T × d × L = bytes（BF16）
+  // 除以 1e9 得 GB
+
+  // 重新精确计算 activation 单位
+  // 公式: C_ckpt × B_micro × (T/cp) × d × (L/pp) = bytes(BF16)
+  activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * (m.L / t.pp) * sp_factor / 1e9;
+
+  // ZeRO 折扣
+  if (t.zeero_stage >= 1) optimizer = optimizer_base_B / (t.tp * t.pp * t.dp);
+  if (t.zeero_stage >= 2) gradient = grad_base_B / (t.tp * t.pp * t.dp);
+  if (t.zeero_stage >= 3) {
+    const peak = weight_base_B / (t.tp * t.pp);
+    weight = weight_base_B / (t.tp * t.pp * t.dp);
+    notes.push(`ZeRO-3 weight 驻留=${weight.toFixed(1)} GB，all-gather 峰值=${peak.toFixed(1)} GB`);
+  }
+
+  // MoE with EP 重算
+  if (m.is_moe && t.ep > 1) {
+    const z_div_o = t.zeero_stage >= 1 ? t.dp : 1;
+    const z_div_g = t.zeero_stage >= 2 ? t.dp : 1;
+    weight = (N_non * t.bytes_per_param / (t.tp * t.pp) + N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep));
+    optimizer = (N_non * opt_bytes / (t.tp * t.pp * z_div_o) + N_exp * opt_bytes / (t.tp * t.pp * t.ep * z_div_o));
+    gradient = (N_non * t.bytes_per_param / (t.tp * t.pp * z_div_g) + N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep * z_div_g));
+  }
+
+  const total = weight + optimizer + gradient + activation;
+
+  return {
+    N_per_gpu,
+    weight, optimizer, gradient, activation,
+    total, C_ckpt, notes,
+    gpu_count: t.tp * t.pp * t.dp
+  };
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function fmtGB(n) {
+  if (n >= 100) return n.toFixed(0);
+  if (n >= 10) return n.toFixed(1);
+  return n.toFixed(2);
+}
+
+function render() {
+  syncStateFromUI();
+  const r = compute();
+
+  document.getElementById("total-val").textContent = r.total.toFixed(1);
+  document.getElementById("n-per-gpu").textContent = r.N_per_gpu.toFixed(2);
+  document.getElementById("gpu-count").textContent = r.gpu_count;
+  document.getElementById("c-act").textContent = r.C_ckpt;
+  document.getElementById("gpu-count-meta").textContent =
+    `${state.tp}×${state.pp}×${state.dp}${state.ep>1?`×${state.ep}(ep)`:''} = ${r.gpu_count} GPU`;
+
+  // Info strip
+  document.getElementById("is-weight").textContent = fmtGB(r.weight) + " GB";
+  document.getElementById("is-optimizer").textContent = fmtGB(r.optimizer) + " GB";
+  document.getElementById("is-gradient").textContent = fmtGB(r.gradient) + " GB";
+  document.getElementById("is-activation").textContent = fmtGB(r.activation) + " GB";
+
+  // GPU bars
+  const gpuBarsEl = document.getElementById("gpu-bars");
+  gpuBarsEl.innerHTML = GPUS.map(g => {
+    const pct = Math.min(100, r.total / g.capacity * 100);
+    let cls = 'under', status = 'OK', statusCls = 'ok';
+    if (r.total > g.capacity) { cls = 'over'; status = 'OVER'; statusCls = 'over'; }
+    else if (r.total > g.capacity * 0.85) { cls = 'tight'; status = 'TIGHT'; statusCls = 'warn'; }
+    return `
+      <div class="gpu-bar-row">
+        <span class="gpu-name">${g.name} ${g.capacity}G</span>
+        <div class="gpu-bar"><div class="fill ${cls}" style="width:${pct}%"></div></div>
+        <span class="gpu-status ${statusCls}">${status} ${pct.toFixed(0)}%</span>
+      </div>`;
+  }).join('');
+
+  // Breakdown bar
+  const total = r.total;
+  const segs = [
+    { k: 'weight', label: '权重', v: r.weight },
+    { k: 'optimizer', label: '优化器', v: r.optimizer },
+    { k: 'gradient', label: '梯度', v: r.gradient },
+    { k: 'activation', label: '激活', v: r.activation }
+  ].filter(s => s.v > 0.01);
+
+  const barEl = document.getElementById("breakdown-bar");
+  barEl.innerHTML = segs.map(s => {
+    const pct = s.v / total * 100;
+    if (pct < 3) return '';  // 太小不显示
+    return `<div class="seg ${s.k}" style="width:${pct}%" title="${s.label}: ${s.v.toFixed(1)} GB">${pct >= 8 ? pct.toFixed(0)+'%' : ''}</div>`;
+  }).join('');
+
+  // Breakdown table
+  const tbodyEl = document.getElementById("breakdown-tbody");
+  const rows = [
+    { k: 'weight', label: '权重', formula: `N × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})`, v: r.weight },
+    { k: 'optimizer', label: '优化器', formula: `N × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})`, v: r.optimizer },
+    { k: 'gradient', label: '梯度', formula: `N × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})`, v: r.gradient },
+    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/cp)·d·(L/pp)${state.use_sp?'·sp':''}`, v: r.activation }
+  ];
+  tbodyEl.innerHTML = rows.map(r => `
+    <tr>
+      <td><span class="dot ${r.k}"></span>${r.label}</td>
+      <td style="font-family:var(--mono);font-size:0.75rem;color:var(--text-mute);">${r.formula}</td>
+      <td class="num">${r.v.toFixed(2)}</td>
+      <td class="num">${(r.v/total*100).toFixed(1)}%</td>
+    </tr>`).join('') + `
+    <tr class="total-row">
+      <td>合计</td>
+      <td></td>
+      <td class="num">${total.toFixed(2)}</td>
+      <td class="num">100%</td>
+    </tr>`;
+
+  // Notes
+  const notesEl = document.getElementById("notes");
+  const notesList = document.getElementById("notes-list");
+  if (r.notes.length > 0) {
+    notesEl.style.display = 'block';
+    notesList.innerHTML = r.notes.map(n => `<li>${n}</li>`).join('');
+  } else {
+    notesEl.style.display = 'none';
+  }
+}
+
+/* ============================================================
+   PRESET LOADING
+   ============================================================ */
+function loadModel(key) {
+  const m = MODELS[key];
+  if (!m) return;
+  state.model = key;
+
+  document.getElementById("m-N").value = m.N;
+  document.getElementById("m-d").value = m.d;
+  document.getElementById("m-L").value = m.L;
+  document.getElementById("m-Hq").value = m.Hq;
+  document.getElementById("m-Hkv").value = m.Hkv;
+  document.getElementById("m-D").value = m.D;
+  document.getElementById("m-is-moe").checked = m.is_moe;
+  document.getElementById("m-E").value = m.E || 1;
+  document.getElementById("m-k").value = m.k || 1;
+  document.getElementById("m-dff-moe").value = m.d_ff_moe || 0;
+  document.getElementById("m-N-non").value = m.N_non || 0;
+  document.getElementById("m-N-exp").value = m.N_exp || 0;
+
+  document.getElementById("moe-fields").style.display = m.is_moe ? 'block' : 'none';
+
+  // 更新 preset 按钮状态
+  document.querySelectorAll(".preset-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.key === key);
+  });
+
+  document.getElementById("model-meta").textContent = `${m.vendor} · ${m.note}`;
+  render();
+}
+
+/* ============================================================
+   BUILD PRESET BUTTONS
+   ============================================================ */
+function buildPresetGrid() {
+  const grid = document.getElementById("preset-grid");
+  grid.innerHTML = Object.entries(MODELS).map(([key, m]) => `
+    <button class="preset-btn" data-key="${key}">
+      <span class="name">${m.name}</span>
+      <span class="meta">${m.vendor} · ${m.N}B</span>
+    </button>`).join('');
+
+  grid.querySelectorAll(".preset-btn").forEach(btn => {
+    btn.addEventListener("click", () => loadModel(btn.dataset.key));
+  });
+}
+
+/* ============================================================
+   VALIDATION CASES
+   ============================================================ */
+const CASES = [
+  {
+    name: "M3 预训练 (CH 7)",
+    desc: "tp=4 pp=4 ep=8 dp=4 ZeRO-2, full ckpt",
+    expected: "~30 GB",
+    apply: () => {
+      loadModel("minimax-m3");
+      document.getElementById("t-bg").value = 32; document.getElementById("t-bg-val").textContent = 32;
+      document.getElementById("t-bm").value = 2;  document.getElementById("t-bm-val").textContent = 2;
+      document.getElementById("t-T").value = 8192; document.getElementById("t-T-val").textContent = "8K";
+      document.getElementById("prec-bf16").checked = true;
+      document.getElementById("opt-adam").checked = true;
+      document.getElementById("ckpt-full").checked = true;
+      document.getElementById("t-fa").checked = true;
+      document.getElementById("t-fp8-act").checked = false;
+      document.getElementById("p-tp").value = 4; document.getElementById("p-tp-val").textContent = 4;
+      document.getElementById("p-pp").value = 4; document.getElementById("p-pp-val").textContent = 4;
+      document.getElementById("p-dp").value = 4; document.getElementById("p-dp-val").textContent = 4;
+      document.getElementById("p-ep").value = 8; document.getElementById("p-ep-val").textContent = 8;
+      document.getElementById("p-cp").value = 1; document.getElementById("p-cp-val").textContent = 1;
+      document.getElementById("zero-2").checked = true;
+      document.getElementById("p-sp").checked = false;
+      render();
+    }
+  },
+  {
+    name: "M3 无 EP (CH 5.4)",
+    desc: "证明放不下，EP 是硬需求",
+    expected: "~102 GB, OVER",
+    apply: () => {
+      loadModel("minimax-m3");
+      document.getElementById("m-N-non").value = 428;
+      document.getElementById("m-N-exp").value = 0;
+      document.getElementById("t-bm").value = 1; document.getElementById("t-bm-val").textContent = 1;
+      document.getElementById("p-tp").value = 4; document.getElementById("p-tp-val").textContent = 4;
+      document.getElementById("p-pp").value = 4; document.getElementById("p-pp-val").textContent = 4;
+      document.getElementById("p-dp").value = 8; document.getElementById("p-dp-val").textContent = 8;
+      document.getElementById("p-ep").value = 1; document.getElementById("p-ep-val").textContent = 1;
+      document.getElementById("zero-2").checked = true;
+      render();
+    }
+  },
+  {
+    name: "Dense 70B base",
+    desc: "ZeRO-2, no ckpt, 对照基线",
+    expected: "Per-GPU 8.75B",
+    apply: () => {
+      // 临时切换到 Dense
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("m-N").value = 70;
+      document.getElementById("m-d").value = 8192;
+      document.getElementById("m-L").value = 80;
+      document.getElementById("m-Hq").value = 64;
+      document.getElementById("m-Hkv").value = 8;
+      document.getElementById("m-D").value = 128;
+      document.getElementById("m-is-moe").checked = false;
+      document.getElementById("moe-fields").style.display = 'none';
+      document.getElementById("model-meta").textContent = "Llama-3 70B 级 Dense 模型";
+      document.getElementById("t-bm").value = 1; document.getElementById("t-bm-val").textContent = 1;
+      document.getElementById("p-tp").value = 4; document.getElementById("p-tp-val").textContent = 4;
+      document.getElementById("p-pp").value = 2; document.getElementById("p-pp-val").textContent = 2;
+      document.getElementById("p-dp").value = 8; document.getElementById("p-dp-val").textContent = 8;
+      document.getElementById("p-ep").value = 1; document.getElementById("p-ep-val").textContent = 1;
+      document.getElementById("zero-2").checked = true;
+      document.getElementById("ckpt-none").checked = true;
+      render();
+    }
+  }
+];
+
+function buildCases() {
+  const el = document.getElementById("cases-list");
+  el.innerHTML = CASES.map((c, i) => `
+    <div class="case-row">
+      <div>
+        <div class="case-name">${c.name}</div>
+        <div class="case-desc">${c.desc}</div>
+      </div>
+      <div style="font-family:var(--mono);color:var(--text-dim);font-size:0.8rem;">期望: ${c.expected}</div>
+      <button data-idx="${i}">载入</button>
+    </div>`).join('');
+  el.querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => CASES[btn.dataset.idx].apply());
+  });
+}
+
+/* ============================================================
+   EVENT BINDING
+   ============================================================ */
+function bindEvents() {
+  // Sliders
+  const sliders = [
+    { id: "t-bg", valId: "t-bg-val", fmt: v => v },
+    { id: "t-bm", valId: "t-bm-val", fmt: v => v },
+    { id: "t-T", valId: "t-T-val", fmt: v => v >= 1024 ? (v/1024)+'K' : v },
+    { id: "p-tp", valId: "p-tp-val", fmt: v => v },
+    { id: "p-pp", valId: "p-pp-val", fmt: v => v },
+    { id: "p-dp", valId: "p-dp-val", fmt: v => v },
+    { id: "p-ep", valId: "p-ep-val", fmt: v => v },
+    { id: "p-cp", valId: "p-cp-val", fmt: v => v }
+  ];
+  sliders.forEach(s => {
+    const slider = document.getElementById(s.id);
+    const val = document.getElementById(s.valId);
+    slider.addEventListener("input", () => {
+      val.textContent = s.fmt(slider.value);
+      render();
+    });
+  });
+
+  // Pill groups (radio changes)
+  document.querySelectorAll('input[type="radio"]').forEach(r => {
+    r.addEventListener("change", render);
+  });
+
+  // Toggles
+  ["t-fa", "t-fp8-act", "p-sp", "m-is-moe"].forEach(id => {
+    document.getElementById(id).addEventListener("change", () => {
+      if (id === "m-is-moe") {
+        document.getElementById("moe-fields").style.display =
+          document.getElementById("m-is-moe").checked ? 'block' : 'none';
+      }
+      render();
+    });
+  });
+
+  // Numeric inputs
+  ["m-N","m-d","m-L","m-Hq","m-Hkv","m-D","m-E","m-k","m-dff-moe","m-N-non","m-N-exp"].forEach(id => {
+    document.getElementById(id).addEventListener("input", render);
+  });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+buildPresetGrid();
+buildCases();
+bindEvents();
+loadModel("minimax-m3");
+</script>
+</body>
+</html>
