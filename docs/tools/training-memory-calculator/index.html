@@ -1247,10 +1247,16 @@ function render() {
 
   // Breakdown table
   const tbodyEl = document.getElementById("breakdown-tbody");
+  const m = readModel();
+  const useEP = m.is_moe && state.ep > 1;
+  const epSuffix = useEP ? ` (+N_exp/tp·pp·ep)` : '';
+  const epSuffixO = useEP ? (state.zeero_stage >= 1 ? ` (+N_exp/tp·pp·ep·dp)` : ` (+N_exp/tp·pp·ep)`) : '';
+  const epSuffixG = useEP ? (state.zeero_stage >= 2 ? ` (+N_exp/tp·pp·ep·dp)` : ` (+N_exp/tp·pp·ep)`) : '';
+
   const rows = [
-    { k: 'weight', label: '权重', formula: `N × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})`, v: r.weight },
-    { k: 'optimizer', label: '优化器', formula: `N × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})`, v: r.optimizer },
-    { k: 'gradient', label: '梯度', formula: `N × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})`, v: r.gradient },
+    { k: 'weight', label: '权重', formula: `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})${epSuffix}`, v: r.weight },
+    { k: 'optimizer', label: '优化器', formula: `N_non × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})${epSuffixO}`, v: r.optimizer },
+    { k: 'gradient', label: '梯度', formula: `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})${epSuffixG}`, v: r.gradient },
     { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/cp)·d·(L/pp)${state.use_sp?'·sp':''}`, v: r.activation }
   ];
   tbodyEl.innerHTML = rows.map(r => `
