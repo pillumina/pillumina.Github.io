@@ -92,7 +92,25 @@
     <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-3/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-2/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-4/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/series/llm-computation-methodology/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/m3/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/memory/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/methodology/</loc>
@@ -114,6 +132,9 @@
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/parameters/</loc>
+    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/roofline/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/kimi/</loc>
@@ -273,9 +294,6 @@
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/knowledge-graph/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/memory/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/nature-skills/</loc>
