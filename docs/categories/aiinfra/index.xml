@@ -11,31 +11,45 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 15 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 22 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/categories/aiinfra/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>LLM 计算方法论（一）：预备知识与参数分解</title>
+      <title>LLM 系统分析方法论（五）：训练显存估算</title>
+      <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-5/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-5/</guid>
+      <description>训练显存完整估算：从单卡四笔账（权重/优化器/梯度/激活）出发，叠加 TP/PP/DP/CP/EP 并行折扣，结合 ZeRO/FSDP、Gradient Checkpointing、Offload 建立训练显存体系。含 M3 完整案例和多模态/LoRA 微调场景。</description>
+    </item>
+    <item>
+      <title>LLM 系统分析方法论（六）：训练通信与掩盖分析</title>
+      <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-6/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-6/</guid>
+      <description>训练通信完整分析：从物理原理到框架实现，覆盖 TP/PP/DP/EP/CP/FSDP2 六种并行维度的通信模式、时间线建模和掩盖策略。含 M3 完整 step time 推演和 Dense 70B/M3 MoE 多场景实战。跨 NVIDIA + Ascend 双平台。</description>
+    </item>
+    <item>
+      <title>LLM 系统分析方法论（一）：预备知识与参数分解</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-1/</guid>
       <description>从 config.json 到参数量、FLOPs、KV Cache、推理显存的完整计算推导。覆盖 Full Attention / MSA / MLA / Mamba-2 / SWA / GDN 六种注意力架构。第一篇：矩阵乘法基础与参数分解。</description>
     </item>
     <item>
-      <title>LLM 计算方法论（三）：KV Cache 与推理显存</title>
+      <title>LLM 系统分析方法论（三）：KV Cache 与推理显存</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-3/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-3/</guid>
       <description>KV Cache 原理与公式推导，覆盖 GQA / MLA / MSA / Mamba-2 四种架构的缓存策略；推理显存完整拆解，包括权重、KV Cache、激活值的显存占用计算。</description>
     </item>
     <item>
-      <title>LLM 计算方法论（二）：FLOPs 估算</title>
+      <title>LLM 系统分析方法论（二）：FLOPs 估算</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-2/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-2/</guid>
       <description>FLOPs 完整估算：从矩阵乘法到 Attention 到 FFN，覆盖 Full Attention / MSA / MLA / Mamba-2 / GDN 六种注意力架构。</description>
     </item>
     <item>
-      <title>LLM 计算方法论（四）：M3 实战推演与 Roofline 模型</title>
+      <title>LLM 系统分析方法论（四）：M3 实战推演与 Roofline 模型</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-4/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-4/</guid>

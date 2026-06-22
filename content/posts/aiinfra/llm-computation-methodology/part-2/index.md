@@ -1,7 +1,7 @@
 +++
 date = '2026-06-15'
 draft = false
-title = 'LLM 计算方法论（二）：FLOPs 估算'
+title = 'LLM 系统分析方法论（二）：FLOPs 估算'
 categories = ['aiinfra']
 tags = ['computation', 'flops', 'parameters', 'methodology']
 series = 'llm-computation-methodology'
@@ -14,7 +14,7 @@ summary = 'FLOPs 完整估算：从矩阵乘法到 Attention 到 FFN，覆盖 Fu
 
 > **读者定位**：已完成 CH1-2 的参数计算，目标是推导 prefilling / decoding 的单 token 计算量，并理解不同架构（Full Attn / MSA / MLA / Mamba-2）的 FLOPs 差异根源。
 
-> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← 当前 → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/)
+> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← 当前 → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)
 
 ---
 
@@ -944,4 +944,4 @@ $$\text{Indexer FLOPs}_{\text{GLM-5.2}} = \frac{21}{78} \times \text{Indexer FLO
 
 
 
-> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← 当前 → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/)
+> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← 当前 → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)

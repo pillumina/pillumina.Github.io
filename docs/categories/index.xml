@@ -11,8 +11,15 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Wed, 17 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 22 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/categories/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Aiinfra</title>
+      <link>https://pillumina.github.io/categories/aiinfra/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/categories/aiinfra/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Architecture</title>
       <link>https://pillumina.github.io/categories/architecture/</link>
@@ -25,13 +32,6 @@
       <link>https://pillumina.github.io/categories/qa/</link>
       <pubDate>Wed, 17 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/categories/qa/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Aiinfra</title>
-      <link>https://pillumina.github.io/categories/aiinfra/</link>
-      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/categories/aiinfra/</guid>
       <description></description>
     </item>
     <item>

@@ -1,7 +1,7 @@
 +++
 date = '2026-06-15'
 draft = false
-title = 'LLM 计算方法论（三）：KV Cache 与推理显存'
+title = 'LLM 系统分析方法论（三）：KV Cache 与推理显存'
 categories = ['aiinfra']
 tags = ['computation', 'kv-cache', 'memory', 'inference', 'methodology']
 series = 'llm-computation-methodology'
@@ -16,7 +16,7 @@ summary = 'KV Cache 原理与公式推导，覆盖 GQA / MLA / MSA / Mamba-2 四
 
 > **本章定位**：系统推导自回归推理中 KV cache 的显存占用公式，覆盖 MHA、GQA、MLA、MSA、Mamba-2 五种架构，并用 Kimi K2.5（MLA）、Nemotron 3 Ultra（GQA+Mamba）、MiniMax M3（MSA+GQA）的实测配置验证所有公式。
 
-> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← 当前 → [（四）M3 实战 + Roofline](../part-4/)
+> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← 当前 → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)
 
 ---
 
@@ -903,4 +903,4 @@ Nemotron 在 BF16 下是"纯权重瓶颈"——KV Cache 几乎不占什么（只
 ---
 
 
-> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← 当前 → [（四）M3 实战 + Roofline](../part-4/)
+> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← 当前 → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)

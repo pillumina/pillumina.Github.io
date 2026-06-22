@@ -1,7 +1,7 @@
 +++
 date = '2026-06-15'
 draft = false
-title = 'LLM 计算方法论（一）：预备知识与参数分解'
+title = 'LLM 系统分析方法论（一）：预备知识与参数分解'
 categories = ['aiinfra']
 tags = ['computation', 'flops', 'kv-cache', 'parameters', 'methodology', 'inference']
 series = 'llm-computation-methodology'
@@ -23,7 +23,7 @@ pinned = true
 - **CH 2** 参数分解：这个模型有多大
 - **CH 1-2** 常见计算错误
 
-> 本系列共 4 篇：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/)
+> 本系列共 6 篇：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)
 
 ---
 
@@ -929,4 +929,4 @@ $$= 2.15 + 20.24 + 1.66 + 32.04 = \mathbf{56.1\text{B}}$$
 
 
 
-> **系列导航**：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/)
+> **系列导航**：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)

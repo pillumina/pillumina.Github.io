@@ -1,7 +1,7 @@
 +++
 date = '2026-06-15'
 draft = false
-title = 'LLM 计算方法论（四）：M3 实战推演与 Roofline 模型'
+title = 'LLM 系统分析方法论（四）：M3 实战推演与 Roofline 模型'
 categories = ['aiinfra']
 tags = ['computation', 'flops', 'kv-cache', 'roofline', 'inference', 'methodology', 'm3']
 series = 'llm-computation-methodology'
@@ -14,7 +14,7 @@ summary = 'MiniMax M3 完整推演：从 config.json 到参数量、FLOPs、KV C
 
 以 MiniMax M3 为目标，从 config.json 出发，完整推演参数分解 → FLOPs 估算 → KV Cache → 推理显存 → 部署方案，覆盖 GQA + MSA + MoE + Vision + MTP 五种架构变体的计算。M3 是目前覆盖计算变体最多的开源模型——一个模型练完基本上所有架构你都会算了。
 
-> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← [（三）KV Cache 与推理显存](../part-3/) ← 当前
+> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← [（三）KV Cache 与推理显存](../part-3/) ← 当前 → [（五）训练显存估算](../part-5/) → [（六）通信与掩盖分析](../part-6/)
 
 > **本章使用的前置知识**（如果你是跳读的，这些概念在这里能找到定义）：
 > - `FLOPs = 2×m×n×k` 及 MAC 概念 → [CH 1.2](#12-矩阵乘法-flops-是怎么算的)
@@ -892,4 +892,4 @@ $$\text{B=1: AI ≈ 4.7, B=4: AI ≈ 4 × 4.7 = 18.8}$$
 
 > **关于本文**：本文档从 8 个开源 LLM 的深度架构拆解中提炼而成。每个公式、每个数字都在对应模型上验证通过。如果你发现错误或有改进建议，欢迎反馈。
 
-> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← [（三）KV Cache 与推理显存](../part-3/) ← 当前
+> **系列导航**：[（一）预备知识与参数分解](../part-1/) ← [（二）FLOPs 估算](../part-2/) ← [（三）KV Cache 与推理显存](../part-3/) ← 当前 → [（五）训练显存估算](../part-5/) → [（六）通信与掩盖分析](../part-6/)
