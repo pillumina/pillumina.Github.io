@@ -1301,6 +1301,16 @@ function compute() {
     N_per_gpu = m.N / (t.tp * t.pp);
   }
 
+  // GPU 总数：MoE 时 EP 是额外维度（tp×pp×dp×ep），Dense 时不含 EP
+  const gpu_count = m.is_moe
+    ? t.tp * t.pp * t.dp * Math.max(1, t.ep)
+    : t.tp * t.pp * t.dp;
+
+  // 如果 MoE 但 N_exp=0，提示 EP 无效
+  if (m.is_moe && N_exp === 0 && t.ep > 1) {
+    notes.push(`⚠ MoE 开启但 N_expert=0，EP=${t.ep} 无实际效果（没有 expert 权重可分片）`);
+  }
+
   const opt_bytes = OPTIMIZER_BYTES[t.optimizer] || 12;
 
   // Base 方程（单卡，无并行折扣）
@@ -1408,7 +1418,7 @@ function compute() {
     weight, optimizer, gradient, activation,
     lora_weight, lora_optimizer, lora_gradient, lora_params_B,
     total, C_ckpt, notes,
-    gpu_count: t.tp * t.pp * t.dp
+    gpu_count
   };
 }
 
