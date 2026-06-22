@@ -1202,16 +1202,19 @@ function compute() {
   const optimizer_base_B = m.N * opt_bytes;
   const grad_base_B = m.N * t.bytes_per_param;  // 梯度同计算精度
 
+  // T_eff（无视觉 token 简化）
+  const T_eff = t.T;
+  const T_cp = T_eff / t.cp;  // CP 切分后的有效序列长度
+
   // 激活系数 C（线性项）
   let C = C_ACT_FA;
   if (t.use_fp8_act) C = Math.max(1, Math.floor(C / 2));
 
   // 没有 FlashAttention 时，attention score 平方项额外占用（CH 1.4.2）
-  // 平方项: 5 × H_q × T / d × B × T × d × L = 5 × H_q × T × B × L (bytes, BF16)
-  // 只在长序列 + 无 FA 时显著
+  // 平方项 per layer: 5 × H_q × T_cp² × B (bytes, BF16) - attention score 矩阵 [H_q, T_cp, T_cp]
   let activation_sq_extra = 0;
   if (!t.use_fa) {
-    activation_sq_extra = 5 * m.Hq * T_eff * t.B_micro * m.L / t.pp / t.cp / 1e9;
+    activation_sq_extra = 5 * m.Hq * T_cp * T_cp * t.B_micro * (m.L / t.pp) / 1e9;
     if (t.use_fp8_act) activation_sq_extra = activation_sq_extra / 2;
   }
 
@@ -1226,14 +1229,11 @@ function compute() {
     if (t.use_fp8_act) C_ckpt = Math.max(1, C_ckpt / 2);
   }
 
-  // T_eff（无视觉 token 简化）
-  const T_eff = t.T;
-
   // SP factor（仅 tp >= 2 时有意义）
   const sp_factor = (t.use_sp && t.tp >= 2) ? (1 - 0.12 / t.tp) : 1.0;
 
-  // 激活（BF16 bytes），CH 5 公式: C × B × (T/cp) × d × (L/pp) × sp_factor
-  const activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * (m.L / t.pp) * sp_factor / 1e9
+  // 激活（BF16 bytes），CH 5 公式: C × B × T_cp × d × (L/pp) × sp_factor + 平方项
+  const activation = C_ckpt * t.B_micro * T_cp * m.d * (m.L / t.pp) * sp_factor / 1e9
                      + activation_sq_extra;
 
   // 权重/优化器/梯度（处理 MoE 拆分 + ZeRO + EP 组合）
@@ -1266,8 +1266,7 @@ function compute() {
 
   // ---- LoRA / QLoRA (CH 9) ----
   let lora_weight = 0, lora_optimizer = 0, lora_gradient = 0;
-  let lora_params_B = 0;  // LoRA adapters 参数量（B）
-  let base_weight = weight;  // 默认 base model 同 weight
+  let lora_params_B = 0;
 
   if (t.lora_enable) {
     // LoRA adapter 参数量：L × 8 × d × r × target_mult
@@ -1275,23 +1274,22 @@ function compute() {
     const target_mult = {"qkvo": 1.0, "qkvo+ffn": 2.5, "all_linear": 3.5}[t.lora_target] || 1.0;
     lora_params_B = m.L * 8 * m.d * t.lora_rank * target_mult / 1e9;
 
-    // LoRA adapters: 权重 + 优化器 + 梯度（按 tp·pp 切分，base model 不切分逻辑保持一致）
+    // LoRA adapters: 权重 + 优化器 + 梯度（走与 base 一致的 ZeRO 切分）
     lora_weight = lora_params_B * t.bytes_per_param / (t.tp * t.pp);
     lora_optimizer = lora_params_B * opt_bytes / (t.tp * t.pp * z_div_o);
     lora_gradient = lora_params_B * t.bytes_per_param / (t.tp * t.pp * z_div_g);
 
     if (t.lora_quant_bits > 0) {
-      // QLoRA: base model 量化冻结，无 optimizer/gradient
+      // QLoRA: base model 量化冻结
       const quant_bytes = t.lora_quant_bits / 8;
-      base_weight = m.N * quant_bytes;  // 量化权重不切分（单卡部署常见）
-      // QLoRA 通常单卡或小规模 DP，不走 TP/PP 切分
-      weight = base_weight;
+      // 量化权重仍按 tp·pp 切分（用户配置多卡 QLoRA 时需要）
+      weight = m.N * quant_bytes / (t.tp * t.pp);
       optimizer = 0;  // base 冻结
       gradient = 0;   // base 冻结
       notes.push(`QLoRA ${t.lora_quant_bits}-bit: base 量化权重=${weight.toFixed(1)} GB（冻结，无优化器/梯度）`);
       notes.push(`QLoRA dequant buffer per layer: ~${(2 * m.d * m.d * t.bytes_per_param / 1e6).toFixed(0)} MB`);
     } else {
-      // LoRA (BF16 base): base 权重仍按 tp·pp 切分，但冻结
+      // LoRA (BF16 base): base 权重按 tp·pp 切分，但冻结
       notes.push(`LoRA (BF16 base): base model 冻结但占显存，仅 LoRA adapters (${lora_params_B.toFixed(2)}B) 进优化器`);
     }
   }
@@ -1376,9 +1374,11 @@ function render() {
   const epSuffixO = useEP ? (state.zeero_stage >= 1 ? ` (+N_exp/tp·pp·ep·dp)` : ` (+N_exp/tp·pp·ep)`) : '';
   const epSuffixG = useEP ? (state.zeero_stage >= 2 ? ` (+N_exp/tp·pp·ep·dp)` : ` (+N_exp/tp·pp·ep)`) : '';
 
+  const sp_factor_display = (state.use_sp && state.tp >= 2) ? (1 - 0.12/state.tp).toFixed(3) + 'x' : '';
+
   let rows = [
     { k: 'weight', label: '权重', formula: state.lora_enable && state.lora_quant_bits > 0
-      ? `base QLoRA ${state.lora_quant_bits}-bit (冻结)`
+      ? `base QLoRA ${state.lora_quant_bits}-bit / (tp·pp) (冻结)`
       : `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})${epSuffix}`,
       v: r.weight },
     { k: 'optimizer', label: '优化器', formula: state.lora_enable && state.lora_quant_bits > 0
@@ -1389,18 +1389,14 @@ function render() {
       ? '— (base 冻结)'
       : `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})${epSuffixG}`,
       v: r.gradient },
-    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/cp)·d·(L/pp)${state.use_sp && state.tp>=2?'·sp(0.88x)':''}${!state.use_fa?' + 5·H_q·T·B·L (无FA平方项)':''}`, v: r.activation }
+    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·T_cp·d·(L/pp)${(state.use_sp && state.tp>=2)?'·sp('+sp_factor_display+')':''}${!state.use_fa?' + 5·H_q·T_cp²·B·(L/pp)':''}`, v: r.activation }
   ];
 
+
   if (state.lora_enable) {
-    rows.push({ k: 'other', label: 'LoRA 权重', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param}`, v: r.lora_weight });
-    if (!(state.lora_quant_bits > 0)) {
-      rows.push({ k: 'other', label: 'LoRA 优化器', formula: `${r.lora_params_B.toFixed(2)}B × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})`, v: r.lora_optimizer });
-      rows.push({ k: 'other', label: 'LoRA 梯度', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})`, v: r.lora_gradient });
-    } else {
-      rows.push({ k: 'other', label: 'LoRA 优化器', formula: `${r.lora_params_B.toFixed(2)}B × ${OPTIMIZER_BYTES[state.optimizer]}`, v: r.lora_optimizer });
-      rows.push({ k: 'other', label: 'LoRA 梯度', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param}`, v: r.lora_gradient });
-    }
+    rows.push({ k: 'other', label: 'LoRA 权重', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param} / (tp·pp)`, v: r.lora_weight });
+    rows.push({ k: 'other', label: 'LoRA 优化器', formula: `${r.lora_params_B.toFixed(2)}B × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})`, v: r.lora_optimizer });
+    rows.push({ k: 'other', label: 'LoRA 梯度', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})`, v: r.lora_gradient });
   }
 
   tbodyEl.innerHTML = rows.map(r => `
