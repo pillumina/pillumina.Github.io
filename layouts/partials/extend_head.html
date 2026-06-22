@@ -72,160 +72,39 @@ html.i18n-ready body {
 {{ if .Params.math }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
 
 <script>
 (function() {
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initLazyKaTeX);
-  } else {
-    initLazyKaTeX();
-  }
-
-  function initLazyKaTeX() {
-  var root = document.querySelector('.post-content') || document.querySelector('.post-single');
-  if (!root) return;
-
-  var SKIP_TAGS = {SCRIPT:1, NOSCRIPT:1, STYLE:1, TEXTAREA:1, PRE:1, CODE:1, TT:1};
-  var DISPLAY_PATTERN = /\$\$([\s\S]+?)\$\$/g;
-  var INLINE_PATTERN = /\$(.+?)\$/g;
-
-  // 收集所有公式位置
-  var placeholders = [];
-
-  function walkTextNodes(node, inSkip) {
-    if (!node) return;
-    if (node.nodeType === 1) { // Element
-      var tag = node.tagName;
-      if (SKIP_TAGS[tag] || node.closest('.no-math')) return;
-      // Skip already-rendered katex or math-lazy
-      if (node.classList && (node.classList.contains('katex') || node.classList.contains('math-lazy'))) return;
-      var child = node.firstChild;
-      while (child) {
-        var next = child.nextSibling; // save before potential DOM mutation
-        walkTextNodes(child, inSkip);
-        child = next;
-      }
-    } else if (node.nodeType === 3) { // Text node
-      var text = node.textContent;
-      if (!text) return;
-      var hasDisplay = /\$\$/.test(text);
-      var hasInline = /\$/.test(text);
-      if (!hasDisplay && !hasInline) return;
-
-      // Replace math with placeholder spans
-      var parent = node.parentNode;
-      var html = text;
-
-      // First handle $$...$$ display math
-      html = html.replace(DISPLAY_PATTERN, function(match, latex) {
-        var id = 'ml' + placeholders.length;
-        placeholders.push({latex: latex.trim(), display: true, id: id});
-        return '<span class="math-lazy math-lazy--display" id="' + id + '" data-latex="' + escapeAttr(latex.trim()) + '">$$' + latex + '$$</span>';
-      });
-
-      // Then handle $...$ inline math (careful: $$ is not $...$)
-      html = html.replace(INLINE_PATTERN, function(match, latex) {
-        var id = 'ml' + placeholders.length;
-        placeholders.push({latex: latex.trim(), display: false, id: id});
-        return '<span class="math-lazy math-lazy--inline" id="' + id + '" data-latex="' + escapeAttr(latex.trim()) + '">$' + latex + '$</span>';
-      });
-
-      if (html !== text) {
-        var span = document.createElement('span');
-        span.innerHTML = html;
-        parent.replaceChild(span, node);
-        // Continue walking the new span (it won't match our patterns since we already processed)
-      }
-    }
-  }
-
-  function escapeAttr(s) {
-    return s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  }
-
-  walkTextNodes(root);
-
-  if (placeholders.length === 0) return;
-
-  // Track rendering state
-  var renderedSet = {};
-  var pendingQueue = [];
-  var renderTimer = null;
-
-  function renderOne(ph) {
-    if (renderedSet[ph.id]) return;
-    renderedSet[ph.id] = true;
+  function renderAll() {
     try {
-      var el = document.getElementById(ph.id);
-      if (!el) return;
-      var html = katex.renderToString(ph.latex, {
-        displayMode: ph.display,
-        throwOnError: false,
-        strict: false,
-        trust: true,
-        macros: { "\\boldsymbol": "\\mathbf{#1}", "\\bm": "\\mathbf{#1}" }
-      });
-      el.innerHTML = html;
-      el.classList.add('math-rendered');
-      el.classList.remove('math-lazy--display', 'math-lazy--inline');
-    } catch(e) {
-      // 渲染失败则保留原始 LaTeX 文本
-    }
-  }
-
-  function flushQueue() {
-    renderTimer = null;
-    var batch = pendingQueue.splice(0);
-    for (var i = 0; i < batch.length; i++) {
-      renderOne(batch[i]);
-    }
-  }
-
-  // IntersectionObserver: 接近视口时渲染
-  if ('IntersectionObserver' in window) {
-    var observer = new IntersectionObserver(function(entries) {
-      for (var i = 0; i < entries.length; i++) {
-        var entry = entries[i];
-        if (entry.isIntersecting) {
-          var el = entry.target;
-          var id = el.id;
-          if (id && !renderedSet[id]) {
-            var ph = null;
-            for (var j = 0; j < placeholders.length; j++) {
-              if (placeholders[j].id === id) { ph = placeholders[j]; break; }
-            }
-            if (ph) {
-              pendingQueue.push(ph);
-              if (!renderTimer) {
-                renderTimer = setTimeout(flushQueue, 16);
-              }
-            }
+      if (typeof renderMathInElement === 'function') {
+        var root = document.querySelector('.post-content') || document.querySelector('.post-single');
+        if (!root) return;
+        renderMathInElement(root, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "$", right: "$", display: false}
+          ],
+          throwOnError: false,
+          strict: false,
+          trust: true,
+          ignoredTags: ["script","noscript","style","textarea","pre","code","tt"],
+          ignoredClasses: ["no-math"],
+          macros: {
+            "\\boldsymbol": "\\mathbf{#1}",
+            "\\bm": "\\mathbf{#1}"
           }
-          observer.unobserve(el);
-        }
+        });
       }
-    }, { rootMargin: '800px 0px' });
-
-    // Observe all placeholders
-    for (var i = 0; i < placeholders.length; i++) {
-      var el = document.getElementById(placeholders[i].id);
-      if (el) observer.observe(el);
-    }
-
-    // Fallback: render any remaining after 3 seconds
-    setTimeout(function() {
-      for (var i = 0; i < placeholders.length; i++) {
-        if (!renderedSet[placeholders[i].id]) {
-          renderOne(placeholders[i]);
-        }
-      }
-    }, 3000);
-  } else {
-    // No IO support: render all immediately
-    for (var i = 0; i < placeholders.length; i++) {
-      renderOne(placeholders[i]);
+    } catch (e) {
+      console.warn("KaTeX render error:", e);
     }
   }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderAll);
+  } else {
+    renderAll();
   }
 })();
 </script>
