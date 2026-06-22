@@ -14,11 +14,11 @@
     <lastBuildDate>Mon, 15 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/flops/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>LLM 架构计算方法论：从 config.json 到推理显存</title>
+      <title>LLM 计算方法论（一）：预备知识与参数分解</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/</guid>
-      <description>从 config.json 到参数量、FLOPs、KV Cache、推理显存的完整计算推导。基于 8 个开源模型（M2.7 / GLM-5.1 / V4-Flash / Qwen3.5 / Mimo / Kimi / Nemotron / M3）的实战拆解经验。覆盖 Full Attention / MSA / MLA / Mamba-2 / SWA / GDN 六种注意力架构的 FLOPs 与 KV Cache 公式。</description>
+      <description>从 config.json 到参数量、FLOPs、KV Cache、推理显存的完整计算推导。覆盖 Full Attention / MSA / MLA / Mamba-2 / SWA / GDN 六种注意力架构。第一篇：矩阵乘法基础与参数分解。</description>
     </item>
   </channel>
 </rss>
