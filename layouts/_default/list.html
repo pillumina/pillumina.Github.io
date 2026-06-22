@@ -45,7 +45,9 @@
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true"  }}
 {{- end }}
 
-{{- $paginator := .Paginate $pages }}
+{{- $pinned := where $pages "Params.pinned" true }}
+{{- $regular := where $pages "Params.pinned" "!=" true }}
+{{- $paginator := .Paginate $regular }}
 
 {{- $showTwoColumn := and .IsHome site.Params.homeInfoParams (eq $paginator.PageNumber 1) }}
 
@@ -58,6 +60,51 @@
 {{- end }}
 
 {{- $term := .Data.Term }}
+
+{{- /* 首页第 1 页：先渲染置顶文章 */}}
+{{- if and .IsHome (eq $paginator.PageNumber 1) }}
+{{- range $index, $page := $pinned }}
+<article class="post-entry post-pinned">
+  {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
+  {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
+  <span class="pinned-label" data-i18n="pinned">置顶</span>
+  {{- /* 分类徽章 */}}
+  {{- $categoryLabel := "" }}
+  {{- $categorySlug := "" }}
+  {{- if .Params.categories }}
+    {{- $categoryLabel = index .Params.categories 0 }}
+    {{- $categorySlug = $categoryLabel | urlize }}
+  {{- else if .Section }}
+    {{- $categoryLabel = .Section | humanize | title }}
+    {{- $categorySlug = .Section }}
+  {{- end }}
+  {{- if $categoryLabel }}
+    <div class="entry-categories">
+      <a href="/categories/{{ $categorySlug }}/" class="entry-category" data-category="{{ $categorySlug }}">
+        <span class="entry-category-label">{{ $categoryLabel }}</span>
+      </a>
+    </div>
+  {{- end }}
+  <header class="entry-header">
+    <h2 class="entry-hint-parent">
+      {{- .Title }}
+    </h2>
+  </header>
+  {{- if (ne (.Param "hideSummary") true) }}
+  <div class="entry-content">
+    <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
+  </div>
+  {{- end }}
+  {{- if not (.Param "hideMeta") }}
+  <footer class="entry-footer">
+    {{- partial "post_meta.html" . -}}
+  </footer>
+  {{- end }}
+  <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .RelPermalink }}"></a>
+</article>
+{{- end }}
+{{- end }}
+
 {{- range $index, $page := $paginator.Pages }}
 
 {{- $class := "post-entry" }}
@@ -69,17 +116,9 @@
 {{- $class = "post-entry tag-entry" }}
 {{- end }}
 
-{{- if .Params.pinned }}
-{{- $class = printf "%s post-pinned" $class }}
-{{- end }}
-
 <article class="{{ $class }}">
   {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
-
-  {{- if .Params.pinned }}
-  <span class="pinned-label" data-i18n="pinned">置顶</span>
-  {{- end }}
 
   {{- /* 分类徽章 - 设计 */}}
   {{- $categoryLabel := "" }}
