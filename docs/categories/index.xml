@@ -49,6 +49,13 @@
       <description>Claude Code Skills 实践与推荐</description>
     </item>
     <item>
+      <title>Theory</title>
+      <link>https://pillumina.github.io/categories/theory/</link>
+      <pubDate>Sun, 10 Aug 2025 15:05:12 +0800</pubDate>
+      <guid>https://pillumina.github.io/categories/theory/</guid>
+      <description>LLM 与 AI 理论：模型架构、训练原理、论文解析等</description>
+    </item>
+    <item>
       <title>Thinking</title>
       <link>https://pillumina.github.io/categories/thinking/</link>
       <pubDate>Fri, 01 Aug 2025 10:05:12 +0800</pubDate>
@@ -82,13 +89,6 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/categories/study/</guid>
       <description>学习笔记：公开课、读书、论文等</description>
-    </item>
-    <item>
-      <title>Theory</title>
-      <link>https://pillumina.github.io/categories/theory/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/categories/theory/</guid>
-      <description>LLM 与 AI 理论：模型架构、训练原理、论文解析等</description>
     </item>
   </channel>
 </rss>

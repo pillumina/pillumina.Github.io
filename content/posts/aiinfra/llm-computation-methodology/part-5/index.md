@@ -273,7 +273,7 @@ $$dp_{\text{total}} = dp_{\text{replicate}} \times dp_{\text{shard}}$$
 
 关键改进在**权重峰值**：FSDP1 的 all-gather 展开到全量（$2N$），HSDP 只展开到节点内全量（$2N/dp_{\text{replicate}}$）。当 $dp_{\text{replicate}} = 8$（8 节点）时，权重峰值从 $2N$ 降到 $2N/8$。
 
-通信差异（细节留到 `communication-methodology.md` 展开）：
+通信差异（细节见[系列第六篇](../part-6/)）：
 - 节点内 reduce-scatter + all-gather（NVLink 高带宽，几乎无感）
 - 节点间 all-reduce（IB，仅触达梯度，不触达参数）
 
@@ -867,9 +867,9 @@ base model 权重固定占 35 GB（以 70B 模型为例），剩余约 45 GB（H
 
 ---
 
-> **系列导航**：`computation-methodology.md`（参数 + FLOPs + KV Cache + 推理显存 + Roofline）→ **本文（训练显存）** → `communication-methodology.md`（通信开销，待完成）
+> **系列导航**：[（四）M3 实战 + Roofline](../part-4/) ← 当前 → [（六）通信与掩盖分析](../part-6/)
 
-> **符号约定**：与 `computation-methodology.md` 完全一致。新增符号：$B_{\text{global}}$ = 全局 batch size，$B_{\text{micro}}$ = 每 GPU 每次前向的 micro batch size，$tp/pp/dp/ep/cp$ = 各并行维度度数。
+> **符号约定**：与[系列第一篇](../part-1/)完全一致。新增符号：$B_{\text{global}}$ = 全局 batch size，$B_{\text{micro}}$ = 每 GPU 每次前向的 micro batch size，$tp/pp/dp/ep/cp$ = 各并行维度度数。
 
 > **关于本文**：所有公式均在 MiniMax M3 (428B) 和 Llama-3 70B 的已知公开配置上验证通过。激活公式基于 Korthikanti et al. (2022) 并经 FlashAttention 修正。FSDP2 HSDP 信息基于 PyTorch 2.6 文档。CP 公式基于 Ring Attention 原始论文和 LoongTrain 的工程验证。
 

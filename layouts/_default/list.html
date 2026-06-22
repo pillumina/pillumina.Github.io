@@ -38,7 +38,7 @@
 </div>
 {{- end }}
 
-{{- $pages := union .RegularPages .Sections }}
+{{- $pages := .RegularPagesRecursive }}
 
 {{- if .IsHome }}
 {{- $pages = where site.RegularPages "Type" "in" site.Params.mainSections }}

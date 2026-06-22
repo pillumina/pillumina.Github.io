@@ -18,7 +18,8 @@
       <link>https://pillumina.github.io/posts/llmtheory/2-moe/</link>
       <pubDate>Sun, 10 Aug 2025 15:05:12 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/llmtheory/2-moe/</guid>
-      <description>&lt;p&gt;在上一篇文章中，我们介绍了MoE的一个几何诠释，旨在通过Dense模型的最佳逼近出发来推导和理解MoE。同时在文末我们也说了，给出MoE的计算公式仅仅是开始，训练一个实际有效的MoE模型还有很多细节补，比如本文要讨论的负载均衡（Load Balance）问题。&lt;/p&gt;
+      <description>&lt;hr&gt;
+&lt;p&gt;在上一篇文章中，我们介绍了MoE的一个几何诠释，旨在通过Dense模型的最佳逼近出发来推导和理解MoE。同时在文末我们也说了，给出MoE的计算公式仅仅是开始，训练一个实际有效的MoE模型还有很多细节补，比如本文要讨论的负载均衡（Load Balance）问题。&lt;/p&gt;
 &lt;p&gt;负载均衡，即&amp;quot;不患寡而患不均&amp;quot;，说白了就是让每个Expert都在干活，并且都在干尽可能一样多的活，避免某些Expert浪费算力。负载均衡既是充分利用训练算力的需求，也是尽可能发挥MoE大参数量潜力的需求。&lt;/p&gt;
 &lt;h2 id=&#34;问题分析&#34;&gt;问题分析&lt;/h2&gt;
 &lt;p&gt;我们知道，MoE的基本形式是 &lt;/p&gt;
@@ -42,7 +43,8 @@ $$
       <link>https://pillumina.github.io/posts/llmtheory/1-moe/</link>
       <pubDate>Fri, 08 Aug 2025 15:05:12 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/llmtheory/1-moe/</guid>
-      <description>&lt;p&gt;MoE（Mixture of Experts）架构的流行自不必多说，近来火出圈的&lt;a href=&#34;https://papers.cool/arxiv/2412.19437&#34;&gt;DeepSeek-V3&lt;/a&gt;便是MoE架构，传言GPT-5也是MoE架构，国内最近出的一些模型（Qwen3系列相关）也有不少用上了MoE。然而，虽然MoE的研究由来已久，但其应用长时间内都不愠不火，大致上是从去年初的&lt;a href=&#34;https://papers.cool/arxiv/2401.04088&#34;&gt;《Mixtral of Experts》&lt;/a&gt;开始，MoE才逐渐吸引大家的注意力，其显著优点是参数量大，但训练和推理成本都显著低。&lt;/p&gt;
+      <description>&lt;hr&gt;
+&lt;p&gt;MoE（Mixture of Experts）架构的流行自不必多说，近来火出圈的&lt;a href=&#34;https://papers.cool/arxiv/2412.19437&#34;&gt;DeepSeek-V3&lt;/a&gt;便是MoE架构，传言GPT-5也是MoE架构，国内最近出的一些模型（Qwen3系列相关）也有不少用上了MoE。然而，虽然MoE的研究由来已久，但其应用长时间内都不愠不火，大致上是从去年初的&lt;a href=&#34;https://papers.cool/arxiv/2401.04088&#34;&gt;《Mixtral of Experts》&lt;/a&gt;开始，MoE才逐渐吸引大家的注意力，其显著优点是参数量大，但训练和推理成本都显著低。&lt;/p&gt;
 &lt;p&gt;但同时MoE也有一些难题，如训练不稳定、负载不均衡、效果不够好等，这也是它早年没有流行起来的主要原因。不过随着这两年关注度的提升，这些问题在很大程度上已经得到解决，我们在接下来的介绍中会逐一谈到这些内容。&lt;/p&gt;
 &lt;h3 id=&#34;问题定义&#34;&gt;问题定义&lt;/h3&gt;
 &lt;p&gt;我们知道，Transformer模型由Attention层和MLP层组成，MoE替换的是模型中MLP层。MLP层又分FFN（FeedForward Network）和GLU（Gated Linear Unit）两种，主流的是GLU，但简单起见我们还是以FFN为例：&lt;/p&gt;
