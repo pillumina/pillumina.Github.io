@@ -75,6 +75,13 @@ html.i18n-ready body {
 
 <script>
 (function() {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLazyKaTeX);
+  } else {
+    initLazyKaTeX();
+  }
+
+  function initLazyKaTeX() {
   var root = document.querySelector('.post-content') || document.querySelector('.post-single');
   if (!root) return;
 
@@ -218,6 +225,7 @@ html.i18n-ready body {
     for (var i = 0; i < placeholders.length; i++) {
       renderOne(placeholders[i]);
     }
+  }
   }
 })();
 </script>
