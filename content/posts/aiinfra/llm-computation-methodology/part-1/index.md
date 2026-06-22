@@ -27,16 +27,18 @@ pinned = true
 
 | 你的目标 | 推荐阅读路径 | 预计时间 |
 |---|---|---|
-| **快速了解全貌** | CH 1.2（FLOPs基础）→ CH 2.3（Attention参数）→ CH 4.2（KV cache公式）→ 附录 C（8模型速览） | 30 min |
-| **学会算参数量** | CH 1.1（config字段）→ CH 1.4（符号表）→ CH 2（全章，4个案例代入）→ CH 2.10（Nemotron完整推演） | 60 min |
-| **学会算 FLOPs** | CH 1.2（FLOPs公式）→ CH 3.2（Full Attn）→ 按需选读 3.3（MSA）/ 3.4（MLA）/ 3.5（Mamba-2）/ 3.6（SWA）/ 3.7（DeltaNet）→ CH 3.10（跨架构对比） | 45 min |
-| **学会算 KV cache** | CH 1.4（符号表）→ CH 4.2（标准GQA）→ CH 4.3（MLA重点）→ CH 4.5（SWA）/ 4.6（DeltaNet）/ 4.7（Mamba-2）→ CH 4.9（对比表） | 40 min |
-| **独立推演一个模型** | CH 1（预备知识，15 min）→ CH 6（M3完整推演，对照 config.json 自己算一遍） | 90 min |
-| **查漏补缺** | 附录 A（config字段→计算项映射）→ 附录 B（符号表）→ 定位到对应章节 | 5 min |
+| **快速了解全貌** | Part 1 CH 1.2（FLOPs 基础）→ CH 2.3（Attention 参数）→ [Part 3](../part-3/) CH 4.2（KV cache 公式）→ [Part 4](../part-4/) 附录 C（8 模型速览） | 30 min |
+| **学会算参数量** | Part 1 全篇（config 字段 + 符号表 + 4 个案例代入） | 60 min |
+| **学会算 FLOPs** | [Part 2](../part-2/)（六种架构的 FLOPs 公式推导与跨架构对比） | 45 min |
+| **学会算 KV cache** | [Part 3](../part-3/)（五种架构的 KV cache 公式与验证案例） | 40 min |
+| **学会算推理显存** | [Part 3](../part-3/) + [Part 4](../part-4/)（推理显存拆解 + M3 完整推演 + Roofline 延迟分析） | 60 min |
+| **学会算训练显存** | [Part 5](../part-5/)（单卡四笔账 → 并行折扣 → ZeRO/FSDP → Checkpointing → Offload → M3 案例） | 60 min |
+| **理解通信分析** | [Part 6](../part-6/)（通信物理原理 → 时间线建模 → 六种并行维度通信模式 → M3 step time 推演） | 60 min |
+| **查漏补缺** | [Part 4 附录](../part-4/)（config 字段速查 + 符号表 + 公式速查 + 常见错误 Top 12） | 5 min |
 
-各章之间的依赖关系：CH 2 → CH 3（参数是 FLOPs 的输入，但 FLOPs 的核心公式独立）→ CH 4（FLOPs 和 KV cache 无依赖，可并行阅读）→ CH 5（依赖 CH 2 + CH 4）→ CH 6（依赖全部）。
+各篇依赖关系：Part 1（基础）→ Part 2（FLOPs）/ Part 3（KV Cache）可并行 → Part 4（M3 实战，依赖 1-3）→ Part 5（训练显存，依赖 1-4）→ Part 6（通信，依赖 1-5）。
 
-> **新读者建议**：从 CH 1.2（5 分钟搞懂 FLOPs 怎么数）和 CH 4.2（10 分钟搞懂 KV cache 怎么算）开始——这两节能让你最快建立「能算」的感觉。
+> **新读者建议**：从 Part 1 CH 1.2（5 分钟搞懂 FLOPs 怎么数）和 [Part 3 CH 4.2](../part-3/)（10 分钟搞懂 KV cache 怎么算）开始——这两节能让你最快建立「能算」的感觉。然后按兴趣选择 Part 2-6 任意章节深入。
 
 ---
 
