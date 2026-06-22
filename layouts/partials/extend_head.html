@@ -381,19 +381,9 @@ document.addEventListener('DOMContentLoaded', function() {
         headerObserver.observe(h);
     });
 
-    // 获取当前激活的标题：优先 IO 可见，fallback 用缓存位置
-    // 按 DOM 顺序遍历 headers，取最后一个可见的（最靠近读者当前位置的标题）
+    // 获取当前激活的标题：以滚动位置为主（确定性，不跳变），IO 可见标题仅在确定最后一个时辅助去抖
     function getActiveHeader() {
-        // 方案 1: IO 检测到可见标题，按 DOM 序取最后一个
-        var lastVisible = '';
-        for (var i = 0; i < headers.length; i++) {
-            if (visibleHeadersSet[headers[i].id]) {
-                lastVisible = headers[i].id;
-            }
-        }
-        if (lastVisible) return lastVisible;
-
-        // 方案 2: fallback — 用缓存的 offsetTop 找最后一个已滚过视口顶部的标题
+        // 方案 1（主要）：用缓存的 offsetTop，找最后一个已滚过视口顶部的标题
         var scrollY = window.scrollY + 80;
         var lastPassed = '';
         for (var i = 0; i < headers.length; i++) {
@@ -402,6 +392,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 lastPassed = headers[i].id;
             }
         }
+
+        // 方案 2（去抖）：如果 IO 检测到更靠后的可见标题（用户在往回滚），
+        // 且该标题离视口顶部很近（< 200px），才切换到它。避免滚动时标题闪烁跳动。
+        if (lastPassed) {
+            var lastVisible = '';
+            for (var i = 0; i < headers.length; i++) {
+                if (visibleHeadersSet[headers[i].id]) {
+                    lastVisible = headers[i].id;
+                }
+            }
+            // IO 可见标题比当前位置更靠后（下方），且距离视口顶部 < 200px → 回滚切换
+            if (lastVisible && lastVisible !== lastPassed) {
+                var visiblePos = headerPositions[lastVisible];
+                if (visiblePos !== undefined && visiblePos > headerPositions[lastPassed] && visiblePos - window.scrollY < 200) {
+                    return lastVisible;
+                }
+            }
+        }
+
         return lastPassed;
     }
 
