@@ -823,13 +823,59 @@ details.advanced > summary:hover { color: var(--primary); }
         <div class="toggle-row">
           <div>
             <label>FP8 Activation</label>
-            <div class="desc">激活存储字节减半（Transformer Engine）</div>
+            <div class="desc">激活存储字节减半（Transformer Engine，910C 不支持）</div>
           </div>
           <label class="toggle">
             <input type="checkbox" id="t-fp8-act">
             <span class="track"></span>
           </label>
         </div>
+
+        <details class="advanced">
+          <summary>LoRA / QLoRA 微调（CH 9）</summary>
+          <div style="margin-top: 10px;">
+            <div class="toggle-row">
+              <div>
+                <label>启用 LoRA</label>
+                <div class="desc">冻结 base model，仅训练低秩适配器</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="lora-enable">
+                <span class="track"></span>
+              </label>
+            </div>
+            <div id="lora-fields" style="display:none;">
+              <div class="slider-row">
+                <label>LoRA rank r</label>
+                <input type="range" id="lora-rank" min="4" max="256" step="4" value="16">
+                <span class="val" id="lora-rank-val">16</span>
+              </div>
+              <div class="pill-group-wrap">
+                <label>LoRA 目标模块</label>
+                <div class="pill-group" id="lora-target-group">
+                  <input type="radio" name="lora-target" id="lt-qkvo" value="qkvo" checked>
+                  <label for="lt-qkvo">QKVO (×1.0)</label>
+                  <input type="radio" name="lora-target" id="lt-qkvoffn" value="qkvo+ffn">
+                  <label for="lt-qkvoffn">+FFN (×2.5)</label>
+                  <input type="radio" name="lora-target" id="lt-all" value="all_linear">
+                  <label for="lt-all">All Linear (×3.5)</label>
+                </div>
+              </div>
+              <div class="pill-group-wrap">
+                <label>QLoRA 量化（base model）</label>
+                <div class="pill-group" id="quant-group">
+                  <input type="radio" name="quant" id="q-none" value="0" checked>
+                  <label for="q-none">None (BF16)</label>
+                  <input type="radio" name="quant" id="q-nf4" value="4">
+                  <label for="q-nf4">NF4 (4-bit)</label>
+                  <input type="radio" name="quant" id="q-fp8" value="8">
+                  <label for="q-fp8">FP8 (8-bit)</label>
+                </div>
+                <div class="formula">QLoRA: base model 量化冻结，仅 LoRA adapters 进优化器</div>
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
 
       <!-- Parallelism Config -->
@@ -1056,6 +1102,11 @@ const state = {
   use_fa: true,
   ckpt_mode: "full",
   use_fp8_act: false,
+  // LoRA / QLoRA
+  lora_enable: false,
+  lora_rank: 16,
+  lora_target: "qkvo",
+  lora_quant_bits: 0,  // 0=BF16, 4=NF4, 8=FP8
   // parallel
   tp: 4, pp: 4, dp: 4, ep: 8, cp: 1,
   zeero_stage: 2,
@@ -1102,6 +1153,11 @@ function syncStateFromUI() {
   state.cp = parseInt(document.getElementById("p-cp").value, 10);
   state.zeero_stage = parseInt(document.querySelector('input[name="zero"]:checked').value, 10);
   state.use_sp = document.getElementById("p-sp").checked;
+  // LoRA
+  state.lora_enable = document.getElementById("lora-enable").checked;
+  state.lora_rank = parseInt(document.getElementById("lora-rank").value, 10);
+  state.lora_target = document.querySelector('input[name="lora-target"]:checked').value;
+  state.lora_quant_bits = parseInt(document.querySelector('input[name="quant"]:checked').value, 10);
 }
 
 /* ============================================================
@@ -1208,11 +1264,45 @@ function compute() {
     notes.push(`ZeRO-3 weight 驻留=${weight.toFixed(1)} GB，all-gather 峰值=${peak.toFixed(1)} GB`);
   }
 
-  const total = weight + optimizer + gradient + activation;
+  // ---- LoRA / QLoRA (CH 9) ----
+  let lora_weight = 0, lora_optimizer = 0, lora_gradient = 0;
+  let lora_params_B = 0;  // LoRA adapters 参数量（B）
+  let base_weight = weight;  // 默认 base model 同 weight
+
+  if (t.lora_enable) {
+    // LoRA adapter 参数量：L × 8 × d × r × target_mult
+    // 4 matrices (QKVO) × 2 (A+B factors) × d × r
+    const target_mult = {"qkvo": 1.0, "qkvo+ffn": 2.5, "all_linear": 3.5}[t.lora_target] || 1.0;
+    lora_params_B = m.L * 8 * m.d * t.lora_rank * target_mult / 1e9;
+
+    // LoRA adapters: 权重 + 优化器 + 梯度（按 tp·pp 切分，base model 不切分逻辑保持一致）
+    lora_weight = lora_params_B * t.bytes_per_param / (t.tp * t.pp);
+    lora_optimizer = lora_params_B * opt_bytes / (t.tp * t.pp * z_div_o);
+    lora_gradient = lora_params_B * t.bytes_per_param / (t.tp * t.pp * z_div_g);
+
+    if (t.lora_quant_bits > 0) {
+      // QLoRA: base model 量化冻结，无 optimizer/gradient
+      const quant_bytes = t.lora_quant_bits / 8;
+      base_weight = m.N * quant_bytes;  // 量化权重不切分（单卡部署常见）
+      // QLoRA 通常单卡或小规模 DP，不走 TP/PP 切分
+      weight = base_weight;
+      optimizer = 0;  // base 冻结
+      gradient = 0;   // base 冻结
+      notes.push(`QLoRA ${t.lora_quant_bits}-bit: base 量化权重=${weight.toFixed(1)} GB（冻结，无优化器/梯度）`);
+      notes.push(`QLoRA dequant buffer per layer: ~${(2 * m.d * m.d * t.bytes_per_param / 1e6).toFixed(0)} MB`);
+    } else {
+      // LoRA (BF16 base): base 权重仍按 tp·pp 切分，但冻结
+      notes.push(`LoRA (BF16 base): base model 冻结但占显存，仅 LoRA adapters (${lora_params_B.toFixed(2)}B) 进优化器`);
+    }
+  }
+
+  const total = weight + optimizer + gradient + activation +
+                lora_weight + lora_optimizer + lora_gradient;
 
   return {
     N_per_gpu,
     weight, optimizer, gradient, activation,
+    lora_weight, lora_optimizer, lora_gradient, lora_params_B,
     total, C_ckpt, notes,
     gpu_count: t.tp * t.pp * t.dp
   };
@@ -1267,7 +1357,8 @@ function render() {
     { k: 'weight', label: '权重', v: r.weight },
     { k: 'optimizer', label: '优化器', v: r.optimizer },
     { k: 'gradient', label: '梯度', v: r.gradient },
-    { k: 'activation', label: '激活', v: r.activation }
+    { k: 'activation', label: '激活', v: r.activation },
+    { k: 'other', label: 'LoRA adapters', v: r.lora_weight + r.lora_optimizer + r.lora_gradient }
   ].filter(s => s.v > 0.01);
 
   const barEl = document.getElementById("breakdown-bar");
@@ -1285,12 +1376,33 @@ function render() {
   const epSuffixO = useEP ? (state.zeero_stage >= 1 ? ` (+N_exp/tp·pp·ep·dp)` : ` (+N_exp/tp·pp·ep)`) : '';
   const epSuffixG = useEP ? (state.zeero_stage >= 2 ? ` (+N_exp/tp·pp·ep·dp)` : ` (+N_exp/tp·pp·ep)`) : '';
 
-  const rows = [
-    { k: 'weight', label: '权重', formula: `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})${epSuffix}`, v: r.weight },
-    { k: 'optimizer', label: '优化器', formula: `N_non × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})${epSuffixO}`, v: r.optimizer },
-    { k: 'gradient', label: '梯度', formula: `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})${epSuffixG}`, v: r.gradient },
+  let rows = [
+    { k: 'weight', label: '权重', formula: state.lora_enable && state.lora_quant_bits > 0
+      ? `base QLoRA ${state.lora_quant_bits}-bit (冻结)`
+      : `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})${epSuffix}`,
+      v: r.weight },
+    { k: 'optimizer', label: '优化器', formula: state.lora_enable && state.lora_quant_bits > 0
+      ? '— (base 冻结)'
+      : `N_non × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})${epSuffixO}`,
+      v: r.optimizer },
+    { k: 'gradient', label: '梯度', formula: state.lora_enable && state.lora_quant_bits > 0
+      ? '— (base 冻结)'
+      : `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})${epSuffixG}`,
+      v: r.gradient },
     { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/cp)·d·(L/pp)${state.use_sp && state.tp>=2?'·sp(0.88x)':''}${!state.use_fa?' + 5·H_q·T·B·L (无FA平方项)':''}`, v: r.activation }
   ];
+
+  if (state.lora_enable) {
+    rows.push({ k: 'other', label: 'LoRA 权重', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param}`, v: r.lora_weight });
+    if (!(state.lora_quant_bits > 0)) {
+      rows.push({ k: 'other', label: 'LoRA 优化器', formula: `${r.lora_params_B.toFixed(2)}B × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})`, v: r.lora_optimizer });
+      rows.push({ k: 'other', label: 'LoRA 梯度', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})`, v: r.lora_gradient });
+    } else {
+      rows.push({ k: 'other', label: 'LoRA 优化器', formula: `${r.lora_params_B.toFixed(2)}B × ${OPTIMIZER_BYTES[state.optimizer]}`, v: r.lora_optimizer });
+      rows.push({ k: 'other', label: 'LoRA 梯度', formula: `${r.lora_params_B.toFixed(2)}B × ${state.bytes_per_param}`, v: r.lora_gradient });
+    }
+  }
+
   tbodyEl.innerHTML = rows.map(r => `
     <tr>
       <td><span class="dot ${r.k}"></span>${r.label}</td>
@@ -1434,6 +1546,45 @@ const CASES = [
       document.getElementById("ckpt-none").checked = true;
       render();
     }
+  },
+  {
+    name: "QLoRA Llama-70B (CH 9.4)",
+    desc: "r=16, NF4 (4-bit), 单卡 H100",
+    expected: "~47 GB, 单卡可行",
+    apply: () => {
+      document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("m-N").value = 70;
+      document.getElementById("m-d").value = 8192;
+      document.getElementById("m-L").value = 80;
+      document.getElementById("m-Hq").value = 64;
+      document.getElementById("m-Hkv").value = 8;
+      document.getElementById("m-D").value = 128;
+      document.getElementById("m-is-moe").checked = false;
+      document.getElementById("moe-fields").style.display = 'none';
+      document.getElementById("model-meta").textContent = "Llama-3 70B + QLoRA 微调";
+      document.getElementById("t-bg").value = 1; document.getElementById("t-bg-val").textContent = 1;
+      document.getElementById("t-bm").value = 1; document.getElementById("t-bm-val").textContent = 1;
+      document.getElementById("t-T").value = 8192; document.getElementById("t-T-val").textContent = "8K";
+      document.getElementById("prec-bf16").checked = true;
+      document.getElementById("opt-adam").checked = true;
+      document.getElementById("ckpt-full").checked = true;
+      document.getElementById("t-fa").checked = true;
+      document.getElementById("t-fp8-act").checked = false;
+      document.getElementById("p-tp").value = 1; document.getElementById("p-tp-val").textContent = 1;
+      document.getElementById("p-pp").value = 1; document.getElementById("p-pp-val").textContent = 1;
+      document.getElementById("p-dp").value = 1; document.getElementById("p-dp-val").textContent = 1;
+      document.getElementById("p-ep").value = 1; document.getElementById("p-ep-val").textContent = 1;
+      document.getElementById("p-cp").value = 1; document.getElementById("p-cp-val").textContent = 1;
+      document.getElementById("zero-0").checked = true;
+      document.getElementById("p-sp").checked = false;
+      // 启用 LoRA
+      document.getElementById("lora-enable").checked = true;
+      document.getElementById("lora-fields").style.display = 'block';
+      document.getElementById("lora-rank").value = 16; document.getElementById("lora-rank-val").textContent = 16;
+      document.getElementById("lt-qkvo").checked = true;
+      document.getElementById("q-nf4").checked = true;
+      render();
+    }
   }
 ];
 
@@ -1490,14 +1641,26 @@ function bindEvents() {
   });
 
   // Toggles
-  ["t-fa", "t-fp8-act", "p-sp", "m-is-moe"].forEach(id => {
+  ["t-fa", "t-fp8-act", "p-sp", "m-is-moe", "lora-enable"].forEach(id => {
     document.getElementById(id).addEventListener("change", () => {
       if (id === "m-is-moe") {
         document.getElementById("moe-fields").style.display =
           document.getElementById("m-is-moe").checked ? 'block' : 'none';
       }
+      if (id === "lora-enable") {
+        document.getElementById("lora-fields").style.display =
+          document.getElementById("lora-enable").checked ? 'block' : 'none';
+      }
       render();
     });
+  });
+
+  // LoRA rank slider
+  const loraRankSlider = document.getElementById("lora-rank");
+  const loraRankVal = document.getElementById("lora-rank-val");
+  loraRankSlider.addEventListener("input", () => {
+    loraRankVal.textContent = loraRankSlider.value;
+    render();
   });
 
   // Numeric inputs
