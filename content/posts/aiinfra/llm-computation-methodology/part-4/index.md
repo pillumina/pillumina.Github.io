@@ -1,5 +1,5 @@
 +++
-date = '2026-06-15'
+date = '2026-06-22T09:03:00+08:00'
 draft = false
 title = 'LLM 系统分析方法论（四）：M3 实战推演与 Roofline 模型'
 categories = ['aiinfra']

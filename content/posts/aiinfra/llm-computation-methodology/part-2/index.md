@@ -1,5 +1,5 @@
 +++
-date = '2026-06-15'
+date = '2026-06-22T09:01:00+08:00'
 draft = false
 title = 'LLM 系统分析方法论（二）：FLOPs 估算'
 categories = ['aiinfra']

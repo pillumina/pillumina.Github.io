@@ -11,132 +11,139 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Mon, 22 Jun 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 22 Jun 2026 09:06:00 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>Ascend</title>
-      <link>https://pillumina.github.io/tags/ascend/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/ascend/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Communication</title>
-      <link>https://pillumina.github.io/tags/communication/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/communication/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Computation</title>
-      <link>https://pillumina.github.io/tags/computation/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/computation/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Flops</title>
-      <link>https://pillumina.github.io/tags/flops/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/flops/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Gpu</title>
-      <link>https://pillumina.github.io/tags/gpu/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/gpu/</guid>
-      <description></description>
-    </item>
     <item>
       <title>Inference</title>
       <link>https://pillumina.github.io/tags/inference/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Jun 2026 09:06:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/inference/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Kv-Cache</title>
-      <link>https://pillumina.github.io/tags/kv-cache/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/kv-cache/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>M3</title>
-      <link>https://pillumina.github.io/tags/m3/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/m3/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Memory</title>
-      <link>https://pillumina.github.io/tags/memory/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/memory/</guid>
       <description></description>
     </item>
     <item>
       <title>Methodology</title>
       <link>https://pillumina.github.io/tags/methodology/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Jun 2026 09:06:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/methodology/</guid>
       <description></description>
     </item>
     <item>
       <title>Moe</title>
       <link>https://pillumina.github.io/tags/moe/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Jun 2026 09:06:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/moe/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Nccl</title>
-      <link>https://pillumina.github.io/tags/nccl/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/nccl/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Parallelism</title>
-      <link>https://pillumina.github.io/tags/parallelism/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/parallelism/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Parameters</title>
-      <link>https://pillumina.github.io/tags/parameters/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/parameters/</guid>
       <description></description>
     </item>
     <item>
       <title>Performance</title>
       <link>https://pillumina.github.io/tags/performance/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Jun 2026 09:06:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/performance/</guid>
       <description></description>
     </item>
     <item>
       <title>Serving</title>
       <link>https://pillumina.github.io/tags/serving/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Jun 2026 09:06:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/serving/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Training</title>
-      <link>https://pillumina.github.io/tags/training/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/training/</guid>
       <description></description>
     </item>
     <item>
       <title>Vllm</title>
       <link>https://pillumina.github.io/tags/vllm/</link>
-      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <pubDate>Mon, 22 Jun 2026 09:06:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/vllm/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Ascend</title>
+      <link>https://pillumina.github.io/tags/ascend/</link>
+      <pubDate>Mon, 22 Jun 2026 09:05:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/ascend/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Communication</title>
+      <link>https://pillumina.github.io/tags/communication/</link>
+      <pubDate>Mon, 22 Jun 2026 09:05:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/communication/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>M3</title>
+      <link>https://pillumina.github.io/tags/m3/</link>
+      <pubDate>Mon, 22 Jun 2026 09:05:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/m3/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Nccl</title>
+      <link>https://pillumina.github.io/tags/nccl/</link>
+      <pubDate>Mon, 22 Jun 2026 09:05:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/nccl/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Parallelism</title>
+      <link>https://pillumina.github.io/tags/parallelism/</link>
+      <pubDate>Mon, 22 Jun 2026 09:05:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/parallelism/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Training</title>
+      <link>https://pillumina.github.io/tags/training/</link>
+      <pubDate>Mon, 22 Jun 2026 09:05:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/training/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Gpu</title>
+      <link>https://pillumina.github.io/tags/gpu/</link>
+      <pubDate>Mon, 22 Jun 2026 09:04:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/gpu/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Memory</title>
+      <link>https://pillumina.github.io/tags/memory/</link>
+      <pubDate>Mon, 22 Jun 2026 09:04:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/memory/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Computation</title>
+      <link>https://pillumina.github.io/tags/computation/</link>
+      <pubDate>Mon, 22 Jun 2026 09:03:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/computation/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Flops</title>
+      <link>https://pillumina.github.io/tags/flops/</link>
+      <pubDate>Mon, 22 Jun 2026 09:03:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/flops/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Kv-Cache</title>
+      <link>https://pillumina.github.io/tags/kv-cache/</link>
+      <pubDate>Mon, 22 Jun 2026 09:03:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/kv-cache/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Roofline</title>
+      <link>https://pillumina.github.io/tags/roofline/</link>
+      <pubDate>Mon, 22 Jun 2026 09:03:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/roofline/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Parameters</title>
+      <link>https://pillumina.github.io/tags/parameters/</link>
+      <pubDate>Mon, 22 Jun 2026 09:01:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/parameters/</guid>
       <description></description>
     </item>
     <item>
@@ -214,13 +221,6 @@
       <link>https://pillumina.github.io/tags/multimodal/</link>
       <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
       <guid>https://pillumina.github.io/tags/multimodal/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Roofline</title>
-      <link>https://pillumina.github.io/tags/roofline/</link>
-      <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/roofline/</guid>
       <description></description>
     </item>
     <item>
