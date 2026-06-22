@@ -1087,20 +1087,20 @@ function readModel() {
 }
 
 function syncStateFromUI() {
-  state.B_global = parseInt(document.getElementById("t-bg").value);
-  state.B_micro = parseInt(document.getElementById("t-bm").value);
-  state.T = parseInt(document.getElementById("t-T").value);
-  state.bytes_per_param = parseInt(document.querySelector('input[name="prec"]:checked').value);
+  state.B_global = parseInt(document.getElementById("t-bg").value, 10);
+  state.B_micro = parseInt(document.getElementById("t-bm").value, 10);
+  state.T = parseInt(document.getElementById("t-T").value, 10);
+  state.bytes_per_param = parseInt(document.querySelector('input[name="prec"]:checked').value, 10);
   state.optimizer = document.querySelector('input[name="opt"]:checked').value;
   state.use_fa = document.getElementById("t-fa").checked;
   state.ckpt_mode = document.querySelector('input[name="ckpt"]:checked').value;
   state.use_fp8_act = document.getElementById("t-fp8-act").checked;
-  state.tp = parseInt(document.getElementById("p-tp").value);
-  state.pp = parseInt(document.getElementById("p-pp").value);
-  state.dp = parseInt(document.getElementById("p-dp").value);
-  state.ep = parseInt(document.getElementById("p-ep").value);
-  state.cp = parseInt(document.getElementById("p-cp").value);
-  state.zeero_stage = parseInt(document.querySelector('input[name="zero"]:checked').value);
+  state.tp = parseInt(document.getElementById("p-tp").value, 10);
+  state.pp = parseInt(document.getElementById("p-pp").value, 10);
+  state.dp = parseInt(document.getElementById("p-dp").value, 10);
+  state.ep = parseInt(document.getElementById("p-ep").value, 10);
+  state.cp = parseInt(document.getElementById("p-cp").value, 10);
+  state.zeero_stage = parseInt(document.querySelector('input[name="zero"]:checked').value, 10);
   state.use_sp = document.getElementById("p-sp").checked;
 }
 
@@ -1112,11 +1112,19 @@ function compute() {
   const t = state;
   const notes = [];
 
-  // 拆分 expert / 非 expert
+  // 拆分 expert / 非 expert 参数
+  // 显式 0 视为合法值（例如 "M3 无 EP" 案例：N_exp=0, N_non=428）
   let N_non, N_exp;
   if (m.is_moe) {
-    N_non = m.N_non || m.N * 0.07;
-    N_exp = m.N_exp || m.N * 0.93;
+    // 用户显式设置了任一字段 → 用显式值，另一个用 N - 已设值
+    if (m.N_non > 0 || m.N_exp > 0) {
+      N_non = m.N_non > 0 ? m.N_non : Math.max(0, m.N - m.N_exp);
+      N_exp = m.N_exp > 0 ? m.N_exp : Math.max(0, m.N - m.N_non);
+    } else {
+      // 自动估算（典型 MoE: 7% 非 expert + 93% expert）
+      N_non = m.N * 0.07;
+      N_exp = m.N * 0.93;
+    }
   } else {
     N_non = m.N;
     N_exp = 0;
@@ -1124,8 +1132,9 @@ function compute() {
 
   // per-GPU params (B)
   let N_per_gpu;
-  if (m.is_moe && t.ep > 1) {
-    N_per_gpu = N_non / (t.tp * t.pp) + N_exp / (t.tp * t.pp * t.ep);
+  if (m.is_moe) {
+    const ep_eff = Math.max(1, t.ep);  // EP=1 时 expert 权重不分片
+    N_per_gpu = N_non / (t.tp * t.pp) + N_exp / (t.tp * t.pp * ep_eff);
   } else {
     N_per_gpu = m.N / (t.tp * t.pp);
   }
@@ -1137,9 +1146,18 @@ function compute() {
   const optimizer_base_B = m.N * opt_bytes;
   const grad_base_B = m.N * t.bytes_per_param;  // 梯度同计算精度
 
-  // 激活系数 C（基础：FA 不影响线性项系数，平方项在训练时通常由 FA 消除）
+  // 激活系数 C（线性项）
   let C = C_ACT_FA;
   if (t.use_fp8_act) C = Math.max(1, Math.floor(C / 2));
+
+  // 没有 FlashAttention 时，attention score 平方项额外占用（CH 1.4.2）
+  // 平方项: 5 × H_q × T / d × B × T × d × L = 5 × H_q × T × B × L (bytes, BF16)
+  // 只在长序列 + 无 FA 时显著
+  let activation_sq_extra = 0;
+  if (!t.use_fa) {
+    activation_sq_extra = 5 * m.Hq * T_eff * t.B_micro * m.L / t.pp / t.cp / 1e9;
+    if (t.use_fp8_act) activation_sq_extra = activation_sq_extra / 2;
+  }
 
   // Checkpointing：selective 用 (34 + 2*(K-1))/K，默认 K=2 → 18
   let C_ckpt = C;
@@ -1155,11 +1173,12 @@ function compute() {
   // T_eff（无视觉 token 简化）
   const T_eff = t.T;
 
-  // SP factor
-  const sp_factor = t.use_sp ? (1 - 0.12 / t.tp) : 1.0;
+  // SP factor（仅 tp >= 2 时有意义）
+  const sp_factor = (t.use_sp && t.tp >= 2) ? (1 - 0.12 / t.tp) : 1.0;
 
   // 激活（BF16 bytes），CH 5 公式: C × B × (T/cp) × d × (L/pp) × sp_factor
-  const activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * (m.L / t.pp) * sp_factor / 1e9;
+  const activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * (m.L / t.pp) * sp_factor / 1e9
+                     + activation_sq_extra;
 
   // 权重/优化器/梯度（处理 MoE 拆分 + ZeRO + EP 组合）
   const z_div_w = t.zeero_stage >= 3 ? t.dp : 1;  // ZeRO-3 切权重
@@ -1442,7 +1461,14 @@ function bindEvents() {
   const sliders = [
     { id: "t-bg", valId: "t-bg-val", fmt: v => v },
     { id: "t-bm", valId: "t-bm-val", fmt: v => v },
-    { id: "t-T", valId: "t-T-val", fmt: v => v >= 1024 ? (v/1024)+'K' : v },
+    { id: "t-T", valId: "t-T-val", fmt: v => {
+      v = parseInt(v, 10);
+      if (v >= 1024) {
+        const k = v / 1024;
+        return (k % 1 === 0) ? k + 'K' : k.toFixed(1) + 'K';
+      }
+      return v;
+    },
     { id: "p-tp", valId: "p-tp-val", fmt: v => v },
     { id: "p-pp", valId: "p-pp-val", fmt: v => v },
     { id: "p-dp", valId: "p-dp-val", fmt: v => v },
