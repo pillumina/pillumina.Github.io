@@ -385,20 +385,33 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (headers.length === 0 || tocLinks.length === 0) return;
 
-    // 创建标题位置映射
-    const headerPositions = {};
+    // 创建标题位置映射（缓存 offsetTop，避免每帧 layout read）
+    var headerPositions = {};
+    function cacheHeaderPositions() {
+        headers.forEach(function(h) {
+            headerPositions[h.id] = h.offsetTop;
+        });
+    }
+    cacheHeaderPositions();
+
+    // resize 或字体加载后更新缓存
+    var posResizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(posResizeTimer);
+        posResizeTimer = setTimeout(cacheHeaderPositions, 200);
+    });
+
     // 使用 IntersectionObserver 检测当前章节（更准确）
-    const visibleHeaders = new Set();
-    const headerObserver = new IntersectionObserver(function(entries) {
+    var visibleHeadersSet = {};
+    var headerObserver = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
             if (entry.isIntersecting) {
-                visibleHeaders.add(entry.target.id);
+                visibleHeadersSet[entry.target.id] = true;
             } else {
-                visibleHeaders.delete(entry.target.id);
+                delete visibleHeadersSet[entry.target.id];
             }
         });
     }, {
-        // 仅视口顶部 25% 区域算"正在阅读"
         rootMargin: '-80px 0px -75% 0px',
         threshold: 0
     });
@@ -407,22 +420,22 @@ document.addEventListener('DOMContentLoaded', function() {
         headerObserver.observe(h);
     });
 
-    // 获取当前激活的标题：优先 IO 可见，fallback 用 scroll 位置
+    // 获取当前激活的标题：优先 IO 可见，fallback 用缓存位置
     function getActiveHeader() {
         // 方案 1: IO 检测到可见标题，取最后一个
-        let lastVisible = '';
-        for (const h of headers) {
-            if (visibleHeaders.has(h.id)) {
-                lastVisible = h.id;
-            }
+        var lastVisible = '';
+        for (var id in visibleHeadersSet) {
+            lastVisible = id;
         }
         if (lastVisible) return lastVisible;
 
-        // 方案 2: fallback — 找最后一个已经滚过视口顶部的标题
-        const scrollY = window.scrollY + 120;
-        let lastPassed = '';
-        for (const h of headers) {
-            if (h.offsetTop <= scrollY) {
+        // 方案 2: fallback — 用缓存的 offsetTop 找最后一个已滚过视口顶部的标题
+        var scrollY = window.scrollY + 120;
+        var lastPassed = '';
+        for (var i = 0; i < headers.length; i++) {
+            var h = headers[i];
+            var pos = headerPositions[h.id];
+            if (pos !== undefined && pos <= scrollY) {
                 lastPassed = h.id;
             }
         }

@@ -7,15 +7,25 @@
 <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.6/dist/medium-zoom.min.js"></script>
 
 <script>
-// 阅读进度条（transform 版本，避免每帧 layout）
+// 阅读进度条（缓存 docHeight，避免每帧 layout read）
 document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.querySelector('.reading-progress-bar');
     if (!progressBar) return;
 
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+
+    // resize / 字体加载后内容高度变化时更新缓存
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+            docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        }, 200);
+    });
+
     function updateProgress() {
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const scrolled = docHeight > 0 ? Math.min(1, window.scrollY / docHeight) : 0;
-        progressBar.style.transform = `scaleX(${scrolled})`;
+        var scrolled = docHeight > 0 ? Math.min(1, window.scrollY / docHeight) : 0;
+        progressBar.style.transform = 'scaleX(' + scrolled + ')';
     }
 
     // 注册到统一 scroll 调度器
