@@ -162,6 +162,10 @@ languages:
           parent: tools
           url: /tools/llm-calculator/
           weight: 1
+        - name: Training Memory Calculator
+          parent: tools
+          url: /tools/training-memory-calculator/
+          weight: 2
         - name: Search
           url: /search/
           weight: 105
