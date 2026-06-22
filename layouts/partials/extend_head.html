@@ -128,12 +128,12 @@ html.i18n-ready body {
             "\\bm": "\\mathbf{#1}"
           },
         });
-        // 若仍检测到未渲染的数学表达式，则回退到 MathJax
-        setTimeout(function(){
-          if (hasUnrenderedMath(root.innerHTML)) {
-            loadMathJaxOnce(root);
-          }
-        }, 200);
+        // MathJax fallback 已禁用：双渲染导致 DOM 翻倍，长文章滚动卡顿。未渲染的公式保持原始 LaTeX 文本。
+        // setTimeout(function(){
+        //   if (hasUnrenderedMath(root.innerHTML)) {
+        //     loadMathJaxOnce(root);
+        //   }
+        // }, 200);
       }
     } catch (e) {
       console.warn("KaTeX render error:", e);
