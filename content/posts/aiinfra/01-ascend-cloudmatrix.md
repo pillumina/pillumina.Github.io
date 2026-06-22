@@ -1,7 +1,9 @@
+math: true
 ---
 title: "昇腾超节点CloudMatrix384论文拆解"
 date: 2025-08-07T10:40:12+08:00
 tags: ["AIInfra", "ascend"]
+---math: true
 ---
 
 >6.19发布的CloudMatrix384论文拆解，从宏观到基础概念

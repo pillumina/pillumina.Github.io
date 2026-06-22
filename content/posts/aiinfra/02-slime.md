@@ -1,8 +1,10 @@
+math: true
 ---
 title: "[RL4LLM] 异步RL框架: Slime"
 date: 2025-08-07T17:10:12+08:00
 tags: ["framework", "LLM", "RL"]
 series: ["rl4llm"]
+---math: true
 ---
 
 > https://github.com/THUDM/slime
@@ -1059,6 +1061,7 @@ def log_eval_data(rollout_id, args, data_buffer):
 - 外部注入的采样/推理函数，签名为 generate_rollout(args, rollout_id, buffer, evaluation=False)。
 - 负责实际调用推理后端（如 SGLang、vllm）生成样本。
 
+---math: true
 ---
 
 #### 主要方法定义与作用
@@ -1145,6 +1148,7 @@ def log_eval_data(rollout_id, args, data_buffer):
   结构：任意元数据（如采样状态、统计信息等）。  
   用途：记录 buffer 的附加信息，便于状态恢复和监控。
 
+---math: true
 ---
 
 #### 数据流转示意

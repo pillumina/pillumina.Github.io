@@ -1,4 +1,5 @@
 +++
+math = true
 date = '2026-06-12'
 draft = false
 title = 'Kimi-K2.5 架构 QA'

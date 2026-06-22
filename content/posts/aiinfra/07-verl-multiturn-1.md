@@ -1,8 +1,10 @@
+math: true
 ---
 title: "[VeRL] Multi-Turn RL训练源码走读（1）"
 date: 2025-08-03T15:30:12+08:00
 tags: ["framework","verl","sglang"]
 series: ["verl"]
+---math: true
 ---
 
 > 该part主要聚焦相关模块初始化部分
@@ -15,6 +17,7 @@ series: ["verl"]
 
 此外因为最近在学习SGLang的实现，本文的推理后端选择的是SGLang展开分析。
 
+---math: true
 --------------------------------
 
 整个训练的示意图如下，我们会具体展开每个部分。

@@ -69,9 +69,17 @@
 {{- $class = "post-entry tag-entry" }}
 {{- end }}
 
+{{- if .Params.pinned }}
+{{- $class = printf "%s post-pinned" $class }}
+{{- end }}
+
 <article class="{{ $class }}">
   {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
   {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
+
+  {{- if .Params.pinned }}
+  <span class="pinned-label" data-i18n="pinned">置顶</span>
+  {{- end }}
 
   {{- /* 分类徽章 - 设计 */}}
   {{- $categoryLabel := "" }}

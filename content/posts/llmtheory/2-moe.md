@@ -1,9 +1,11 @@
+math: true
 ---
 title: "MoE环游记：2、深入负载均衡"
 date: 2025-08-10T15:05:12+08:00
 tags: ["MoE"]
 categories: ["Theory"]
 series: ["MoE环游记"]
+---math: true
 ---
 
 在上一篇文章中，我们介绍了MoE的一个几何诠释，旨在通过Dense模型的最佳逼近出发来推导和理解MoE。同时在文末我们也说了，给出MoE的计算公式仅仅是开始，训练一个实际有效的MoE模型还有很多细节补，比如本文要讨论的负载均衡（Load Balance）问题。 

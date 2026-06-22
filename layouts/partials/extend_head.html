@@ -1,7 +1,8 @@
 
-<!-- Google Fonts: 同步加载（避免 async 异步导致的 FOUC/字体跳变） -->
+<!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap">
 
 <!-- i18n 预应用：在 body 渲染前同步设置 lang 并替换 nav 文字，避免 FOUC -->
@@ -56,19 +57,19 @@
 })();
 </script>
 
-<!-- i18n 预应用期间 + 字体加载期间：body 透明，避免 FOUC + FOUT -->
+<!-- i18n 预应用期间：body 透明（仅在 i18n 处理时短暂，字体不再阻塞渲染） -->
 <style>
-html.i18n-pending body,
-html.fonts-pending body {
+html.i18n-pending body {
     opacity: 0;
     transition: opacity 0.2s ease-out;
 }
+html:not(.i18n-pending) body,
 html.i18n-ready body {
     opacity: 1;
 }
 </style>
 
-{{ if or .Params.math .Site.Params.math }}
+{{ if .Params.math }}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js" crossorigin="anonymous"></script>
@@ -140,7 +141,6 @@ html.i18n-ready body {
   }
   document.addEventListener('DOMContentLoaded', function() {
     renderAll();
-    setTimeout(renderAll, 200);
   });
   window.addEventListener('load', function() {
     setTimeout(renderAll, 0);
@@ -150,69 +150,73 @@ html.i18n-ready body {
 {{ end }}
 
 
-<script defer src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+<!-- Mermaid: 自动检测，有 .language-mermaid 才动态加载 -->
 <script>
-// 检测当前主题并配置 mermaid
 (function() {
-    function getTheme() {
-        // 检测 dark 类或 theme=dark
-        const isDark = document.documentElement.classList.contains('dark') ||
-                       document.documentElement.getAttribute('data-theme') === 'dark' ||
-                       window.matchMedia('(prefers-color-scheme: dark)').matches;
-        return isDark ? 'dark' : 'light';
-    }
+    function initMermaidIfPresent() {
+        var mermaidBlocks = document.querySelectorAll('.language-mermaid, .mermaid');
+        if (mermaidBlocks.length === 0) return;
 
-    function initMermaid() {
-        const theme = getTheme();
-        const isDark = theme === 'dark';
+        function getTheme() {
+            const isDark = document.documentElement.classList.contains('dark') ||
+                           document.documentElement.getAttribute('data-theme') === 'dark' ||
+                           window.matchMedia('(prefers-color-scheme: dark)').matches;
+            return isDark ? 'dark' : 'light';
+        }
 
-        const config = {
-            startOnLoad: true,
-            theme: isDark ? 'dark' : 'neutral',
-            themeVariables: {
-                lineColor: isDark ? '#818CF8' : '#1D4ED8',     // 更深的蓝色
-                textColor: isDark ? '#E2E8F0' : '#111827',
-                primaryColor: isDark ? '#4F46E5' : '#1E40AF',  // 深蓝
-                primaryTextColor: isDark ? '#E2E8F0' : '#FFFFFF',
-                primaryBorderColor: isDark ? '#6366F1' : '#1E3A8A',
-                nodeBorder: isDark ? '#6366F1' : '#1E40AF',
-                nodeTextColor: isDark ? '#E2E8F0' : '#111827',
-                clusterBkg: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(30, 64, 175, 0.15)',
-                edgeLabelBackground: isDark ? '#1E1B4B' : '#DBEAFE',  // 浅蓝背景
-                clusterBorder: isDark ? '#6366F1' : '#1E40AF',
-                // 加粗线条
-                border1: 2,
-                border2: 2,
-                border3: 2,
-                border4: 2,
-                fontSize: '14px',
-            },
-            flowchart: {
-                useMaxWidth: false,
-                htmlLabels: true,
-                curve: 'basis'
-            }
-        };
-        mermaid.initialize(config);
-    }
+        function initMermaid() {
+            const theme = getTheme();
+            const isDark = theme === 'dark';
 
-    // 初始化（mermaid 已加 defer，等 DOMContentLoaded 后再跑，保证 window.mermaid 已就绪）
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initMermaid);
-    } else {
-        initMermaid();
-    }
+            const config = {
+                startOnLoad: true,
+                theme: isDark ? 'dark' : 'neutral',
+                themeVariables: {
+                    lineColor: isDark ? '#818CF8' : '#1D4ED8',
+                    textColor: isDark ? '#E2E8F0' : '#111827',
+                    primaryColor: isDark ? '#4F46E5' : '#1E40AF',
+                    primaryTextColor: isDark ? '#E2E8F0' : '#FFFFFF',
+                    primaryBorderColor: isDark ? '#6366F1' : '#1E3A8A',
+                    nodeBorder: isDark ? '#6366F1' : '#1E40AF',
+                    nodeTextColor: isDark ? '#E2E8F0' : '#111827',
+                    clusterBkg: isDark ? 'rgba(99, 102, 241, 0.2)' : 'rgba(30, 64, 175, 0.15)',
+                    edgeLabelBackground: isDark ? '#1E1B4B' : '#DBEAFE',
+                    clusterBorder: isDark ? '#6366F1' : '#1E40AF',
+                    border1: 2, border2: 2, border3: 2, border4: 2,
+                    fontSize: '14px',
+                },
+                flowchart: { useMaxWidth: false, htmlLabels: true, curve: 'basis' }
+            };
+            mermaid.initialize(config);
+        }
 
-    // 监听主题变化
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.attributeName === 'class' ||
-                mutation.attributeName === 'data-theme') {
+        // 动态加载 mermaid
+        if (typeof mermaid === 'undefined') {
+            var s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js';
+            s.onload = function() {
                 initMermaid();
-            }
-        });
-    });
-    observer.observe(document.documentElement, { attributes: true });
+                // 监听主题变化
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.attributeName === 'class' || mutation.attributeName === 'data-theme') {
+                            initMermaid();
+                        }
+                    });
+                });
+                observer.observe(document.documentElement, { attributes: true });
+            };
+            document.head.appendChild(s);
+        } else {
+            initMermaid();
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMermaidIfPresent);
+    } else {
+        initMermaidIfPresent();
+    }
 })();
 </script>
 
@@ -414,15 +418,26 @@ document.addEventListener('DOMContentLoaded', function() {
         headerObserver.observe(h);
     });
 
-    // 获取当前激活的标题：DOM 顺序中最靠后且可见的
+    // 获取当前激活的标题：优先 IO 可见，fallback 用 scroll 位置
     function getActiveHeader() {
+        // 方案 1: IO 检测到可见标题，取最后一个
         let lastVisible = '';
         for (const h of headers) {
             if (visibleHeaders.has(h.id)) {
                 lastVisible = h.id;
             }
         }
-        return lastVisible;
+        if (lastVisible) return lastVisible;
+
+        // 方案 2: fallback — 找最后一个已经滚过视口顶部的标题
+        const scrollY = window.scrollY + 120;
+        let lastPassed = '';
+        for (const h of headers) {
+            if (h.offsetTop <= scrollY) {
+                lastPassed = h.id;
+            }
+        }
+        return lastPassed;
     }
 
     // TOC 链接点击：平滑滚动
@@ -867,6 +882,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (targets.length === 0) return;
 
+    // 大文章（>40 个子元素）跳过 reveal 动画，避免性能问题
+    if (targets.length > 40) return;
+
     // 给目标添加初始隐藏样式
     targets.forEach(function(el) {
         el.classList.add('reveal-init');
@@ -1200,7 +1218,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'code_copied': 'copied!',
             'all_posts': 'All Posts',
             'share': 'Share',
-            'tools': 'Tools'
+            'tools': 'Tools',
+            'pinned': 'Pinned'
         },
         zh: {
             'archive': '归档',
@@ -1226,7 +1245,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'code_copied': '已复制！',
             'all_posts': '所有文章',
             'share': '分享',
-            'tools': '工具'
+            'tools': '工具',
+            'pinned': '置顶'
         }
     };
 
@@ -1283,6 +1303,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'search_placeholder': '#searchbox input[type="search"], input[type="search"]',
         'not_found_desc': '.error-page p, .not-found p, body.error h1 + p',
         'tools': '#menu a[href="/tools/"] span, #menu .menu-dropdown--tools > .menu-dropdown-toggle span',
+        'pinned': '.pinned-label',
     };
 
     function applyLang(lang) {
@@ -1374,31 +1395,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (zhBtn) zhBtn.classList.toggle('active', lang === 'zh');
     }
 
-    // 用户主动切换（带动画）
-    function applyLang(lang) {
-        if (!I18N[lang]) lang = 'en';
-        currentLang = lang;
-        localStorage.setItem(STORAGE_KEY, lang);
-        document.documentElement.setAttribute('lang', lang);
-        document.documentElement.setAttribute('data-lang', lang);
-
-        const t = I18N[lang];
-        for (const [key, sel] of Object.entries(SELECTORS)) {
-            if (!t[key]) continue;
-            document.querySelectorAll(sel).forEach(el => {
-                if (el.getAttribute(ATTR_KEY) === lang) return;
-                el.setAttribute(ATTR_KEY, lang);
-                el.textContent = t[key];
-            });
-        }
-        document.querySelectorAll('[data-i18n]').forEach(el => {
-            const key = el.getAttribute('data-i18n');
-            if (t[key]) { el.setAttribute(ATTR_KEY, lang); el.textContent = t[key]; }
-        });
-        applyTextReplacements(lang);
-        updateToggleHighlight(lang);
-    }
-
     function toggleLang() {
         applyLang(currentLang === 'en' ? 'zh' : 'en');
     }
@@ -1474,7 +1470,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
 <!-- 二级/三级菜单 hover 管理：JS 精确控制，避免重叠和中断 -->
 <script>
+// 页面卸载前清除所有 hover 状态，防止切换重影
+window.addEventListener('pagehide', function() {
+    document.querySelectorAll('.is-hovered').forEach(function(el) {
+        el.classList.remove('is-hovered');
+    });
+});
+
 document.addEventListener('DOMContentLoaded', function() {
+    // 解锁导航 dropdown（防止页面切换重影）
+    const nav = document.querySelector('.nav-pending');
+    if (nav) nav.classList.remove('nav-pending');
+
     const dropdowns = document.querySelectorAll('.menu-dropdown');
     let closeTimer = null;
     let currentDropdown = null;
@@ -1519,4 +1526,93 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+</script>
+
+<!-- 选中文本分享：划选文字后显示浮动按钮，复制引用链接 -->
+<script>
+(function() {
+    var shareBtn = null;
+    var HIDE_TIMER = null;
+
+    function createShareButton() {
+        if (shareBtn) return;
+        shareBtn = document.createElement('button');
+        shareBtn.className = 'selection-share-btn';
+        shareBtn.setAttribute('aria-label', '复制引用链接');
+        shareBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+        shareBtn.title = '复制引用链接';
+        document.body.appendChild(shareBtn);
+
+        shareBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var sel = window.getSelection();
+            var text = sel ? sel.toString().trim() : '';
+            if (!text) return;
+            var url = window.location.href.split('#')[0];
+            var citation = '> ' + text.replace(/\n/g, '\n> ') + '\n\n— ' + url;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(citation).then(function() {
+                    shareBtn.classList.add('is-copied');
+                    shareBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    setTimeout(function() {
+                        shareBtn.classList.remove('is-copied');
+                        shareBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>';
+                        hideShareButton();
+                    }, 1500);
+                }).catch(function() {
+                    hideShareButton();
+                });
+            }
+        });
+    }
+
+    function positionShareButton(rect) {
+        if (!shareBtn) return;
+        var top = rect.bottom + window.scrollY + 8;
+        var left = rect.left + rect.width / 2;
+        shareBtn.style.top = top + 'px';
+        shareBtn.style.left = left + 'px';
+    }
+
+    function showShareButton(rect) {
+        if (!shareBtn) createShareButton();
+        positionShareButton(rect);
+        shareBtn.classList.add('is-visible');
+    }
+
+    function hideShareButton() {
+        if (shareBtn) shareBtn.classList.remove('is-visible');
+    }
+
+    document.addEventListener('mouseup', function(e) {
+        clearTimeout(HIDE_TIMER);
+        HIDE_TIMER = setTimeout(function() {
+            var sel = window.getSelection();
+            var text = sel ? sel.toString().trim() : '';
+            if (!text || text.length < 10) {
+                hideShareButton();
+                return;
+            }
+            var post = document.querySelector('.post-content');
+            if (!post) { hideShareButton(); return; }
+            var range = sel.getRangeAt(0);
+            if (!range || !post.contains(range.commonAncestorContainer)) {
+                hideShareButton();
+                return;
+            }
+            var rect = range.getBoundingClientRect();
+            showShareButton(rect);
+        }, 10);
+    });
+
+    document.addEventListener('click', function(e) {
+        if (shareBtn && !shareBtn.contains(e.target)) {
+            hideShareButton();
+        }
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') hideShareButton();
+    });
+})();
 </script>

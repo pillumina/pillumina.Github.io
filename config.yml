@@ -189,7 +189,7 @@ params:
     icon: /apple-touch-icon.png
     iconHeight: 
 
-  math: true
+  # math: true  # 移到 per-page frontmatter（减少非数学页面的 KaTeX 加载）
   # enableLatexModal: true
   profileMode:
     enabled: false # needs to be explicitly set
@@ -237,7 +237,7 @@ params:
   ShowCodeCopyButtons: true
   ShowWordCount: true
   UseHugoToc: true
-  disableScrollToTop: false
+  disableScrollToTop: true
   
 
   socialIcons: # optional

@@ -572,70 +572,6 @@
 &lt;/div&gt;&lt;p&gt;可以看到，在&lt;code&gt;/sys/fs&lt;/code&gt;下有&lt;code&gt;cgroup&lt;/code&gt;目录，这个目录下面有各种子目录：&lt;code&gt;cpu&lt;/code&gt;，&lt;code&gt;cpuset&lt;/code&gt;，&lt;code&gt;memory&lt;/code&gt;&amp;hellip;。这些都是cgroup的子系统，分别用来干不同的事。&lt;/p&gt;</description>
     </item>
     <item>
-      <title>Docker Fundamentals: Namespace</title>
-      <link>https://pillumina.github.io/posts/programming/cloud-computing/docker-namespace/</link>
-      <pubDate>Thu, 01 Apr 2021 11:22:18 +0800</pubDate>
-      <guid>https://pillumina.github.io/posts/programming/cloud-computing/docker-namespace/</guid>
-      <description>&lt;p&gt;容器技术出现已经很久，只不过Docker容器平台的出现它变火了。Docker是第一个让容器能在不同机器之间移植的系统，它简化了打包应用的流程，也简化了打包应用的库和各种依赖。思考下整个OS的file system能直接被打包成一个简单的可移植的包，一开始的时候概念上还是很有趣的。&lt;/p&gt;
-&lt;p&gt;有时候我认为自己的阅读比较碎片化(&lt;del&gt;short-term memory越来越少&lt;/del&gt;)，所以我想把之前学习容器知识的一些基础技术再整理出来，也算是给自己学习的反馈。这个基础系列从Linux Namespace开始，后续会陆续介绍比如cgroup、aufs、devicemapper等技术。&lt;/p&gt;
-&lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
-&lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/531114/&#34;&gt;Namespace in operation&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://man7.org/linux/man-pages/man7/namespaces.7.html&#34;&gt;Linux namespace man page&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;&lt;a href=&#34;https://blog.jtlebi.fr/2013/12/22/introduction-to-linux-namespaces-part-1-uts/&#34;&gt;Introduction to linux namespace&lt;/a&gt;&lt;/p&gt;
-&lt;h2 id=&#34;什么是namespace&#34;&gt;什么是Namespace&lt;/h2&gt;
-&lt;p&gt;简单来说，linux namespace是Linux提供的一种内核级别环境隔离的方法。在早期的Unix中，提供了一种叫做chroot的系统调用：通过修改root目录把用户关到一个特定的目录下面。这种就是简单的隔离方式，也就是chroot内部的file system无法访问外部的内容。Linux Namespace在此基础之上，提供了对UTS、IPC、mount、network、PID、User等隔离机制。&lt;/p&gt;
-&lt;p&gt;这里可以简单举例，比如Linux的超级父进程的PID为1，如果我们可以把用户的进程空间关到某个进程分支之下，并且像chroot那样能够让下面的进程看到那个超级父进程的PID为1，而不同PID Namespace中的进程无法看到彼此，这样就能达到进程隔离。&lt;/p&gt;
-&lt;p&gt;Linux Namespace有以下的种类，供给后续参考（刚看有个印象就行）：&lt;/p&gt;
-&lt;table&gt;
-  &lt;thead&gt;
-      &lt;tr&gt;
-          &lt;th style=&#34;text-align: left&#34;&gt;分类&lt;/th&gt;
-          &lt;th style=&#34;text-align: left&#34;&gt;系统调用参数&lt;/th&gt;
-          &lt;th style=&#34;text-align: left&#34;&gt;相关内核版本&lt;/th&gt;
-      &lt;/tr&gt;
-  &lt;/thead&gt;
-  &lt;tbody&gt;
-      &lt;tr&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Mount namespaces&lt;/strong&gt;&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWNS&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/2001/0301/a/namespaces.php3&#34;&gt;Linux 2.4.19&lt;/a&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;UTS namespaces&lt;/strong&gt;&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWUTS&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/179345/&#34;&gt;Linux 2.6.19&lt;/a&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;IPC namespaces&lt;/strong&gt;&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWIPC&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/187274/&#34;&gt;Linux 2.6.19&lt;/a&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;PID namespaces&lt;/strong&gt;&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWPID&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/259217/&#34;&gt;Linux 2.6.24&lt;/a&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Network namespaces&lt;/strong&gt;&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWNET&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/219794/&#34;&gt;始于Linux 2.6.24 完成于 Linux 2.6.29&lt;/a&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-      &lt;tr&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;User namespaces&lt;/strong&gt;&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWUSER&lt;/td&gt;
-          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/528078/&#34;&gt;始于 Linux 2.6.23 完成于 Linux 3.8)&lt;/a&gt;&lt;/td&gt;
-      &lt;/tr&gt;
-  &lt;/tbody&gt;
-&lt;/table&gt;
-&lt;p&gt;其主要涉及到三个系统调用：&lt;/p&gt;
-&lt;ol&gt;
-&lt;li&gt;&lt;code&gt;clone()&lt;/code&gt;： 实现线程的系统调用，用来创建新的线程，并可通过涉及上述参数做到隔离&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;unshare()&lt;/code&gt;： 让某一个线程脱离某namespace&lt;/li&gt;
-&lt;li&gt;&lt;code&gt;setns()&lt;/code&gt;: 把某一个线程加到某namespace&lt;/li&gt;
-&lt;/ol&gt;
-&lt;p&gt;如果读者你想看具体的实例，请自己man一下(关注一下自己的linux虚拟机内核)，或者google一下，我这里贴一个&lt;code&gt;clone()&lt;/code&gt;的source code：&lt;/p&gt;</description>
-    </item>
-    <item>
       <title>Kubernetes Handbook (Start &amp; Pod)</title>
       <link>https://pillumina.github.io/posts/programming/cloud-computing/k8s-basic/</link>
       <pubDate>Wed, 31 Mar 2021 11:22:18 +0800</pubDate>
@@ -1234,6 +1170,76 @@
 &lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
 &lt;/div&gt;
 &lt;/div&gt;</description>
+    </item>
+    <item>
+      <title></title>
+      <link>https://pillumina.github.io/posts/programming/cloud-computing/docker-namespace/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/programming/cloud-computing/docker-namespace/</guid>
+      <description>&lt;h2 id=&#34;math-true&#34;&gt;math: true&lt;/h2&gt;
+&lt;h2 id=&#34;math-true-1&#34;&gt;title: &amp;ldquo;Docker Fundamentals: Namespace&amp;rdquo;&lt;br&gt;
+date: 2021-04-01T11:22:18+08:00&lt;br&gt;
+hero: /images/posts/k8s-docker.jpg&lt;br&gt;
+menu:&lt;br&gt;
+sidebar:&lt;br&gt;
+name: Docker Fundamentals (Namespace)&lt;br&gt;
+identifier: docker-namespace&lt;br&gt;
+parent: cloud-computing&lt;br&gt;
+weight: 10&lt;br&gt;
+draft: false&lt;br&gt;
+&amp;mdash;math: true&lt;/h2&gt;
+&lt;p&gt;容器技术出现已经很久，只不过Docker容器平台的出现它变火了。Docker是第一个让容器能在不同机器之间移植的系统，它简化了打包应用的流程，也简化了打包应用的库和各种依赖。思考下整个OS的file system能直接被打包成一个简单的可移植的包，一开始的时候概念上还是很有趣的。&lt;/p&gt;
+&lt;p&gt;有时候我认为自己的阅读比较碎片化(&lt;del&gt;short-term memory越来越少&lt;/del&gt;)，所以我想把之前学习容器知识的一些基础技术再整理出来，也算是给自己学习的反馈。这个基础系列从Linux Namespace开始，后续会陆续介绍比如cgroup、aufs、devicemapper等技术。&lt;/p&gt;
+&lt;h2 id=&#34;参考&#34;&gt;参考&lt;/h2&gt;
+&lt;p&gt;&lt;a href=&#34;https://lwn.net/Articles/531114/&#34;&gt;Namespace in operation&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://man7.org/linux/man-pages/man7/namespaces.7.html&#34;&gt;Linux namespace man page&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&#34;https://blog.jtlebi.fr/2013/12/22/introduction-to-linux-namespaces-part-1-uts/&#34;&gt;Introduction to linux namespace&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&#34;什么是namespace&#34;&gt;什么是Namespace&lt;/h2&gt;
+&lt;p&gt;简单来说，linux namespace是Linux提供的一种内核级别环境隔离的方法。在早期的Unix中，提供了一种叫做chroot的系统调用：通过修改root目录把用户关到一个特定的目录下面。这种就是简单的隔离方式，也就是chroot内部的file system无法访问外部的内容。Linux Namespace在此基础之上，提供了对UTS、IPC、mount、network、PID、User等隔离机制。&lt;/p&gt;
+&lt;p&gt;这里可以简单举例，比如Linux的超级父进程的PID为1，如果我们可以把用户的进程空间关到某个进程分支之下，并且像chroot那样能够让下面的进程看到那个超级父进程的PID为1，而不同PID Namespace中的进程无法看到彼此，这样就能达到进程隔离。&lt;/p&gt;
+&lt;p&gt;Linux Namespace有以下的种类，供给后续参考（刚看有个印象就行）：&lt;/p&gt;
+&lt;table&gt;
+  &lt;thead&gt;
+      &lt;tr&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;分类&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;系统调用参数&lt;/th&gt;
+          &lt;th style=&#34;text-align: left&#34;&gt;相关内核版本&lt;/th&gt;
+      &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Mount namespaces&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWNS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/2001/0301/a/namespaces.php3&#34;&gt;Linux 2.4.19&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;UTS namespaces&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWUTS&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/179345/&#34;&gt;Linux 2.6.19&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;IPC namespaces&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWIPC&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/187274/&#34;&gt;Linux 2.6.19&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;PID namespaces&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWPID&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/259217/&#34;&gt;Linux 2.6.24&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;Network namespaces&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWNET&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/219794/&#34;&gt;始于Linux 2.6.24 完成于 Linux 2.6.29&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+      &lt;tr&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;strong&gt;User namespaces&lt;/strong&gt;&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;CLONE_NEWUSER&lt;/td&gt;
+          &lt;td style=&#34;text-align: left&#34;&gt;&lt;a href=&#34;http://lwn.net/Articles/528078/&#34;&gt;始于 Linux 2.6.23 完成于 Linux 3.8)&lt;/a&gt;&lt;/td&gt;
+      &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+&lt;p&gt;其主要涉及到三个系统调用：&lt;/p&gt;</description>
     </item>
   </channel>
 </rss>

@@ -1,4 +1,5 @@
 +++
+math = true
 date = '2026-06-17'
 draft = false
 title = 'GLM-5.2 架构深度拆解'

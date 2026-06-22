@@ -1,4 +1,5 @@
 +++
+math = true
 date = '2026-06-11'
 draft = false
 title = 'MiniMax-M2.7 架构 QA'

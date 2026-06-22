@@ -5,6 +5,7 @@ title = 'LLM 架构计算方法论：从 config.json 到推理显存'
 categories = ['aiinfra']
 tags = ['computation', 'flops', 'kv-cache', 'parameters', 'methodology', 'inference']
 summary = '从 config.json 到参数量、FLOPs、KV Cache、推理显存的完整计算推导。基于 8 个开源模型（M2.7 / GLM-5.1 / V4-Flash / Qwen3.5 / Mimo / Kimi / Nemotron / M3）的实战拆解经验。覆盖 Full Attention / MSA / MLA / Mamba-2 / SWA / GDN 六种注意力架构的 FLOPs 与 KV Cache 公式。'
+pinned = true
 +++
 
 # LLM 架构计算方法论

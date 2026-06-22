@@ -108,15 +108,10 @@
 }
 
 /* JS 管理 hover：hover 时给 .menu-dropdown 和 .menu-submenu-item 加 .is-hovered */
-.menu-dropdown.is-hovered,
-.menu-dropdown.is-hovered:hover {
-    pointer-events: auto;
-}
-
 .menu-dropdown.is-hovered .menu-dropdown-menu {
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: translateX(-50%) translateY(0) scale(1) !important;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .menu-submenu-item.is-hovered > .menu-submenu {
@@ -262,6 +257,14 @@
 .menu-dropdown:hover .menu-dropdown-arrow {
     transform: rotate(180deg);
     opacity: 1;
+}
+
+/* 页面加载时锁定 dropdown，防止切换重影；JS ready 后移除 .nav-pending */
+.nav-pending .menu-dropdown-menu {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transform: translateX(-50%) translateY(-8px) !important;
+    transition: none !important;
 }
 
 /* 下拉面板 - 统一单列布局，固定 240px 宽 */
@@ -812,6 +815,66 @@
     opacity: 1;
     transform: translateY(0);
     transition: none;
+}
+
+
+/* ==========================================================================
+   置顶文章 - 顶部 accent 线 + 标签
+   ========================================================================== */
+
+.home-col-posts {
+    position: relative;
+}
+
+.post-pinned {
+    order: -1;
+    position: relative;
+    overflow: hidden;
+}
+
+.post-pinned::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--accent), color-mix(in srgb, var(--accent) 30%, transparent));
+    z-index: 1;
+}
+
+.pinned-label {
+    position: absolute;
+    top: 0.625rem;
+    right: 0.875rem;
+    z-index: 2;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+
+/* ==========================================================================
+   性能优化: content-visibility 长文章虚拟渲染
+   ========================================================================== */
+
+.post-content > p,
+.post-content > table,
+.post-content > .highlight,
+.post-content > pre,
+.post-content > blockquote,
+.post-content > ul,
+.post-content > ol,
+.post-content > figure,
+.post-content > hr {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2rem;
 }
 
 
@@ -1420,8 +1483,8 @@ main,
    文章卡片 - 编辑感排印
    ========================================================================== */
 
-/* 文章列第一篇（hero card）：Cormorant Garamond 衬线斜体（出版书封风） */
-.home-col-posts .post-entry:first-child .entry-header h2,
+/* 置顶文章（hero card）：Cormorant Garamond 衬线斜体（出版书封风） */
+.home-col-posts .post-pinned .entry-header h2,
 .first-entry .entry-header h1 {
     font-family: "Cormorant Garamond", "Noto Serif SC", Georgia, serif;
     font-size: clamp(1.75rem, 2.5vw + 1rem, 2.6rem);
@@ -1435,7 +1498,7 @@ main,
     -webkit-line-clamp: 2;
 }
 
-.home-col-posts .post-entry:first-child .entry-content,
+.home-col-posts .post-pinned .entry-content,
 .first-entry .entry-content {
     margin: 0.6rem 0 0.85rem;
     font-size: 0.95rem;
@@ -1737,7 +1800,7 @@ main,
     
     /* 性能优化：精确过渡 + GPU 加速 */
     transition: transform var(--toc-transition-medium), opacity var(--toc-transition-medium);
-    will-change: transform;
+    
     transform: translateZ(0);
     contain: content;
     
@@ -1876,17 +1939,19 @@ main,
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
   }
   
-  /* 11. 阅读进度条 - 顶部水平 */
+  /* 11. 阅读进度条 - 顶部水平 (transform 版本，GPU 合成) */
   .reading-progress-bar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 0;
+    width: 100%;
     height: 3px;
     background: linear-gradient(to right, var(--accent), color-mix(in srgb, var(--accent) 70%, transparent));
     z-index: 100;
     box-shadow: 0 0 8px color-mix(in srgb, var(--accent) 50%, transparent);
-    transition: width 0.1s linear;
+    transform: scaleX(0);
+    transform-origin: left center;
+    will-change: transform;
   }
 
   /* 12. 图片灯箱（z-index 变量化） */
@@ -1938,7 +2003,7 @@ main,
     background: var(--entry);
     border-radius: var(--radius-md);
     transition: transform var(--toc-transition-fast);
-    will-change: transform; /* GPU 加速 */
+    
     transform: translateZ(0);
   }
   
@@ -3020,8 +3085,11 @@ header.header > .nav {
 
 header.header.is-scrolled > .nav {
     background: color-mix(in srgb, var(--bg-base) 75%, transparent);
-    backdrop-filter: saturate(180%) blur(10px);
-    -webkit-backdrop-filter: saturate(180%) blur(10px);
+    /* backdrop-filter 仅 hover 设备启用（避免移动端滚动重绘开销） */
+    @media (hover: hover) and (min-width: 769px) {
+        backdrop-filter: saturate(180%) blur(10px);
+        -webkit-backdrop-filter: saturate(180%) blur(10px);
+    }
     border-bottom-color: var(--border);
 }
 
@@ -3119,5 +3187,170 @@ header.header.is-scrolled > .nav {
     .menu-separator,
     .menu-i18n {
         display: none;
+    }
+}
+
+/* ==========================================================================
+   选中文本分享按钮
+   ========================================================================== */
+
+.selection-share-btn {
+    position: absolute;
+    z-index: 150;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    color: var(--secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+    opacity: 0;
+    visibility: hidden;
+    transform: translate(-50%, 0) scale(0.8);
+    transition: opacity 0.2s var(--ease-out),
+                visibility 0.2s var(--ease-out),
+                transform 0.2s var(--ease-out);
+    pointer-events: none;
+}
+
+.selection-share-btn.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translate(-50%, 0) scale(1);
+    pointer-events: auto;
+}
+
+.selection-share-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translate(-50%, -2px) scale(1.05);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+.selection-share-btn.is-copied {
+    color: #10B981;
+    border-color: #10B981;
+}
+
+/* ==========================================================================
+   打印样式 - 隐藏 UI 元素，优化排版
+   ========================================================================== */
+
+@media print {
+    /* 隐藏导航和 UI */
+    .header,
+    .toc.side,
+    .back-to-top,
+    .reader-trigger,
+    .reader-panel,
+    .reading-progress-bar,
+    .selection-share-btn,
+    .post-nav-links,
+    .post-footer,
+    .related-posts,
+    .breadcrumbs,
+    .code-actions,
+    .code-lang-label,
+    footer,
+    #top-link,
+    .footer,
+    .pagination,
+    .gist-meta,
+    .post-tags,
+    .share-buttons {
+        display: none !important;
+    }
+
+    /* 重置布局 */
+    body,
+    .main,
+    .post-single .main,
+    .post-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 11pt !important;
+        line-height: 1.6 !important;
+        color: #000 !important;
+        background: #fff !important;
+    }
+
+    /* 标题优化 */
+    .post-title {
+        font-size: 18pt !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .post-meta {
+        font-size: 9pt !important;
+        color: #555 !important;
+        margin-bottom: 1.5rem !important;
+        border-bottom: 1px solid #ddd !important;
+        padding-bottom: 0.75rem !important;
+    }
+
+    /* 链接显示 URL */
+    .post-content a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 8pt;
+        color: #666;
+        word-break: break-all;
+    }
+
+    .post-content a[href^="/"]::after {
+        content: " (https://cctoctofx.com" attr(href) ")";
+        font-size: 8pt;
+        color: #666;
+    }
+
+    /* 代码块 */
+    .post-content .highlight,
+    .post-content pre {
+        background: #f5f5f5 !important;
+        border: 1px solid #ddd !important;
+        page-break-inside: avoid;
+    }
+
+    .post-content code {
+        background: #f5f5f5 !important;
+        color: #000 !important;
+    }
+
+    /* 表格 */
+    .post-content table {
+        page-break-inside: avoid;
+    }
+
+    /* 图片 */
+    .post-content img {
+        max-width: 100% !important;
+        page-break-inside: avoid;
+    }
+
+    /* 避免孤立标题 */
+    .post-content h2,
+    .post-content h3 {
+        page-break-after: avoid;
+    }
+
+    .post-content p {
+        orphans: 3;
+        widows: 3;
+    }
+
+    /* 覆盖主题暗色 */
+    :root,
+    .dark {
+        --theme: #fff !important;
+        --entry: #fff !important;
+        --content: #000 !important;
+        --primary: #000 !important;
+        --secondary: #333 !important;
     }
 }

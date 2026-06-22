@@ -356,12 +356,6 @@
     <loc>https://pillumina.github.io/tags/verl/</loc>
     <lastmod>2025-09-17T11:30:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/11-flashattention/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/flashattention/</loc>
-    <lastmod>2025-09-15T11:30:12+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/10-verl-dataproto/</loc>
     <lastmod>2025-08-25T11:30:12+08:00</lastmod>
   </url><url>
@@ -380,46 +374,22 @@
     <loc>https://pillumina.github.io/series/sglang/</loc>
     <lastmod>2025-08-13T10:30:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/series/moe%E7%8E%AF%E6%B8%B8%E8%AE%B0/</loc>
-    <lastmod>2025-08-10T15:05:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/llmtheory/2-moe/</loc>
-    <lastmod>2025-08-10T15:05:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/theory/</loc>
-    <lastmod>2025-08-10T15:05:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/llmtheory/</loc>
-    <lastmod>2025-08-10T15:05:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/llmtheory/1-moe/</loc>
-    <lastmod>2025-08-08T15:05:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/02-slime/</loc>
-    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/llm/</loc>
-    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/series/rl4llm/</loc>
-    <lastmod>2025-08-07T17:10:12+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/03-areal/</loc>
     <lastmod>2025-08-07T14:40:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/aiinfra/</loc>
-    <lastmod>2025-08-07T10:40:12+08:00</lastmod>
+    <loc>https://pillumina.github.io/tags/llm/</loc>
+    <lastmod>2025-08-07T14:40:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/01-ascend-cloudmatrix/</loc>
-    <lastmod>2025-08-07T10:40:12+08:00</lastmod>
+    <loc>https://pillumina.github.io/series/rl4llm/</loc>
+    <lastmod>2025-08-07T14:40:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/08-verl-multiturn-2/</loc>
     <lastmod>2025-08-03T17:30:12+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/aiinfra/07-verl-multiturn-1/</loc>
-    <lastmod>2025-08-03T15:30:12+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/04-aiinfra-thinking/</loc>
+    <lastmod>2025-08-01T10:05:12+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/aiinfra/</loc>
     <lastmod>2025-08-01T10:05:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/categories/thinking/</loc>
@@ -457,9 +427,6 @@
   </url><url>
     <loc>https://pillumina.github.io/posts/programming/cloud-computing/docker-cgroup/</loc>
     <lastmod>2021-04-05T11:22:18+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/programming/cloud-computing/docker-namespace/</loc>
-    <lastmod>2021-04-01T11:22:18+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/programming/design-pattern/go-visitor/</loc>
     <lastmod>2021-03-31T11:22:18+08:00</lastmod>
@@ -551,6 +518,20 @@
     <loc>https://pillumina.github.io/open_courses/</loc>
     <lastmod>2020-10-27T10:47:11+08:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/01-ascend-cloudmatrix/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/02-slime/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/07-verl-multiturn-1/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/11-flashattention/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/llmtheory/1-moe/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/llmtheory/2-moe/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/programming/cloud-computing/docker-namespace/</loc>
+  </url><url>
     <loc>https://pillumina.github.io/categories/agent/</loc>
   </url><url>
     <loc>https://pillumina.github.io/categories/ai-infra/</loc>
@@ -572,6 +553,10 @@
     <loc>https://pillumina.github.io/social/</loc>
   </url><url>
     <loc>https://pillumina.github.io/categories/study/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/theory/</loc>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/llmtheory/</loc>
   </url><url>
     <loc>https://pillumina.github.io/tools/</loc>
   </url><url>

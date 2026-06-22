@@ -1,9 +1,11 @@
+math: true
 ---
 title: "MoE环游记：1、从几何意义出发"
 date: 2025-08-08T15:05:12+08:00
 tags: ["MoE"]
 categories: ["Theory"]
 series: ["MoE环游记"]
+---math: true
 ---
 
 MoE（Mixture of Experts）架构的流行自不必多说，近来火出圈的[DeepSeek-V3](https://papers.cool/arxiv/2412.19437)便是MoE架构，传言GPT-5也是MoE架构，国内最近出的一些模型（Qwen3系列相关）也有不少用上了MoE。然而，虽然MoE的研究由来已久，但其应用长时间内都不愠不火，大致上是从去年初的[《Mixtral of Experts》](https://papers.cool/arxiv/2401.04088)开始，MoE才逐渐吸引大家的注意力，其显著优点是参数量大，但训练和推理成本都显著低。

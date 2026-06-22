@@ -1,3 +1,4 @@
+math: true
 ---
 title: "Docker Fundamentals: Namespace"
 date: 2021-04-01T11:22:18+08:00
@@ -9,6 +10,7 @@ menu:
     parent: cloud-computing
     weight: 10
 draft: false
+---math: true
 ---
 
 容器技术出现已经很久，只不过Docker容器平台的出现它变火了。Docker是第一个让容器能在不同机器之间移植的系统，它简化了打包应用的流程，也简化了打包应用的库和各种依赖。思考下整个OS的file system能直接被打包成一个简单的可移植的包，一开始的时候概念上还是很有趣的。
@@ -148,6 +150,7 @@ int container_pid = clone(container_main, container_stack+STACK_SIZE,
 derios@ubuntu:~$ ipcmk -Q 
 Message queue id: 0
 derios@ubuntu:~$ ipcs -q
+---math: true
 ------ Message Queues --------
 key        msqid      owner      perms      used-bytes   messages    
 0xd0d56eb2 0          hchen      644        0            0
@@ -160,6 +163,7 @@ derios@ubuntu:~$ sudo ./uts
 Parent - start a container!
 Container - inside the container!
 root@container:~# ipcs -q
+------ Message Queues --------math: true
 ------ Message Queues --------
 key        msqid      owner      perms      used-bytes   messages    
 0xd0d56eb2 0          hchen      644        0            0
@@ -172,6 +176,7 @@ root@ubuntu:~$ sudo./ipc
 Parent - start a container!
 Container - inside the container!
 root@container:~/linux_namespace# ipcs -q
+------ Message Queues --------math: true
 ------ Message Queues --------
 key        msqid      owner      perms      used-bytes   messages
 ```

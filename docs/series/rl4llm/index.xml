@@ -11,76 +11,8 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Thu, 07 Aug 2025 17:10:12 +0800</lastBuildDate>
+    <lastBuildDate>Thu, 07 Aug 2025 14:40:12 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/series/rl4llm/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>[RL4LLM] 异步RL框架: Slime</title>
-      <link>https://pillumina.github.io/posts/aiinfra/02-slime/</link>
-      <pubDate>Thu, 07 Aug 2025 17:10:12 +0800</pubDate>
-      <guid>https://pillumina.github.io/posts/aiinfra/02-slime/</guid>
-      <description>&lt;blockquote&gt;
-&lt;p&gt;&lt;a href=&#34;https://github.com/THUDM/slime&#34;&gt;https://github.com/THUDM/slime&lt;/a&gt;&lt;br&gt;
-一个异步实现但是非完全异步的RL框架&lt;/p&gt;&lt;/blockquote&gt;
-&lt;h2 id=&#34;总体架构&#34;&gt;总体架构&lt;/h2&gt;
-&lt;ul&gt;
-&lt;li&gt;从源码模块划分，有三大核心模块：
-&lt;ul&gt;
-&lt;li&gt;training（Megatron）：主训练流程，负责模型参数更新。&lt;/li&gt;
-&lt;li&gt;rollout（SGLang + router）：负责采样、奖励/验证生成，产生训练数据。&lt;/li&gt;
-&lt;li&gt;data buffer：桥接训练与采样，管理数据流、缓存与生成方式。&lt;/li&gt;
-&lt;/ul&gt;
-&lt;/li&gt;
-&lt;li&gt;分布式调度：关于资源分配、actor启动、任务调度都由于Ray管理，支持异步训练和采样&lt;/li&gt;
-&lt;li&gt;插件机制：支持自定义buffer、模型、模型格式转换（mbridge）&lt;/li&gt;
-&lt;/ul&gt;
-&lt;pre class=&#34;mermaid&#34;&gt;
-  flowchart LR
-    subgraph Ray[Ray 分布式调度]
-        A1[Actor Group&amp;lt;br&amp;gt;训练 Actor]
-        A2[Rollout Group&amp;lt;br&amp;gt;采样/生成 Actor]
-        A3[Placement Group&amp;lt;br&amp;gt;资源分配]
-    end
-    subgraph Training[Training &amp;lt;Megatron&amp;gt;]
-        T1[模型训练]
-        T2[权重同步]
-        T3[评估/保存]
-    end
-    subgraph Rollout[Rollout &amp;lt;SGLang+Router&amp;gt;]
-        R1[采样/生成]
-        R2[奖励模型]
-        R3[过滤器]
-    end
-    subgraph Buffer[Data Buffer]
-        B1[数据缓存]
-        B2[数据流转]
-        B3[Offload/Onload]
-    end
-    subgraph Plugins[插件机制]
-        P1[Buffer 插件]
-        P2[Model 插件]
-        P3[mbridge 格式转换]
-    end
-
-    A1--&amp;gt;|训练数据|B1
-    A2--&amp;gt;|生成数据|B1
-    B1--&amp;gt;|数据流|A1
-    B1--&amp;gt;|数据流|A2
-    A1--&amp;gt;|权重同步|A2
-    A1--&amp;gt;|评估/保存|T3
-    A2--&amp;gt;|采样/奖励/过滤|R1
-    R1--&amp;gt;|奖励|R2
-    R1--&amp;gt;|过滤|R3
-    B1--&amp;gt;|插件扩展|P1
-    A1--&amp;gt;|模型扩展|P2
-    A1--&amp;gt;|格式转换|P3
-    A3--&amp;gt;|资源分配|A1
-    A3--&amp;gt;|资源分配|A2
-&lt;/pre&gt;
-
-&lt;h2 id=&#34;各模块视角的关系图&#34;&gt;各模块视角的关系图&lt;/h2&gt;
-&lt;h3 id=&#34;slimerollout-组件图&#34;&gt;slime/rollout 组件图&lt;/h3&gt;
-&lt;p&gt;rollout 负责采样、奖励、过滤，支持多种采样/奖励/过滤策略。&lt;/p&gt;</description>
-    </item>
     <item>
       <title>[RL4LLM] 异步RL框架: Areal</title>
       <link>https://pillumina.github.io/posts/aiinfra/03-areal/</link>

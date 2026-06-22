@@ -1,12 +1,15 @@
+math: true
 ---
 title: "[AIInfra] FlashAttention 深度解析：从数学原理到工程实现"
 date: 2025-09-15T11:30:12+08:00
 tags: ["flashattention"]
 series: ["aiinfra"]
+---math: true
 ---
 
 > 本文从数学原理出发，深入分析FlashAttention的核心思想、算法设计和各版本演进，通过详实的数学推导、直观的流程图表和具体的数值示例，帮助读者真正掌握这一革命性的Attention优化技术。
 
+---math: true
 ---
 
 ## 1. 问题的本质：传统Attention的根本瓶颈
@@ -94,6 +97,7 @@ graph TD
 
 传统Attention的访存模式违背了"数据局部性"原则，频繁访问全局显存，导致严重的访存瓶颈。
 
+---math: true
 ---
 
 ## 2. FlashAttention的革命性思想：分块计算与在线算法
@@ -220,6 +224,7 @@ $$O_{flash} = \text{OnlineSoftmax}\left(\frac{QK^T}{\sqrt{d}}\right)V$$
 
 数学上可证明 $O_{traditional} = O_{flash}$（在数值精度范围内）。
 
+---math: true
 ---
 
 ## 3. FlashAttention各版本的演进：从概念验证到产业标准
@@ -440,6 +445,7 @@ graph TD
 - 不同模态的attention权重
 - 跨模态的梯度优化
 
+---math: true
 ---
 
 ## 4. FlashAttention算法流程深度解析
@@ -697,6 +703,7 @@ graph LR
 
 **HBM使用**：仅需存储输入输出，$O(nd)$，相比传统方法的 $O(n^2 + nd)$ 大幅减少。
 
+---math: true
 ---
 
 ## 5. 行业实践与生态发展
@@ -833,10 +840,12 @@ timeline
 
 > **核心要点**：FlashAttention的成功不是偶然的，它是数学理论、工程实践和系统思维完美结合的结果。理解其本质，不仅能帮助我们更好地使用这一技术，更能启发我们在面对其他复杂系统问题时的思维方式。
 
+---math: true
 ---
 
 **致谢**：本文的完成得益于FlashAttention原作者Tri Dao等人的开创性工作，以及整个AI社区在理论研究和工程实践方面的持续贡献。
 
+---math: true
 ---
 
 *如需获取更多技术细节、实现代码或性能基准测试数据，欢迎进一步交流讨论。*
