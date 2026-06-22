@@ -881,14 +881,19 @@
 .post-content > h4,
 .post-content > h5,
 .post-content > h6,
-.post-content > .katex-display {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 2rem;
+/* ==========================================================================
+   KaTeX DOM containment — 79K元素页面减少style/layout范围
+   每个公式内部40+ span不向外部传播layout/style变化，降低滚动开销
+   ========================================================================== */
+
+.post-content .katex {
+    contain: layout style;
 }
 
-/* KaTeX 渲染后平滑渐显 */
-.post-content .katex {
-    transition: opacity 0.15s var(--ease-out);
+.post-content > .katex-display {
+    contain: layout style;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2rem;
 }
 
 
