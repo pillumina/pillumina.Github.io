@@ -12,17 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.querySelector('.reading-progress-bar');
     if (!progressBar) return;
 
-    const article = document.querySelector('.post-single');
-    if (!article) return;
-
     function updateProgress() {
-        const rect = article.getBoundingClientRect();
-        const contentHeight = rect.height;
-        const windowHeight = window.innerHeight;
-        const scrollTop = window.scrollY || window.pageYOffset;
-        const scrolled = Math.min(100, Math.max(0, (scrollTop / (contentHeight - windowHeight)) * 100));
-        // 用 transform: scaleX 代替 width（GPU 合成，不触发 layout）
-        progressBar.style.transform = `scaleX(${scrolled / 100})`;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrolled = docHeight > 0 ? Math.min(1, window.scrollY / docHeight) : 0;
+        progressBar.style.transform = `scaleX(${scrolled})`;
     }
 
     // 注册到统一 scroll 调度器

@@ -347,9 +347,6 @@ body {
 <!-- 增强: 回到顶部按钮 + 顶部阅读进度条联动 -->
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // 顶部进度条（已存在于 .reading-progress-bar，复用）
-    const progressBar = document.querySelector('.reading-progress-bar');
-
     const btn = document.createElement('button');
     btn.className = 'back-to-top';
     btn.setAttribute('aria-label', 'Back to top');
@@ -361,17 +358,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.body.appendChild(btn);
 
-    // 顶部进度条 + back-to-top 显隐
-    function updateProgress() {
-        const scrollY = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const percent = docHeight > 0 ? (scrollY / docHeight) * 100 : 0;
-
-        if (progressBar) {
-            progressBar.style.width = percent + '%';
-        }
-
-        if (scrollY > 300) {
+    // 仅处理 back-to-top 按钮显隐（进度条由 extend_footer 统一用 transform 更新，避免 layout thrashing）
+    function updateBackToTop() {
+        if (window.scrollY > 300) {
             btn.classList.add('visible');
         } else {
             btn.classList.remove('visible');
@@ -379,10 +368,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 初始状态
-    updateProgress();
+    updateBackToTop();
 
-    // 注册到统一 scroll 调度器（替代独立 listener）
-    (window.__scrollFrameFns = window.__scrollFrameFns || []).push(updateProgress);
+    // 注册到统一 scroll 调度器
+    (window.__scrollFrameFns = window.__scrollFrameFns || []).push(updateBackToTop);
 });
 </script>
 
