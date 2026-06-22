@@ -1082,6 +1082,10 @@ details.advanced > summary:hover { color: var(--primary); }
             <div class="k">激活</div>
             <div class="v" id="is-activation">0 GB</div>
           </div>
+          <div class="item">
+            <div class="k">grad_accum</div>
+            <div class="v" id="ga-val">—</div>
+          </div>
         </div>
       </div>
 
@@ -1182,7 +1186,6 @@ const OPTIMIZER_BYTES = {
   adam: 12, muon: 8, adafactor: 4, "fp8adam": 6, sgd: 8, none: 0
 };
 const C_ACT_FA = 34;
-const C_ACT_NO_FA = 34;  // 线性项，平方项单独处理（简化）
 const C_ACT_CKPT = 2;
 
 /* ============================================================
@@ -1440,13 +1443,16 @@ function render() {
   document.getElementById("gpu-count").textContent = r.gpu_count;
   document.getElementById("c-act").textContent = r.C_ckpt;
   document.getElementById("gpu-count-meta").textContent =
-    `${state.tp}×${state.pp}×${state.dp}${state.ep>1?`×${state.ep}(ep)`:''} = ${r.gpu_count} GPU`;
+    `${state.tp}×${state.pp}×${state.dp}${(state.ep>1 && readModel().is_moe)?`×${state.ep}(ep)`:''} = ${r.gpu_count} GPU`;
 
-  // Info strip
+  // Info strip（含 LoRA 行）
   document.getElementById("is-weight").textContent = fmtGB(r.weight) + " GB";
   document.getElementById("is-optimizer").textContent = fmtGB(r.optimizer) + " GB";
   document.getElementById("is-gradient").textContent = fmtGB(r.gradient) + " GB";
   document.getElementById("is-activation").textContent = fmtGB(r.activation) + " GB";
+  // grad_accum 显示（Global Batch / (dp * B_micro)）
+  const ga = state.dp * state.B_micro > 0 ? (state.B_global / (state.dp * state.B_micro)).toFixed(0) : '—';
+  document.getElementById("ga-val").textContent = ga;
 
   // GPU bars
   const gpuBarsEl = document.getElementById("gpu-bars");
@@ -1505,7 +1511,7 @@ function render() {
       ? '— (base 冻结)'
       : `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})${epSuffixG}`,
       v: r.gradient },
-    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·T_cp·d·(L/pp)${(state.use_sp && state.tp>=2)?'·sp('+sp_factor_display+')':''}${!state.use_fa?' + 5·H_q·T_cp²·B·(L/pp)':''}`, v: r.activation }
+    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/${state.cp>1?state.cp:'cp'})·d·(L/pp)${(state.use_sp && state.tp>=2)?'·sp('+sp_factor_display+')':''}${!state.use_fa?' + 5·H_q·(T/cp)²·B·(L/pp)':''}`, v: r.activation }
   ];
 
 
@@ -1537,6 +1543,13 @@ function render() {
     notesList.innerHTML = r.notes.map(n => `<li>${n}</li>`).join('');
   } else {
     notesEl.style.display = 'none';
+  }
+
+  // 禁用 Dense 模型的 EP 滑块
+  const epSlider = document.getElementById("p-ep");
+  if (epSlider) {
+    epSlider.disabled = !readModel().is_moe;
+    epSlider.style.opacity = readModel().is_moe ? '1' : '0.4';
   }
 }
 
@@ -1598,6 +1611,8 @@ const CASES = [
     expected: "~30 GB",
     apply: () => {
       loadModel("minimax-m3");
+      document.getElementById("lora-enable").checked = false;
+      document.getElementById("lora-fields").style.display = 'none';
       document.getElementById("t-bg").value = 32; document.getElementById("t-bg-val").textContent = 32;
       document.getElementById("t-bm").value = 2;  document.getElementById("t-bm-val").textContent = 2;
       document.getElementById("t-T").value = 8192; document.getElementById("t-T-val").textContent = "8K";
@@ -1622,6 +1637,8 @@ const CASES = [
     expected: "~102 GB, OVER",
     apply: () => {
       loadModel("minimax-m3");
+      document.getElementById("lora-enable").checked = false;
+      document.getElementById("lora-fields").style.display = 'none';
       document.getElementById("m-N-non").value = 428;
       document.getElementById("m-N-exp").value = 0;
       document.getElementById("t-bm").value = 1; document.getElementById("t-bm-val").textContent = 1;
@@ -1640,6 +1657,8 @@ const CASES = [
     apply: () => {
       // 临时切换到 Dense
       document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
+      document.getElementById("lora-enable").checked = false;
+      document.getElementById("lora-fields").style.display = 'none';
       document.getElementById("m-N").value = 70;
       document.getElementById("m-d").value = 8192;
       document.getElementById("m-L").value = 80;
