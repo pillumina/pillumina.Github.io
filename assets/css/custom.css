@@ -880,7 +880,11 @@
 .post-content > h3,
 .post-content > h4,
 .post-content > h5,
-.post-content > h6,
+.post-content > h6 {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 2rem;
+}
+
 /* ==========================================================================
    KaTeX DOM containment — 79K元素页面减少style/layout范围
    每个公式内部40+ span不向外部传播layout/style变化，降低滚动开销
