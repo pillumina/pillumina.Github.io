@@ -1289,7 +1289,7 @@ function render() {
     { k: 'weight', label: '权重', formula: `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=3?'·dp':''})${epSuffix}`, v: r.weight },
     { k: 'optimizer', label: '优化器', formula: `N_non × ${OPTIMIZER_BYTES[state.optimizer]} / (tp·pp${state.zeero_stage>=1?'·dp':''})${epSuffixO}`, v: r.optimizer },
     { k: 'gradient', label: '梯度', formula: `N_non × ${state.bytes_per_param} / (tp·pp${state.zeero_stage>=2?'·dp':''})${epSuffixG}`, v: r.gradient },
-    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/cp)·d·(L/pp)${state.use_sp?'·sp':''}`, v: r.activation }
+    { k: 'activation', label: '激活', formula: `C=${r.C_ckpt} · B·(T/cp)·d·(L/pp)${state.use_sp && state.tp>=2?'·sp(0.88x)':''}${!state.use_fa?' + 5·H_q·T·B·L (无FA平方项)':''}`, v: r.activation }
   ];
   tbodyEl.innerHTML = rows.map(r => `
     <tr>
