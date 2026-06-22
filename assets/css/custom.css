@@ -862,25 +862,17 @@
 
 /* ==========================================================================
    性能优化: content-visibility 长文章虚拟渲染
+   注：长文章含大量 KaTeX 公式时，content-visibility 导致每个元素进入
+   视口时布局 200+ 内嵌 span，连续滚动反而更卡。改为统一一次布局后再滚动。
+   保留在 table/pre/blockquote 等独立块级元素上，这些元素不嵌套 KaTeX。
    ========================================================================== */
 
-.post-content > p,
 .post-content > table,
 .post-content > .highlight,
 .post-content > pre,
 .post-content > blockquote,
-.post-content > ul,
-.post-content > ol,
 .post-content > figure,
-.post-content > hr,
-.post-content > h1,
-.post-content > h2,
-.post-content > h3,
-.post-content > h4,
-.post-content > h5,
-.post-content > h6,
-.post-content > .katex-display,
-.post-content > .katex {
+.post-content > hr {
     content-visibility: auto;
     contain-intrinsic-size: auto 2rem;
 }

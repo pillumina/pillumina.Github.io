@@ -459,37 +459,51 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 更新TOC高亮 + 智能滚动
-    const tocInner = document.querySelector('.toc.side .inner');
-    let lastActiveId = null;
+    // 更新TOC高亮 + 智能滚动（仅 activeId 变化时才操作 DOM）
+    var tocInner = document.querySelector('.toc.side .inner');
+    var lastActiveId = null;
+    var prevActiveLink = null;
+
+    // 缓存 TOC 链接的 offsetTop（避免 layout read）
+    var tocLinkPositions = {};
+    function cacheTocLinkPositions() {
+        tocLinks.forEach(function(link) {
+            var href = link.getAttribute('href');
+            if (href && href.startsWith('#')) {
+                tocLinkPositions[href] = link.offsetTop;
+            }
+        });
+    }
+    cacheTocLinkPositions();
+    window.addEventListener('resize', function() {
+        clearTimeout(posResizeTimer);
+        posResizeTimer = setTimeout(cacheTocLinkPositions, 200);
+    });
 
     function updateTocHighlight() {
-        const activeId = getActiveHeader();
+        var activeId = getActiveHeader();
+        if (activeId === lastActiveId) return; // 没变化，跳过所有 DOM 操作
+        lastActiveId = activeId;
 
-        // 移除所有active类
-        tocLinks.forEach(link => {
-            link.classList.remove('active');
-        });
+        // 清除上一个 active
+        if (prevActiveLink) prevActiveLink.classList.remove('active');
 
-        // 添加active类到当前标题的链接
-        let activeLink = null;
+        // 设置新的 active
         if (activeId) {
-            activeLink = document.querySelector(`.toc a[href="#${activeId}"]`);
+            var activeLink = document.querySelector('.toc a[href="#' + activeId + '"]');
             if (activeLink) {
                 activeLink.classList.add('active');
+                prevActiveLink = activeLink;
+
+                // TOC 内部智能滚动（用缓存位置）
+                if (tocInner) {
+                    var pos = tocLinkPositions['#' + activeId];
+                    if (pos !== undefined) {
+                        tocInner.scrollTop = Math.max(0, pos - tocInner.clientHeight * 0.25);
+                    }
+                }
             }
         }
-
-        // TOC 内部智能滚动：让高亮章节始终可见（instant 跟随避免双重动画）
-        if (activeLink && tocInner && activeId !== lastActiveId) {
-            // 让链接的顶部距容器顶部约 1/4 处（偏上位置，符合阅读视线）
-            const linkTop = activeLink.offsetTop;
-            const targetScroll = linkTop - tocInner.clientHeight * 0.25;
-
-            // instant 跳转（无动画），避免与主页面滚动叠加产生跳变
-            tocInner.scrollTop = Math.max(0, targetScroll);
-        }
-        lastActiveId = activeId;
     }
 
     // 初始化高亮
@@ -757,29 +771,20 @@ document.addEventListener('DOMContentLoaded', function() {
 function initNavScrollState() {
     const nav = document.querySelector('header.header');
     if (!nav) return;
-    let lastY = window.scrollY;
-    let isTop = true;
+    var lastY = window.scrollY;
+    var wasScrolled = false, wasHidden = false, wasTop = true;
     function onScroll() {
-        const y = window.scrollY;
-        const dir = y > lastY ? 'down' : 'up';
-        // 毛玻璃：滚下 > 50px
-        nav.classList.toggle('is-scrolled', y > 50);
-        // 自动隐藏：滚下 > 100px 且方向向下
-        if (y > 100 && dir === 'down' && !isTop) {
-            nav.classList.add('is-hidden');
-        } else {
-            nav.classList.remove('is-hidden');
-        }
-        // 顶部特殊状态：永远可见
-        isTop = y < 50;
-        if (isTop) {
-            nav.classList.add('is-top');
-        } else {
-            nav.classList.remove('is-top');
-        }
+        var y = window.scrollY;
+        var dir = y > lastY ? 'down' : 'up';
+        // 只在状态变化时操作 classList
+        var scrolled = y > 50;
+        if (scrolled !== wasScrolled) { wasScrolled = scrolled; nav.classList.toggle('is-scrolled', scrolled); }
+        var isTop = y < 50;
+        if (isTop !== wasTop) { wasTop = isTop; nav.classList.toggle('is-top', isTop); }
+        var hidden = y > 100 && dir === 'down' && !isTop;
+        if (hidden !== wasHidden) { wasHidden = hidden; nav.classList.toggle('is-hidden', hidden); }
         lastY = y;
     }
-    // 注册到统一 scroll 调度器（替代独立 listener）
     (window.__scrollFrameFns = window.__scrollFrameFns || []).push(onScroll);
 }
 if (document.readyState === 'loading') {
