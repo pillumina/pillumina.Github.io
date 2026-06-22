@@ -1616,3 +1616,139 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 })();
 </script>
+
+<!-- Speculation Rules: hover 预加载同源链接 -->
+<script type="speculationrules">
+{
+    "prefetch": [
+        {
+            "source": "document",
+            "where": {
+                "and": [
+                    { "href_matches": "/*" },
+                    { "not": { "href_matches": "*.pdf" } },
+                    { "not": { "href_matches": "*.zip" } }
+                ]
+            },
+            "eagerness": "moderate"
+        }
+    ]
+}
+</script>
+
+<!-- 移动端 TOC 浮动按钮 + 底滑面板 -->
+<script>
+(function() {
+    if (!window.matchMedia('(max-width: 1024px)').matches) return;
+
+    var post = document.querySelector('.post-content');
+    if (!post) return;
+
+    var headers = post.querySelectorAll('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]');
+    if (headers.length === 0) return;
+
+    // 创建按钮
+    var btn = document.createElement('button');
+    btn.className = 'mobile-toc-btn';
+    btn.setAttribute('aria-label', '目录');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>';
+    document.body.appendChild(btn);
+
+    // 构建 TOC HTML
+    function buildTocHtml() {
+        var tocItems = [];
+        var stack = [{level: 0, items: tocItems}];
+        headers.forEach(function(h) {
+            var level = parseInt(h.tagName.charAt(1));
+            var item = {id: h.id, text: h.textContent.trim(), level: level, children: []};
+            while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+                stack.pop();
+            }
+            if (stack.length > 0) {
+                stack[stack.length - 1].items.push(item);
+            }
+            stack.push({level: level, items: item.children});
+        });
+        return renderToc(tocItems);
+    }
+
+    function renderToc(items) {
+        if (items.length === 0) return '';
+        var html = '<ul>';
+        items.forEach(function(item) {
+            html += '<li><a href="#' + item.id + '">' + escapeHtml(item.text) + '</a>';
+            if (item.children.length > 0) {
+                html += renderToc(item.children);
+            }
+            html += '</li>';
+        });
+        html += '</ul>';
+        return html;
+    }
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    }
+
+    // 创建遮罩 + 面板
+    var backdrop = document.createElement('div');
+    backdrop.className = 'toc-overlay-backdrop';
+    document.body.appendChild(backdrop);
+
+    var panel = document.createElement('div');
+    panel.className = 'toc-overlay-panel';
+    panel.innerHTML = '<div class="toc-overlay-title">目录</div>' + buildTocHtml();
+    document.body.appendChild(panel);
+
+    function open() {
+        backdrop.classList.add('is-visible');
+        panel.classList.add('is-visible');
+        document.body.style.overflow = 'hidden';
+        updateActiveLink();
+    }
+
+    function close() {
+        backdrop.classList.remove('is-visible');
+        panel.classList.remove('is-visible');
+        document.body.style.overflow = '';
+    }
+
+    function updateActiveLink() {
+        var links = panel.querySelectorAll('a');
+        var scrollY = window.scrollY + 80;
+        var activeId = '';
+        headers.forEach(function(h) {
+            if (h.offsetTop <= scrollY) activeId = h.id;
+        });
+        links.forEach(function(a) {
+            a.classList.toggle('active', a.getAttribute('href') === '#' + activeId);
+        });
+    }
+
+    btn.addEventListener('click', open);
+    backdrop.addEventListener('click', close);
+
+    panel.addEventListener('click', function(e) {
+        var link = e.target.closest('a');
+        if (link) {
+            e.preventDefault();
+            close();
+            var id = link.getAttribute('href').slice(1);
+            var target = document.getElementById(id);
+            if (target) {
+                var top = target.getBoundingClientRect().top + window.scrollY - 60;
+                window.scrollTo({ top: top, behavior: 'smooth' });
+            }
+        }
+    });
+
+    // ESC 关闭
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && panel.classList.contains('is-visible')) {
+            close();
+        }
+    });
+})();
+</script>
