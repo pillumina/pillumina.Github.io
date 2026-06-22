@@ -438,7 +438,7 @@ details.advanced > summary:hover { color: var(--primary); }
   left: 0;
   bottom: 0;
   border-radius: 3px;
-  transition: width 0.3s var(--ease-out);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .gpu-bar-row .gpu-bar .fill.under { background: linear-gradient(90deg, #2ea043, #3fb950); }
 .gpu-bar-row .gpu-bar .fill.over { background: linear-gradient(90deg, #da3633, #f85149); }
@@ -1066,19 +1066,23 @@ const state = {
    READ FORM STATE
    ============================================================ */
 function readModel() {
+  const num = (id, def) => {
+    const v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? def : v;
+  };
   return {
-    N: parseFloat(document.getElementById("m-N").value),
-    d: parseInt(document.getElementById("m-d").value),
-    L: parseInt(document.getElementById("m-L").value),
-    Hq: parseInt(document.getElementById("m-Hq").value),
-    Hkv: parseInt(document.getElementById("m-Hkv").value),
-    D: parseInt(document.getElementById("m-D").value),
+    N: num("m-N", 70),
+    d: num("m-d", 8192),
+    L: num("m-L", 80),
+    Hq: num("m-Hq", 64),
+    Hkv: num("m-Hkv", 8),
+    D: num("m-D", 128),
     is_moe: document.getElementById("m-is-moe").checked,
-    E: parseInt(document.getElementById("m-E").value) || 1,
-    k: parseInt(document.getElementById("m-k").value) || 1,
-    d_ff_moe: parseInt(document.getElementById("m-dff-moe").value) || 0,
-    N_non: parseFloat(document.getElementById("m-N-non").value) || 0,
-    N_exp: parseFloat(document.getElementById("m-N-exp").value) || 0,
+    E: num("m-E", 1),
+    k: num("m-k", 1),
+    d_ff_moe: num("m-dff-moe", 0),
+    N_non: num("m-N-non", 0),
+    N_exp: num("m-N-exp", 0),
   };
 }
 
@@ -1133,14 +1137,20 @@ function compute() {
   const optimizer_base_B = m.N * opt_bytes;
   const grad_base_B = m.N * t.bytes_per_param;  // 梯度同计算精度
 
-  // 激活系数 C
-  let C = t.use_fa ? C_ACT_FA : C_ACT_NO_FA;
-  if (t.use_fp8_act) C = Math.floor(C / 2);
+  // 激活系数 C（基础：FA 不影响线性项系数，平方项在训练时通常由 FA 消除）
+  let C = C_ACT_FA;
+  if (t.use_fp8_act) C = Math.max(1, Math.floor(C / 2));
 
-  // Checkpointing
+  // Checkpointing：selective 用 (34 + 2*(K-1))/K，默认 K=2 → 18
   let C_ckpt = C;
-  if (t.ckpt_mode === "full") C_ckpt = C_ACT_CKPT;
-  // selective 用默认 C（简化）
+  if (t.ckpt_mode === "full") {
+    C_ckpt = t.use_fp8_act ? Math.max(1, C_ACT_CKPT / 2) : C_ACT_CKPT;
+  } else if (t.ckpt_mode === "selective") {
+    // K=2: 每两层重算一次，C = (34 + 2*(K-1))/K
+    const K = 2;
+    C_ckpt = (34 + 2 * (K - 1)) / K;
+    if (t.use_fp8_act) C_ckpt = Math.max(1, C_ckpt / 2);
+  }
 
   // T_eff（无视觉 token 简化）
   const T_eff = t.T;
@@ -1148,34 +1158,35 @@ function compute() {
   // SP factor
   const sp_factor = t.use_sp ? (1 - 0.12 / t.tp) : 1.0;
 
-  // TP/PP 折扣
-  let weight = weight_base_B / (t.tp * t.pp);
-  let optimizer = optimizer_base_B / (t.tp * t.pp);
-  let gradient = grad_base_B / (t.tp * t.pp);
-  let activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * m.L / t.pp / 1e9 * sp_factor;
-  // 单位换算：C × B × T × d × L = bytes（BF16）
-  // 除以 1e9 得 GB
+  // 激活（BF16 bytes），CH 5 公式: C × B × (T/cp) × d × (L/pp) × sp_factor
+  const activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * (m.L / t.pp) * sp_factor / 1e9;
 
-  // 重新精确计算 activation 单位
-  // 公式: C_ckpt × B_micro × (T/cp) × d × (L/pp) = bytes(BF16)
-  activation = C_ckpt * t.B_micro * (T_eff / t.cp) * m.d * (m.L / t.pp) * sp_factor / 1e9;
+  // 权重/优化器/梯度（处理 MoE 拆分 + ZeRO + EP 组合）
+  const z_div_w = t.zeero_stage >= 3 ? t.dp : 1;  // ZeRO-3 切权重
+  const z_div_o = t.zeero_stage >= 1 ? t.dp : 1;  // ZeRO-1 切优化器
+  const z_div_g = t.zeero_stage >= 2 ? t.dp : 1;  // ZeRO-2 切梯度
 
-  // ZeRO 折扣
-  if (t.zeero_stage >= 1) optimizer = optimizer_base_B / (t.tp * t.pp * t.dp);
-  if (t.zeero_stage >= 2) gradient = grad_base_B / (t.tp * t.pp * t.dp);
-  if (t.zeero_stage >= 3) {
-    const peak = weight_base_B / (t.tp * t.pp);
-    weight = weight_base_B / (t.tp * t.pp * t.dp);
-    notes.push(`ZeRO-3 weight 驻留=${weight.toFixed(1)} GB，all-gather 峰值=${peak.toFixed(1)} GB`);
+  let weight, optimizer, gradient;
+  if (m.is_moe && t.ep > 1) {
+    // MoE + EP: 非 expert 走 tp·pp（+ ZeRO），expert 走 tp·pp·ep（+ ZeRO）
+    weight = (N_non * t.bytes_per_param / (t.tp * t.pp * z_div_w) +
+              N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep * z_div_w));
+    optimizer = (N_non * opt_bytes / (t.tp * t.pp * z_div_o) +
+                 N_exp * opt_bytes / (t.tp * t.pp * t.ep * z_div_o));
+    gradient = (N_non * t.bytes_per_param / (t.tp * t.pp * z_div_g) +
+                N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep * z_div_g));
+  } else {
+    weight = weight_base_B / (t.tp * t.pp * z_div_w);
+    optimizer = optimizer_base_B / (t.tp * t.pp * z_div_o);
+    gradient = grad_base_B / (t.tp * t.pp * z_div_g);
   }
 
-  // MoE with EP 重算
-  if (m.is_moe && t.ep > 1) {
-    const z_div_o = t.zeero_stage >= 1 ? t.dp : 1;
-    const z_div_g = t.zeero_stage >= 2 ? t.dp : 1;
-    weight = (N_non * t.bytes_per_param / (t.tp * t.pp) + N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep));
-    optimizer = (N_non * opt_bytes / (t.tp * t.pp * z_div_o) + N_exp * opt_bytes / (t.tp * t.pp * t.ep * z_div_o));
-    gradient = (N_non * t.bytes_per_param / (t.tp * t.pp * z_div_g) + N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep * z_div_g));
+  // ZeRO-3 峰值提示（all-gather 时的瞬时权重）
+  if (t.zeero_stage >= 3) {
+    const peak = m.is_moe && t.ep > 1
+      ? (N_non * t.bytes_per_param / (t.tp * t.pp) + N_exp * t.bytes_per_param / (t.tp * t.pp * t.ep))
+      : weight_base_B / (t.tp * t.pp);
+    notes.push(`ZeRO-3 weight 驻留=${weight.toFixed(1)} GB，all-gather 峰值=${peak.toFixed(1)} GB`);
   }
 
   const total = weight + optimizer + gradient + activation;
@@ -1217,7 +1228,9 @@ function render() {
   // GPU bars
   const gpuBarsEl = document.getElementById("gpu-bars");
   gpuBarsEl.innerHTML = GPUS.map(g => {
-    const pct = Math.min(100, r.total / g.capacity * 100);
+    const ratio = r.total / g.capacity;
+    const pct = Math.min(100, ratio * 100);
+    const displayPct = (ratio * 100).toFixed(0);  // 实际百分比，即使 > 100
     let cls = 'under', status = 'OK', statusCls = 'ok';
     if (r.total > g.capacity) { cls = 'over'; status = 'OVER'; statusCls = 'over'; }
     else if (r.total > g.capacity * 0.85) { cls = 'tight'; status = 'TIGHT'; statusCls = 'warn'; }
@@ -1225,7 +1238,7 @@ function render() {
       <div class="gpu-bar-row">
         <span class="gpu-name">${g.name} ${g.capacity}G</span>
         <div class="gpu-bar"><div class="fill ${cls}" style="width:${pct}%"></div></div>
-        <span class="gpu-status ${statusCls}">${status} ${pct.toFixed(0)}%</span>
+        <span class="gpu-status ${statusCls}">${status} ${displayPct}%</span>
       </div>`;
   }).join('');
 
