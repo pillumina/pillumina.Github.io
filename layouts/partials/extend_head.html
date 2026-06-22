@@ -373,7 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, {
-        rootMargin: '-80px 0px -75% 0px',
+        rootMargin: '-80px 0px -50% 0px',
         threshold: 0
     });
 
@@ -382,22 +382,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // 获取当前激活的标题：优先 IO 可见，fallback 用缓存位置
+    // 按 DOM 顺序遍历 headers，取最后一个可见的（最靠近读者当前位置的标题）
     function getActiveHeader() {
-        // 方案 1: IO 检测到可见标题，取最后一个
+        // 方案 1: IO 检测到可见标题，按 DOM 序取最后一个
         var lastVisible = '';
-        for (var id in visibleHeadersSet) {
-            lastVisible = id;
+        for (var i = 0; i < headers.length; i++) {
+            if (visibleHeadersSet[headers[i].id]) {
+                lastVisible = headers[i].id;
+            }
         }
         if (lastVisible) return lastVisible;
 
         // 方案 2: fallback — 用缓存的 offsetTop 找最后一个已滚过视口顶部的标题
-        var scrollY = window.scrollY + 120;
+        var scrollY = window.scrollY + 80;
         var lastPassed = '';
         for (var i = 0; i < headers.length; i++) {
-            var h = headers[i];
-            var pos = headerPositions[h.id];
+            var pos = headerPositions[headers[i].id];
             if (pos !== undefined && pos <= scrollY) {
-                lastPassed = h.id;
+                lastPassed = headers[i].id;
             }
         }
         return lastPassed;
