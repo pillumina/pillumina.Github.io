@@ -26,6 +26,12 @@
     <loc>https://pillumina.github.io/tags/gpu/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/inference/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-7/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-5/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
@@ -44,10 +50,16 @@
     <loc>https://pillumina.github.io/tags/methodology/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/moe/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/tags/nccl/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/parallelism/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/performance/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/</loc>
@@ -56,10 +68,16 @@
     <loc>https://pillumina.github.io/series/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/serving/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/tags/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/training/</loc>
+    <lastmod>2026-06-22T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/vllm/</loc>
     <lastmod>2026-06-22T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/categories/architecture/</loc>
@@ -92,9 +110,6 @@
     <loc>https://pillumina.github.io/tags/model-architecture/</loc>
     <lastmod>2026-06-17T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/moe/</loc>
-    <lastmod>2026-06-17T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/mtp/</loc>
     <lastmod>2026-06-17T00:00:00+00:00</lastmod>
   </url><url>
@@ -117,9 +132,6 @@
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/gqa/</loc>
-    <lastmod>2026-06-15T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/inference/</loc>
     <lastmod>2026-06-15T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/kv-cache/</loc>
@@ -324,9 +336,6 @@
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/paper/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/performance/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/profiling/</loc>

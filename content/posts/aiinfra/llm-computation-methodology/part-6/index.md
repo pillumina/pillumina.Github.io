@@ -13,7 +13,7 @@ summary = '训练通信完整分析：从物理原理到框架实现，覆盖 TP
 
 > 从物理原理出发，按框架行为拆解，建立跨平台（NVIDIA + Ascend）的通信分析能力。
 
-> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) ← 当前（系列终篇）
+> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) ← 当前 → [（七）推理服务](../part-7/)
 
 ## 本文定位
 
@@ -898,8 +898,8 @@ TP 暴露: 80 × 1.1 ms = **88 ms per μB**。TP 与 compute 串行（同 stream
 
 ---
 
-> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) ← 当前（系列终篇）
+> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) ← 当前 → [（七）推理服务](../part-7/)
 
 > **符号约定**：与前两篇文档完全一致。$t_f$ = forward time, $t_b$ = backward time, $\mu$ = microbatch 数, $v$ = virtual pipeline stage 数, $\eta$ = 并行效率 or MFU（根据上下文）。
 
-> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) ← 当前（系列终篇）
+> **系列导航**：[（一）预备知识](../part-1/) → [（二）FLOPs](../part-2/) → [（三）KV Cache](../part-3/) → [（四）M3+Roofline](../part-4/) → [（五）训练显存](../part-5/) ← 当前 → [（七）推理服务](../part-7/)

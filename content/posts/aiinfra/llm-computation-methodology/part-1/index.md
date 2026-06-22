@@ -19,7 +19,7 @@ pinned = true
 - **CH 2** 参数分解：这个模型有多大
 - **CH 1-2** 常见计算错误
 
-> 本系列共 6 篇：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)
+> 本系列共 7 篇：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/) → [（七）推理服务](../part-7/)
 
 ---
 
@@ -34,11 +34,12 @@ pinned = true
 | **学会算推理显存** | [Part 3](../part-3/) + [Part 4](../part-4/)（推理显存拆解 + M3 完整推演 + Roofline 延迟分析） | 60 min |
 | **学会算训练显存** | [Part 5](../part-5/)（单卡四笔账 → 并行折扣 → ZeRO/FSDP → Checkpointing → Offload → M3 案例） | 60 min |
 | **理解通信分析** | [Part 6](../part-6/)（通信物理原理 → 时间线建模 → 六种并行维度通信模式 → M3 step time 推演） | 60 min |
+| **分析推理服务性能** | [Part 7](../part-7/)（连续批处理 → PagedAttention → PD 分离 → 推测解码 → Llama-70B 服务分析） | 60 min |
 | **查漏补缺** | [Part 4 附录](../part-4/)（config 字段速查 + 符号表 + 公式速查 + 常见错误 Top 12） | 5 min |
 
-各篇依赖关系：Part 1（基础）→ Part 2（FLOPs）/ Part 3（KV Cache）可并行 → Part 4（M3 实战，依赖 1-3）→ Part 5（训练显存，依赖 1-4）→ Part 6（通信，依赖 1-5）。
+各篇依赖关系：Part 1（基础）→ Part 2（FLOPs）/ Part 3（KV Cache）可并行 → Part 4（M3 实战，依赖 1-3）→ Part 5（训练显存，依赖 1-4）→ Part 6（通信，依赖 1-5）→ Part 7（推理服务，依赖 Part 4 的 Roofline + Part 6 的通信分析）。
 
-> **新读者建议**：从 Part 1 CH 1.2（5 分钟搞懂 FLOPs 怎么数）和 [Part 3 CH 4.2](../part-3/)（10 分钟搞懂 KV cache 怎么算）开始——这两节能让你最快建立「能算」的感觉。然后按兴趣选择 Part 2-6 任意章节深入。
+> **新读者建议**：从 Part 1 CH 1.2（5 分钟搞懂 FLOPs 怎么数）和 [Part 3 CH 4.2](../part-3/)（10 分钟搞懂 KV cache 怎么算）开始——这两节能让你最快建立「能算」的感觉。然后按兴趣选择 Part 2-7 任意章节深入。
 
 ---
 
@@ -927,4 +928,4 @@ $$= 2.15 + 20.24 + 1.66 + 32.04 = \mathbf{56.1\text{B}}$$
 
 
 
-> **系列导航**：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/)
+> **系列导航**：[（二）FLOPs 估算](../part-2/) → [（三）KV Cache 与推理显存](../part-3/) → [（四）M3 实战 + Roofline](../part-4/) → [（五）训练显存](../part-5/) → [（六）通信分析](../part-6/) → [（七）推理服务](../part-7/)

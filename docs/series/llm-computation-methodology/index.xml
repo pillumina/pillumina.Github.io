@@ -14,6 +14,13 @@
     <lastBuildDate>Mon, 22 Jun 2026 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://pillumina.github.io/series/llm-computation-methodology/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>LLM 系统分析方法论（七）：推理服务性能建模</title>
+      <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-7/</link>
+      <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-7/</guid>
+      <description>推理服务完整性能建模：从单 token 延迟到多请求并发，覆盖连续批处理、PagedAttention、Prefill-Decode 分离、推测解码、量化部署。含 Llama-70B 完整服务分析和 MoE 模型服务策略。跨 NVIDIA + Ascend 双平台。</description>
+    </item>
+    <item>
       <title>LLM 系统分析方法论（五）：训练显存估算</title>
       <link>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-5/</link>
       <pubDate>Mon, 22 Jun 2026 00:00:00 +0000</pubDate>
