@@ -33,9 +33,13 @@
     --duration-slow: 0.4s;
 
     /* 阴影 */
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+    --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+    --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04),
+                   0 4px 12px -2px rgba(15, 23, 42, 0.06),
+                   0 12px 24px -8px rgba(15, 23, 42, 0.05);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
-    --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 12px 32px -4px rgba(15, 23, 42, 0.12),
+                 0 24px 48px -12px rgba(15, 23, 42, 0.10);
 
     /* 背景层次 - 暖白化 */
     --bg-base: #FAFAF9;
@@ -129,10 +133,11 @@
 
 .submenu-vendor-group > .submenu-vendor-name {
     display: block;
-    font-size: 0.62rem;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    font-size: 0.6rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.14em;
     color: var(--accent);
     opacity: 0.7;
     padding: 0.5rem 0.625rem 0.25rem;
@@ -165,7 +170,9 @@
 .menu-submenu a {
     display: block;
     padding: 0.375rem 0.625rem;
-    font-size: 0.78rem;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
     line-height: 1.4;
     color: var(--secondary);
     text-decoration: none;
@@ -178,8 +185,10 @@
 
 .menu-submenu a:hover {
     color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
-    padding-left: 0.75rem;
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--accent) 14%, transparent),
+        color-mix(in srgb, var(--accent) 3%, transparent));
+    transform: translateX(2px);
 }
 
 .submenu-arrow {
@@ -270,7 +279,7 @@
 /* 下拉面板 - 统一单列布局，固定 240px 宽 */
 .menu-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    top: calc(100% + 12px);
     left: 50%;
     transform: translateX(-50%) translateY(-8px);
     z-index: 100;
@@ -281,9 +290,7 @@
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: var(--radius-lg);
-    box-shadow:
-        0 4px 6px -1px rgba(0, 0, 0, 0.08),
-        0 12px 24px -4px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-card);
     opacity: 0;
     visibility: hidden;
     transition:
@@ -293,6 +300,21 @@
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+}
+
+/* 小箭头指示器 */
+.menu-dropdown-menu::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 10px;
+    height: 10px;
+    background: var(--bg-elevated);
+    border-top: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+    border-radius: 2px 0 0 0;
 }
 
 .menu-dropdown.is-open .menu-dropdown-menu,
@@ -321,23 +343,24 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
     font-size: 0.625rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.16em;
     color: var(--secondary);
     margin: 0.6rem 0.625rem 0.4rem;
     padding: 0 0 0.4rem;
-    border-bottom: 1px dashed var(--border);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .menu-group-title::before {
     content: '';
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
+    width: 12px;
+    height: 2px;
+    border-radius: 1px;
     background: var(--menu-accent, var(--accent));
-    opacity: 0.7;
+    opacity: 0.8;
     flex-shrink: 0;
 }
 
@@ -370,8 +393,10 @@
     align-items: center;
     gap: 0.625rem;
     padding: 0.5rem 0.75rem !important;
-    font-size: 0.875rem;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
+    font-size: 0.8125rem;
     font-weight: 450;
+    letter-spacing: -0.005em;
     color: var(--secondary);
     text-decoration: none;
     white-space: nowrap;
@@ -380,6 +405,18 @@
     position: relative;
     line-height: 1.4;
     overflow: hidden;
+    font-feature-settings: "kern", "ss01", "cv11", "calt";
+    font-optical-sizing: auto;
+    font-variation-settings: "opsz" 14;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 下拉项内 span 显式继承，避免主题覆盖 */
+.menu-dropdown-menu a > span {
+    font-family: inherit !important;
+    font-weight: inherit !important;
+    letter-spacing: inherit !important;
 }
 
 /* 隐藏原 icon 字符（params.icon），改用 CSS 色点 */
@@ -410,9 +447,11 @@
 }
 
 .menu-dropdown-menu a:hover {
-    background: color-mix(in srgb, var(--menu-accent, var(--accent)) 10%, transparent);
+    background: linear-gradient(90deg,
+        color-mix(in srgb, var(--menu-accent, var(--accent)) 14%, transparent),
+        color-mix(in srgb, var(--menu-accent, var(--accent)) 3%, transparent));
     color: var(--menu-accent, var(--accent));
-    padding-left: 1rem !important;
+    transform: translateX(2px);
 }
 
 .menu-dropdown-menu a:hover::before {
@@ -826,10 +865,57 @@
     position: relative;
 }
 
+/* 列表卡片层次：hairline 分隔 + hover 轻抬升 */
+.home-col-posts .post-entry,
+.home-two-col .post-entry {
+    padding: var(--space-lg) var(--space-xl);
+    border-bottom: 1px dashed color-mix(in srgb, var(--border) 90%, transparent);
+    border-radius: 0;
+    transition:
+        background-color var(--duration-base) var(--ease-out),
+        transform var(--duration-base) var(--ease-out),
+        box-shadow var(--duration-base) var(--ease-out),
+        border-color var(--duration-base) var(--ease-out);
+}
+
+.home-col-posts .post-entry:first-of-type {
+    border-top: none;
+}
+
+.home-col-posts .post-entry:last-of-type {
+    border-bottom: none;
+}
+
+@media (hover: hover) {
+    .home-col-posts .post-entry:hover,
+    .home-two-col .post-entry:hover {
+        background: color-mix(in srgb, var(--accent) 2.5%, var(--entry));
+        border-color: color-mix(in srgb, var(--accent) 25%, var(--border));
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px -4px rgba(15, 23, 42, 0.06);
+        z-index: 1;
+    }
+}
+
+@media (max-width: 1024px) {
+    .home-two-col .post-entry {
+        padding: var(--space-md) var(--space-lg);
+    }
+}
+
 .post-pinned {
     order: -1;
     position: relative;
     overflow: hidden;
+    background:
+        linear-gradient(180deg,
+            color-mix(in srgb, var(--accent) 4%, var(--entry)) 0%,
+            var(--entry) 100%);
+    border: 1px solid color-mix(in srgb, var(--accent) 15%, var(--border));
+    border-radius: var(--radius-xl);
+    padding: calc(var(--space-xl) + 0.5rem) var(--space-xl) var(--space-xl);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--duration-base) var(--ease-out);
 }
 
 .post-pinned::before {
@@ -838,25 +924,35 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 2px;
-    background: linear-gradient(to right, var(--accent), color-mix(in srgb, var(--accent) 30%, transparent));
-    z-index: 1;
+    height: 3px;
+    background: linear-gradient(to right,
+        var(--accent),
+        color-mix(in srgb, var(--accent) 50%, transparent) 60%,
+        transparent);
+    z-index: 2;
 }
 
 .pinned-label {
     position: absolute;
-    top: 0.625rem;
-    right: 0.875rem;
-    z-index: 2;
-    font-size: 0.6rem;
+    top: 0.875rem;
+    right: 1rem;
+    z-index: 3;
+    font-size: 0.62rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 10%, transparent);
-    padding: 0.15rem 0.5rem;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: var(--accent);
+    padding: 0.2rem 0.6rem;
     border-radius: 999px;
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--accent) 40%, transparent);
     pointer-events: none;
+}
+
+@media (hover: hover) {
+    .post-pinned:hover {
+        box-shadow: var(--shadow-lg);
+    }
 }
 
 
@@ -1484,18 +1580,24 @@ main,
 
 /* 卡片容器 */
 .home-info .profile-card {
-    background: var(--entry);
-    border: 1px solid var(--border);
+    background:
+        radial-gradient(circle at top right,
+            color-mix(in srgb, var(--accent) 2.5%, transparent),
+            transparent 60%),
+        var(--entry);
+    border: 1px solid color-mix(in srgb, var(--border) 70%, var(--accent) 8%);
     border-radius: var(--radius-xl);
-    padding: var(--space-xl);
+    padding: calc(var(--space-xl) + 0.25rem);
     width: 100%;
     max-width: 480px;
-    box-shadow: var(--shadow-sm);
-    transition: box-shadow var(--duration-base) var(--ease-out);
+    box-shadow: var(--shadow-card);
+    transition: box-shadow var(--duration-base) var(--ease-out),
+                transform var(--duration-base) var(--ease-out);
 }
 
 .home-info .profile-card:hover {
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 
 /* ==========================================================================
@@ -3119,10 +3221,13 @@ header.header.is-scrolled > .nav {
     position: relative;
     padding: 0 0.6rem;
     white-space: nowrap;
-    font-size: 0.95rem;
+    font-size: 0.875rem;
+    letter-spacing: 0.01em;
     line-height: 60px;
     color: var(--secondary);
-    transition: color var(--duration-fast) var(--ease-out);
+    border-radius: 6px;
+    transition: color var(--duration-fast) var(--ease-out),
+                background-color var(--duration-base) var(--ease-out);
 }
 
 /* 下划线：默认 0 宽，hover/active 时展开（中心 → 两端） */
@@ -3131,7 +3236,7 @@ header.header.is-scrolled > .nav {
     content: '';
     position: absolute;
     left: 50%;
-    bottom: 18px;
+    bottom: 14px;
     width: 0;
     height: 2px;
     background: var(--accent);
@@ -3143,6 +3248,7 @@ header.header.is-scrolled > .nav {
 #menu > li > a:hover,
 #menu > li > .menu-dropdown-toggle:hover {
     color: var(--primary);
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
 }
 
 #menu > li > a:hover::after,
