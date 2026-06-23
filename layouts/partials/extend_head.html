@@ -1198,7 +1198,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'all_posts': 'All Posts',
             'share': 'Share',
             'tools': 'Tools',
-            'pinned': 'Pinned'
+            'pinned': 'Pinned',
+            'slides': 'Slides'
         },
         zh: {
             'archive': '归档',
@@ -1225,7 +1226,8 @@ document.addEventListener('DOMContentLoaded', function() {
             'all_posts': '所有文章',
             'share': '分享',
             'tools': '工具',
-            'pinned': '置顶'
+            'pinned': '置顶',
+            'slides': '幻灯片版'
         }
     };
 
@@ -1788,6 +1790,12 @@ document.addEventListener('DOMContentLoaded', function() {
     iframe.setAttribute('loading', 'lazy');
     iframe.addEventListener('load', function() {
       if (placeholder) placeholder.classList.add('hidden');
+      // 注入 low-power 模式——关闭 WebGL 背景，大幅降低大屏全屏时的 GPU 压力
+      try {
+        if (iframe.contentDocument && iframe.contentDocument.body) {
+          iframe.contentDocument.body.classList.add('low-power');
+        }
+      } catch(e) { /* 跨域时静默，同域 slides 会自动关闭 WebGL 背景 */ }
     });
     frame.appendChild(iframe);
   }
