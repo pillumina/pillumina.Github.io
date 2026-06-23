@@ -3675,71 +3675,91 @@ header.header.is-scrolled > .nav {
 .slides-embed {
     margin: 2rem 0 2.5rem;
     background: var(--entry);
-    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--border) 80%, var(--accent) 10%);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-card);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 4px 16px -2px rgba(15, 23, 42, 0.06),
+        0 0 0 1px rgba(0, 102, 255, 0.03) inset;
     content-visibility: auto;
     contain-intrinsic-size: auto 420px;
+    transition: box-shadow var(--duration-base) var(--ease-out),
+                border-color var(--duration-base) var(--ease-out);
+}
+.slides-embed:hover {
+    border-color: color-mix(in srgb, var(--border) 65%, var(--accent) 25%);
+    box-shadow:
+        0 1px 2px rgba(15, 23, 42, 0.04),
+        0 8px 24px -4px rgba(15, 23, 42, 0.10),
+        0 0 0 1px rgba(0, 102, 255, 0.06) inset;
 }
 
 .slides-embed-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.625rem 1rem;
-    background: linear-gradient(180deg,
-        color-mix(in srgb, var(--accent) 4%, var(--entry)) 0%,
-        var(--entry) 100%);
-    border-bottom: 1px solid var(--border);
+    padding: 0.75rem 1.25rem;
+    background: var(--entry);
+    border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
 }
 
 .slides-embed-title {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
     font-family: "Inter", -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: var(--accent);
-    letter-spacing: 0.01em;
+    color: var(--secondary);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.slides-embed-title::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
 .slides-embed-title svg {
-    opacity: 0.85;
+    display: none;   /* 隐藏原 slide 图标，改用色点 */
 }
 
 .slides-embed-actions {
     display: flex;
-    gap: 4px;
+    gap: 2px;
 }
-
 .slides-embed-actions button {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     padding: 0;
-    border: 1px solid var(--border);
+    border: 1px solid transparent;
     border-radius: var(--radius-sm);
-    background: var(--bg-elevated);
-    color: var(--secondary);
+    background: transparent;
+    color: var(--text-mute);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all var(--duration-fast) var(--ease-out);
 }
-
 .slides-embed-actions button:hover {
     color: var(--accent);
-    border-color: var(--accent);
-    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    background: color-mix(in srgb, var(--accent) 6%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 15%, transparent);
 }
 
 .slides-embed-frame {
     position: relative;
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #1a1a1a;
+    background:
+        linear-gradient(180deg, #141618 0%, #0a0c0e 100%);
     overflow: hidden;
 }
 
