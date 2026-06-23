@@ -5,16 +5,49 @@
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/agent/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiagent/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/aiagent/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/architecture/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/claude-code/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/claude-mem/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/llm/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/memory/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiagent/claude-mem-design/</loc>
+    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/</loc>
     <lastmod>2026-06-22T09:06:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/categories/aiinfra/</loc>
-    <lastmod>2026-06-22T09:06:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/</loc>
-    <lastmod>2026-06-22T09:06:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/</loc>
     <lastmod>2026-06-22T09:06:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/inference/</loc>
@@ -35,16 +68,10 @@
     <loc>https://pillumina.github.io/tags/performance/</loc>
     <lastmod>2026-06-22T09:06:00+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/</loc>
-    <lastmod>2026-06-22T09:06:00+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/series/</loc>
     <lastmod>2026-06-22T09:06:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/serving/</loc>
-    <lastmod>2026-06-22T09:06:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/</loc>
     <lastmod>2026-06-22T09:06:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/vllm/</loc>
@@ -75,9 +102,6 @@
     <lastmod>2026-06-22T09:04:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/llm-computation-methodology/part-5/</loc>
-    <lastmod>2026-06-22T09:04:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/memory/</loc>
     <lastmod>2026-06-22T09:04:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/computation/</loc>
@@ -281,9 +305,6 @@
     <loc>https://pillumina.github.io/tags/academic/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/aiagent/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/animation/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
@@ -291,9 +312,6 @@
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/citation/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/claude-code/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/codebase/</loc>
@@ -438,9 +456,6 @@
     <lastmod>2025-08-08T15:05:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiinfra/03-areal/</loc>
-    <lastmod>2025-08-07T14:40:12+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/llm/</loc>
     <lastmod>2025-08-07T14:40:12+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/series/rl4llm/</loc>

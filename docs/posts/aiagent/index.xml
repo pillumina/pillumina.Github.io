@@ -11,7 +11,14 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate></lastBuildDate>
+    <lastBuildDate>Tue, 23 Jun 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/posts/aiagent/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>从 claude-mem 看 Agent Memory 的设计哲学</title>
+      <link>https://pillumina.github.io/posts/aiagent/claude-mem-design/</link>
+      <pubDate>Tue, 23 Jun 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/claude-mem-design/</guid>
+      <description>一篇关于 agent 长期记忆的长文。前半部分拆 claude-mem 13.8.0 的实现，后半部分讨论 agent memory 设计里那些绕不开的本质问题——write-time 压缩、provider 抽象、LoMoDe 击败、六个未解难题。</description>
+    </item>
   </channel>
 </rss>
