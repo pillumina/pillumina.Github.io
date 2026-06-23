@@ -1773,7 +1773,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var fullscreenBtn = container.querySelector('.slides-btn-fullscreen');
       if (fullscreenBtn) {
         fullscreenBtn.addEventListener('click', function() {
-          openFullscreenOverlay(src);
+          openFullscreenOverlay(container);
         });
       }
     });
@@ -1784,6 +1784,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var iframe = document.createElement('iframe');
     iframe.src = src;
     iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media');
+    iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('loading', 'lazy');
     iframe.addEventListener('load', function() {
       if (placeholder) placeholder.classList.add('hidden');
@@ -1791,8 +1792,29 @@ document.addEventListener('DOMContentLoaded', function() {
     frame.appendChild(iframe);
   }
 
-  function openFullscreenOverlay(src) {
-    // 已存在则关闭旧的
+  function openFullscreenOverlay(container) {
+    var frame = container.querySelector('.slides-embed-frame');
+    var iframe = frame ? frame.querySelector('iframe') : null;
+    if (!iframe) return;
+
+    // 方案 1: 原生 Fullscreen API — 无重载、保持状态、零卡顿
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen().catch(function() {
+        // fullscreen 被拒绝时才用 overlay fallback
+        openFullscreenFallback(iframe, container);
+      });
+      return;
+    }
+    // 方案 2: webkit 前缀（旧 Safari）
+    if (iframe.webkitRequestFullscreen) {
+      iframe.webkitRequestFullscreen();
+      return;
+    }
+    // 方案 3: overlay fallback — 复用已有 iframe（不再创建新的）
+    openFullscreenFallback(iframe, container);
+  }
+
+  function openFullscreenFallback(iframe, container) {
     var existing = document.querySelector('.slides-fullscreen-overlay');
     if (existing) existing.remove();
 
@@ -1808,10 +1830,10 @@ document.addEventListener('DOMContentLoaded', function() {
     hint.className = 'slides-fullscreen-hint';
     hint.textContent = '使用幻灯片内的 ← → 键翻页 · ESC 退出';
 
-    var iframe = document.createElement('iframe');
-    iframe.src = src;
-    iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media');
-
+    // 关键：移动已有 iframe 到 overlay，不创建新的
+    var placeholder = container.querySelector('.slides-embed-placeholder') || document.createElement('div');
+    overlay._placeholder = placeholder;
+    overlay._origFrame = iframe.parentElement;
     overlay.appendChild(closeBtn);
     overlay.appendChild(hint);
     overlay.appendChild(iframe);
@@ -1819,6 +1841,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = 'hidden';
 
     function close() {
+      // 把 iframe 移回原位
+      if (overlay._origFrame && overlay._origFrame !== iframe.parentElement) {
+        overlay._origFrame.appendChild(iframe);
+      }
       overlay.remove();
       document.body.style.overflow = '';
       document.removeEventListener('keydown', onKey);
@@ -1830,7 +1856,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     closeBtn.addEventListener('click', close);
     document.addEventListener('keydown', onKey);
-    // 点击空白处关闭
     overlay.addEventListener('click', function(e) {
       if (e.target === overlay) close();
     });
