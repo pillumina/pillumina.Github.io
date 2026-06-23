@@ -1788,14 +1788,23 @@ document.addEventListener('DOMContentLoaded', function() {
     iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media');
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('loading', 'lazy');
+    var loaded = false;
     iframe.addEventListener('load', function() {
+      if (loaded) return; loaded = true;
       if (placeholder) placeholder.classList.add('hidden');
-      // 注入 low-power 模式——关闭 WebGL 背景，大幅降低大屏全屏时的 GPU 压力
+      // 注入性能优化 style（全屏/大屏时加速翻页、关闭 WebGL 背景）
       try {
-        if (iframe.contentDocument && iframe.contentDocument.body) {
-          iframe.contentDocument.body.classList.add('low-power');
+        var doc = iframe.contentDocument;
+        if (doc && doc.head) {
+          var s = doc.createElement('style');
+          s.textContent =
+            '@media (min-width: 1200px){' +
+            '  #deck{transition:transform .45s cubic-bezier(.77,0,.175,1)!important}' +
+            '  .slide::before{backdrop-filter:none!important;background:rgba(var(--paper-rgb),.88)!important}' +
+            '}';
+          doc.head.appendChild(s);
         }
-      } catch(e) { /* 跨域时静默，同域 slides 会自动关闭 WebGL 背景 */ }
+      } catch(e) { /* 跨域 slides 静默跳过 */ }
     });
     frame.appendChild(iframe);
   }
