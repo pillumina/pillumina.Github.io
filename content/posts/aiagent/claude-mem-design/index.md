@@ -5,7 +5,6 @@ title = '从 claude-mem 看 Agent Memory 的设计哲学'
 categories = ['AIAgent']
 tags = ['agent', 'memory', 'claude-mem', 'claude-code', 'llm', 'architecture']
 summary = '一篇关于 agent 长期记忆的长文。前半部分拆 claude-mem 13.8.0 的实现，后半部分讨论 agent memory 设计里那些绕不开的本质问题——write-time 压缩、provider 抽象、统一框架、六个未解难题。'
-slides = '/slides/claude-mem-design/'
 +++
 
 
