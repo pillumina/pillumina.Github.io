@@ -1788,23 +1788,8 @@ document.addEventListener('DOMContentLoaded', function() {
     iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media');
     iframe.setAttribute('allowfullscreen', '');
     iframe.setAttribute('loading', 'lazy');
-    var loaded = false;
     iframe.addEventListener('load', function() {
-      if (loaded) return; loaded = true;
       if (placeholder) placeholder.classList.add('hidden');
-      // 注入性能优化 style（全屏/大屏时加速翻页、关闭 WebGL 背景）
-      try {
-        var doc = iframe.contentDocument;
-        if (doc && doc.head) {
-          var s = doc.createElement('style');
-          s.textContent =
-            '@media (min-width: 1200px){' +
-            '  #deck{transition:transform .45s cubic-bezier(.77,0,.175,1)!important}' +
-            '  .slide::before{backdrop-filter:none!important;background:rgba(var(--paper-rgb),.88)!important}' +
-            '}';
-          doc.head.appendChild(s);
-        }
-      } catch(e) { /* 跨域 slides 静默跳过 */ }
     });
     frame.appendChild(iframe);
   }
@@ -1845,7 +1830,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var hint = document.createElement('div');
     hint.className = 'slides-fullscreen-hint';
-    hint.textContent = '使用幻灯片内的 ← → 键翻页 · ESC 退出';
+    hint.textContent = '← → 翻页 · B 低功耗模式 · ESC 退出';
 
     // 关键：移动已有 iframe 到 overlay，不创建新的
     var placeholder = container.querySelector('.slides-embed-placeholder') || document.createElement('div');
