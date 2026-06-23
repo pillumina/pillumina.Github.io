@@ -34,6 +34,8 @@
   {{- partial "toc.html" . }}
   {{- end }}
 
+  {{- partial "slides_embed.html" . }}
+
   {{- if .Content }}
   <div class="post-content">
     {{- if not (.Param "disableAnchoredHeadings") }}

@@ -1731,3 +1731,115 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 })();
 </script>
+
+<!-- 幻灯片嵌入：IntersectionObserver 懒加载 + 全屏 Overlay -->
+<script>
+(function() {
+  function initSlidesEmbed() {
+    var containers = document.querySelectorAll('.slides-embed');
+    if (containers.length === 0) return;
+
+    containers.forEach(function(container) {
+      var src = container.dataset.src;
+      if (!src) return;
+
+      var frame = container.querySelector('.slides-embed-frame');
+      var placeholder = container.querySelector('.slides-embed-placeholder');
+
+      // IntersectionObserver: 接近视口才加载 iframe
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              loadIframe(container, frame, placeholder, src);
+              io.unobserve(container);
+            }
+          });
+        }, { rootMargin: '300px 0px' });
+        io.observe(container);
+      } else {
+        loadIframe(container, frame, placeholder, src);
+      }
+
+      // 新窗口打开
+      var newTabBtn = container.querySelector('.slides-btn-newtab');
+      if (newTabBtn) {
+        newTabBtn.addEventListener('click', function() {
+          window.open(src, '_blank', 'noopener');
+        });
+      }
+
+      // 全屏播放
+      var fullscreenBtn = container.querySelector('.slides-btn-fullscreen');
+      if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', function() {
+          openFullscreenOverlay(src);
+        });
+      }
+    });
+  }
+
+  function loadIframe(container, frame, placeholder, src) {
+    if (frame.querySelector('iframe')) return;
+    var iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media');
+    iframe.setAttribute('loading', 'lazy');
+    iframe.addEventListener('load', function() {
+      if (placeholder) placeholder.classList.add('hidden');
+    });
+    frame.appendChild(iframe);
+  }
+
+  function openFullscreenOverlay(src) {
+    // 已存在则关闭旧的
+    var existing = document.querySelector('.slides-fullscreen-overlay');
+    if (existing) existing.remove();
+
+    var overlay = document.createElement('div');
+    overlay.className = 'slides-fullscreen-overlay active';
+
+    var closeBtn = document.createElement('button');
+    closeBtn.className = 'slides-fullscreen-close';
+    closeBtn.setAttribute('aria-label', '关闭全屏');
+    closeBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+    var hint = document.createElement('div');
+    hint.className = 'slides-fullscreen-hint';
+    hint.textContent = '使用幻灯片内的 ← → 键翻页 · ESC 退出';
+
+    var iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.setAttribute('allow', 'fullscreen; autoplay; encrypted-media');
+
+    overlay.appendChild(closeBtn);
+    overlay.appendChild(hint);
+    overlay.appendChild(iframe);
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    function close() {
+      overlay.remove();
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+    }
+
+    function onKey(e) {
+      if (e.key === 'Escape') close();
+    }
+
+    closeBtn.addEventListener('click', close);
+    document.addEventListener('keydown', onKey);
+    // 点击空白处关闭
+    overlay.addEventListener('click', function(e) {
+      if (e.target === overlay) close();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSlidesEmbed);
+  } else {
+    initSlidesEmbed();
+  }
+})();
+</script>

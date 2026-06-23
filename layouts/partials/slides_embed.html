@@ -1,0 +1,38 @@
+{{- /* Slides 嵌入：从 frontmatter `slides` 读取路径，渲染可翻页 iframe + 全屏按钮 */ -}}
+{{- with .Params.slides }}
+<section class="slides-embed" data-src="{{ . | relURL }}">
+  <div class="slides-embed-header">
+    <div class="slides-embed-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+        <line x1="8" y1="21" x2="16" y2="21"/>
+        <line x1="12" y1="17" x2="12" y2="21"/>
+      </svg>
+      <span>幻灯片版</span>
+    </div>
+    <div class="slides-embed-actions">
+      <button class="slides-btn-newtab" data-href="{{ . | relURL }}" title="新窗口打开">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </button>
+      <button class="slides-btn-fullscreen" title="全屏播放">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 3H5a2 2 0 0 0-2 2v3"/>
+          <path d="M21 8V5a2 2 0 0 0-2-2h-3"/>
+          <path d="M3 16v3a2 2 0 0 0 2 2h3"/>
+          <path d="M16 21h3a2 2 0 0 0 2-2v-3"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div class="slides-embed-frame">
+    <div class="slides-embed-placeholder">
+      <div class="slides-embed-loader"></div>
+      <span>加载幻灯片…</span>
+    </div>
+  </div>
+</section>
+{{- end }}
