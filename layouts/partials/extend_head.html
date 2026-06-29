@@ -346,23 +346,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (headers.length === 0 || tocLinks.length === 0) return;
 
-    // 创建标题位置映射（缓存 offsetTop，避免每帧 layout read）
-    var headerPositions = {};
-    function cacheHeaderPositions() {
-        headers.forEach(function(h) {
-            headerPositions[h.id] = h.offsetTop;
-        });
+    // 每次 scroll 时实时读取 offsetTop（getBoundingClientRect 对 50 个标题的读取 < 0.3ms，
+    // 远小于之前缓存过时导致的高亮跳动问题。缓存方案在 KaTeX 渲染/content-visibility 变化后失效）
+    function getHeaderTop(h) {
+        return h.getBoundingClientRect().top + window.scrollY;
     }
-    cacheHeaderPositions();
-
-    // resize 或字体加载后更新缓存
-    var posResizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(posResizeTimer);
-        posResizeTimer = setTimeout(cacheHeaderPositions, 200);
-    });
 
     // 使用 IntersectionObserver 检测当前章节（更准确）
+    // 观察区：顶部减去 80px（sticky header 高度），底部到视口 40% 处
     var visibleHeadersSet = {};
     var headerObserver = new IntersectionObserver(function(entries) {
         entries.forEach(function(entry) {
@@ -373,7 +364,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }, {
-        rootMargin: '-80px 0px -50% 0px',
+        rootMargin: '-80px 0px -60% 0px',
         threshold: 0
     });
 
@@ -381,40 +372,35 @@ document.addEventListener('DOMContentLoaded', function() {
         headerObserver.observe(h);
     });
 
-    // 获取当前激活的标题：以滚动位置为主（确定性，不跳变），IO 可见标题仅在确定最后一个时辅助去抖
+    // Sticky header 实际高度：60px（line-height）+ padding，取 80px 保守
+    var HEADER_OFFSET = 80;
+
+    // 获取当前激活的标题
     function getActiveHeader() {
-        // 方案 1（主要）：用缓存的 offsetTop，找最后一个已滚过视口顶部的标题
-        var scrollY = window.scrollY + 80;
+        var scrollBottom = window.scrollY + window.innerHeight;
+
+        // 方案 1：IO 检测——取最后一个在观察区内的标题（最靠近读者的标题）
+        var lastVisible = '';
+        for (var i = 0; i < headers.length; i++) {
+            if (visibleHeadersSet[headers[i].id]) {
+                lastVisible = headers[i].id;
+            }
+        }
+        if (lastVisible) return lastVisible;
+
+        // 方案 2：fallback —— 找最后一个滚过 header 位置的标题
+        var threshold = window.scrollY + HEADER_OFFSET;
         var lastPassed = '';
         for (var i = 0; i < headers.length; i++) {
-            var pos = headerPositions[headers[i].id];
-            if (pos !== undefined && pos <= scrollY) {
+            var pos = getHeaderTop(headers[i]);
+            if (pos <= threshold) {
                 lastPassed = headers[i].id;
             }
         }
-
-        // 方案 2（去抖）：如果 IO 检测到更靠后的可见标题（用户在往回滚），
-        // 且该标题离视口顶部很近（< 200px），才切换到它。避免滚动时标题闪烁跳动。
-        if (lastPassed) {
-            var lastVisible = '';
-            for (var i = 0; i < headers.length; i++) {
-                if (visibleHeadersSet[headers[i].id]) {
-                    lastVisible = headers[i].id;
-                }
-            }
-            // IO 可见标题比当前位置更靠后（下方），且距离视口顶部 < 200px → 回滚切换
-            if (lastVisible && lastVisible !== lastPassed) {
-                var visiblePos = headerPositions[lastVisible];
-                if (visiblePos !== undefined && visiblePos > headerPositions[lastPassed] && visiblePos - window.scrollY < 200) {
-                    return lastVisible;
-                }
-            }
-        }
-
         return lastPassed;
     }
 
-    // TOC 链接点击：平滑滚动
+    // TOC 链接点击：精确滚动到标题（统一使用 HEADER_OFFSET）
     tocLinks.forEach(function(link) {
         const href = link.getAttribute('href');
         if (!href || !href.startsWith('#')) return;
@@ -424,9 +410,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const target = document.getElementById(href.slice(1));
             if (!target) return;
 
-            // 减去固定顶栏高度的偏移（scroll-margin-top 已设置）
-            const top = target.getBoundingClientRect().top + window.scrollY - 60;
+            // 用 getBoundingClientRect 获取精确位置，减去 header 偏移
+            const top = target.getBoundingClientRect().top + window.scrollY - HEADER_OFFSET;
             window.scrollTo({ top: top, behavior: 'smooth' });
+            // 更新 URL hash（不触发浏览器原生跳转）
             history.replaceState(null, '', href);
         });
     });
@@ -447,9 +434,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     cacheTocLinkPositions();
+    var tocResizeTimer;
     window.addEventListener('resize', function() {
-        clearTimeout(posResizeTimer);
-        posResizeTimer = setTimeout(cacheTocLinkPositions, 200);
+        clearTimeout(tocResizeTimer);
+        tocResizeTimer = setTimeout(cacheTocLinkPositions, 200);
     });
 
     function updateTocHighlight() {
