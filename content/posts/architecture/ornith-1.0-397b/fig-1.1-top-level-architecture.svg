@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 780" width="1160" height="780" font-family="Courier New, monospace">
+  <defs>
+    <marker id="fig11-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#000"/>
+    </marker>
+    <marker id="fig11-arrow-orange" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#b8721a"/>
+    </marker>
+  </defs>
+
+  <!-- Title -->
+  <text x="580" y="28" text-anchor="middle" font-size="18" font-weight="bold" fill="#1a3a6e">Ornith-1.0-397B — Top-Level Architecture</text>
+  <text x="580" y="46" text-anchor="middle" font-size="11" fill="#888">Qwen3.5-MoE base · 60 hybrid layers (3 linear + 1 full ×15) · 512 experts × top-10 · Self-Scaffolding RL post-trained</text>
+
+  <!-- KEY PARAMS compact bar below subtitle, full-width -->
+  <g transform="translate(30,56)">
+    <rect x="0" y="0" width="1100" height="36" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+    <text x="10" y="14" font-size="10" fill="#000">hidden_size=4096</text>
+    <line x1="165" y1="4" x2="165" y2="32" stroke="#ccc" stroke-width="0.5"/>
+    <text x="175" y="14" font-size="10" fill="#000">num_layers=60 (45 lin + 15 full)</text>
+    <line x1="470" y1="4" x2="470" y2="32" stroke="#ccc" stroke-width="0.5"/>
+    <text x="480" y="14" font-size="10" fill="#000">head_dim=256 · GQA 32Q/2KV</text>
+    <line x1="760" y1="4" x2="760" y2="32" stroke="#ccc" stroke-width="0.5"/>
+    <text x="770" y="14" font-size="10" fill="#000">num_experts=512 · top_k=10</text>
+    <line x1="990" y1="4" x2="990" y2="32" stroke="#ccc" stroke-width="0.5"/>
+    <text x="1000" y="14" font-size="10" fill="#000">ctx=256K</text>
+  </g>
+
+  <!-- ========== LEFT: INPUT MODALITY ========== -->
+  <text x="140" y="128" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a3a6e">INPUT MODALITY</text>
+
+  <rect x="40" y="142" width="200" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="140" y="163" text-anchor="middle" font-size="11" fill="#000">Image / Video</text>
+  <text x="140" y="180" text-anchor="middle" font-size="9" fill="#888">3-ch, 16×16 patch</text>
+
+  <line x1="140" y1="196" x2="140" y2="218" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <rect x="40" y="222" width="200" height="72" fill="none" stroke="#1a3a6e" stroke-width="1.6"/>
+  <text x="140" y="244" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">ViT Encoder</text>
+  <text x="140" y="260" text-anchor="middle" font-size="9" fill="#000">depth=27 · hidden=1152</text>
+  <text x="140" y="274" text-anchor="middle" font-size="9" fill="#000">num_heads=16 · patch=16</text>
+  <text x="140" y="288" text-anchor="middle" font-size="9" fill="#888">spatial_merge=2</text>
+
+  <line x1="140" y1="298" x2="140" y2="320" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <rect x="40" y="324" width="200" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="140" y="346" text-anchor="middle" font-size="11" fill="#000">Patch Merger</text>
+  <text x="140" y="363" text-anchor="middle" font-size="9" fill="#888">out_hidden=4096</text>
+
+  <line x1="140" y1="378" x2="140" y2="400" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <rect x="40" y="404" width="200" height="50" fill="none" stroke="#000" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text x="140" y="426" text-anchor="middle" font-size="11" fill="#000">Multimodal Embed</text>
+  <text x="140" y="443" text-anchor="middle" font-size="9" fill="#888">image/video tokens</text>
+
+  <!-- Arc to trunk -->
+  <line x1="240" y1="429" x2="340" y2="429" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <!-- ========== CENTER: DECODER STACK ========== -->
+  <text x="580" y="128" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a3a6e">HYBRID MoE TRUNK (60 layers)</text>
+
+  <!-- Text token input -->
+  <rect x="340" y="404" width="110" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="395" y="426" text-anchor="middle" font-size="11" fill="#000">Text Tokens</text>
+  <text x="395" y="443" text-anchor="middle" font-size="9" fill="#888">vocab=248320</text>
+
+  <line x1="395" y1="378" x2="395" y2="400" stroke="#000" stroke-width="1.2"/>
+  <line x1="395" y1="400" x2="450" y2="400" stroke="#000" stroke-width="1.2"/>
+  <line x1="450" y1="400" x2="450" y2="429" stroke="#000" stroke-width="1.2"/>
+
+  <!-- Embed -->
+  <line x1="450" y1="429" x2="490" y2="429" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+  <rect x="490" y="404" width="70" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="525" y="426" text-anchor="middle" font-size="11" fill="#000">Embed</text>
+  <text x="525" y="443" text-anchor="middle" font-size="9" fill="#888">+RMSNorm</text>
+
+  <!-- Arrows merging to decoder stack -->
+  <line x1="560" y1="429" x2="600" y2="429" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <!-- Decoder stack main box -->
+  <rect x="600" y="112" width="360" height="520" fill="none" stroke="#1a3a6e" stroke-width="1.6"/>
+  <text x="780" y="130" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a3a6e">60-Layer Decoder Stack</text>
+  <text x="780" y="146" text-anchor="middle" font-size="9" fill="#888">hidden=4096, head_dim=256, GQA(32Q,2KV), θ=1e7</text>
+
+  <!-- Group 1 (L0-3) -->
+  <rect x="618" y="166" width="324" height="52" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="626" y="180" font-size="9" fill="#888">G1 (L0-3)</text>
+  <rect x="626" y="186" width="88" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="670" y="203" text-anchor="middle" font-size="9" fill="#4a7ab0">linear</text>
+  <rect x="718" y="186" width="88" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="762" y="203" text-anchor="middle" font-size="9" fill="#4a7ab0">linear</text>
+  <rect x="810" y="186" width="40" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="830" y="203" text-anchor="middle" font-size="9" fill="#4a7ab0">lin</text>
+  <rect x="854" y="186" width="80" height="28" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.4"/>
+  <text x="894" y="203" text-anchor="middle" font-size="9" fill="#fff">FULL</text>
+
+  <!-- Group 2 -->
+  <rect x="618" y="222" width="324" height="52" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="626" y="236" font-size="9" fill="#888">G2 (L4-7)</text>
+  <rect x="626" y="242" width="88" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="670" y="259" text-anchor="middle" font-size="9" fill="#4a7ab0">linear</text>
+  <rect x="718" y="242" width="88" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="762" y="259" text-anchor="middle" font-size="9" fill="#4a7ab0">linear</text>
+  <rect x="810" y="242" width="40" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="830" y="259" text-anchor="middle" font-size="9" fill="#4a7ab0">lin</text>
+  <rect x="854" y="242" width="80" height="28" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.4"/>
+  <text x="894" y="259" text-anchor="middle" font-size="9" fill="#fff">FULL</text>
+
+  <!-- Ellipsis -->
+  <text x="780" y="292" text-anchor="middle" font-size="13" fill="#888">. . .</text>
+
+  <!-- Group 15 -->
+  <rect x="618" y="306" width="324" height="52" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="626" y="320" font-size="9" fill="#888">G15 (L56-59)</text>
+  <rect x="626" y="326" width="88" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="670" y="343" text-anchor="middle" font-size="9" fill="#4a7ab0">linear</text>
+  <rect x="718" y="326" width="88" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="762" y="343" text-anchor="middle" font-size="9" fill="#4a7ab0">linear</text>
+  <rect x="810" y="326" width="40" height="28" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+  <text x="830" y="343" text-anchor="middle" font-size="9" fill="#4a7ab0">lin</text>
+  <rect x="854" y="326" width="80" height="28" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.4"/>
+  <text x="894" y="343" text-anchor="middle" font-size="9" fill="#fff">FULL</text>
+
+  <!-- Per-layer detail -->
+  <rect x="618" y="370" width="324" height="100" fill="none" stroke="#b8721a" stroke-width="1.2" stroke-dasharray="5 3"/>
+  <text x="780" y="386" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Per Decoder Layer (shared)</text>
+
+  <rect x="630" y="394" width="146" height="30" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="703" y="412" text-anchor="middle" font-size="9" fill="#000">input_layernorm (RMS)</text>
+
+  <rect x="630" y="430" width="146" height="30" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="703" y="448" text-anchor="middle" font-size="9" fill="#000">Token Mixer (linear/full)</text>
+
+  <rect x="784" y="394" width="146" height="30" fill="none" stroke="#000" stroke-width="1"/>
+  <text x="857" y="412" text-anchor="middle" font-size="9" fill="#000">post_attn_norm (RMS)</text>
+
+  <rect x="784" y="430" width="146" height="30" fill="none" stroke="#1a3a6e" stroke-width="1.4"/>
+  <text x="857" y="448" text-anchor="middle" font-size="9" font-weight="bold" fill="#1a3a6e">MoE: 512 exp, top-10</text>
+
+  <text x="703" y="478" text-anchor="middle" font-size="8" fill="#888">+ shared expert (always-on)</text>
+
+  <!-- Layer labels -->
+  <text x="604" y="186" text-anchor="end" font-size="8" fill="#888">L0</text>
+  <text x="956" y="186" text-anchor="start" font-size="8" fill="#888">bottom</text>
+  <line x1="958" y1="183" x2="958" y2="183" stroke="#888" stroke-width="0.5"/>
+  <text x="604" y="440" text-anchor="end" font-size="8" fill="#888">L59</text>
+  <text x="956" y="440" text-anchor="start" font-size="8" fill="#888">top</text>
+
+  <!-- Data flow direction (upward arrow inside stack edge) -->
+  <line x1="598" y1="580" x2="598" y2="170" stroke="#888" stroke-width="1" marker-end="url(#fig11-arrow)"/>
+  <text x="594" y="380" text-anchor="end" font-size="8" fill="#888" transform="rotate(-90 594 380)">data flow</text>
+
+  <!-- ========== RIGHT: OUTPUT ========== -->
+  <text x="1060" y="128" text-anchor="middle" font-size="12" font-weight="bold" fill="#1a3a6e">OUTPUT</text>
+
+  <!-- Arrow from stack top to output -->
+  <line x1="960" y1="429" x2="1000" y2="429" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <!-- Final RMSNorm -->
+  <rect x="1000" y="404" width="120" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="1060" y="426" text-anchor="middle" font-size="11" fill="#000">Final RMSNorm</text>
+  <text x="1060" y="443" text-anchor="middle" font-size="9" fill="#888">pre-head norm</text>
+
+  <line x1="1060" y1="458" x2="1060" y2="480" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <!-- LM Head -->
+  <rect x="990" y="484" width="140" height="48" fill="none" stroke="#1a3a6e" stroke-width="1.4"/>
+  <text x="1060" y="502" text-anchor="middle" font-size="11" font-weight="bold" fill="#1a3a6e">LM Head</text>
+  <text x="1060" y="520" text-anchor="middle" font-size="8" fill="#888">untied (tie_word_embed=false)</text>
+
+  <line x1="1060" y1="536" x2="1060" y2="558" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <!-- MTP Head -->
+  <rect x="980" y="562" width="160" height="48" fill="none" stroke="#b8721a" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text x="1060" y="580" text-anchor="middle" font-size="11" font-weight="bold" fill="#b8721a">MTP Head (training-only)</text>
+  <text x="1060" y="598" text-anchor="middle" font-size="8" fill="#888">depth=1, HF ref does NOT instantiate</text>
+
+  <line x1="1060" y1="614" x2="1060" y2="636" stroke="#000" stroke-width="1.2" marker-end="url(#fig11-arrow)"/>
+
+  <!-- Token output -->
+  <rect x="1000" y="640" width="120" height="36" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="1060" y="662" text-anchor="middle" font-size="11" fill="#000">Token (inference)</text>
+
+  <!-- ========== BOTTOM LEFT: MoE NOTE ========== -->
+  <g transform="translate(40,510)">
+    <rect x="0" y="0" width="250" height="110" fill="none" stroke="#b8721a" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text x="125" y="18" text-anchor="middle" font-size="10" font-weight="bold" fill="#b8721a">Per Decoder Layer (all 60):</text>
+    <text x="10" y="34" font-size="9" fill="#000">Token Mixer (chosen by layer_types[i]):</text>
+    <text x="16" y="48" font-size="9" fill="#4a7ab0">linear_attention (75%):</text>
+    <text x="22" y="60" font-size="8" fill="#888">Gated DeltaNet · O(n·d)</text>
+    <text x="16" y="74" font-size="9" fill="#1a3a6e">full_attention (25%):</text>
+    <text x="22" y="86" font-size="8" fill="#888">GQA+sigmoid gate · O(n²·d)</text>
+    <text x="10" y="100" font-size="9" fill="#000">MoE: 512exp · top-10 + 1 shared · all layers</text>
+  </g>
+
+  <!-- ========== LEGEND ========== -->
+  <g transform="translate(40,650)">
+    <rect x="0" y="0" width="400" height="60" fill="none" stroke="#000" stroke-width="1"/>
+    <text x="10" y="15" font-size="10" font-weight="bold" fill="#1a3a6e">LEGEND</text>
+
+    <rect x="10" y="22" width="14" height="10" fill="none" stroke="#1a3a6e" stroke-width="1.4"/>
+    <text x="30" y="31" font-size="9" fill="#000">Primary structure (ViT / MoE)</text>
+
+    <rect x="200" y="22" width="14" height="10" fill="none" stroke="#4a7ab0" stroke-width="1" stroke-dasharray="3 2"/>
+    <text x="220" y="31" font-size="9" fill="#000">linear_attention layers</text>
+
+    <rect x="10" y="38" width="14" height="10" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.4"/>
+    <text x="30" y="47" font-size="9" fill="#000">full_attention layers</text>
+
+    <rect x="200" y="38" width="14" height="10" fill="none" stroke="#b8721a" stroke-width="1.2" stroke-dasharray="4 3"/>
+    <text x="220" y="47" font-size="9" fill="#000">Training-only / optional</text>
+  </g>
+</svg>
