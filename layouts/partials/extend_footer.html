@@ -7,23 +7,14 @@
 <script defer src="https://cdn.jsdelivr.net/npm/medium-zoom@1.0.6/dist/medium-zoom.min.js"></script>
 
 <script>
-// 阅读进度条（缓存 docHeight，避免每帧 layout read）
+// 阅读进度条——每帧实时读 scrollHeight（长文章 KaTeX/content-visibility 渲染后高度变化，
+// 缓存会导致进度条提前到 100%。单次 layout read 开销可忽略，不造成 layout thrashing）
 document.addEventListener('DOMContentLoaded', function() {
     const progressBar = document.querySelector('.reading-progress-bar');
     if (!progressBar) return;
 
-    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-
-    // resize / 字体加载后内容高度变化时更新缓存
-    var resizeTimer;
-    window.addEventListener('resize', function() {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(function() {
-            docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        }, 200);
-    });
-
     function updateProgress() {
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
         var scrolled = docHeight > 0 ? Math.min(1, window.scrollY / docHeight) : 0;
         progressBar.style.transform = 'scaleX(' + scrolled + ')';
     }
