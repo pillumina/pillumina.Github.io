@@ -56,7 +56,7 @@ Ornith-1.0 相对 Qwen3.5-MoE 的贡献 **完全在后训练**：
 
 **性能定位（一句话总结，不展开）**：官方博客与 MarkTechPost 报告 397B 在 Terminal-Bench 2.1 = 77.5、SWE-Bench Verified = 82.4，超过 Claude Opus 4.7（70.3 / 80.8）但在两个 benchmark 上均不及 Opus 4.8（85 / 87.6）与 GLM-5.2-744B（81.0）[^src10] [^src22]。架构层面相同条件下，Ornith-1.0-35B 在 Terminal-Bench 2.1 上超过 Qwen3.5-397B（64.4 vs 53.5），是"增益来自 RL 而非架构"的关键证据 [^src10]。
 
-![图 1.1 顶层架构](figures/fig-1.1-top-level-architecture.svg)
+![图 1.1 顶层架构](fig-1.1-top-level-architecture.svg)
 
 ---
 
@@ -240,11 +240,11 @@ $$
 
 ### 2.4 hybrid 注意力与 MoE 路由可视化
 
-![图 2.1 混合注意力层分布](figures/fig-2.1-hybrid-attention-pattern.svg)
+![图 2.1 混合注意力层分布](fig-2.1-hybrid-attention-pattern.svg)
 
 每 4 层一组、3:1 比例（linear×3 + full×1）由 `full_attention_interval = 4` 决定 [^src26]，对应 `layer_types` 数组中固定模式 `["linear","linear","linear","full"]` 重复 15 次。linear attention 层使用 Gated DeltaNet（源码 `Qwen3_5MoeGatedDeltaNet`），full attention 层使用带 sigmoid query gate 的标准 GQA（源码 `Qwen3_5MoeAttention`，`attn_output_gate = true` [^src37]）。
 
-![图 3.1 MoE 路由](figures/fig-3.1-moe-routing.svg)
+![图 3.1 MoE 路由](fig-3.1-moe-routing.svg)
 
 `Qwen3_5MoeTopKRouter`（源码 `modeling_qwen3_5_moe.py:L787-L789`——softmax+topk+renorm 三行）的前向过程：对每个 token 在 fp32 中做 `softmax(router_logits)`，再 `top-k(10)` + 重新归一化得到最终 routing weights [^src49]。区别于 DeepSeek-MoE 系的 sigmoid-then-sum，Qwen3.5-MoE 的 softmax-then-topk 把每个 token 的 routing 权重和严格约束为 1，便于 stable training。`Qwen3_5MoeSparseMoeBlock`（源码 `modeling_qwen3_5_moe.py:L795-L814`）随后按 hit 过滤 expert，仅对实际接收 token 的 expert 计算 SwiGLU，shared expert 在每 token 上无条件并行 [^src50]。
 
@@ -508,7 +508,7 @@ $g(a)$ 在博客中表示为图片公式（**具体函数形式博客未公开**
 
 **Token-level 的含义**：传统 GRPO 在 trajectory level 上加权（整条 rollout 同一权重），Ornith 在 token level 上加权——同一 rollout 的不同 token 因生成时间不同有不同 age，因此有不同权重。这与 agentic coding 的长 trajectory 特性匹配：trajectory 头部 token（早生成）age 大、权重低，尾部 token（刚生成）age 小、权重高，缓解 off-policy 偏差。
 
-![图 4.1 self-scaffolding RL](figures/fig-4.1-self-scaffolding-rl.svg)
+![图 4.1 self-scaffolding RL](fig-4.1-self-scaffolding-rl.svg)
 
 ### 4.5 训练方法学小结
 
