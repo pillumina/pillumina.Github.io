@@ -1,0 +1,205 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" width="960" height="620">
+  <defs>
+    <style>
+      .fig32-line { fill: none; stroke: #1a3a6e; stroke-width: 1.5; }
+      .fig32-line-thin { fill: none; stroke: #1a3a6e; stroke-width: 0.8; }
+      .fig32-line-soft { fill: none; stroke: #4a7ab0; stroke-width: 1; }
+      .fig32-line-warn { fill: none; stroke: #b8721a; stroke-width: 1.2; }
+      .fig32-arrow { fill: #1a3a6e; }
+      .fig32-arrow-soft { fill: #4a7ab0; }
+      .fig32-text-h1 { font-family: "Courier New", monospace; font-size: 18px; font-weight: bold; fill: #1a3a6e; }
+      .fig32-text-h2 { font-family: "Courier New", monospace; font-size: 13px; font-weight: bold; fill: #1a3a6e; }
+      .fig32-text-norm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig32-text-small { font-family: "Courier New", monospace; font-size: 9px; fill: #000; }
+      .fig32-text-tiny { font-family: "Courier New", monospace; font-size: 8px; fill: #000; }
+      .fig32-text-label { font-family: "Courier New", monospace; font-size: 10px; fill: #1a3a6e; font-weight: bold; }
+      .fig32-text-accent { font-family: "Courier New", monospace; font-size: 10px; fill: #b8721a; font-weight: bold; }
+      .fig32-text-soft { font-family: "Courier New", monospace; font-size: 10px; fill: #4a7ab0; font-weight: bold; }
+      .fig32-text-secondary { font-family: "Courier New", monospace; font-size: 10px; fill: #888; }
+      .fig32-text-legend-title { font-family: "Courier New", monospace; font-size: 10px; font-weight: bold; fill: #1a3a6e; }
+      .fig32-text-legend { font-family: "Courier New", monospace; font-size: 9px; fill: #000; }
+      .fig32-box-fill { fill: #f4f7fc; stroke: #1a3a6e; stroke-width: 1.2; }
+      .fig32-box-soft { fill: #eaf0f8; stroke: #4a7ab0; stroke-width: 1.2; }
+      .fig32-box-accent { fill: #fdf6ed; stroke: #b8721a; stroke-width: 1.2; }
+      .fig32-box-qhead { fill: #f4f7fc; stroke: #1a3a6e; stroke-width: 1; }
+      .fig32-box-kvhead { fill: #fdf6ed; stroke: #b8721a; stroke-width: 1; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" class="fig32-text-h1">Fig 3.2 -- GQA Configuration: 64 Q Heads / 8 KV Heads (8:1 ratio)</text>
+  <text x="30" y="48" class="fig32-text-secondary">Hy3-295B  |  Hq=64  Hkv=8  head_dim=128  qk_norm=True  |  GQA 8 groups of 8 Q heads each</text>
+
+  <!-- === LEFT: Query Projection === -->
+  <text x="150" y="80" text-anchor="middle" class="fig32-text-h2">Q Projection</text>
+  <rect x="60" y="90" width="180" height="30" rx="3" class="fig32-box-fill"/>
+  <text x="150" y="109" text-anchor="middle" class="fig32-text-norm">Wq: d(4096) -> Hq*D(8192)</text>
+  <text x="150" y="99" text-anchor="middle" class="fig32-text-tiny">64 heads x 128 dims</text>
+
+  <!-- === RIGHT: KV Projection === -->
+  <text x="750" y="80" text-anchor="middle" class="fig32-text-h2">KV Projection</text>
+  <rect x="620" y="90" width="260" height="30" rx="3" class="fig32-box-accent"/>
+  <text x="750" y="109" text-anchor="middle" class="fig32-text-accent">Wk: d(4096) -> Hkv*D(1024)</text>
+  <text x="750" y="99" text-anchor="middle" class="fig32-text-tiny">8 KV heads x 128 dims each</text>
+
+  <rect x="620" y="128" width="260" height="28" rx="3" class="fig32-box-accent"/>
+  <text x="750" y="147" text-anchor="middle" class="fig32-text-accent">Wv: d(4096) -> Hkv*D(1024)</text>
+
+  <!-- QK-Norm annotation -->
+  <rect x="280" y="90" width="100" height="30" rx="2" fill="none" stroke="#1a3a6e" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="330" y="109" text-anchor="middle" class="fig32-text-small">Q-Norm</text>
+  <text x="330" y="99" text-anchor="middle" class="fig32-text-tiny">RMSNorm on Q</text>
+
+  <rect x="570" y="90" width="40" height="30" rx="2" fill="none" stroke="#b8721a" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="590" y="109" text-anchor="middle" class="fig32-text-tiny">K-N</text>
+
+  <!-- Connection lines -->
+  <line x1="240" y1="105" x2="278" y2="105" class="fig32-line-thin"/>
+  <polygon points="275,102 281,105 275,108" class="fig32-arrow"/>
+  <line x1="380" y1="105" x2="410" y2="105" class="fig32-line-thin"/>
+
+  <line x1="620" y1="105" x2="570" y2="105" class="fig32-line-warn"/>
+  <polygon points="567,102 561,105 567,108" fill="#b8721a"/>
+
+  <!-- === GQA Grouping Diagram === -->
+  <text x="480" y="190" text-anchor="middle" class="fig32-text-h2">GQA Attention Head Grouping (8:1 ratio)</text>
+  <text x="480" y="208" text-anchor="middle" class="fig32-text-secondary">8 KV heads, each shared by a group of 8 Q heads</text>
+
+  <!-- 8 groups displayed -->
+  <!-- Group 1 -->
+  <rect x="30" y="225" width="110" height="170" rx="3" fill="none" stroke="#ddd" stroke-width="0.8"/>
+  <text x="85" y="240" text-anchor="middle" class="fig32-text-small" font-weight="bold">Group 1 (8 Q)</text>
+
+  <rect x="40" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="51" y="261" text-anchor="middle" class="fig32-text-tiny">0</text>
+  <rect x="64" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="75" y="261" text-anchor="middle" class="fig32-text-tiny">1</text>
+  <rect x="88" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="99" y="261" text-anchor="middle" class="fig32-text-tiny">2</text>
+  <rect x="112" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="123" y="261" text-anchor="middle" class="fig32-text-tiny">3</text>
+  <text x="85" y="282" text-anchor="middle" class="fig32-text-tiny" fill="#888">...</text>
+  <rect x="40" y="290" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="51" y="301" text-anchor="middle" class="fig32-text-tiny">4</text>
+  <rect x="64" y="290" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="75" y="301" text-anchor="middle" class="fig32-text-tiny">5</text>
+  <rect x="88" y="290" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="99" y="301" text-anchor="middle" class="fig32-text-tiny">6</text>
+  <rect x="112" y="290" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="123" y="301" text-anchor="middle" class="fig32-text-tiny">7</text>
+
+  <!-- KV0 -->
+  <rect x="55" y="320" width="60" height="28" rx="2" class="fig32-box-kvhead"/>
+  <text x="85" y="338" text-anchor="middle" class="fig32-text-tiny">KV head 0</text>
+
+  <line x1="85" y1="304" x2="85" y2="320" class="fig32-line-soft"/>
+  <polygon points="82,317 85,320 88,317" class="fig32-arrow-soft"/>
+
+  <text x="85" y="358" text-anchor="middle" class="fig32-text-tiny" fill="#888">RoPE + QK-Norm</text>
+
+  <!-- Group 2 -->
+  <rect x="150" y="225" width="110" height="170" rx="3" fill="none" stroke="#ddd" stroke-width="0.8"/>
+  <text x="205" y="240" text-anchor="middle" class="fig32-text-small" font-weight="bold">Group 2 (8 Q)</text>
+
+  <rect x="160" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="171" y="261" text-anchor="middle" class="fig32-text-tiny">8</text>
+  <rect x="184" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="195" y="261" text-anchor="middle" class="fig32-text-tiny">9</text>
+  <text x="205" y="270" text-anchor="middle" class="fig32-text-tiny" fill="#888">...</text>
+  <rect x="160" y="280" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="171" y="291" text-anchor="middle" class="fig32-text-tiny">10</text>
+  <rect x="184" y="280" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="195" y="291" text-anchor="middle" class="fig32-text-tiny">11</text>
+  <rect x="208" y="280" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="219" y="291" text-anchor="middle" class="fig32-text-tiny">12</text>
+  <rect x="232" y="280" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="243" y="291" text-anchor="middle" class="fig32-text-tiny">13</text>
+  <text x="205" y="310" text-anchor="middle" class="fig32-text-tiny" fill="#888">14-15</text>
+
+  <rect x="175" y="320" width="60" height="28" rx="2" class="fig32-box-kvhead"/>
+  <text x="205" y="338" text-anchor="middle" class="fig32-text-tiny">KV head 1</text>
+
+  <line x1="205" y1="320" x2="205" y2="315" class="fig32-line-thin" stroke="#888" stroke-width="0.5"/>
+  <text x="205" y="358" text-anchor="middle" class="fig32-text-tiny" fill="#888">RoPE + QK-Norm</text>
+
+  <!-- Ellipsis for groups 3-6 -->
+  <rect x="270" y="225" width="280" height="170" rx="3" fill="none" stroke="#ddd" stroke-width="0.5" stroke-dasharray="4,3"/>
+  <text x="410" y="290" text-anchor="middle" class="fig32-text-small" fill="#888">Groups 3-6 (similar)</text>
+  <text x="410" y="305" text-anchor="middle" class="fig32-text-tiny" fill="#888">Q heads 16-55</text>
+  <text x="410" y="320" text-anchor="middle" class="fig32-text-tiny" fill="#888">KV heads 2-6</text>
+  <text x="410" y="335" text-anchor="middle" class="fig32-text-tiny" fill="#888">RoPE theta = 11,158,840</text>
+  <text x="410" y="350" text-anchor="middle" class="fig32-text-tiny" fill="#888">head_dim = 128 per head</text>
+
+  <!-- Group 7 -->
+  <rect x="560" y="225" width="110" height="170" rx="3" fill="none" stroke="#ddd" stroke-width="0.8"/>
+  <text x="615" y="240" text-anchor="middle" class="fig32-text-small" font-weight="bold">Group 7 (8 Q)</text>
+
+  <rect x="570" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="581" y="261" text-anchor="middle" class="fig32-text-tiny">56</text>
+  <rect x="594" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="605" y="261" text-anchor="middle" class="fig32-text-tiny">57</text>
+  <text x="615" y="270" text-anchor="middle" class="fig32-text-tiny" fill="#888">...</text>
+  <rect x="570" y="280" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="581" y="291" text-anchor="middle" class="fig32-text-tiny">58</text>
+  <rect x="594" y="280" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="605" y="291" text-anchor="middle" class="fig32-text-tiny">59</text>
+  <text x="615" y="310" text-anchor="middle" class="fig32-text-tiny" fill="#888">60-63</text>
+
+  <rect x="585" y="320" width="60" height="28" rx="2" class="fig32-box-kvhead"/>
+  <text x="615" y="338" text-anchor="middle" class="fig32-text-tiny">KV head 6</text>
+
+  <line x1="615" y1="320" x2="615" y2="315" class="fig32-line-thin" stroke="#888" stroke-width="0.5"/>
+  <text x="615" y="358" text-anchor="middle" class="fig32-text-tiny" fill="#888">RoPE + QK-Norm</text>
+
+  <!-- Group 8 -->
+  <rect x="680" y="225" width="110" height="170" rx="3" fill="none" stroke="#ddd" stroke-width="0.8"/>
+  <text x="735" y="240" text-anchor="middle" class="fig32-text-small" font-weight="bold">Group 8 (8 Q)</text>
+
+  <rect x="690" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="701" y="261" text-anchor="middle" class="fig32-text-tiny">56</text>
+  <rect x="714" y="250" width="22" height="14" rx="1" class="fig32-box-qhead"/>
+  <text x="725" y="261" text-anchor="middle" class="fig32-text-tiny">57</text>
+
+  <!-- Add Q heads 56-63 to group 8 -->
+  <rect x="690" y="250" width="90" height="50" rx="2" fill="none" stroke="#1a3a6e" stroke-width="0.6"/>
+  <text x="735" y="290" text-anchor="middle" class="fig32-text-tiny" fill="#888">56..63</text>
+
+  <rect x="705" y="320" width="60" height="28" rx="2" class="fig32-box-kvhead"/>
+  <text x="735" y="338" text-anchor="middle" class="fig32-text-tiny">KV head 7</text>
+
+  <line x1="735" y1="320" x2="735" y2="315" class="fig32-line-thin" stroke="#888" stroke-width="0.5"/>
+  <text x="735" y="358" text-anchor="middle" class="fig32-text-tiny" fill="#888">RoPE + QK-Norm</text>
+
+  <!-- === Bottom: Attention Output === -->
+  <text x="480" y="425" text-anchor="middle" class="fig32-text-h2">Attention Output</text>
+
+  <!-- Output projection -->
+  <rect x="310" y="435" width="340" height="30" rx="3" class="fig32-box-fill"/>
+  <text x="480" y="454" text-anchor="middle" class="fig32-text-norm">Wo: Hq*D (8192) -> d (4096)</text>
+  <text x="480" y="444" text-anchor="middle" class="fig32-text-tiny">64 heads x 128 dim = 8192 concatenated, projected back to 4096</text>
+
+  <!-- Arrow from KV heads -->
+  <line x1="85" y1="395" x2="85" y2="420" stroke="#4a7ab0" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <polygon points="82,417 85,420 88,417" fill="#4a7ab0"/>
+
+  <!-- === Formula box === -->
+  <rect x="30" y="485" width="900" height="55" rx="4" fill="#fafafa" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="60" y="502" class="fig32-text-label">GQA Attention Formula (per group g, for q in [g*8, g*8+7]):</text>
+  <text x="60" y="520" class="fig32-text-norm">Attn(Q_q, K_g, V_g) = softmax( Q_q * K_g^T / sqrt(D) + mask ) * V_g    where D=128, mask=causal</text>
+  <text x="60" y="535" class="fig32-text-small">Q_q = RMSNorm(Wq_row * x)    K_g = RMSNorm(Wk_row * x, RoPE applied)    V_g = Wv_row * x    (no RoPE on V)</text>
+
+  <!-- Legend -->
+  <rect x="30" y="555" width="520" height="60" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+  <text x="42" y="572" class="fig32-text-legend-title">Legend:</text>
+  <rect x="105" y="563" width="16" height="10" rx="1" class="fig32-box-qhead"/>
+  <text x="125" y="572" class="fig32-text-legend">Q head (64 total, each dim=128)</text>
+  <rect x="300" y="563" width="16" height="10" rx="1" class="fig32-box-kvhead"/>
+  <text x="320" y="572" class="fig32-text-legend">KV head (8 total, 8:1 ratio)</text>
+
+  <rect x="105" y="580" width="16" height="10" rx="1" fill="none" stroke="#1a3a6e" stroke-width="0.8" stroke-dasharray="3,2"/>
+  <text x="125" y="589" class="fig32-text-legend">QK-Norm: independent RMSNorm for Q and K</text>
+  <rect x="355" y="580" width="16" height="10" rx="1" fill="#fafafa" stroke="#1a3a6e" stroke-width="0.6"/>
+  <text x="375" y="589" class="fig32-text-legend">RoPE applied to Q, K groups (theta=11.16M)</text>
+  <rect x="105" y="597" width="16" height="10" rx="1" fill="#fafafa" stroke="#b8721a" stroke-width="0.6"/>
+  <text x="125" y="605" class="fig32-text-legend">KV projection (K,V each: 4096 -> 1024)</text>
+</svg>

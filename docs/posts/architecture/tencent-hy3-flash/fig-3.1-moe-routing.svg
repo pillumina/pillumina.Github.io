@@ -1,0 +1,187 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" width="960" height="680">
+  <defs>
+    <style>
+      .fig31-line { fill: none; stroke: #1a3a6e; stroke-width: 1.5; }
+      .fig31-line-thin { fill: none; stroke: #1a3a6e; stroke-width: 0.8; }
+      .fig31-line-warn { fill: none; stroke: #b8721a; stroke-width: 1.5; }
+      .fig31-line-soft { fill: none; stroke: #4a7ab0; stroke-width: 1.2; }
+      .fig31-arrow { fill: #1a3a6e; }
+      .fig31-arrow-warn { fill: #b8721a; }
+      .fig31-arrow-soft { fill: #4a7ab0; }
+      .fig31-text-h1 { font-family: "Courier New", monospace; font-size: 18px; font-weight: bold; fill: #1a3a6e; }
+      .fig31-text-h2 { font-family: "Courier New", monospace; font-size: 13px; font-weight: bold; fill: #1a3a6e; }
+      .fig31-text-norm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig31-text-small { font-family: "Courier New", monospace; font-size: 9px; fill: #000; }
+      .fig31-text-tiny { font-family: "Courier New", monospace; font-size: 8px; fill: #000; }
+      .fig31-text-label { font-family: "Courier New", monospace; font-size: 10px; fill: #1a3a6e; font-weight: bold; }
+      .fig31-text-accent { font-family: "Courier New", monospace; font-size: 10px; fill: #b8721a; font-weight: bold; }
+      .fig31-text-soft { font-family: "Courier New", monospace; font-size: 10px; fill: #4a7ab0; font-weight: bold; }
+      .fig31-text-secondary { font-family: "Courier New", monospace; font-size: 10px; fill: #888; }
+      .fig31-text-legend-title { font-family: "Courier New", monospace; font-size: 10px; font-weight: bold; fill: #1a3a6e; }
+      .fig31-text-legend { font-family: "Courier New", monospace; font-size: 9px; fill: #000; }
+      .fig31-box-fill { fill: #f4f7fc; stroke: #1a3a6e; stroke-width: 1.2; }
+      .fig31-box-accent { fill: #fdf6ed; stroke: #b8721a; stroke-width: 1.5; }
+      .fig31-box-soft { fill: #eaf0f8; stroke: #4a7ab0; stroke-width: 1.2; }
+      .fig31-box-expert { fill: none; stroke: #888; stroke-width: 1; }
+      .fig31-box-expert-sel { fill: #fdf6ed; stroke: #b8721a; stroke-width: 1.5; }
+      .fig31-box-shared { fill: #eaf0f8; stroke: #4a7ab0; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" class="fig31-text-h1">Fig 3.1 -- MoE Routing Topology: Sigmoid Router + 192 Experts + Shared Expert</text>
+  <text x="30" y="48" class="fig31-text-secondary">Hy3-295B  |  192E top-8 + 1 shared expert  |  Sigmoid (not Softmax)  |  No Aux Loss</text>
+
+  <!-- Input: hidden state from RMSNorm -->
+  <rect x="350" y="70" width="200" height="32" rx="3" class="fig31-box-fill"/>
+  <text x="450" y="91" text-anchor="middle" class="fig31-text-norm">Hidden State x (dim=d)</text>
+  <text x="450" y="80" text-anchor="middle" class="fig31-text-tiny">output of RMSNorm, shape (B, S, 4096)</text>
+
+  <!-- Arrow to RouteNorm -->
+  <line x1="450" y1="102" x2="450" y2="120" class="fig31-line"/>
+  <polygon points="446,117 450,125 454,117" class="fig31-arrow"/>
+
+  <!-- RouteNorm -->
+  <rect x="350" y="125" width="200" height="28" rx="3" fill="none" stroke="#1a3a6e" stroke-width="1.2"/>
+  <text x="450" y="143" text-anchor="middle" class="fig31-text-norm">RouteNorm (RMSNorm)</text>
+
+  <!-- Arrow to Router Linear -->
+  <line x1="450" y1="153" x2="450" y2="170" class="fig31-line"/>
+  <polygon points="446,167 450,175 454,167" class="fig31-arrow"/>
+
+  <!-- Router Linear -->
+  <rect x="310" y="175" width="280" height="32" rx="3" class="fig31-box-accent"/>
+  <text x="450" y="196" text-anchor="middle" class="fig31-text-accent">Router Linear: d (4096) --> num_experts (192)xq</text>
+  <text x="450" y="185" text-anchor="middle" class="fig31-text-tiny">Includes per-expert learnable bias (expert_bias=True)</text>
+
+  <!-- Arrow to scaling -->
+  <line x1="450" y1="207" x2="450" y2="225" class="fig31-line-warn"/>
+  <polygon points="446,222 450,230 454,222" class="fig31-arrow-warn"/>
+
+  <!-- Scale box -->
+  <rect x="350" y="230" width="200" height="24" rx="3" fill="none" stroke="#b8721a" stroke-width="1.2"/>
+  <text x="450" y="246" text-anchor="middle" class="fig31-text-accent">Scale by factor: 2.826</text>
+
+  <!-- Arrow to Sigmoid -->
+  <line x1="450" y1="254" x2="450" y2="272" class="fig31-line-warn"/>
+  <polygon points="446,269 450,277 454,269" class="fig31-arrow-warn"/>
+
+  <!-- Sigmoid -->
+  <rect x="330" y="277" width="240" height="32" rx="3" class="fig31-box-accent"/>
+  <text x="450" y="293" text-anchor="middle" class="fig31-text-accent">Sigmoid: p_i = sigmoid(scale * logit_i)</text>
+  <text x="450" y="306" text-anchor="middle" class="fig31-text-tiny">Each expert score independent: p_i in (0,1), no sum-to-1 constraint</text>
+
+  <!-- Branch: 192 routing probabilities -->
+  <line x1="450" y1="309" x2="450" y2="340" class="fig31-line-warn"/>
+  <polygon points="446,337 450,345 454,337" class="fig31-arrow-warn"/>
+
+  <!-- Top-8 Selection -->
+  <rect x="340" y="345" width="220" height="28" rx="3" class="fig31-box-accent"/>
+  <text x="450" y="363" text-anchor="middle" class="fig31-text-accent">TopK Selection (k=8)</text>
+  <text x="450" y="352" text-anchor="middle" class="fig31-text-tiny">Sorted descending, pick top-8 scores</text>
+
+  <!-- 8 arrows to experts -->
+  <text x="450" y="388" text-anchor="middle" class="fig31-text-norm">8 selected experts + 1 shared expert</text>
+
+  <!-- Expert grid 192 experts in a compact grid -->
+  <!-- Expert grid header -->
+  <rect x="60" y="410" width="840" height="20" rx="2" fill="#f0f0f0" stroke="#ccc" stroke-width="0.5"/>
+  <text x="75" y="424" class="fig31-text-small" font-weight="bold">Expert Pool (192 experts, each with dim=1536, SiLU activation)</text>
+
+  <!-- Shared Expert row -->
+  <rect x="60" y="435" width="840" height="28" rx="3" class="fig31-box-shared"/>
+  <text x="75" y="453" class="fig31-text-soft">E_shared</text>
+  <text x="160" y="453" class="fig31-text-small">Shared Expert (always activated)</text>
+  <text x="700" y="453" text-anchor="end" class="fig31-text-tiny">Weight = 1.0, output always added to final result</text>
+
+  <!-- Expert rows: show 8 rows of 24 experts = 192 -->
+  <!-- Row 1: E0-E23 -->
+  <rect x="60" y="468" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="470" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="483" text-anchor="middle" class="fig31-text-tiny">E0</text>
+  <rect x="97" y="470" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="483" text-anchor="middle" class="fig31-text-tiny">E1</text>
+  <rect x="132" y="470" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="148" y="483" text-anchor="middle" class="fig31-text-tiny">E2</text>
+  <text x="180" y="483" class="fig31-text-tiny" fill="#888">E3..E22</text>
+  <rect x="832" y="470" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="483" text-anchor="middle" class="fig31-text-tiny">E23</text>
+
+  <!-- Row 2: E24-E47 -->
+  <rect x="60" y="492" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="494" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="507" text-anchor="middle" class="fig31-text-tiny">E24</text>
+  <rect x="97" y="494" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="507" text-anchor="middle" class="fig31-text-tiny">E25</text>
+  <text x="160" y="507" class="fig31-text-tiny" fill="#888">E26..E46</text>
+  <rect x="832" y="494" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="507" text-anchor="middle" class="fig31-text-tiny">E47</text>
+
+  <!-- Row 3: E48-E71 -->
+  <rect x="60" y="516" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="518" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="531" text-anchor="middle" class="fig31-text-tiny">E48</text>
+  <rect x="97" y="518" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="531" text-anchor="middle" class="fig31-text-tiny">E49</text>
+  <text x="160" y="531" class="fig31-text-tiny" fill="#888">E50..E70</text>
+  <rect x="832" y="518" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="531" text-anchor="middle" class="fig31-text-tiny">E71</text>
+
+  <!-- Row 4: E72-E95 -->
+  <rect x="60" y="540" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="542" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="555" text-anchor="middle" class="fig31-text-tiny">E72</text>
+  <rect x="97" y="542" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="555" text-anchor="middle" class="fig31-text-tiny">E73</text>
+  <text x="160" y="555" class="fig31-text-tiny" fill="#888">E74..E94</text>
+  <rect x="832" y="542" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="555" text-anchor="middle" class="fig31-text-tiny">E95</text>
+
+  <!-- Row 5: E96-E119 -->
+  <rect x="60" y="564" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="566" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="579" text-anchor="middle" class="fig31-text-tiny">E96</text>
+  <rect x="97" y="566" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="579" text-anchor="middle" class="fig31-text-tiny">E97</text>
+  <text x="160" y="579" class="fig31-text-tiny" fill="#888">E98..E118</text>
+  <rect x="832" y="566" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="579" text-anchor="middle" class="fig31-text-tiny">E119</text>
+
+  <!-- Row 6: E120-E143 -->
+  <rect x="60" y="588" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="590" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="603" text-anchor="middle" class="fig31-text-tiny">E120</text>
+  <rect x="97" y="590" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="603" text-anchor="middle" class="fig31-text-tiny">E121</text>
+  <text x="160" y="603" class="fig31-text-tiny" fill="#888">E122..E142</text>
+  <rect x="832" y="590" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="603" text-anchor="middle" class="fig31-text-tiny">E143</text>
+
+  <!-- Row 7: E144-E167 -->
+  <rect x="60" y="612" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="614" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="627" text-anchor="middle" class="fig31-text-tiny">E144</text>
+  <rect x="97" y="614" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="627" text-anchor="middle" class="fig31-text-tiny">E145</text>
+  <text x="160" y="627" class="fig31-text-tiny" fill="#888">E146..E166</text>
+  <rect x="832" y="614" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="627" text-anchor="middle" class="fig31-text-tiny">E167</text>
+
+  <!-- Row 8: E168-E191 -->
+  <rect x="60" y="636" width="840" height="22" rx="1" fill="none" stroke="#ddd" stroke-width="0.5"/>
+  <rect x="62" y="638" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="78" y="651" text-anchor="middle" class="fig31-text-tiny">E168</text>
+  <rect x="97" y="638" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="113" y="651" text-anchor="middle" class="fig31-text-tiny">E169</text>
+  <text x="160" y="651" class="fig31-text-tiny" fill="#888">E170..E190</text>
+  <rect x="832" y="638" width="33" height="18" rx="1" stroke="#888" stroke-width="0.8" fill="#fff"/>
+  <text x="848" y="651" text-anchor="middle" class="fig31-text-tiny">E191</text>
+
+  <!-- Legend -->
+  <rect x="30" y="640" width="400" height="35" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+  <text x="42" y="655" class="fig31-text-legend-title">Legend:</text>
+  <rect x="105" y="646" width="16" height="10" rx="1" class="fig31-fill" fill="#fdf6ed" stroke="#b8721a" stroke-width="1"/>
+  <text x="125" y="655" class="fig31-text-legend">Router path (Sigmoid)</text>
+  <rect x="250" y="646" width="16" height="10" rx="1" class="fig31-box-shared" fill="#eaf0f8"/>
+  <text x="270" y="655" class="fig31-text-legend">Shared Expert</text>
+</svg>

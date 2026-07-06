@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Hy3 on CctoctoFX</title>
+    <link>https://pillumina.github.io/tags/hy3/</link>
+    <description>Recent content in Hy3 on CctoctoFX</description>
+    <image>
+      <title>CctoctoFX</title>
+      <url>https://pillumina.github.io/imgs/icon_head.png</url>
+      <link>https://pillumina.github.io/imgs/icon_head.png</link>
+    </image>
+    <generator>Hugo -- 0.148.2</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 06 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="https://pillumina.github.io/tags/hy3/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Tencent Hy3-295B 架构 QA</title>
+      <link>https://pillumina.github.io/posts/qa/tencent-hy3-flash-qa/</link>
+      <pubDate>Mon, 06 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/qa/tencent-hy3-flash-qa/</guid>
+      <description>腾讯混元 Hy3-295B 架构 QA，覆盖 295B 参数分解、Sigmoid 路由 vs Softmax、QK-Norm 机制、MTP 辅助训练、FLOPs 与推理显存计算。</description>
+    </item>
+    <item>
+      <title>Tencent Hy3-295B 架构深度拆解</title>
+      <link>https://pillumina.github.io/posts/architecture/tencent-hy3-flash/</link>
+      <pubDate>Mon, 06 Jul 2026 00:00:00 +0000</pubDate>
+      <guid>https://pillumina.github.io/posts/architecture/tencent-hy3-flash/</guid>
+      <description>腾讯混元 Hy3-295B 是腾讯 2026 年发布的开源 MoE 模型（Apache 2.0）。核心设计：隐藏维度仅 4096（业内最小）通过 80 层 + 192E Sigmoid 路由器补偿容量、QK-Norm 稳定深层训练、1 层 MTP 加速推理、原生 256K 上下文。本期完整拆解 295B 规模配置、参数分解、FLOPs/KV Cache/推理显存、Sigmoid 路由与 QK-Norm 机制、训练体系。</description>
+    </item>
+  </channel>
+</rss>

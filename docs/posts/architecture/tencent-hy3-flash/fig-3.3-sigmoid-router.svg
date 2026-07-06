@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 750" width="1000" height="750">
+  <defs>
+    <style>
+      .fig33-line { fill: none; stroke: #1a3a6e; stroke-width: 1.5; }
+      .fig33-line-thin { fill: none; stroke: #1a3a6e; stroke-width: 0.8; }
+      .fig33-line-warn { fill: none; stroke: #b8721a; stroke-width: 1.5; }
+      .fig33-line-soft { fill: none; stroke: #4a7ab0; stroke-width: 1.2; }
+      .fig33-line-dash { fill: none; stroke: #888; stroke-width: 0.8; stroke-dasharray: 5,3; }
+      .fig33-arrow { fill: #1a3a6e; }
+      .fig33-arrow-warn { fill: #b8721a; }
+      .fig33-arrow-soft { fill: #4a7ab0; }
+      .fig33-text-h1 { font-family: "Courier New", monospace; font-size: 18px; font-weight: bold; fill: #1a3a6e; }
+      .fig33-text-h2 { font-family: "Courier New", monospace; font-size: 13px; font-weight: bold; fill: #1a3a6e; }
+      .fig33-text-h3 { font-family: "Courier New", monospace; font-size: 12px; font-weight: bold; fill: #1a3a6e; }
+      .fig33-text-norm { font-family: "Courier New", monospace; font-size: 11px; fill: #000; }
+      .fig33-text-small { font-family: "Courier New", monospace; font-size: 9px; fill: #000; }
+      .fig33-text-tiny { font-family: "Courier New", monospace; font-size: 8px; fill: #000; }
+      .fig33-text-label { font-family: "Courier New", monospace; font-size: 10px; fill: #1a3a6e; font-weight: bold; }
+      .fig33-text-accent { font-family: "Courier New", monospace; font-size: 10px; fill: #b8721a; font-weight: bold; }
+      .fig33-text-soft { font-family: "Courier New", monospace; font-size: 10px; fill: #4a7ab0; }
+      .fig33-text-secondary { font-family: "Courier New", monospace; font-size: 10px; fill: #888; }
+      .fig33-text-legend-title { font-family: "Courier New", monospace; font-size: 10px; font-weight: bold; fill: #1a3a6e; }
+      .fig33-text-legend { font-family: "Courier New", monospace; font-size: 9px; fill: #000; }
+      .fig33-box-fill { fill: #f4f7fc; stroke: #1a3a6e; stroke-width: 1.2; }
+      .fig33-box-accent { fill: #fdf6ed; stroke: #b8721a; stroke-width: 1.5; }
+      .fig33-box-soft { fill: #eaf0f8; stroke: #4a7ab0; stroke-width: 1.2; }
+      .fig33-box-fail { fill: #fff0f0; stroke: #cc3333; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <!-- Title -->
+  <text x="30" y="28" class="fig33-text-h1">Fig 3.3 -- Sigmoid Router: Independent Per-Expert Scoring (Softmax vs Sigmoid)</text>
+  <text x="30" y="48" class="fig33-text-secondary">Hy3-295B core design choice: sigmoid activation enables independent expert selection (no sum-to-1 constraint)</text>
+
+  <!-- ===== LEFT: Softmax Router (contrast) ===== -->
+  <text x="250" y="82" text-anchor="middle" class="fig33-text-h2">Standard Softmax Router</text>
+  <text x="250" y="98" text-anchor="middle" class="fig33-text-small" fill="#cc3333">Forced competition -- all p_i sum to 1</text>
+
+  <!-- Softmax flow -->
+  <rect x="145" y="110" width="210" height="28" rx="3" class="fig33-box-fill"/>
+  <text x="250" y="128" text-anchor="middle" class="fig33-text-norm">Hidden State (4096)</text>
+
+  <line x1="250" y1="138" x2="250" y2="152" class="fig33-line"/>
+  <polygon points="246,149 250,157 254,149" class="fig33-arrow"/>
+
+  <rect x="145" y="157" width="210" height="26" rx="3" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="250" y="174" text-anchor="middle" class="fig33-text-norm">RouterNorm (RMSNorm)</text>
+
+  <line x1="250" y1="183" x2="250" y2="197" class="fig33-line"/>
+  <polygon points="246,194 250,202 254,194" class="fig33-arrow"/>
+
+  <rect x="145" y="202" width="210" height="26" rx="3" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="250" y="219" text-anchor="middle" class="fig33-text-norm">Linear(4096, 192)</text>
+
+  <line x1="250" y1="228" x2="250" y2="242" class="fig33-line"/>
+  <polygon points="246,239 250,247 254,239" class="fig33-arrow"/>
+
+  <!-- Softmax box -->
+  <rect x="135" y="247" width="230" height="36" rx="3" class="fig33-box-fail"/>
+  <text x="250" y="263" text-anchor="middle" class="fig33-text-norm" fill="#cc3333" font-weight="bold">Softmax</text>
+  <text x="250" y="278" text-anchor="middle" class="fig33-text-tiny">p_i = exp(logit_i) / sum(exp(logit_j))</text>
+
+  <line x1="250" y1="283" x2="250" y2="297" class="fig33-line"/>
+  <polygon points="246,294 250,302 254,294" class="fig33-arrow"/>
+
+  <rect x="155" y="302" width="190" height="24" rx="3" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="250" y="318" text-anchor="middle" class="fig33-text-norm">TopK(k=8) Selection</text>
+
+  <!-- Softmax consequence -->
+  <rect x="100" y="340" width="300" height="48" rx="3" fill="#fff5f5" stroke="#cc3333" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="250" y="358" text-anchor="middle" class="fig33-text-small" fill="#cc3333">Consequence:</text>
+  <text x="250" y="373" text-anchor="middle" class="fig33-text-tiny" fill="#cc3333">Sum of all p_i = 1.0  ->  forced zero-sum game</text>
+  <text x="250" y="385" text-anchor="middle" class="fig33-text-tiny" fill="#cc3333">Raising one expert score lowers others | Requires aux loss</text>
+
+  <!-- ===== RIGHT: Sigmoid Router (Hy3) ===== -->
+  <text x="730" y="82" text-anchor="middle" class="fig33-text-h2">Hy3 Sigmoid Router</text>
+  <text x="730" y="98" text-anchor="middle" class="fig33-text-small" fill="#b8721a">Independent scores -- no forced competition</text>
+
+  <!-- Sigmoid flow -->
+  <rect x="625" y="110" width="210" height="28" rx="3" class="fig33-box-accent"/>
+  <text x="730" y="128" text-anchor="middle" class="fig33-text-accent">Hidden State (4096)</text>
+
+  <line x1="730" y1="138" x2="730" y2="152" class="fig33-line-warn"/>
+  <polygon points="726,149 730,157 734,149" class="fig33-arrow-warn"/>
+
+  <rect x="625" y="157" width="210" height="26" rx="3" fill="none" stroke="#b8721a" stroke-width="1.2"/>
+  <text x="730" y="174" text-anchor="middle" class="fig33-text-accent">RouteNorm (RMSNorm)</text>
+
+  <line x1="730" y1="183" x2="730" y2="197" class="fig33-line-warn"/>
+  <polygon points="726,194 730,202 734,194" class="fig33-arrow-warn"/>
+
+  <rect x="610" y="202" width="240" height="26" rx="3" fill="none" stroke="#b8721a" stroke-width="1.2"/>
+  <text x="730" y="219" text-anchor="middle" class="fig33-text-accent">Linear(4096, 192) + expert_bias=True</text>
+
+  <line x1="730" y1="228" x2="730" y2="242" class="fig33-line-warn"/>
+  <polygon points="726,239 730,247 734,239" class="fig33-arrow-warn"/>
+
+  <!-- Scaling -->
+  <rect x="625" y="247" width="210" height="24" rx="3" fill="none" stroke="#b8721a" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="730" y="263" text-anchor="middle" class="fig33-text-accent">Scale * 2.826</text>
+
+  <line x1="730" y1="271" x2="730" y2="285" class="fig33-line-warn"/>
+  <polygon points="726,282 730,290 734,282" class="fig33-arrow-warn"/>
+
+  <!-- Sigmoid box -->
+  <rect x="610" y="290" width="240" height="36" rx="3" class="fig33-box-accent"/>
+  <text x="730" y="306" text-anchor="middle" class="fig33-text-accent">Sigmoid (not Softmax!)</text>
+  <text x="730" y="321" text-anchor="middle" class="fig33-text-tiny">p_i = sigmoid(2.826 * logit_i + bias_i)</text>
+
+  <line x1="730" y1="326" x2="730" y2="340" class="fig33-line-warn"/>
+  <polygon points="726,337 730,345 734,337" class="fig33-arrow-warn"/>
+
+  <rect x="635" y="345" width="190" height="24" rx="3" fill="none" stroke="#b8721a" stroke-width="1.2"/>
+  <text x="730" y="361" text-anchor="middle" class="fig33-text-accent">TopK(k=8) Selection</text>
+
+  <!-- Sigmoid advantage -->
+  <rect x="580" y="383" width="300" height="56" rx="3" fill="#fffaf3" stroke="#b8721a" stroke-width="1" stroke-dasharray="4,2"/>
+  <text x="730" y="401" text-anchor="middle" class="fig33-text-small" fill="#b8721a">Advantage:</text>
+  <text x="730" y="416" text-anchor="middle" class="fig33-text-tiny" fill="#b8721a">Each expert scored independently: p_i in (0,1)</text>
+  <text x="730" y="428" text-anchor="middle" class="fig33-text-tiny" fill="#b8721a">No sum-to-1 constraint | No aux load-balancing loss</text>
+  <text x="730" y="440" text-anchor="middle" class="fig33-text-tiny" fill="#b8721a">Expert capacity bottleneck avoided</text>
+
+  <!-- ===== CENTER: Comparison summary ===== -->
+  <rect x="30" y="460" width="940" height="28" rx="3" fill="#f4f7fc" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="500" y="479" text-anchor="middle" class="fig33-text-label">Key Difference: Softmax forces zero-sum competition (sum p = 1); Sigmoid enables independent per-expert selection</text>
+
+  <!-- === Detailed Router Mechanics === -->
+  <text x="500" y="520" text-anchor="middle" class="fig33-text-h2">Sigmoid Router Computation (per token)</text>
+
+  <rect x="80" y="535" width="840" height="105" rx="4" fill="#fafafa" stroke="#1a3a6e" stroke-width="0.8"/>
+  <text x="100" y="555" class="fig33-text-label">Step 1: RouterNorm</text>
+  <text x="260" y="555" class="fig33-text-norm">h = RMSNorm(x)  -- normalized hidden state</text>
+
+  <text x="100" y="578" class="fig33-text-label">Step 2: Linear + Bias</text>
+  <text x="300" y="578" class="fig33-text-norm">logits = W_router * h + b_router     shape: [192]</text>
+  <text x="300" y="592" class="fig33-text-small">W_router: (4096 x 192)  |  b_router: (192,) per-expert learnable bias</text>
+
+  <text x="100" y="612" class="fig33-text-label">Step 3: Scale    </text>
+  <text x="260" y="612" class="fig33-text-norm">scaled = 2.826 * logits     router_scaling_factor controls sigmoid steepness</text>
+
+  <text x="100" y="632" class="fig33-text-label">Step 4: Sigmoid   </text>
+  <text x="290" y="632" class="fig33-text-norm">p_i = 1 / (1 + exp(-scaled_i)) = sigmoid(2.826 * (W_i * h + b_i))     for i=0..191</text>
+
+  <!-- === Output === -->
+  <rect x="80" y="655" width="840" height="55" rx="4" fill="#fdf6ed" stroke="#b8721a" stroke-width="1.2"/>
+  <text x="100" y="673" class="fig33-text-accent">Output: selected_expert_ids + selected_weights</text>
+  <text x="100" y="692" class="fig33-text-norm">ids  = arg_topk(p_i, k=8)          -- 8 expert indices with highest sigmoid scores</text>
+  <text x="100" y="705" class="fig33-text-norm">w    = p_i[ids]                    -- corresponding sigmoid scores as mixing weights</text>
+
+  <!-- Legend -->
+  <rect x="30" y="720" width="550" height="28" rx="4" fill="#fafafa" stroke="#ccc" stroke-width="1"/>
+  <text x="42" y="739" class="fig33-text-legend-title">Legend:</text>
+  <rect x="105" y="730" width="16" height="10" rx="1" fill="#fdf6ed" stroke="#b8721a" stroke-width="1"/>
+  <text x="125" y="739" class="fig33-text-legend">Sigmoid router path (Hy3)</text>
+  <rect x="280" y="730" width="16" height="10" rx="1" fill="#fff0f0" stroke="#cc3333" stroke-width="1"/>
+  <text x="300" y="739" class="fig33-text-legend">Softmax router (conventional - NOT used by Hy3)</text>
+  <rect x="500" y="730" width="16" height="10" rx="1" fill="#f4f7fc" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="520" y="739" class="fig33-text-legend">Standard ops / info</text>
+</svg>
