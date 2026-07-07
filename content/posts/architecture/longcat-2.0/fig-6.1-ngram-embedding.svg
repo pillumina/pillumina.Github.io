@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="640" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 640" font-family="Courier New, monospace">
+  <rect width="1100" height="640" fill="#ffffff"/>
+
+  <text x="550" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a3a6e">LongCat-2.0 — N-gram Embedding (Orthogonal Sparse Dimension)</text>
+  <text x="550" y="48" text-anchor="middle" font-size="10" fill="#888">135B params | 8.4% of total | 5-gram | reduces large-batch decode memory I/O</text>
+
+  <!-- Legend -->
+  <g>
+    <rect x="20" y="570" width="320" height="56" fill="none" stroke="#888" stroke-width="1"/>
+    <text x="28" y="586" font-size="10" font-weight="bold" fill="#1a3a6e">LEGEND</text>
+    <rect x="28" y="594" width="14" height="10" fill="none" stroke="#1a3a6e"/>
+    <text x="48" y="603" font-size="9" fill="#000">standard embedding</text>
+    <rect x="28" y="610" width="14" height="10" fill="#1a3a6e" stroke="#1a3a6e"/>
+    <text x="48" y="619" font-size="9" fill="#000">N-gram embedding (135B)</text>
+    <text x="200" y="603" font-size="9" fill="#888">---&gt; lookup</text>
+    <text x="200" y="619" font-size="9" fill="#888">+ sum / residual</text>
+  </g>
+
+  <!-- Formula panel -->
+  <rect x="700" y="570" width="380" height="56" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="710" y="586" font-size="10" font-weight="bold" fill="#1a3a6e">PARAM DECOMPOSITION</text>
+  <text x="710" y="602" font-size="9" fill="#000">135B ~= 100.567 * 163840 * 8192</text>
+  <text x="710" y="616" font-size="9" fill="#000">= oe_vocab_ratio * vocab * hidden</text>
+
+  <!-- INPUT -->
+  <rect x="60" y="90" width="220" height="40" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="170" y="108" text-anchor="middle" font-size="10" fill="#000">Input Token IDs</text>
+  <text x="170" y="122" text-anchor="middle" font-size="9" fill="#888">[B, S] (long context)</text>
+
+  <line x1="170" y1="130" x2="170" y2="160" stroke="#000" stroke-width="1.2" marker-end="url(#arrN)"/>
+
+  <!-- Branching -->
+  <line x1="170" y1="160" x2="170" y2="180" stroke="#000" stroke-width="1.2"/>
+  <line x1="170" y1="180" x2="120" y2="180" stroke="#000" stroke-width="1.2"/>
+  <line x1="170" y1="180" x2="380" y2="180" stroke="#000" stroke-width="1.2"/>
+  <line x1="120" y1="180" x2="120" y2="200" stroke="#000" stroke-width="1.2" marker-end="url(#arrN)"/>
+  <line x1="380" y1="180" x2="380" y2="200" stroke="#000" stroke-width="1.2" marker-end="url(#arrN)"/>
+
+  <!-- STANDARD EMBEDDING -->
+  <rect x="40" y="200" width="200" height="100" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="140" y="218" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Token Embedding</text>
+  <text x="140" y="234" text-anchor="middle" font-size="9" fill="#000">vocab_size = 163,840</text>
+  <text x="140" y="248" text-anchor="middle" font-size="9" fill="#000">hidden = 8,192</text>
+  <text x="140" y="262" text-anchor="middle" font-size="9" fill="#000">params ~= 1.34B</text>
+  <text x="140" y="282" text-anchor="middle" font-size="9" fill="#888">lookup: emb[token_id]</text>
+  <text x="140" y="294" text-anchor="middle" font-size="8" fill="#888">-&gt; [B, S, 8192]</text>
+
+  <!-- N-GRAM EMBEDDING -->
+  <rect x="280" y="200" width="380" height="240" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="470" y="218" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">N-gram Embedding (Output Expert)</text>
+  <text x="470" y="234" text-anchor="middle" font-size="9" fill="#ffffff">oe_neighbor_num = 5  (5-gram)</text>
+  <text x="470" y="248" text-anchor="middle" font-size="9" fill="#ffffff">oe_vocab_size_ratio = 100.567x</text>
+  <text x="470" y="262" text-anchor="middle" font-size="9" fill="#ffffff">oe_split_num = 4 (sharded)</text>
+
+  <!-- N-gram build diagram -->
+  <text x="290" y="282" font-size="9" font-weight="bold" fill="#ffffff">Step 1: build 5-gram key per position</text>
+  <rect x="290" y="290" width="40" height="20" fill="none" stroke="#ffffff"/>
+  <text x="310" y="304" text-anchor="middle" font-size="8" fill="#ffffff">t-4</text>
+  <rect x="332" y="290" width="40" height="20" fill="none" stroke="#ffffff"/>
+  <text x="352" y="304" text-anchor="middle" font-size="8" fill="#ffffff">t-3</text>
+  <rect x="374" y="290" width="40" height="20" fill="none" stroke="#ffffff"/>
+  <text x="394" y="304" text-anchor="middle" font-size="8" fill="#ffffff">t-2</text>
+  <rect x="416" y="290" width="40" height="20" fill="none" stroke="#ffffff"/>
+  <text x="436" y="304" text-anchor="middle" font-size="8" fill="#ffffff">t-1</text>
+  <rect x="458" y="290" width="40" height="20" fill="#ffffff" stroke="#ffffff"/>
+  <text x="478" y="304" text-anchor="middle" font-size="8" font-weight="bold" fill="#1a3a6e">t</text>
+  <text x="510" y="304" font-size="9" fill="#ffffff">-&gt; key</text>
+
+  <text x="290" y="328" font-size="9" font-weight="bold" fill="#ffffff">Step 2: lookup in big table</text>
+  <text x="290" y="344" font-size="9" fill="#ffffff">  ngram_table[5-gram_key]</text>
+  <text x="290" y="358" font-size="9" fill="#ffffff">  table shape = [16.5M, 8192]</text>
+  <text x="290" y="372" font-size="9" fill="#ffffff">  (163840 * 100.567)</text>
+
+  <text x="290" y="396" font-size="9" font-weight="bold" fill="#ffffff">Step 3: oe_split_num=4 shards</text>
+  <text x="290" y="410" font-size="9" fill="#ffffff">  distributed via EMBP parallel</text>
+  <text x="290" y="424" font-size="9" fill="#ffffff">  (Embedding Parallel dim, 6D)</text>
+
+  <!-- Merge -->
+  <line x1="140" y1="300" x2="140" y2="450" stroke="#000" stroke-width="1.2"/>
+  <line x1="470" y1="440" x2="470" y2="450" stroke="#000" stroke-width="1.2"/>
+
+  <!-- SUM -->
+  <line x1="140" y1="450" x2="305" y2="450" stroke="#000" stroke-width="1.2"/>
+  <line x1="470" y1="450" x2="305" y2="450" stroke="#000" stroke-width="1.2"/>
+  <circle cx="305" cy="450" r="14" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="305" y="455" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">+</text>
+
+  <line x1="305" y1="464" x2="305" y2="490" stroke="#000" stroke-width="1.2" marker-end="url(#arrN)"/>
+
+  <!-- OUTPUT to model -->
+  <rect x="180" y="492" width="250" height="40" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="305" y="508" text-anchor="middle" font-size="10" font-weight="bold" fill="#000">Embedded hidden h</text>
+  <text x="305" y="524" text-anchor="middle" font-size="9" fill="#888">[B, S, 8192] -&gt; into Decoder Stack</text>
+
+  <!-- Right panel: motivation & numbers -->
+  <rect x="700" y="90" width="380" height="460" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="710" y="108" font-size="11" font-weight="bold" fill="#1a3a6e">DESIGN MOTIVATION</text>
+
+  <text x="710" y="128" font-size="9" fill="#000">1. MoE sparsity already ~97%.</text>
+  <text x="710" y="140" font-size="9" fill="#000">   Adding more experts: diminishing</text>
+  <text x="710" y="152" font-size="9" fill="#000">   returns on quality.</text>
+
+  <text x="710" y="174" font-size="9" fill="#000">2. N-gram Embedding: orthogonal axis</text>
+  <text x="710" y="186" font-size="9" fill="#000">   of sparsity (sequence-context based,</text>
+  <text x="710" y="198" font-size="9" fill="#000">   not router-selected).</text>
+
+  <text x="710" y="220" font-size="9" fill="#000">3. Capped at &lt;10% of total params.</text>
+  <text x="710" y="232" font-size="9" fill="#000">   135B / 1.6T = 8.4%.</text>
+
+  <text x="710" y="262" font-size="11" font-weight="bold" fill="#1a3a6e">WHY IT HELPS DECODE</text>
+  <text x="710" y="282" font-size="9" fill="#000">- At decode, each token touches</text>
+  <text x="710" y="294" font-size="9" fill="#000">  only 12 routed experts (out of 768)</text>
+  <text x="710" y="306" font-size="9" fill="#000">  =&gt; huge expert weight I/O per batch.</text>
+
+  <text x="710" y="326" font-size="9" fill="#000">- N-gram table is one big gather</text>
+  <text x="710" y="338" font-size="9" fill="#000">  per position; cheaper HBM pattern.</text>
+
+  <text x="710" y="358" font-size="9" fill="#000">- Shifts param mass from</text>
+  <text x="710" y="370" font-size="9" fill="#000">  "expert-parallel dispatch" to</text>
+  <text x="710" y="382" font-size="9" fill="#000">  "single-shot lookup".</text>
+
+  <text x="710" y="412" font-size="11" font-weight="bold" fill="#1a3a6e">PARAM MATH (verify)</text>
+  <text x="710" y="430" font-size="9" fill="#000">ratio * vocab * hidden</text>
+  <text x="710" y="442" font-size="9" fill="#000">= 100.567 * 163,840 * 8,192</text>
+  <text x="710" y="454" font-size="9" fill="#000">= 1.35e11 = 135B</text>
+  <text x="710" y="472" font-size="9" fill="#888">(close to blog figure)</text>
+
+  <text x="710" y="500" font-size="9" fill="#b8721a">[!] Large table = high memory.</text>
+  <text x="710" y="512" font-size="9" fill="#b8721a">    Sharded via EMBP across</text>
+  <text x="710" y="524" font-size="9" fill="#b8721a">    embedding-parallel group.</text>
+  <text x="710" y="542" font-size="9" fill="#b8721a">[!] Inference: reduces per-batch</text>
+  <text x="710" y="554" font-size="9" fill="#b8721a">    decode memory I/O vs</text>
+  <text x="710" y="566" font-size="9" fill="#b8721a">    equivalent MoE-only model.</text>
+
+  <defs>
+    <marker id="arrN" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+</svg>

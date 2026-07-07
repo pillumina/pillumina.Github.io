@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="Courier New, monospace">
+  <rect width="1100" height="700" fill="#ffffff"/>
+
+  <text x="550" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a3a6e">LongCat-2.0 — 6D Parallelism + AI ASIC Superpod</text>
+  <text x="550" y="48" text-anchor="middle" font-size="10" fill="#888">TP + CP + EP + DP + PP + EMBP | 50K+ ASICs | 48 nodes/superpod | Muon optimizer</text>
+
+  <!-- Legend -->
+  <g>
+    <rect x="20" y="620" width="320" height="68" fill="none" stroke="#888" stroke-width="1"/>
+    <text x="28" y="636" font-size="10" font-weight="bold" fill="#1a3a6e">LEGEND</text>
+    <rect x="28" y="644" width="14" height="10" fill="none" stroke="#1a3a6e"/>
+    <text x="48" y="653" font-size="9" fill="#000">data / tensor dim</text>
+    <rect x="28" y="660" width="14" height="10" fill="#1a3a6e" stroke="#1a3a6e"/>
+    <text x="48" y="669" font-size="9" fill="#000">parallel axis</text>
+    <rect x="28" y="676" width="14" height="10" fill="#b8721a" stroke="#b8721a"/>
+    <text x="48" y="685" font-size="9" fill="#000">EMBP (new)</text>
+    <text x="180" y="653" font-size="9" fill="#888">---&gt; data movement</text>
+    <text x="180" y="669" font-size="9" fill="#888">ASIC superpod fabric</text>
+  </g>
+
+  <!-- Formula panel -->
+  <rect x="700" y="620" width="380" height="68" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="710" y="636" font-size="10" font-weight="bold" fill="#1a3a6e">TRAINING STACK</text>
+  <text x="710" y="652" font-size="9" fill="#000">optimizer: Muon (symmetric matmul kernel)</text>
+  <text x="710" y="666" font-size="9" fill="#000">ZeRO-1 + selective recomputation</text>
+  <text x="710" y="680" font-size="9" fill="#000">OOM-aware offloading, bit-flip detector</text>
+  <text x="710" y="694" font-size="9" fill="#000">CP &gt;= 512, native 1M context training</text>
+
+  <!-- =========== Model shards visualization =========== -->
+  <rect x="40" y="80" width="500" height="500" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="60" y="100" font-size="11" font-weight="bold" fill="#1a3a6e">6 PARALLEL AXES (per training job)</text>
+
+  <!-- TP -->
+  <rect x="60" y="120" width="220" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="80" y="138" font-size="10" font-weight="bold" fill="#1a3a6e">TP</text>
+  <text x="80" y="152" font-size="9" fill="#000">Tensor Parallel</text>
+  <text x="80" y="166" font-size="8" fill="#888">split weight matrices col/row</text>
+  <text x="80" y="178" font-size="8" fill="#888">intra-node, high bandwidth</text>
+  <rect x="290" y="120" width="220" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="310" y="138" font-size="9" fill="#ffffff">typical size: 8</text>
+  <text x="310" y="152" font-size="9" fill="#ffffff">all-reduce after attn/mlp</text>
+  <text x="310" y="166" font-size="9" fill="#ffffff">Muon: TP-aligned update</text>
+  <text x="310" y="178" font-size="9" fill="#ffffff">+ symmetric kernel</text>
+
+  <!-- CP -->
+  <rect x="60" y="190" width="220" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="80" y="208" font-size="10" font-weight="bold" fill="#1a3a6e">CP</text>
+  <text x="80" y="222" font-size="9" fill="#000">Context Parallel</text>
+  <text x="80" y="236" font-size="8" fill="#888">split sequence dim</text>
+  <text x="80" y="248" font-size="8" fill="#888">CP &gt;= 512 for 1M training</text>
+  <rect x="290" y="190" width="220" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="310" y="208" font-size="9" fill="#ffffff">all-gather-based CP</text>
+  <text x="310" y="222" font-size="9" fill="#ffffff">dense-warmup fwd + KL loss</text>
+  <text x="310" y="236" font-size="9" fill="#ffffff">ring attention variant</text>
+  <text x="310" y="248" font-size="9" fill="#ffffff">enables native 1M ctx</text>
+
+  <!-- EP -->
+  <rect x="60" y="260" width="220" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="80" y="278" font-size="10" font-weight="bold" fill="#1a3a6e">EP</text>
+  <text x="80" y="292" font-size="9" fill="#000">Expert Parallel</text>
+  <text x="80" y="306" font-size="8" fill="#888">768 experts across devices</text>
+  <text x="80" y="318" font-size="8" fill="#888">all-to-all token dispatch</text>
+  <rect x="290" y="260" width="220" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="310" y="278" font-size="9" fill="#ffffff">EP128 at decode</text>
+  <text x="310" y="292" font-size="9" fill="#ffffff">EPLB async load balancer</text>
+  <text x="310" y="306" font-size="9" fill="#ffffff">ScMoE: dispatch masked</text>
+  <text x="310" y="318" font-size="9" fill="#ffffff">by dense+attn compute</text>
+
+  <!-- DP -->
+  <rect x="60" y="330" width="220" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="80" y="348" font-size="10" font-weight="bold" fill="#1a3a6e">DP</text>
+  <text x="80" y="362" font-size="9" fill="#000">Data Parallel</text>
+  <text x="80" y="376" font-size="8" fill="#888">microbatch dimension</text>
+  <text x="80" y="388" font-size="8" fill="#888">ZeRO-1 sharding</text>
+  <rect x="290" y="330" width="220" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="310" y="348" font-size="9" fill="#ffffff">ZeRO-1 optimizer state</text>
+  <text x="310" y="362" font-size="9" fill="#ffffff">Muon DP redundancy elim.</text>
+  <text x="310" y="376" font-size="9" fill="#ffffff">all-reduce gradients</text>
+  <text x="310" y="388" font-size="9" fill="#ffffff">bit-flip aware reduction</text>
+
+  <!-- PP -->
+  <rect x="60" y="400" width="220" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="80" y="418" font-size="10" font-weight="bold" fill="#1a3a6e">PP</text>
+  <text x="80" y="432" font-size="9" fill="#000">Pipeline Parallel</text>
+  <text x="80" y="446" font-size="8" fill="#888">38 layers split into stages</text>
+  <text x="80" y="458" font-size="8" fill="#888">1F1B / interleaved</text>
+  <rect x="290" y="400" width="220" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="310" y="418" font-size="9" fill="#ffffff">prefill: CPP (chunked)</text>
+  <text x="310" y="432" font-size="9" fill="#ffffff">multi-node pipeline</text>
+  <text x="310" y="446" font-size="9" fill="#ffffff">smaller EP domain for prefill</text>
+  <text x="310" y="458" font-size="9" fill="#ffffff">+ Sequence Parallel</text>
+
+  <!-- EMBP -->
+  <rect x="60" y="470" width="220" height="60" fill="#b8721a" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="80" y="488" font-size="10" font-weight="bold" fill="#b8721a">EMBP</text>
+  <text x="80" y="502" font-size="9" fill="#000">Embedding Parallel</text>
+  <text x="80" y="516" font-size="8" fill="#000">NEW for N-gram Embedding</text>
+  <text x="80" y="528" font-size="8" fill="#000">oe_split_num=4 shards</text>
+  <rect x="290" y="470" width="220" height="60" fill="#b8721a" stroke="#b8721a" stroke-width="1.5"/>
+  <text x="310" y="488" font-size="9" font-weight="bold" fill="#ffffff">shards 135B params</text>
+  <text x="310" y="502" font-size="9" fill="#ffffff">across embedding-parallel</text>
+  <text x="310" y="516" font-size="9" fill="#ffffff">group; enables huge</text>
+  <text x="310" y="528" font-size="9" fill="#ffffff">vocab ratio = 100.567x</text>
+
+  <!-- =========== Superpod topology =========== -->
+  <rect x="560" y="80" width="520" height="500" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="580" y="100" font-size="11" font-weight="bold" fill="#1a3a6e">SUPERPOD TOPOLOGY</text>
+  <text x="580" y="114" font-size="9" fill="#888">48 nodes per superpod | all-to-all + RoCE fabric</text>
+
+  <!-- Superpod representation: grid of nodes -->
+  <g transform="translate(580,130)">
+    <!-- Node grid -->
+    <text x="0" y="0" font-size="9" fill="#888">SUPERPOD (48 nodes shown as 6x8):</text>
+
+    <g>
+      <!-- row 1 -->
+      <rect x="0" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="26" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="52" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="78" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="104" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="130" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="156" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="182" y="14" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <!-- row 2 -->
+      <rect x="0" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="26" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="52" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="78" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="104" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="130" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="156" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="182" y="40" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <!-- row 3 -->
+      <rect x="0" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="26" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="52" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="78" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="104" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="130" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="156" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="182" y="66" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <!-- row 4 -->
+      <rect x="0" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="26" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="52" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="78" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="104" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="130" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="156" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="182" y="92" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <!-- row 5 -->
+      <rect x="0" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="26" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="52" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="78" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="104" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="130" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="156" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="182" y="118" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <!-- row 6 -->
+      <rect x="0" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="26" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="52" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="78" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="104" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="130" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="156" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+      <rect x="182" y="144" width="22" height="22" fill="#1a3a6e" stroke="#1a3a6e"/>
+    </g>
+
+    <text x="220" y="90" font-size="9" fill="#000">= 1 node</text>
+    <text x="220" y="106" font-size="8" fill="#888">(N AI ASICs)</text>
+
+    <text x="0" y="194" font-size="9" font-weight="bold" fill="#1a3a6e">FABRIC</text>
+    <text x="0" y="210" font-size="9" fill="#000">- all-to-all intra-superpod</text>
+    <text x="0" y="224" font-size="9" fill="#000">- RoCE between superpods</text>
+    <text x="0" y="238" font-size="9" fill="#000">- high-bandwidth comm domain</text>
+    <text x="0" y="252" font-size="9" fill="#000">  extends to hundreds of devices</text>
+  </g>
+
+  <!-- 50K+ ASIC callout -->
+  <rect x="580" y="430" width="480" height="130" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="590" y="448" font-size="11" font-weight="bold" fill="#1a3a6e">TOTAL SCALE</text>
+  <text x="590" y="466" font-size="9" fill="#000">50,000+ AI ASICs (vendor undisclosed)</text>
+  <text x="590" y="480" font-size="9" fill="#000">~1,042 superpods (50K / 48)</text>
+  <text x="590" y="496" font-size="9" fill="#000">trained on 35T tokens</text>
+  <text x="590" y="510" font-size="9" fill="#000">deterministic comm + compute path</text>
+  <text x="590" y="524" font-size="9" fill="#000">binary-tree segment reduction</text>
+  <text x="590" y="538" font-size="9" fill="#b8721a">[!] ASIC vendor/model not public</text>
+  <text x="590" y="552" font-size="9" fill="#b8721a">    community speculates: Ascend 910C</text>
+
+  <!-- 6D summary callout -->
+  <rect x="40" y="590" width="500" height="0" fill="none"/>
+
+  <defs>
+    <marker id="arrP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+  </defs>
+</svg>

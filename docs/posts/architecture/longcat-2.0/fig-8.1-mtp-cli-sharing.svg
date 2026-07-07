@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 700" font-family="Courier New, monospace">
+  <rect width="1100" height="700" fill="#ffffff"/>
+
+  <text x="550" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a3a6e">LongCat-2.0 — MTP (3 Layers) + CLI Index Sharing</text>
+  <text x="550" y="48" text-anchor="middle" font-size="10" fill="#888">mtp_num_layers=3 | cli_factor=2 | dsa_mtp_cli=true | 3 drafts share 1 indexer pass</text>
+
+  <!-- Legend -->
+  <g>
+    <rect x="20" y="630" width="320" height="58" fill="none" stroke="#888" stroke-width="1"/>
+    <text x="28" y="646" font-size="10" font-weight="bold" fill="#1a3a6e">LEGEND</text>
+    <rect x="28" y="654" width="14" height="10" fill="none" stroke="#1a3a6e"/>
+    <text x="48" y="663" font-size="9" fill="#000">target attn layer</text>
+    <rect x="28" y="670" width="14" height="10" fill="#1a3a6e" stroke="#1a3a6e"/>
+    <text x="48" y="679" font-size="9" fill="#000">MTP draft layer</text>
+    <text x="180" y="663" font-size="9" fill="#888">- - -&gt; CLI shared index</text>
+    <text x="180" y="679" font-size="9" fill="#888">[!] 1 indexer, N consumers</text>
+  </g>
+
+  <!-- Formula panel -->
+  <rect x="700" y="630" width="380" height="58" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="710" y="646" font-size="10" font-weight="bold" fill="#1a3a6e">CLI SAVINGS</text>
+  <text x="710" y="662" font-size="9" fill="#000">target: 2 layers / pass  =&gt; 50% saved</text>
+  <text x="710" y="676" font-size="9" fill="#000">MTP: 3 drafts / pass    =&gt; 67% saved</text>
+
+  <!-- =========== Target model: CLI factor 2 =========== -->
+  <rect x="40" y="80" width="1020" height="200" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="60" y="100" font-size="11" font-weight="bold" fill="#1a3a6e">TARGET MODEL — Cross-Layer Indexing (cli_factor = 2)</text>
+  <text x="60" y="114" font-size="9" fill="#888">every 2 consecutive attention layers share 1 indexer pass</text>
+
+  <!-- indexer pass 1 -->
+  <rect x="60" y="130" width="120" height="40" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="120" y="148" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">indexer pass 1</text>
+  <text x="120" y="162" text-anchor="middle" font-size="8" fill="#ffffff">top-2048 KV</text>
+
+  <!-- layer i -->
+  <line x1="120" y1="170" x2="120" y2="195" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+  <rect x="60" y="200" width="120" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="120" y="216" text-anchor="middle" font-size="9" fill="#000">attn layer i</text>
+  <text x="120" y="228" text-anchor="middle" font-size="8" fill="#888">(reuse idx)</text>
+
+  <!-- layer i+1 sharing -->
+  <line x1="180" y1="150" x2="280" y2="150" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="280" y1="150" x2="280" y2="195" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrMb)"/>
+  <rect x="220" y="200" width="120" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="280" y="216" text-anchor="middle" font-size="9" fill="#000">attn layer i+1</text>
+  <text x="280" y="228" text-anchor="middle" font-size="8" fill="#888">(reuse idx)</text>
+
+  <!-- indexer pass 2 -->
+  <rect x="380" y="130" width="120" height="40" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="440" y="148" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">indexer pass 2</text>
+  <text x="440" y="162" text-anchor="middle" font-size="8" fill="#ffffff">top-2048 KV</text>
+
+  <line x1="440" y1="170" x2="440" y2="195" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+  <rect x="380" y="200" width="120" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="440" y="216" text-anchor="middle" font-size="9" fill="#000">attn layer i+2</text>
+  <text x="440" y="228" text-anchor="middle" font-size="8" fill="#888">(reuse idx)</text>
+
+  <line x1="500" y1="150" x2="600" y2="150" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="600" y1="150" x2="600" y2="195" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrMb)"/>
+  <rect x="540" y="200" width="120" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="600" y="216" text-anchor="middle" font-size="9" fill="#000">attn layer i+3</text>
+  <text x="600" y="228" text-anchor="middle" font-size="8" fill="#888">(reuse idx)</text>
+
+  <text x="720" y="148" font-size="14" fill="#888">. . .</text>
+
+  <!-- indexer pass 19 -->
+  <rect x="800" y="130" width="120" height="40" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="860" y="148" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">indexer pass 19</text>
+  <text x="860" y="162" text-anchor="middle" font-size="8" fill="#ffffff">top-2048 KV</text>
+
+  <line x1="860" y1="170" x2="860" y2="195" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+  <rect x="800" y="200" width="120" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="860" y="216" text-anchor="middle" font-size="9" fill="#000">attn layer 37</text>
+  <text x="860" y="228" text-anchor="middle" font-size="8" fill="#888">(reuse idx)</text>
+
+  <line x1="920" y1="150" x2="960" y2="150" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="960" y1="150" x2="960" y2="195" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arrMb)"/>
+  <rect x="940" y="200" width="100" height="34" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="990" y="216" text-anchor="middle" font-size="9" fill="#000">attn layer 38</text>
+  <text x="990" y="228" text-anchor="middle" font-size="8" fill="#888">(last)</text>
+
+  <!-- =========== MTP drafts: 3 layers share 1 pass =========== -->
+  <rect x="40" y="300" width="1020" height="280" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="60" y="320" font-size="11" font-weight="bold" fill="#1a3a6e">MTP MODULE — 3 Draft Layers (mtp_replicate_modules = true)</text>
+  <text x="60" y="334" font-size="9" fill="#888">All 3 draft steps share indexer pass from step 1 (dsa_mtp_cli=true)</text>
+
+  <!-- main trunk -->
+  <rect x="60" y="350" width="160" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="140" y="370" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">Main Trunk</text>
+  <text x="140" y="384" text-anchor="middle" font-size="9" fill="#000">38 target layers</text>
+  <text x="140" y="398" text-anchor="middle" font-size="8" fill="#888">outputs h_t, logit_t</text>
+
+  <!-- indexer pass for step 1 -->
+  <rect x="280" y="350" width="160" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="360" y="370" text-anchor="middle" font-size="10" font-weight="bold" fill="#ffffff">indexer pass (step 1)</text>
+  <text x="360" y="384" text-anchor="middle" font-size="9" fill="#ffffff">for token t+1</text>
+  <text x="360" y="398" text-anchor="middle" font-size="8" fill="#ffffff">top-2048 KV selected</text>
+
+  <line x1="220" y1="380" x2="280" y2="380" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+
+  <!-- draft 1 -->
+  <rect x="500" y="350" width="160" height="60" fill="#1a3a6e" stroke="#1a3a6e"/>
+  <text x="580" y="370" text-anchor="middle" font-size="10" font-weight="bold" fill="#ffffff">MTP Draft 1</text>
+  <text x="580" y="384" text-anchor="middle" font-size="9" fill="#ffffff">predicts t+1</text>
+  <text x="580" y="398" text-anchor="middle" font-size="8" fill="#ffffff">uses indexer pass</text>
+
+  <line x1="440" y1="380" x2="500" y2="380" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+
+  <!-- draft 2 -->
+  <rect x="740" y="350" width="160" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="820" y="370" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">MTP Draft 2</text>
+  <text x="820" y="384" text-anchor="middle" font-size="9" fill="#000">predicts t+2</text>
+  <text x="820" y="398" text-anchor="middle" font-size="8" fill="#888">REUSES draft 1's index</text>
+
+  <line x1="660" y1="380" x2="740" y2="380" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+
+  <!-- shared index arrows (dashed) -->
+  <line x1="360" y1="410" x2="820" y2="430" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+  <text x="590" y="425" font-size="9" fill="#1a3a6e" font-weight="bold">[CLI] same top-2048 KV set</text>
+
+  <!-- draft 3 -->
+  <rect x="500" y="440" width="160" height="60" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="580" y="460" text-anchor="middle" font-size="10" font-weight="bold" fill="#1a3a6e">MTP Draft 3</text>
+  <text x="580" y="474" text-anchor="middle" font-size="9" fill="#000">predicts t+3</text>
+  <text x="580" y="488" text-anchor="middle" font-size="8" fill="#888">REUSES draft 1's index</text>
+
+  <line x1="820" y1="410" x2="820" y2="425" stroke="#000" stroke-width="1.2"/>
+  <line x1="820" y1="425" x2="580" y2="425" stroke="#000" stroke-width="1.2"/>
+  <line x1="580" y1="425" x2="580" y2="440" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+
+  <line x1="360" y1="410" x2="580" y2="440" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="5,3"/>
+
+  <!-- MTP features -->
+  <rect x="60" y="510" width="980" height="60" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+  <text x="80" y="528" font-size="10" font-weight="bold" fill="#1a3a6e">MTP CONFIG NOTES</text>
+  <text x="80" y="544" font-size="9" fill="#000">- mtp_num_layers = 3  (vs DeepSeek V3 = 1)</text>
+  <text x="280" y="544" font-size="9" fill="#000">- mtp_replicate_modules = true  (shared weights across 3 drafts)</text>
+  <text x="80" y="560" font-size="9" fill="#000">- mtp_disable_over_tokenizer = true</text>
+  <text x="280" y="560" font-size="9" fill="#000">- Trained via cross-layer distillation so drafts tolerate stale index</text>
+
+  <defs>
+    <marker id="arrM" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arrMb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+</svg>

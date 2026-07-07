@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1100" height="720" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="Courier New, monospace">
+  <rect width="1100" height="720" fill="#ffffff"/>
+
+  <!-- Title -->
+  <text x="550" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a3a6e">LongCat-2.0 — Dual-Sublayer + Shortcut MoE Forward</text>
+  <text x="550" y="48" text-anchor="middle" font-size="11" fill="#888">Per logical layer (i=1..38). ScMoE: MoE comm masked by Attn+MLP compute.</text>
+
+  <!-- Legend -->
+  <g>
+    <rect x="20" y="650" width="340" height="58" fill="none" stroke="#888" stroke-width="1"/>
+    <text x="28" y="666" font-size="10" font-weight="bold" fill="#1a3a6e">LEGEND</text>
+    <rect x="28" y="674" width="14" height="10" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+    <text x="48" y="683" font-size="9" fill="#000">norm / dense MLP</text>
+    <rect x="28" y="690" width="14" height="10" fill="#1a3a6e" stroke="#1a3a6e"/>
+    <text x="48" y="699" font-size="9" fill="#000">Attn / Shortcut MoE (activated)</text>
+    <text x="200" y="683" font-size="9" fill="#888">---&gt; tensor flow</text>
+    <text x="200" y="699" font-size="9" fill="#1a3a6e">- - -&gt; async / overlap</text>
+  </g>
+
+  <!-- Formula panel -->
+  <rect x="700" y="640" width="380" height="68" fill="none" stroke="#888" stroke-width="1"/>
+  <text x="710" y="656" font-size="10" font-weight="bold" fill="#1a3a6e">EQUIVALENT CODE</text>
+  <text x="710" y="672" font-size="9" fill="#000">h = res + attn[0](norm[0](h))</text>
+  <text x="710" y="684" font-size="9" fill="#000">shortcut = MoE(post_attn_norm[0](h))</text>
+  <text x="710" y="696" font-size="9" fill="#000">h = res + mlp[1](post_attn_norm[1](h)) + shortcut</text>
+
+  <!-- input -->
+  <text x="80" y="80" font-size="10" font-weight="bold" fill="#000">h_in (residual)</text>
+  <circle cx="60" cy="100" r="14" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="60" y="104" text-anchor="middle" font-size="9" fill="#000">+</text>
+  <line x1="74" y1="100" x2="120" y2="100" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- Sublayer 1 box -->
+  <rect x="120" y="70" width="440" height="260" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="130" y="86" font-size="10" font-weight="bold" fill="#888">SUBLAYER 1</text>
+
+  <!-- norm[0] -->
+  <rect x="140" y="95" width="120" height="28" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="200" y="113" text-anchor="middle" font-size="10" fill="#000">input_norm[0]</text>
+  <line x1="200" y1="123" x2="200" y2="140" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- Attn[0] -->
+  <rect x="140" y="142" width="120" height="32" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="200" y="161" text-anchor="middle" font-size="10" font-weight="bold" fill="#ffffff">Attn[0] (LSA+MLA)</text>
+  <line x1="200" y1="174" x2="200" y2="186" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- + -->
+  <circle cx="200" cy="195" r="10" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="200" y="199" text-anchor="middle" font-size="9" fill="#000">+</text>
+  <!-- residual shortcut for attn[0] -->
+  <line x1="60" y1="100" x2="60" y2="195" stroke="#000" stroke-width="1.2"/>
+  <line x1="60" y1="195" x2="190" y2="195" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+  <text x="55" y="150" font-size="8" fill="#888">residual</text>
+
+  <line x1="200" y1="205" x2="200" y2="222" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- post_attn_norm[0] -->
+  <rect x="140" y="224" width="120" height="28" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="200" y="242" text-anchor="middle" font-size="10" fill="#000">post_attn_norm[0]</text>
+  <text x="200" y="253" text-anchor="middle" font-size="8" fill="#888">(split point)</text>
+
+  <!-- Split: (a) Shortcut MoE and (b) Dense MLP[0] -->
+  <line x1="200" y1="262" x2="200" y2="282" stroke="#000" stroke-width="1.2"/>
+  <line x1="200" y1="282" x2="200" y2="282" stroke="#000" stroke-width="1.2"/>
+
+  <!-- Branch a: shortcut MoE (async) - on left -->
+  <line x1="200" y1="282" x2="380" y2="282" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3"/>
+  <line x1="380" y1="282" x2="380" y2="310" stroke="#1a3a6e" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr3b)"/>
+
+  <!-- Branch b: Dense MLP[0] -->
+  <line x1="200" y1="282" x2="200" y2="310" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- Dense MLP[0] -->
+  <rect x="140" y="312" width="120" height="28" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="200" y="330" text-anchor="middle" font-size="10" fill="#000">Dense MLP[0]</text>
+  <text x="200" y="342" text-anchor="middle" font-size="8" fill="#888">ffn=12,288</text>
+  <line x1="200" y1="340" x2="200" y2="360" stroke="#000" stroke-width="1.2"/>
+
+  <!-- + for dense mlp[0] -->
+  <circle cx="200" cy="370" r="10" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="200" y="374" text-anchor="middle" font-size="9" fill="#000">+</text>
+  <!-- residual short into + -->
+  <line x1="60" y1="195" x2="60" y2="370" stroke="#000" stroke-width="1.2"/>
+  <line x1="60" y1="370" x2="190" y2="370" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- Shortcut MoE block (async) -->
+  <rect x="320" y="312" width="200" height="80" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="420" y="332" text-anchor="middle" font-size="11" font-weight="bold" fill="#ffffff">Shortcut MoE</text>
+  <text x="420" y="348" text-anchor="middle" font-size="9" fill="#ffffff">softmax router 8192-&gt;896</text>
+  <text x="420" y="362" text-anchor="middle" font-size="9" fill="#ffffff">768 routed, top-12, scale=9</text>
+  <text x="420" y="380" text-anchor="middle" font-size="8" fill="#ffffff">[ASYNC] comm overlap with</text>
+  <text x="420" y="388" text-anchor="middle" font-size="8" fill="#ffffff">sublayer 2 compute</text>
+
+  <!-- Sublayer 2 box -->
+  <rect x="600" y="70" width="440" height="280" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="610" y="86" font-size="10" font-weight="bold" fill="#888">SUBLAYER 2</text>
+
+  <!-- h_in to sublayer 2 (after sublayer 1 residual join) -->
+  <line x1="210" y1="370" x2="560" y2="370" stroke="#000" stroke-width="1.2"/>
+  <line x1="560" y1="370" x2="560" y2="120" stroke="#000" stroke-width="1.2"/>
+  <line x1="560" y1="120" x2="620" y2="120" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- norm[1] -->
+  <rect x="620" y="106" width="120" height="28" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="680" y="124" text-anchor="middle" font-size="10" fill="#000">input_norm[1]</text>
+  <line x1="680" y1="134" x2="680" y2="150" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- Attn[1] -->
+  <rect x="620" y="152" width="120" height="32" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="680" y="171" text-anchor="middle" font-size="10" font-weight="bold" fill="#ffffff">Attn[1] (LSA+MLA)</text>
+  <line x1="680" y1="184" x2="680" y2="200" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- + for attn[1] -->
+  <circle cx="680" cy="210" r="10" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="680" y="214" text-anchor="middle" font-size="9" fill="#000">+</text>
+  <line x1="560" y1="120" x2="540" y2="120" stroke="#000" stroke-width="1.2"/>
+  <line x1="540" y1="120" x2="540" y2="210" stroke="#000" stroke-width="1.2"/>
+  <line x1="540" y1="210" x2="670" y2="210" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <line x1="680" y1="220" x2="680" y2="240" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- post_attn_norm[1] -->
+  <rect x="620" y="242" width="120" height="28" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="680" y="260" text-anchor="middle" font-size="10" fill="#000">post_attn_norm[1]</text>
+  <line x1="680" y1="270" x2="680" y2="288" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- Dense MLP[1] -->
+  <rect x="620" y="290" width="120" height="28" fill="none" stroke="#1a3a6e" stroke-width="1.5"/>
+  <text x="680" y="308" text-anchor="middle" font-size="10" fill="#000">Dense MLP[1]</text>
+  <line x1="680" y1="318" x2="680" y2="338" stroke="#000" stroke-width="1.2"/>
+
+  <!-- + final residual (mlp[1] + shortcut) -->
+  <circle cx="680" cy="350" r="12" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="680" y="354" text-anchor="middle" font-size="10" fill="#000">+</text>
+
+  <!-- residual into + (from sublayer 2 input) -->
+  <line x1="540" y1="210" x2="540" y2="350" stroke="#000" stroke-width="1.2"/>
+  <line x1="540" y1="350" x2="668" y2="350" stroke="#000" stroke-width="1.2" marker-end="url(#arr3)"/>
+
+  <!-- SHORTCUT ARRIVAL: from shortcut MoE to final + -->
+  <line x1="520" y1="352" x2="660" y2="350" stroke="#1a3a6e" stroke-width="2" stroke-dasharray="5,3" marker-end="url(#arr3b)"/>
+  <text x="590" y="345" font-size="9" font-weight="bold" fill="#1a3a6e">shortcut_mlp_output</text>
+
+  <!-- output -->
+  <line x1="680" y1="362" x2="680" y2="400" stroke="#000" stroke-width="1.5" marker-end="url(#arr3)"/>
+  <text x="690" y="395" font-size="10" font-weight="bold" fill="#000">h_out</text>
+
+  <!-- Pipeline / timing annotation (bottom) -->
+  <rect x="120" y="430" width="920" height="200" fill="none" stroke="#888" stroke-width="1" stroke-dasharray="2,2"/>
+  <text x="130" y="448" font-size="10" font-weight="bold" fill="#1a3a6e">TIMELINE (ScMoE = Shortcut MoE overlap)</text>
+
+  <!-- timeline axis -->
+  <line x1="140" y1="470" x2="1020" y2="470" stroke="#000" stroke-width="1"/>
+  <text x="120" y="474" font-size="9" fill="#000">t=</text>
+
+  <!-- Sublayer 1 compute bars -->
+  <rect x="140" y="478" width="180" height="14" fill="#1a3a6e"/>
+  <text x="230" y="488" text-anchor="middle" font-size="8" fill="#ffffff">Attn[0]</text>
+  <rect x="320" y="478" width="120" height="14" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="380" y="488" text-anchor="middle" font-size="8" fill="#000">MLP[0]</text>
+
+  <!-- Sublayer 2 bars -->
+  <rect x="440" y="478" width="220" height="14" fill="#1a3a6e"/>
+  <text x="550" y="488" text-anchor="middle" font-size="8" fill="#ffffff">Attn[1]</text>
+  <rect x="660" y="478" width="140" height="14" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="730" y="488" text-anchor="middle" font-size="8" fill="#000">MLP[1]</text>
+
+  <!-- shortcut MoE async bar - overlaps all sublayer 2 -->
+  <rect x="320" y="500" width="480" height="14" fill="#b8721a" stroke="#b8721a"/>
+  <text x="560" y="510" text-anchor="middle" font-size="9" font-weight="bold" fill="#ffffff">Shortcut MoE comm + compute (async)</text>
+
+  <!-- labels -->
+  <text x="140" y="498" font-size="8" fill="#888">sub1:</text>
+  <text x="140" y="520" font-size="8" fill="#888">shortcut:</text>
+
+  <!-- final + -->
+  <rect x="820" y="478" width="40" height="36" fill="none" stroke="#000" stroke-width="1.5"/>
+  <text x="840" y="500" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">+</text>
+
+  <line x1="800" y1="485" x2="820" y2="490" stroke="#000" stroke-width="1.2"/>
+  <line x1="800" y1="507" x2="820" y2="500" stroke="#000" stroke-width="1.2"/>
+
+  <!-- key insight callout -->
+  <rect x="140" y="540" width="780" height="76" fill="none" stroke="#1a3a6e" stroke-width="1"/>
+  <text x="150" y="556" font-size="10" font-weight="bold" fill="#1a3a6e">ScMoE Design Insight (blog "Inference -&gt; ScMoE")</text>
+  <text x="150" y="572" font-size="9" fill="#000">- Shortcut MoE launched at end of sublayer 1; consumed at end of sublayer 2.</text>
+  <text x="150" y="586" font-size="9" fill="#000">- All-to-all comm for 12-of-768 expert dispatch fully covered by sublayer-2 Attn+MLP.</text>
+  <text x="150" y="600" font-size="9" fill="#000">- On ASIC: explicit per-core control = dense branch &amp; MoE branch run in PARALLEL (not just overlap).</text>
+  <text x="150" y="614" font-size="9" fill="#b8721a">- 128 identity zero experts absorb padding tokens (moe_switch_token_num=1024).</text>
+
+  <defs>
+    <marker id="arr3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000"/>
+    </marker>
+    <marker id="arr3b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1a3a6e"/>
+    </marker>
+  </defs>
+</svg>
