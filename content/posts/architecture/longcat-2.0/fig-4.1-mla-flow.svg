@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg width="1100" height="720" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="Courier New, monospace">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 720" font-family="Courier New, monospace">
   <rect width="1100" height="720" fill="#ffffff"/>
 
   <text x="550" y="30" text-anchor="middle" font-size="17" font-weight="bold" fill="#1a3a6e">LongCat-2.0 — Multi-head Latent Attention (MLA) Data Flow</text>
@@ -127,7 +127,9 @@
   <text x="540" y="382" text-anchor="middle" font-size="8" fill="#888">theta=1e6</text>
 
   <!-- q_rot arrow into RoPE -->
-  <line x1="160" y1="372" x2="490" y2="372" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
+  <line x1="160" y1="372" x2="160" y2="396" stroke="#000" stroke-width="1.2"/>
+  <line x1="160" y1="396" x2="490" y2="396" stroke="#000" stroke-width="1.2"/>
+  <line x1="490" y1="396" x2="490" y2="372" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
   <!-- k_rot arrow into RoPE -->
   <line x1="420" y1="232" x2="540" y2="232" stroke="#000" stroke-width="1.2"/>
   <line x1="540" y1="232" x2="540" y2="352" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
@@ -160,8 +162,9 @@
   <line x1="590" y1="448" x2="640" y2="448" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
 
   <!-- k_pass -> cat k -->
-  <line x1="300" y1="440" x2="640" y2="440" stroke="#000" stroke-width="1.2"/>
-  <line x1="640" y1="440" x2="640" y2="452" stroke="#000" stroke-width="1.2"/>
+  <line x1="300" y1="440" x2="300" y2="478" stroke="#000" stroke-width="1.2"/>
+  <line x1="300" y1="478" x2="640" y2="478" stroke="#000" stroke-width="1.2"/>
+  <line x1="640" y1="478" x2="640" y2="452" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
 
   <!-- =========== Attention =========== -->
   <rect x="820" y="280" width="220" height="180" fill="#1a3a6e" stroke="#1a3a6e" stroke-width="2"/>
@@ -177,8 +180,9 @@
   <!-- arrows into attention -->
   <line x1="760" y1="372" x2="820" y2="350" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
   <line x1="760" y1="452" x2="820" y2="395" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
-  <line x1="340" y1="440" x2="800" y2="440" stroke="#000" stroke-width="1.2"/>
-  <line x1="800" y1="440" x2="800" y2="410" stroke="#000" stroke-width="1.2"/>
+  <line x1="340" y1="440" x2="340" y2="478" stroke="#000" stroke-width="1.2"/>
+  <line x1="340" y1="478" x2="800" y2="478" stroke="#000" stroke-width="1.2"/>
+  <line x1="800" y1="478" x2="800" y2="410" stroke="#000" stroke-width="1.2"/>
   <line x1="800" y1="410" x2="820" y2="410" stroke="#000" stroke-width="1.2" marker-end="url(#arrM)"/>
 
   <!-- o_proj -->
