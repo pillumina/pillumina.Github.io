@@ -39,8 +39,8 @@ summary = '以昇腾训练和推理支持场景为背景，综合 Pocock skills 
 | /knowledge-groom                                     |
 +-----------------------------------------------------+
 | Knowledge 层：诊断规则（中频增长）                      |
-| Tier 1: triage-tree.yaml    (30 条分支, 极低频)        |
-| Tier 2: pattern_library/    (200 条 case, 周级增长)    |
+| Tier 1: triage-tree.yaml    (30 个分支, 极低频)        |
+| Tier 2: knowledge/          (200 条 case, 周级增长)    |
 | Tier 3: postmortems/        (无上限, 日级增长)          |
 +-----------------------------------------------------+
 | Script 层：工具链（已有，保持不变）                      |
@@ -99,15 +99,21 @@ skill body 只写诊断方法论。具体的 case rules 存在 knowledge/ 下，
 流程：
 1. 收集症状
    - 错误信息、环境变量（HCCL_*, ASCEND_*, NPU_*）、框架版本、硬件平台
+   - 自动检测所属框架：
+       pip list | grep -i 'mindspeed|vllm|sglang|verl'
+       env | grep -i 'MINDSPEED|VLLM|SGLANG'
+     检测到的框架用于决定后续加载哪个 namespace（§4.4）
 
 2. 分类 -> 加载 triage-tree.yaml Tier 1
-   - hang / crash -> pattern_library/training/hang/
-   - precision -> pattern_library/training/precision/
-   - performance -> pattern_library/training/perf/
+   - hang / crash -> 搜索 training/<framework>/ + common/hccl + common/npu-driver
+   - precision -> 搜索 training/<framework>/ + common/cann
+   - performance -> 搜索 training/<framework>/ + common/hardware
+   - 框架未检测到 -> 只搜 common/
    - 无法分类 -> Tier 3 向量检索
 
-3. 诊断（加载对应 Tier 2 bucket）
-   - 对 bucket 中每个 case 执行 quickly_check（轻量预检命令）
+3. 诊断（加载匹配的 Tier 2 namespace）
+   - 最多加载 3 个命名空间（框架桶 + 2 个 common 桶）
+   - 对每个 case 执行 quickly_check（primary + fallback）
    - 通过预检的 case 执行完整 diagnosis checks 验证
    - 命中 -> 输出 root cause + fix
    - 未命中 -> 进入深度排查
@@ -119,7 +125,7 @@ skill body 只写诊断方法论。具体的 case rules 存在 knowledge/ 下，
 
 5. 产出
    - resolution: resolved / escalated / unknown
-   - postmortem 草稿（自动生成）
+   - postmortem 草稿（自动生成——框架已自动填充到对应 namespace）
 ```
 
 ### 3.3 `/to-postmortem`
@@ -133,11 +139,19 @@ skill body 只写诊断方法论。具体的 case rules 存在 knowledge/ 下，
 
 流程：
 1. 从输入中提取症状、执行的命令和输出、排除的假设、最终 root cause 和 fix
-2. 输出结构化 YAML 草稿 + postmortem.md
+2. agent 自动检测或推断所属框架，给出命名空间建议：
+   [1] training/mindspeed-llm/   （检测到 mindspeed-llm）
+   [2] training/verl/            （检测到 verl）
+   [3] common/                   （跨框架，或不确定）
+   人输入一个数字确认 -> 约 5 秒
+3. 输出结构化 YAML 草稿 + postmortem.md
    - 标记 confidence: high | medium | low
    - 标记 novelty: new_pattern | variant | covered
-3. 人扫一眼确认 -> done（30 秒内可完成）
+   - namespace 已由人确认
+4. 人扫一眼确认 -> done（30 秒内可完成）
 ```
+
+命名空间确认不是额外的管理负担——它是一种轻量的质量检查。当人在 "training/mindspeed-llm/" 和 "common/" 之间选择时，本质上在自问"这个问题是这个框架特有的，还是通用的"。这个自问过程本身就能暴露误判。如果对话原文中包含了 `CANN_OP_DEBUG=1` 和 `HCCL_BUFFSIZE`，但检测到的框架是 `vllm-ascend`，人在确认时会犹豫——"等一下，这看起来像 HCCL 的问题，为什么放在 vllm-ascend 下？"——这就是一个可能被纠正的错误分类。
 
 ### 3.4 `/knowledge-groom`
 
@@ -148,29 +162,84 @@ skill body 只写诊断方法论。具体的 case rules 存在 knowledge/ 下，
 1. 扫 postmortems/ 中新增且通过审批的 .md
 2. 对每个 postmortem：
    +-- 尝试结构化 -> YAML
-   +-- 成功 -> 追加到 pattern_library/<bucket>.yaml
+   +-- 成功 -> 追加到对应 namespace
    +-- 失败 -> 标记 needs-human-review
-3. 合并检测：相似 case 对自动提示合并
-4. 产出 PR：变更列表 + 合并建议 + 需人工补充的项
+3. 跨 namespace 去重检测：
+   +-- 如果 training/mindspeed-llm/ 和 inference/vllm-ascend/
+   |   各有一条 case 指向相同 root cause（如 HCCL buffer undersize）
+   +-- 在 common/hccl/ 建一条权威记录
+   +-- 两条框架层 case 加 references 字段指向它
+   +-- 框架层保留框架特有的诊断步骤，
+   |   common 层只存 root cause 和 base fix
+4. namespace 拆分检测：
+   +-- 当某个 namespace 积累到超过 30 条 case 时
+   +-- groom 报告中标注该 namespace 的内容分布
+   +-- 给出拆分为子 namespace 的建议
+   +-- 只有这时才建子目录——不是事前猜测
+5. 合并检测：同一 namespace 内相似 case 对自动提示合并
+6. 产出 PR：变更列表 + 合并建议 + 去重建议 + 需人工补充的项
 ```
 
 ---
 
 ## 4. Knowledge 层设计
 
-### 4.1 为什么需要三层
+### 4.1 命名空间设计原则
 
-500 条平铺的 case entry 对 agent 来说每轮都要全量加载，token 膨胀，推理退化。三层架构把搜索空间逐级缩小。
+命名空间的分割维度只有一个约束：**在 case 创建时就能确定的东西可以做分割，需要诊断完成后才能确定的东西留给 groom 去整理**。
 
-| 层 | 内容 | 条目上限 | 加载时机 | token 消耗 |
-|---|---|---|---|---|
-| Tier 1 | 症状分类索引 | 30 分支 | 始终加载 | ~2K |
-| Tier 2 | 结构化 case rules | 200 条 | 症状匹配后加载一个桶 | ~8K |
-| Tier 3 | 原始 postmortem | 无上限 | T1+T2 未命中时向量检索 | ~5K |
+- **框架名**——session 开始 30 秒内就能确定（`pip list | grep mindspeed` 的输出是客观事实）。创建 case 时即可分到对应 namespace。
+- **root cause 层**（这个问题出在 CANN 还是 HCCL 还是 NPU driver 层？）——这是诊断的目标，不是诊断的输入。诊断完成后才能确定。所以不做 `cann/`、`hccl/` 这类预分割。等到同一个 root cause 在多个框架 namespace 中重复出现时，groom 把它抽取到 `common/` 下。
 
-### 4.2 Tier 1: triage-tree.yaml
+### 4.2 目录结构
 
-不存储具体 root cause，只做分类路由。
+初始 namespace 平铺——框架层和共享层。不做任何预分割子目录。等单个 namespace 积累到超过 30 条 case 时，groom 在报告中给出拆分建议，这时才建子目录。
+
+```
+knowledge/
++-- training/
+|   +-- mindspeed-llm/      # /to-postmortem 检测或交互确认 -> 进这里
+|   +-- mindspeed-mm/
+|   +-- verl/
++-- inference/
+|   +-- vllm-ascend/
+|   +-- sglang/
++-- common/                  # 框架检测失败 -> 兜底
+|                           # groom 发现多框架共用 -> 从框架层提升
++-- platforms/
+    +-- a2-910a.md           # 平台差异背景知识
+    +-- a3-910b.md
+    +-- a5-910c.md
+```
+
+### 4.3 `common/` 与框架层的引用关系
+
+框架层的 case 可以包含框架特有的诊断步骤（日志路径、环境变量前缀、配置文件名），但在 root cause 层面引用 `common/` 中的权威记录：
+
+```yaml
+# training/mindspeed-llm/ep_hang.yaml
+cases:
+  - id: MSLLM-EP-HANG-001
+    title: "EP dispatch timeout due to HCCL buffer undersize"
+    symptoms:
+      - "all_to_all_single hangs at step after 3000"
+
+    references: common/hccl/buffer_config.yaml#ASCEND-HCCL-BUFFER-001
+
+    diagnosis:
+      - step: 1
+        command: "grep 'all_to_all' /path/to/mindspeed_llm/logs/rank_0.log"
+        expected: "regex:timeout"
+
+    root_cause: "same as referenced case"
+    fix: "HCCL_BUFFSIZE=4194304. See referenced case for details and rollback."
+```
+
+`references` 是可选的——只有当 root cause 已被确认是多框架共用的底层问题时才填。框架层保留自身的诊断步骤，`common/` 只存 root cause 描述和 base fix。修改一次 `common/`，所有引用它的框架层 case 自动同步。
+
+### 4.4 Tier 1: triage-tree.yaml（分类路由）
+
+triage-tree 的每条分支指向多个 namespace，按顺序搜索。`<detected_framework>` 是 §3.2 步骤 1 中自动检测的结果——不需要人手动声明。
 
 ```yaml
 branches:
@@ -179,34 +248,33 @@ branches:
       - "timeout" | "hang" | "stuck at step"
       - "NCCL.*timeout" | "HCCL.*timeout"
       - "all_to_all.*timeout"
-    goto: pattern_library/training/hang/
+    search_namespaces:        # 按顺序搜索——最多加载 3 个
+      - training/<detected_framework>/    # 先搜框架特定
+      - common/                           # 不命中时搜共享层
+    fallback: Tier 3
 
   - id: training_precision
     symptoms:
       - "nan" | "loss.*nan" | "fp8.*precision"
       - "bf16.*mismatch" | "allreduce.*round"
-    goto: pattern_library/training/precision/
-
-  - id: training_perf_regression
-    symptoms:
-      - "step time.*spike" | "throughput.*drop"
-      - "EP.*bottleneck" | "communication.*slow"
-    goto: pattern_library/training/perf/
+    search_namespaces:
+      - training/<detected_framework>/
+      - common/
+    fallback: Tier 3
 
   - id: uncategorized
     symptoms: []
-    goto: null  # -> Tier 3
+    search_namespaces: [common/]
+    fallback: Tier 3
 ```
 
-设计要求：分支数不超过 30。症状模式是正则兼容的模糊匹配。一个症状可能匹配多个分支——agent 加载所有匹配的 bucket，按 priority 排序。
+设计要求：分支数不超过 30。症状模式是正则兼容的模糊匹配。框架检测失败时只用 `common/`。三个 namespace 还不够说明症状太模糊——直接走 Tier 3。
 
-### 4.3 Tier 2: pattern_library/
-
-每个文件一个诊断桶，包含 10 到 30 条结构化 case entry：
+### 4.5 Tier 2: 结构化 case entry
 
 ```yaml
 cases:
-  - id: ASCEND-EP-HANG-001
+  - id: MSLLM-EP-HANG-001
     title: "HCCL buffer undersize for large-scale EP dispatch"
     priority: high
     platforms: ["A5-910C"]
@@ -215,6 +283,8 @@ cases:
     symptoms:
       - "all_to_all_single hangs at step usually after 1000+"
       - "world_size >= 64"
+
+    references: common/hccl/buffer_config.yaml#ASCEND-HCCL-BUFFER-001
 
     quickly_check:
       primary:
@@ -231,12 +301,7 @@ cases:
         fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
         rollback: "unset HCCL_BUFFSIZE"
 
-      - step: 2
-        command: "python3 check_ep_topology.py --world_size ${WORLD_SIZE}"
-        expected: "all ranks reachable"
-        fix_on_mismatch: "escalate to network team"
-
-    next_on_fail: "ASCEND-EP-HANG-003"
+    next_on_fail: "MSLLM-EP-HANG-003"
 
     root_cause: "HCCL internal buffer insufficient for EP all-to-all"
     fix: "export HCCL_BUFFSIZE=4194304 before training launch"
@@ -246,11 +311,22 @@ cases:
 - `quickly_check` 分为 primary 和 fallback——primary 精确但可能因日志格式变化失效，fallback 更模糊但更鲁棒。primary 不匹配但 fallback 匹配时，仍然进入 diagnosis 但标记 `low_confidence`
 - `diagnosis` 是顺序执行，不跳步。任一步 mismatch 且没有 fix_on_mismatch -> 标记该 case 不匹配
 - `priority: high` 的 case 优先验证
-- `next_on_fail` 是可选字段，指向下一个应该尝试的 case id
+- `next_on_fail` 可选，指向下一个应该尝试的 case
+- `references` 可选，指向 `common/` 中的权威记录——框架层保留诊断步骤，common 层留 root cause 描述
 
-### 4.4 Tier 3: postmortems/
+### 4.6 Tier 3: postmortems/
 
 原始诊断记录，不做结构化。仅用于 T1 和 T2 都未命中时的向量检索兜底。文件由 session-end summary 或 `/to-postmortem` 生成，按季度目录归档。
+
+### 4.7 三层检索
+
+| 层 | 内容 | 条目上限 | 加载时机 | token 消耗 |
+|---|---|---|---|---|
+| Tier 1 | 症状分类与 namespace 路由 | 30 分支 | 始终加载 | ~2K |
+| Tier 2 | 结构化 case rules | 200 条 | 症状匹配后加载最多 3 个 namespace | ~10K |
+| Tier 3 | 原始 postmortem | 无上限 | T1+T2 未命中时向量检索 | ~5K |
+
+总 token 消耗控制在 17K 以内——即使最坏情况（T1 匹配 + 3 个 namespace + T3 top-3），也不会超过一次诊断 session 推理窗口的 15%。
 
 ---
 
@@ -283,7 +359,7 @@ cases:
 | Pocock 概念 | Ascend Skills 对应 | 异同 |
 |---|---|---|
 | `/grill-with-docs` | `/diagnose-training-issue` | 都是人加 agent 协作，对齐后产出结构化记录 |
-| `CONTEXT.md` | `knowledge/` | Pocock 的是静态术语，我们是动态诊断 rules |
+| `CONTEXT.md` | `knowledge/`（按命名空间组织） | Pocock 的是静态术语单文件，我们的是 namespace 分割 + references 引用的诊断知识网络 |
 | `/domain-modeling` | `/knowledge-groom` | 定期维护知识结构 |
 | postmortem（Pocock 没有） | `postmortems/` | 昇腾场景的核心机制——知识持续增长 |
 | `disable-model-invocation` | 诊断 skill 设为 user-only | 诊断决策需要人判断 |
@@ -297,13 +373,14 @@ cases:
 
 | 信号 | 触发动作 |
 |------|----------|
-| Tier 2 bucket 未命中率 > 60% 持续两周 | 审查是否需要拆分或扩大症状匹配 |
-| Tier 2 单个 bucket 超过 30 条 case | 输出相似 case 对，建议合并 |
+| 单个 namespace 积累到超过 30 条 case | groom 报告给出内容分布和子 namespace 拆分建议——这时才建子目录 |
+| 两个框架 namespace 各有一条 case 指向相同 root cause | groom 在 `common/` 下创建权威记录，两条框架层 case 添加 `references` 指向它 |
+| Tier 2 整体未命中率 > 60% 持续两周 | 审查 triage-tree 的 `search_namespaces` 是否需要扩大 |
 | 某个 case 被命中 >= 5 次且每次都直接解决 | 提升 priority = high |
 | 某个 case 标记 needs-human-review 超过 30 天 | 提醒领域 owner 处理 |
 | 积累 5 条 needs-skill-update 标记的 case | 审查 skill 本身的诊断流程 |
 
-不增长的设计：Tier 2 上限 200 条（超限强制合并）、Tier 1 上限 30 分支（超限说明分类过细）、Tier 3 有最小质量阈值（缺少 root_cause 或 symptoms 的记录不进入向量索引）。
+不增长的设计：Tier 2 单个 namespace 上限 30 条（超限触发 groom 拆分建议——不是自动合并，是人工确认后建子目录）、Tier 2 总量上限 200 条（超限强制合并）、Tier 1 上限 30 分支（超限说明分类过细——合并相似分支）、Tier 3 有最小质量阈值（缺少 root_cause 或 symptoms 的记录不进入向量索引）。
 
 ---
 
@@ -507,10 +584,10 @@ last_action: "等待用户执行 check_ep_topology.py 并贴回输出"
 
 ## 19. 接下来的步骤
 
-1. **手工播种第一批 case**——领域 owner 挑出过去半年最高频的 10 条 root cause，直接写成 Tier 2 YAML。跳过 groom 流程。目标：第一周命中率达到 20%。
-2. **搭建 triage-tree.yaml 框架**——从团队现有 issue 中提取最高频的 5 到 8 个症状组，挂载到 Tier 2 bucket。
-3. **搭建 `platforms/` 平台差异文件**——三份文件，各 500 字，领域 owner 一小时内可以写完初版。
-4. **搭建 `/to-postmortem` 原型**——选 3 到 5 个真实 case，手工转换为结构化 YAML 作为 reference，写 skill body 和 summary prompt，团队试跑。
+1. **建 namespace 骨架**——创建 `knowledge/` 目录结构（training/mindspeed-llm、training/verl、inference/vllm-ascend、inference/sglang、common/、platforms/）和 `platforms/*.md` 三份文件。不用写 case——只建空目录和文件。
+2. **手工播种第一批 case**——领域 owner 挑出过去半年最高频的 10 条 root cause，直接写成 Tier 2 YAML，放入对应 namespace。跳过 groom 流程。目标：第一周命中率达到 20%。
+3. **搭建 triage-tree.yaml 框架**——从团队现有 issue 中提取最高频的 5 到 8 个症状组，配好 `search_namespaces` 的搜索顺序。
+4. **搭建 `/to-postmortem` 原型**——选 3 到 5 个真实 case，手工转换为结构化 YAML 作为 reference，写 skill body 和 summary prompt，验证命名空间确认交互的"人均 5 秒选择"假设。
 5. **跑第一轮 `/knowledge-groom`**——把现有 20 到 30 个 case 文档过一遍，度量自动结构化的成功率，同时生成第一版 CHEATSHEET.md。
 6. **建 `docs/metrics.md`**——体系维护人在第二轮 groom 后开始手工记录，形成两周一次的回看节奏。
 7. **Tier 3 向量检索**——等 Tier 2 积累到 50 条以上 case 后，验证未命中率，决定是否引入向量检索兜底。
