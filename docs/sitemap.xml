@@ -14,6 +14,9 @@
     <loc>https://pillumina.github.io/categories/aiagent/</loc>
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/ascend/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/categories/</loc>
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
@@ -29,10 +32,16 @@
     <loc>https://pillumina.github.io/tags/cursor/</loc>
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/diagnosis/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/tags/domain-modeling/</loc>
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/engineering/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/knowledge-base/</loc>
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/matt-pocock/</loc>
@@ -48,6 +57,9 @@
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/tdd/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiagent/ascend-skills-design/</loc>
     <lastmod>2026-07-09T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/posts/aiagent/matt-pocock-skills/</loc>
@@ -208,9 +220,6 @@
   </url><url>
     <loc>https://pillumina.github.io/tags/vllm/</loc>
     <lastmod>2026-06-22T09:06:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/ascend/</loc>
-    <lastmod>2026-06-22T09:05:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/communication/</loc>
     <lastmod>2026-06-22T09:05:00+08:00</lastmod>
@@ -423,9 +432,6 @@
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/journal-club/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/knowledge-base/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/knowledge-graph/</loc>

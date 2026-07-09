@@ -14,6 +14,13 @@
     <lastBuildDate>Thu, 09 Jul 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/matt-pocock/index.xml" rel="self" type="application/rss+xml" />
     <item>
+      <title>从 Pocock Skills 到昇腾诊断：Skill 与 Knowledge 体系设计草案</title>
+      <link>https://pillumina.github.io/posts/aiagent/ascend-skills-design/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/posts/aiagent/ascend-skills-design/</guid>
+      <description>以昇腾训练和推理支持场景为背景，综合 Pocock skills 的设计思想，提出一套三层知识架构的 Skill 加 Knowledge 体系设计草案，涉及诊断流程、知识分层、团队协作和持续演化。</description>
+    </item>
+    <item>
       <title>拆解 Matt Pocock 的 Agent Skills：设计哲学、工程流与失效模式</title>
       <link>https://pillumina.github.io/posts/aiagent/matt-pocock-skills/</link>
       <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
