@@ -18,7 +18,7 @@
       <link>https://pillumina.github.io/posts/aiagent/ascend-skills-design/</link>
       <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/aiagent/ascend-skills-design/</guid>
-      <description>以昇腾训练和推理支持场景为背景，综合 Pocock skills 的设计思想，提出一套三层知识架构的 Skill 加 Knowledge 体系设计草案，涉及诊断流程、知识分层、团队协作和持续演化。</description>
+      <description>以昇腾训练和推理支持场景为背景，综合 Pocock skills 的设计思想，提出一套三层知识架构的 Skill 加 Knowledge 体系设计草案，涉及诊断流程、知识分层、冷启动、紧急模式、团队协作和持续演化。</description>
     </item>
     <item>
       <title>LLM 系统分析方法论（六）：训练通信与掩盖分析</title>

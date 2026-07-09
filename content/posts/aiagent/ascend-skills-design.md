@@ -4,7 +4,7 @@ draft = false
 title = '从 Pocock Skills 到昇腾诊断：Skill 与 Knowledge 体系设计草案'
 categories = ['AIAgent']
 tags = ['agent', 'skills', 'claude-code', 'ascend', 'knowledge-base', 'diagnosis', 'matt-pocock']
-summary = '以昇腾训练和推理支持场景为背景，综合 Pocock skills 的设计思想，提出一套三层知识架构的 Skill 加 Knowledge 体系设计草案，涉及诊断流程、知识分层、团队协作和持续演化。'
+summary = '以昇腾训练和推理支持场景为背景，综合 Pocock skills 的设计思想，提出一套三层知识架构的 Skill 加 Knowledge 体系设计草案，涉及诊断流程、知识分层、冷启动、紧急模式、团队协作和持续演化。'
 +++
 
 > 这是[上一篇拆解 Matt Pocock skills 的文章](../matt-pocock-skills/)的续篇。上一篇拆解了 Pocock 的设计思想——这篇把这些思想应用到一个真实的场景：昇腾训练和推理支持团队的日常问题定位。这不是一个已实现的系统，而是一个从具体约束出发的体系设计草案。
@@ -28,9 +28,7 @@ summary = '以昇腾训练和推理支持场景为背景，综合 Pocock skills 
 
 ---
 
-## 2. 体系概览
-
-三层架构，每层有不同的读写频率和维护人：
+## 2. 体系概览：三层架构
 
 ```
 +-----------------------------------------------------+
@@ -78,19 +76,19 @@ summary = '以昇腾训练和推理支持场景为背景，综合 Pocock skills 
 
 ### 3.1 设计原则
 
-五条原则直接提取自 Pocock 体系，适配到昇腾场景后加了具体语义。完整的对照分析见[上一篇](../matt-pocock-skills/)。
+五条原则提取自 Pocock 体系，适配到昇腾场景。完整对照分析见[上一篇](../matt-pocock-skills/)。
 
 **原则 1：一个 skill 只做一件事，做完就停。**
-`/diagnose-training-issue` 的终点是定位 root cause 或标记 need-escalation，不会继续做"顺便帮客户把配置改了"。
+`/diagnose-training-issue` 的终点是定位 root cause 或标记 need-escalation。
 
 **原则 2：人判断不能被自动化取代，但可以被结构化。**
-skill 不替人做诊断决策——它给出结构化验证清单，人执行后把结果贴回来，agent 分析结果后给出下一步。诊断过程中 agent 是分析引擎，人是执行终端。
+skill 不替人做诊断决策——它给出结构化验证清单，人执行后把结果贴回来，agent 分析结果后给出下一步。
 
 **原则 3：上下文窗口是有限资源，要显式管理。**
-长诊断 session 超过 smart zone 后用 `/handoff` 分段，不要在推理退化后继续诊断。
+长诊断 session 超过 smart zone 后用 `/handoff` 分段。
 
 **原则 4：知识不绑定在 skill body 里。**
-skill body 只写诊断方法论（如何分类、如何收集症状、如何按平台差异匹配）。具体的 case rules 存在 knowledge/ 下，skill 按需加载。改 case 不需要改 skill。
+skill body 只写诊断方法论。具体的 case rules 存在 knowledge/ 下，skill 按需加载。改 case 不需要改 skill。
 
 **原则 5：知识沉淀是 skill 的 side effect，不是人的额外负担。**
 每条诊断 skill 执行完毕自动生成 postmortem 草稿。人不写文档——agent 写，人审。
@@ -141,8 +139,6 @@ skill body 只写诊断方法论（如何分类、如何收集症状、如何按
 3. 人扫一眼确认 -> done（30 秒内可完成）
 ```
 
-如果原始对话中包含 `!key` 标记，对应信息在结构化时提升权重。`!key` 是一个极其轻量的约定——人在发现关键线索时打一个前缀，不需要额外的工具或流程。
-
 ### 3.4 `/knowledge-groom`
 
 ```
@@ -154,9 +150,8 @@ skill body 只写诊断方法论（如何分类、如何收集症状、如何按
    +-- 尝试结构化 -> YAML
    +-- 成功 -> 追加到 pattern_library/<bucket>.yaml
    +-- 失败 -> 标记 needs-human-review
-   +-- novelty = covered -> 跳过，不重复添加
 3. 合并检测：相似 case 对自动提示合并
-4. 产出 PR：pattern_library/ 变更列表 + 合并建议 + 需人工补充的项
+4. 产出 PR：变更列表 + 合并建议 + 需人工补充的项
 ```
 
 ---
@@ -165,7 +160,7 @@ skill body 只写诊断方法论（如何分类、如何收集症状、如何按
 
 ### 4.1 为什么需要三层
 
-500 条平铺的 case entry 对 agent 来说是灾难——每轮诊断都要全量加载，token 膨胀，推理退化。三层架构把搜索空间逐级缩小：Tier 1 把 500 条缩小到约 15 条，Tier 2 做精确匹配，Tier 3 做模糊兜底。
+500 条平铺的 case entry 对 agent 来说每轮都要全量加载，token 膨胀，推理退化。三层架构把搜索空间逐级缩小。
 
 | 层 | 内容 | 条目上限 | 加载时机 | token 消耗 |
 |---|---|---|---|---|
@@ -173,11 +168,9 @@ skill body 只写诊断方法论（如何分类、如何收集症状、如何按
 | Tier 2 | 结构化 case rules | 200 条 | 症状匹配后加载一个桶 | ~8K |
 | Tier 3 | 原始 postmortem | 无上限 | T1+T2 未命中时向量检索 | ~5K |
 
-总 token 消耗控制在 15K 以内——即使最坏情况（T1 匹配 + T2 bucket 全量 + T3 top-3），也不会超过一次诊断 session 推理窗口的 15%。
-
 ### 4.2 Tier 1: triage-tree.yaml
 
-不存储具体 root cause，只做分类路由。每条分支是一组症状正则模式，匹配后加载对应的 Tier 2 bucket。
+不存储具体 root cause，只做分类路由。
 
 ```yaml
 branches:
@@ -202,13 +195,10 @@ branches:
 
   - id: uncategorized
     symptoms: []
-    goto: null  # 未分类的走 Tier 3
+    goto: null  # -> Tier 3
 ```
 
-设计要求：
-- 分支数不超过 30。超过 30 说明分类太细——合并相似分支
-- 症状模式是正则兼容的模糊匹配，不做精确匹配
-- 一个症状可能匹配多个分支 -> agent 加载所有匹配的 bucket，按 priority 排序
+设计要求：分支数不超过 30。症状模式是正则兼容的模糊匹配。一个症状可能匹配多个分支——agent 加载所有匹配的 bucket，按 priority 排序。
 
 ### 4.3 Tier 2: pattern_library/
 
@@ -227,41 +217,40 @@ cases:
       - "world_size >= 64"
 
     quickly_check:
-      command: "grep -c 'all_to_all' /path/to/error.log"
-      expected: "regex:^[1-9]"
+      primary:
+        command: "grep -c 'all_to_all' /path/to/error.log"
+        expected: "regex:^[1-9]"
+      fallback:
+        command: "grep -ci 'timeout|hang|stuck' /path/to/error.log"
+        expected: "regex:^[1-9]"
 
     diagnosis:
       - step: 1
         command: "env | grep HCCL_BUFFSIZE"
         expected: ">= 4194304"
         fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
+        rollback: "unset HCCL_BUFFSIZE"
 
       - step: 2
         command: "python3 check_ep_topology.py --world_size ${WORLD_SIZE}"
         expected: "all ranks reachable"
         fix_on_mismatch: "escalate to network team"
 
+    next_on_fail: "ASCEND-EP-HANG-003"
+
     root_cause: "HCCL internal buffer insufficient for EP all-to-all"
     fix: "export HCCL_BUFFSIZE=4194304 before training launch"
 ```
 
 关键设计决策：
-
-- `quickly_check` 的作用不是诊断——是快速过滤。它必须在 5 秒内执行完毕，让 agent 跳过明显不相关的 bucket
-- `diagnosis` 是顺序执行，不跳步。任一步 mismatch 且没有 fix_on_mismatch -> agent 标记该 case 不匹配，进入下一条
-- `priority: high` 的 case 优先验证——常见且易修复的问题应该在搜索路径上排前面
+- `quickly_check` 分为 primary 和 fallback——primary 精确但可能因日志格式变化失效，fallback 更模糊但更鲁棒。primary 不匹配但 fallback 匹配时，仍然进入 diagnosis 但标记 `low_confidence`
+- `diagnosis` 是顺序执行，不跳步。任一步 mismatch 且没有 fix_on_mismatch -> 标记该 case 不匹配
+- `priority: high` 的 case 优先验证
+- `next_on_fail` 是可选字段，指向下一个应该尝试的 case id
 
 ### 4.4 Tier 3: postmortems/
 
 原始诊断记录，不做结构化。仅用于 T1 和 T2 都未命中时的向量检索兜底。文件由 session-end summary 或 `/to-postmortem` 生成，按季度目录归档。
-
-```
-postmortems/
-+-- 2026-Q3/
-|   +-- 2026-07-05-a5-fp8-precision.md
-|   +-- 2026-07-06-vllm-ascend-pd-separate-hang.md
-+-- 2026-Q2/
-```
 
 ---
 
@@ -277,7 +266,7 @@ postmortems/
 | 人需要做什么 | 扫一眼确认 root cause 和 fix（30s） | 同左 |
 | 后续 | `/knowledge-groom` 定期升格到 Tier 2 | 同左 |
 
-不要期望团队成员额外写一份文档。"把今天解决的那个 case 写下来"是一个额外的负担，且质量完全取决于人的自觉和记忆力。正确的方案是 agent 在 session 结束时自动生成草稿（或人粘贴外部对话后 agent 提取），人只做审批——成本从 20 分钟降到 30 秒。
+不要期望团队成员额外写一份文档。agent 在 session 结束时自动生成草稿（或人粘贴外部对话后 agent 提取），人只做审批——成本从 20 分钟降到 30 秒。
 
 ### 团队分工
 
@@ -318,16 +307,84 @@ postmortems/
 
 ---
 
-## 8. 诊断精度：误诊的代价与回滚
+## 8. 冷启动：第一周怎么活
+
+设计假设 Tier 1 和 Tier 2 都有内容。但团队刚采纳这套体系时，triage-tree 只有两个分支，pattern_library 是空的。工程师跑 `/diagnose-training-issue`，agent 发现 Tier 2 为空，直接跳到 Tier 3 向量检索——但 Tier 3 也是空的。体验是：花了几周搭了整套体系，结果 agent 什么都帮不上。这不是架构问题，是采纳曲线问题。
+
+**方案一：手工播种第一批 case**。在体系上线前，领域 owner 手工挑出过去半年最高频的 10 条 root cause，直接写成 Tier 2 格式的 YAML。不需要等 postmortem 积累到 30 条再升格——跳过 groom 流程，手工播种。这 10 条应覆盖约 50% 的日常 issue（Pareto 原理——20% 的 root cause 对应 80% 的 case）。第一周命中率不要求高，20% 就足够让人感到"这东西有用"。
+
+**方案二：空库提示，不要静默退化**。agent 在第一次运行 `/diagnose-training-issue` 时，如果发现 Tier 2 为空，主动输出提示——
+
+```
+当前知识库中还没有经过验证的诊断规则。你可以选择：
+1. 继续进行深度排查（跳过自动诊断）
+2. 先浏览 CHEATSHEET.md 看是否有手动记录的相关命令
+3. 直接转人工诊断（ESC 退出）
+```
+
+不要让空知识库的体验是静默退化——明确告诉用户"我还没数据，但我有其他能帮你的方式"。
+
+---
+
+## 9. 紧急模式：生产挂了的时候没人想走流程
+
+当前流程需要 15 到 30 分钟走完收集症状到产出 resolution。生产环境挂了的时候，工程师想的是"先让它跑起来，再分析为什么坏"。这不能被自动化，但可以被承认和设计。
+
+**方案：`/diagnose-*` 内建紧急分支**。在 skill body 中显式写一条：
+
+```
+如果用户明确表示"这是紧急情况 / 生产中断 / 需要先恢复服务"：
+1. 跳过症状分类和 Tier 2 匹配（不改任何配置）
+2. 直接加载 CHEATSHEET.md 的"紧急恢复"部分（如果存在）
+3. 输出人类可读的排查清单，每项标注 risk（safe / caution）
+4. 不记录 postmortem——等事后手动跑 /to-postmortem
+```
+
+紧急排查后的 postmortem 可以由人在事后补齐——知识不会丢，但不会在紧急时刻阻塞人。这和 `/to-postmortem` 的设计哲学一致：知识注入是异步的。
+
+CHEATSHEET.md 的"紧急恢复"部分可以手工维护，不是自动生成的。因为紧急场景通常不是"某个 YAML case 能匹配"——是"先检查最近变更了什么，再检查基础链路通不通，再检查日志最后一段报错"。这条路径是人凭经验走的，但至少可以给它一个可被 agent 读的速查格式。
+
+---
+
+## 10. `quickly_check` 的假阴性风险
+
+`quickly_check` 是整个 Tier 2 匹配的性能关键——在 5 秒内过滤掉不相关的 case。但有一个系统性盲区：如果日志格式因为框架升级而改变，`grep` 匹配不到，即使 root cause 完全正确，这条 case 也会被跳过。这不是概率事件——随着框架版本迭代，这是必然事件。
+
+**方案：分层回退，不是单一 check**。`quickly_check` 不应该是单个命令，而应包含 primary 和 fallback（已在 §4.3 的 schema 中体现）：
+
+```yaml
+quickly_check:
+  primary:                    # 首选——精确但可能因日志格式变化失效
+    command: "grep -c 'all_to_all' /path/to/error.log"
+    expected: "regex:^[1-9]"
+  fallback:                   # 回退——更模糊但更鲁棒
+    command: "grep -ci 'timeout|hang|stuck' /path/to/error.log"
+    expected: "regex:^[1-9]"
+```
+
+agent 的三段逻辑：先跑 primary。不匹配时跑 fallback。fallback 也不匹配时跳过该 case。如果 primary 不匹配但 fallback 匹配，**仍然进入 diagnosis 但标记 `low_confidence`**——不直接跳过，让人决定要不要试这个 fix。成本是一条额外的命令执行，约 2-5 秒，在诊断场景里完全可接受。
+
+---
+
+## 11. 剩余待解决的问题
+
+| 问题 | 为什么暂时不做 |
+|------|--------------|
+| 跨团队 knowledge 分叉（MindSpeed-LLM vs vllm-ascend 各自维护 Tier 2） | 等 knowledge/ 积累到超过 100 条再考虑 namespace 设计。当前单仓库够用 |
+| case authorship 追踪（谁写的、谁最后验证的） | git blame 已解决——每条 YAML 有 commit history。不需要另建元数据 |
+| `/knowledge-groom` 的运行频率（当前建议每周，但可能太频繁） | 试试每周跑一次，如果连续三周发现"没有新 postmortem 需要 groom"，改为双周 |
+| 诊断图谱的可视化（`next_on_fail` 长了应该能画出 DAG） | Tier 2 少于 50 条时手动追踪就够了。不建可视化——建了没人用会更尴尬 |
+
+---
+
+## 12. 诊断精度：误诊的代价与回滚
 
 当前设计假设匹配到的 case 就是对的。但现实中可能出现两个问题：
 
 - 两个 case 有几乎相同的症状但完全不同的 root cause——A5 上的 EP hang 和 A3 上的 EP hang 可能都是 `all_to_all timeout`，但一个是 HCCL buffer 问题，一个是 firmware 版本 bug
 - agent 可能因为症状模糊匹配到错误的 case，执行了错误的 fix
 
-**需要三个防御层**：
-
-**层一：fix 标注回滚方式**。每个 `fix_on_mismatch` 应该携带回滚指令，修复前 agent 先输出回滚方式。
+**层一：fix 标注回滚方式**。每个 `fix_on_mismatch` 应该携带回滚指令——
 
 ```yaml
 fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
@@ -336,112 +393,73 @@ rollback: "unset HCCL_BUFFSIZE  # 恢复默认值"
 
 **层二：串联保护**。如果 agent 连续两次匹配到不同 case（第一次 fix 没解决问题），强制转为人工介入，不再继续尝试第三个 case。这个规则写入 `/diagnose-*` 的 SKILL.md。
 
-**层三：误诊率追踪**。每个 case 被命中但 fix 未解决问题时，标记 `misdiagnosis: true`。这个信号比"未命中率"更关键——高未命中率说明知识库不够大，高误诊率说明知识库有错误信息。追踪方式见 [§13 量化指标](#13-量化指标与回顾)。
+**层三：误诊率追踪**。每个 case 被命中但 fix 未解决问题时，标记 `misdiagnosis: true`。这个信号比"未命中率"更关键——高未命中率说明知识库不够大，高误诊率说明知识库有错误信息。追踪方式见 §16 的量化指标。
 
 ---
 
-## 9. 平台差异矩阵：不是三张表，是一个字段
+## 13. 平台差异矩阵：字段级而非 case 级
 
-A2、A3、A5 的差异不是三套独立的 case 库——是大量共享规则 + 少量平台特定差异。比如 HCCL 行为在 A3 和 A5 上几乎相同，但 A2 完全不同；FP8 精度问题只在 A5 上出现（A2 和 A3 不支持 FP8）。
+A2、A3、A5 的差异不是三套独立的 case 库——是大量共享规则加少量平台特定差异。比如 HCCL 行为在 A3 和 A5 上几乎相同但 A2 完全不同，FP8 精度问题只在 A5 上出现。
 
-当前 `platforms: ["A5-910C"]` 只能表达"这个 case 适用于哪些平台"，不能表达"同一个 root cause 在 A3 上的检查命令完全不同"。
-
-**方案：字段级平台差异**。一个 case 可以有多组 `diagnosis`，分别对应不同平台：
+**方案：字段级平台差异**。一个 case 可以有多组 `diagnosis`，分别对应不同平台——
 
 ```yaml
-cases:
-  - id: ASCEND-EP-HANG-001
-    title: "HCCL buffer undersize for large-scale EP dispatch"
-    priority: high
+diagnosis:
+  - platforms: ["A5-910C", "A3-910B"]
+    steps:
+      - command: "env | grep HCCL_BUFFSIZE"
+        expected: ">= 4194304"
+        fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
 
-    symptoms:
-      - "all_to_all_single hangs at step after 1000+"
-
-    diagnosis:
-      - platforms: ["A5-910C", "A3-910B"]
-        steps:
-          - command: "env | grep HCCL_BUFFSIZE"
-            expected: ">= 4194304"
-            fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
-            rollback: "unset HCCL_BUFFSIZE"
-
-      - platforms: ["A2-910A"]
-        steps:
-          - command: "cat /proc/driver/npu/version"
-            expected: ">= 23.0"
-            note: "A2 上不存在 HCCL_BUFFSIZE 参数。检查 NPU 驱动版本是否 >= 23.0"
+  - platforms: ["A2-910A"]
+    steps:
+      - command: "cat /proc/driver/npu/version"
+        expected: ">= 23.0"
+        note: "A2 上不存在 HCCL_BUFFSIZE 参数。检查 NPU 驱动版本"
 ```
 
-此外，需要一份 `platforms/` 目录存放平台级背景知识——类似 Pocock 的 CONTEXT.md，但是平台级而非项目级。agent 在加载 Tier 2 bucket 的同时加载平台差异文件，自动选择匹配的 diagnosis 分支。
-
-```
-knowledge/
-+-- platforms/
-    +-- a2-910a.md    <-- A2 已知特性清单（不支持 FP8、HCCL 行为差异、最多 8 卡）
-    +-- a3-910b.md
-    +-- a5-910c.md
-```
-
-每份文件约 500 字，由领域 owner 维护，极低频率更新。不是要写完整的硬件手册——只写**诊断相关的**平台差异。
+此外，需要一份 `platforms/` 目录存放平台级背景知识——类似 Pocock 的 CONTEXT.md，但是平台级而非项目级。agent 在加载 Tier 2 bucket 的同时加载平台差异文件，自动选择匹配的 diagnosis 分支。每份文件约 500 字，由领域 owner 维护。
 
 ---
 
-## 10. 多跳诊断：当第一个 fix 没解决问题
+## 14. 多跳诊断：显式诊断链
 
-当前的 diagnosis 设计是单跳的：匹配一个 case -> 执行 checks -> 命中 root cause -> fix。但实际诊断经常是多跳的——中间步骤可能是"修复了但仍然不行"，触发下一个 case 的匹配。
+当前的 diagnosis 设计是单跳的——匹配一个 case、执行 checks、命中 root cause、fix。但实际诊断经常是多跳的：中间步骤可能是"修复了但仍然不行"，触发下一个 case 的匹配。
 
-```
-EP hang (症状)
-  -> check 1: HCCL_BUFFSIZE 不够 (发现不够)
-  -> fix: 改成 4194304
-  -> 重新训练，还是 hang
-  -> check 2: UB switch 拓扑问题 (已排除——拓扑正常)
-  -> check 3: NPU firmware 版本不匹配
-  -> 这才是真正的 root cause
-```
-
-**方案：显式诊断链**。在 case schema 中预留一个 `next_on_fail` 字段，指向下一个应该尝试的 case id：
+**方案：可选字段 `next_on_fail`**，指向下一个应该尝试的 case id——
 
 ```yaml
 cases:
   - id: ASCEND-EP-HANG-001
     next_on_fail: "ASCEND-EP-HANG-003"
-    # 如果这个 case 的 fix 被应用但问题仍然存在，尝试 EP-HANG-003
 ```
 
-这不是要求每条 case 都建立多跳——单跳能解决 70% 的问题。`next_on_fail` 是可选字段，只在已知"修复 X 之后经常需要再检查 Y"的 case 对中使用。它可以逐步从 `/knowledge-groom` 的统计分析中自动生成（如果 groom 发现 case A 被命中后 case B 在同一个 session 中也被命中的概率超过 40%，自动建议建立关联）。
+`next_on_fail` 是可选字段，只在已知"修复 X 之后经常需要再检查 Y"的 case 对中使用。它可以逐步从 `/knowledge-groom` 的统计分析中自动生成——如果 groom 发现 case A 被命中后 case B 在同一个 session 中也被命中的概率超过 40%，自动建议建立关联。
 
 ---
 
-## 11. Session 中断与恢复：诊断可能被会议打断
+## 15. Session 中断与恢复
 
-诊断不是连续的时间段。实际场景：
+诊断不是连续的时间段。你正在跑 agent 给出的 check 命令，被同事打断去开紧急会议——回来时记不住之前在查什么。agent 在 session 中间的上下文可能已被 compact 了一次，诊断链路丢失。
 
-- 你正在跑 agent 给出的 check 命令，被同事打断去开紧急会议。回来时记不住之前在查什么。
-- agent 在 session 中间的上下文已经被 compact 了一次，之前的诊断链路丢失了。
-
-Pocock 的 `/handoff` 是 session 级别的交接——你需要的是 session 内部的抗中断机制。
-
-**方案：诊断状态文件**。`/diagnose-training-issue` 的每个 step 执行后，更新一个本地 `diagnosis_state.yaml`：
+**方案：诊断状态文件**。`/diagnose-training-issue` 的每个 step 执行后，更新本地 `diagnosis_state.yaml`：
 
 ```yaml
 session_id: "2026-07-09-ep-hang-a5"
 status: in_progress
 current_step: 3
-excluded_cases:
-  - ASCEND-EP-HANG-001  # fix 应用了但问题未解决
-  - ASCEND-EP-HANG-002  # symptoms 不匹配（已验证）
+excluded_cases: [ASCEND-EP-HANG-001, ASCEND-EP-HANG-002]
 active_case: ASCEND-EP-HANG-003
 last_action: "等待用户执行 check_ep_topology.py 并贴回输出"
 ```
 
-当 session 恢复时，agent 首先读这个文件，而不是从头开始收集症状。状态文件同时解决了另一个问题：如果多个工程师在同一个 issue 上协作，他们可以共享状态文件，避免重复排查。
+当 session 恢复时，agent 首先读这个文件，而不是从头开始收集症状。如果多个工程师在同一个 issue 上协作，他们可以共享状态文件，避免重复排查。
 
 ---
 
-## 12. 人可读的速查表：不通过 agent 也能用
+## 16. 人可读的速查表：自动生成
 
-不是每个工程师每次都愿意用 agent。有时候只是想搜一条命令：`grep HCCL_BUFFSIZE` 是多少。当前的 YAML 对 agent 友好，但对人完全不行——没人愿意在 30 个 YAML 文件里翻。
+不是每个工程师每次都愿意用 agent。有时候只是想搜一条命令。YAML 对 agent 友好但对人完全不行。
 
 **方案：自动生成 CHEATSHEET.md**。`/knowledge-groom` 每次运行时，除了产出 YAML，也产出 Markdown 速查表：
 
@@ -451,61 +469,48 @@ last_action: "等待用户执行 check_ep_topology.py 并贴回输出"
 | 检查命令 | 期望值 | 修复方式 | 平台 |
 |----------|--------|---------|------|
 | `env | grep HCCL_BUFFSIZE` | >= 4194304 | `export HCCL_BUFFSIZE=4194304` | A5, A3 |
-| `python3 check_ep_topology.py` | all reachable | 联系网络组 | A5 |
 | `cat /proc/driver/npu/version` | >= 23.0 | 升级 NPU 驱动 | A2 |
-
-## FP8 Precision
-
-| 检查命令 | 期望值 | 修复方式 | 平台 |
-|----------|--------|---------|------|
-| `grep 'round error' /var/log/npu/device-0.log` | 无匹配 | 降级到 BF16 allreduce | A5 |
 ```
 
-这份文件不用人手维护——它完全由 groom 自动生成。它有三个作用：
-- **离线可用**：agent 挂了或网络不可用时，人仍然能完成基础排查
-- **dogfooding 质量**：如果从 YAML 生成出来的速查表让人看不下去，说明 YAML 的结构化有问题——这成为知识质量的自动检测信号
-- **新成员 onboarding**：新人不需要理解 skill 体系就能使用知识库
+三作用：离线可用（agent 挂了或用不了时）、dogfooding 知识质量（生成出来的表看不下去说明 YAML 有问题）、新成员 onboarding。
 
 ---
 
-## 13. 量化指标与回顾
+## 17. 数据脱敏
 
-当前设计没有任何数字来衡量这套体系的效果。六个月后你怎么知道它值得继续投入？不需要构建 dashboard——一个 Markdown 表格加上定期手工更新就够了。
+客户发送的日志可能包含 token、API key、集群内部 IP。如果 agent 将这些信息写入 postmortem 并提交到仓库，是安全事故。
 
-**核心指标**：
+**方案**：postmortem 生成时增加 `redact()` 步骤——扫描输出中的 `Bearer ...`、`sk-...`、`password=` 模式并自动替换为 `[REDACTED]`。同时支持 `scope: internal_only` 标记，阻止包含敏感信息的 case 进入公开 knowledge 库。
 
-| 指标 | 含义 | 数据来源 |
-|------|------|---------|
-| 命中率 | Tier 2 直接匹配并解决的比例 | `/diagnose-*` session 结束时的 resolution 字段 |
-| 误诊率 | 命中了但 fix 没解决问题 | 同 resolution，需要手动标记 `misdiagnosis: true` |
-| 平均诊断时间 | 从接手到定位 root cause 的时间 | 人自己在 session 开始时记一下，结束时算差值 |
-| 知识增长速度 | 每周新增 postmortem + 成功升格到 Tier 2 的数量 | `/knowledge-groom` 的输出 PR |
-| 知识覆盖率 | 每月新问题中，有对应 case 的比例 | 手动回翻一个月内的 issue，标记 "有/无对应 case" |
+---
 
-**记录方式**：一个 `docs/metrics.md`，每两周由体系维护人手工追加一条。格式极其简单：
+## 18. 量化指标与回顾
+
+六个月后你怎么知道这套体系值得继续投入？不需要 dashboard——一个 Markdown 表格加定期手工更新就够了。
+
+核心指标：命中率（Tier 2 直接匹配解决的比例）、误诊率（命中了但 fix 没解决）、平均诊断时间、知识增长速度、知识覆盖率。
+
+记录方式：`docs/metrics.md`，每两周由体系维护人手工追加一条：
 
 ```markdown
 ## 2026-W28
 - 处理 issue 总数: 12
 - Tier 2 命中: 7 (58%)
 - Tier 2 命中但误诊: 1
-- Tier 2 未命中, Tier 3 辅助定位: 2
-- Tier 2 未命中, 纯人工: 2
-- 新增 postmortem: 4
-- 成功升格到 Tier 2: 2
-- 失败升格 (需手补): 1
-- 平均诊断时间 (估计): ~45min
+- 新增 postmortem: 4 / 成功升格: 2
+- 平均诊断时间: ~45min
 ```
 
-不需要自动化。有数字比没有数字重要得多——手工记录的数字够用了。关键是**定期回顾**：体系维护人每两周看一遍 metrics，回答一个问题："这三层架构真的在变好用，还是我们在自欺欺人？"
+有数字比没有数字重要得多——手工记录足够。关键是定期回顾：体系维护人每两周看一遍 metrics，回答一个问题："这三层架构真的在变好用，还是我们在自欺欺人？"
 
 ---
 
-## 14. 接下来的步骤
+## 19. 接下来的步骤
 
-1. **搭建 `/to-postmortem` 原型**——选 3 到 5 个真实 case，手工转换为结构化 YAML 作为 reference，写 skill body 和 summary prompt，团队试跑验证"人均 30 秒确认"的假设。
+1. **手工播种第一批 case**——领域 owner 挑出过去半年最高频的 10 条 root cause，直接写成 Tier 2 YAML。跳过 groom 流程。目标：第一周命中率达到 20%。
 2. **搭建 triage-tree.yaml 框架**——从团队现有 issue 中提取最高频的 5 到 8 个症状组，挂载到 Tier 2 bucket。
 3. **搭建 `platforms/` 平台差异文件**——三份文件，各 500 字，领域 owner 一小时内可以写完初版。
-4. **跑第一轮 `/knowledge-groom`**——把现有 20 到 30 个 case 文档过一遍，度量自动结构化的成功率，同时生成第一版 CHEATSHEET.md。
-5. **Tier 3 向量检索**——等 Tier 2 积累到 50 条以上 case 后，验证未命中率，决定是否引入向量检索兜底。
+4. **搭建 `/to-postmortem` 原型**——选 3 到 5 个真实 case，手工转换为结构化 YAML 作为 reference，写 skill body 和 summary prompt，团队试跑。
+5. **跑第一轮 `/knowledge-groom`**——把现有 20 到 30 个 case 文档过一遍，度量自动结构化的成功率，同时生成第一版 CHEATSHEET.md。
 6. **建 `docs/metrics.md`**——体系维护人在第二轮 groom 后开始手工记录，形成两周一次的回看节奏。
+7. **Tier 3 向量检索**——等 Tier 2 积累到 50 条以上 case 后，验证未命中率，决定是否引入向量检索兜底。
