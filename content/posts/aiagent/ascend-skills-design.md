@@ -318,9 +318,194 @@ postmortems/
 
 ---
 
-## 8. 接下来的步骤
+## 8. 诊断精度：误诊的代价与回滚
 
-1. **搭建 `/to-postmortem` 原型**——选 3 到 5 个真实 case，手工转换为结构化 YAML 作为 reference，写 skill body 和 summary prompt，团队试跑验证"人均 30 秒确认"的假设是否成立。
+当前设计假设匹配到的 case 就是对的。但现实中可能出现两个问题：
+
+- 两个 case 有几乎相同的症状但完全不同的 root cause——A5 上的 EP hang 和 A3 上的 EP hang 可能都是 `all_to_all timeout`，但一个是 HCCL buffer 问题，一个是 firmware 版本 bug
+- agent 可能因为症状模糊匹配到错误的 case，执行了错误的 fix
+
+**需要三个防御层**：
+
+**层一：fix 标注回滚方式**。每个 `fix_on_mismatch` 应该携带回滚指令，修复前 agent 先输出回滚方式。
+
+```yaml
+fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
+rollback: "unset HCCL_BUFFSIZE  # 恢复默认值"
+```
+
+**层二：串联保护**。如果 agent 连续两次匹配到不同 case（第一次 fix 没解决问题），强制转为人工介入，不再继续尝试第三个 case。这个规则写入 `/diagnose-*` 的 SKILL.md。
+
+**层三：误诊率追踪**。每个 case 被命中但 fix 未解决问题时，标记 `misdiagnosis: true`。这个信号比"未命中率"更关键——高未命中率说明知识库不够大，高误诊率说明知识库有错误信息。追踪方式见 [§13 量化指标](#13-量化指标与回顾)。
+
+---
+
+## 9. 平台差异矩阵：不是三张表，是一个字段
+
+A2、A3、A5 的差异不是三套独立的 case 库——是大量共享规则 + 少量平台特定差异。比如 HCCL 行为在 A3 和 A5 上几乎相同，但 A2 完全不同；FP8 精度问题只在 A5 上出现（A2 和 A3 不支持 FP8）。
+
+当前 `platforms: ["A5-910C"]` 只能表达"这个 case 适用于哪些平台"，不能表达"同一个 root cause 在 A3 上的检查命令完全不同"。
+
+**方案：字段级平台差异**。一个 case 可以有多组 `diagnosis`，分别对应不同平台：
+
+```yaml
+cases:
+  - id: ASCEND-EP-HANG-001
+    title: "HCCL buffer undersize for large-scale EP dispatch"
+    priority: high
+
+    symptoms:
+      - "all_to_all_single hangs at step after 1000+"
+
+    diagnosis:
+      - platforms: ["A5-910C", "A3-910B"]
+        steps:
+          - command: "env | grep HCCL_BUFFSIZE"
+            expected: ">= 4194304"
+            fix_on_mismatch: "export HCCL_BUFFSIZE=4194304"
+            rollback: "unset HCCL_BUFFSIZE"
+
+      - platforms: ["A2-910A"]
+        steps:
+          - command: "cat /proc/driver/npu/version"
+            expected: ">= 23.0"
+            note: "A2 上不存在 HCCL_BUFFSIZE 参数。检查 NPU 驱动版本是否 >= 23.0"
+```
+
+此外，需要一份 `platforms/` 目录存放平台级背景知识——类似 Pocock 的 CONTEXT.md，但是平台级而非项目级。agent 在加载 Tier 2 bucket 的同时加载平台差异文件，自动选择匹配的 diagnosis 分支。
+
+```
+knowledge/
++-- platforms/
+    +-- a2-910a.md    <-- A2 已知特性清单（不支持 FP8、HCCL 行为差异、最多 8 卡）
+    +-- a3-910b.md
+    +-- a5-910c.md
+```
+
+每份文件约 500 字，由领域 owner 维护，极低频率更新。不是要写完整的硬件手册——只写**诊断相关的**平台差异。
+
+---
+
+## 10. 多跳诊断：当第一个 fix 没解决问题
+
+当前的 diagnosis 设计是单跳的：匹配一个 case -> 执行 checks -> 命中 root cause -> fix。但实际诊断经常是多跳的——中间步骤可能是"修复了但仍然不行"，触发下一个 case 的匹配。
+
+```
+EP hang (症状)
+  -> check 1: HCCL_BUFFSIZE 不够 (发现不够)
+  -> fix: 改成 4194304
+  -> 重新训练，还是 hang
+  -> check 2: UB switch 拓扑问题 (已排除——拓扑正常)
+  -> check 3: NPU firmware 版本不匹配
+  -> 这才是真正的 root cause
+```
+
+**方案：显式诊断链**。在 case schema 中预留一个 `next_on_fail` 字段，指向下一个应该尝试的 case id：
+
+```yaml
+cases:
+  - id: ASCEND-EP-HANG-001
+    next_on_fail: "ASCEND-EP-HANG-003"
+    # 如果这个 case 的 fix 被应用但问题仍然存在，尝试 EP-HANG-003
+```
+
+这不是要求每条 case 都建立多跳——单跳能解决 70% 的问题。`next_on_fail` 是可选字段，只在已知"修复 X 之后经常需要再检查 Y"的 case 对中使用。它可以逐步从 `/knowledge-groom` 的统计分析中自动生成（如果 groom 发现 case A 被命中后 case B 在同一个 session 中也被命中的概率超过 40%，自动建议建立关联）。
+
+---
+
+## 11. Session 中断与恢复：诊断可能被会议打断
+
+诊断不是连续的时间段。实际场景：
+
+- 你正在跑 agent 给出的 check 命令，被同事打断去开紧急会议。回来时记不住之前在查什么。
+- agent 在 session 中间的上下文已经被 compact 了一次，之前的诊断链路丢失了。
+
+Pocock 的 `/handoff` 是 session 级别的交接——你需要的是 session 内部的抗中断机制。
+
+**方案：诊断状态文件**。`/diagnose-training-issue` 的每个 step 执行后，更新一个本地 `diagnosis_state.yaml`：
+
+```yaml
+session_id: "2026-07-09-ep-hang-a5"
+status: in_progress
+current_step: 3
+excluded_cases:
+  - ASCEND-EP-HANG-001  # fix 应用了但问题未解决
+  - ASCEND-EP-HANG-002  # symptoms 不匹配（已验证）
+active_case: ASCEND-EP-HANG-003
+last_action: "等待用户执行 check_ep_topology.py 并贴回输出"
+```
+
+当 session 恢复时，agent 首先读这个文件，而不是从头开始收集症状。状态文件同时解决了另一个问题：如果多个工程师在同一个 issue 上协作，他们可以共享状态文件，避免重复排查。
+
+---
+
+## 12. 人可读的速查表：不通过 agent 也能用
+
+不是每个工程师每次都愿意用 agent。有时候只是想搜一条命令：`grep HCCL_BUFFSIZE` 是多少。当前的 YAML 对 agent 友好，但对人完全不行——没人愿意在 30 个 YAML 文件里翻。
+
+**方案：自动生成 CHEATSHEET.md**。`/knowledge-groom` 每次运行时，除了产出 YAML，也产出 Markdown 速查表：
+
+```markdown
+## EP Hang
+
+| 检查命令 | 期望值 | 修复方式 | 平台 |
+|----------|--------|---------|------|
+| `env | grep HCCL_BUFFSIZE` | >= 4194304 | `export HCCL_BUFFSIZE=4194304` | A5, A3 |
+| `python3 check_ep_topology.py` | all reachable | 联系网络组 | A5 |
+| `cat /proc/driver/npu/version` | >= 23.0 | 升级 NPU 驱动 | A2 |
+
+## FP8 Precision
+
+| 检查命令 | 期望值 | 修复方式 | 平台 |
+|----------|--------|---------|------|
+| `grep 'round error' /var/log/npu/device-0.log` | 无匹配 | 降级到 BF16 allreduce | A5 |
+```
+
+这份文件不用人手维护——它完全由 groom 自动生成。它有三个作用：
+- **离线可用**：agent 挂了或网络不可用时，人仍然能完成基础排查
+- **dogfooding 质量**：如果从 YAML 生成出来的速查表让人看不下去，说明 YAML 的结构化有问题——这成为知识质量的自动检测信号
+- **新成员 onboarding**：新人不需要理解 skill 体系就能使用知识库
+
+---
+
+## 13. 量化指标与回顾
+
+当前设计没有任何数字来衡量这套体系的效果。六个月后你怎么知道它值得继续投入？不需要构建 dashboard——一个 Markdown 表格加上定期手工更新就够了。
+
+**核心指标**：
+
+| 指标 | 含义 | 数据来源 |
+|------|------|---------|
+| 命中率 | Tier 2 直接匹配并解决的比例 | `/diagnose-*` session 结束时的 resolution 字段 |
+| 误诊率 | 命中了但 fix 没解决问题 | 同 resolution，需要手动标记 `misdiagnosis: true` |
+| 平均诊断时间 | 从接手到定位 root cause 的时间 | 人自己在 session 开始时记一下，结束时算差值 |
+| 知识增长速度 | 每周新增 postmortem + 成功升格到 Tier 2 的数量 | `/knowledge-groom` 的输出 PR |
+| 知识覆盖率 | 每月新问题中，有对应 case 的比例 | 手动回翻一个月内的 issue，标记 "有/无对应 case" |
+
+**记录方式**：一个 `docs/metrics.md`，每两周由体系维护人手工追加一条。格式极其简单：
+
+```markdown
+## 2026-W28
+- 处理 issue 总数: 12
+- Tier 2 命中: 7 (58%)
+- Tier 2 命中但误诊: 1
+- Tier 2 未命中, Tier 3 辅助定位: 2
+- Tier 2 未命中, 纯人工: 2
+- 新增 postmortem: 4
+- 成功升格到 Tier 2: 2
+- 失败升格 (需手补): 1
+- 平均诊断时间 (估计): ~45min
+```
+
+不需要自动化。有数字比没有数字重要得多——手工记录的数字够用了。关键是**定期回顾**：体系维护人每两周看一遍 metrics，回答一个问题："这三层架构真的在变好用，还是我们在自欺欺人？"
+
+---
+
+## 14. 接下来的步骤
+
+1. **搭建 `/to-postmortem` 原型**——选 3 到 5 个真实 case，手工转换为结构化 YAML 作为 reference，写 skill body 和 summary prompt，团队试跑验证"人均 30 秒确认"的假设。
 2. **搭建 triage-tree.yaml 框架**——从团队现有 issue 中提取最高频的 5 到 8 个症状组，挂载到 Tier 2 bucket。
-3. **跑第一轮 `/knowledge-groom`**——把现有 20 到 30 个 case 文档过一遍，度量自动结构化的成功率。
-4. **Tier 3 向量检索**——等 Tier 2 积累到 50 条以上 case 后，验证未命中率，决定是否引入向量检索兜底。
+3. **搭建 `platforms/` 平台差异文件**——三份文件，各 500 字，领域 owner 一小时内可以写完初版。
+4. **跑第一轮 `/knowledge-groom`**——把现有 20 到 30 个 case 文档过一遍，度量自动结构化的成功率，同时生成第一版 CHEATSHEET.md。
+5. **Tier 3 向量检索**——等 Tier 2 积累到 50 条以上 case 后，验证未命中率，决定是否引入向量检索兜底。
+6. **建 `docs/metrics.md`**——体系维护人在第二轮 groom 后开始手工记录，形成两周一次的回看节奏。
