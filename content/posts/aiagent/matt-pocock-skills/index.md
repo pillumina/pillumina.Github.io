@@ -4,39 +4,39 @@ draft = false
 title = '拆解 Matt Pocock 的 Agent Skills：设计哲学、工程流与失效模式'
 categories = ['AIAgent']
 tags = ['agent', 'skills', 'claude-code', 'matt-pocock', 'engineering', 'tdd', 'domain-modeling', 'cursor', 'codex']
-summary = '深入拆解 mattpocock/skills（16 万 star）的体系：skill 组织架构、main flow 工作流、Wayfinder 多 session 编排、CONTEXT.md 共享语言、四个 agent 失效模式，以及你能直接用起来的三个工作流模板。'
+summary = '深入拆解 mattpocock/skills（16 万 star）的体系：skill 组织架构、main flow 工作流、Wayfinder 多 session 编排、CONTEXT.md 共享语言、四个 agent 失效模式，以及三个能直接用起来的工作流模板。'
 +++
 
-> Matt Pocock（Total TypeScript 作者）的 [mattpocock/skills](https://github.com/mattpocock/skills) 是当前最完整的 Claude Code skills 集合，16 万 star。本文从工程视角拆解其组织架构、核心工作流、设计决策——但不是介绍文档。我想回答的是：这 26 条 skills 背后，Pocock 看到了什么工程师困境，又是怎么解决的。文末给了三个你能直接用起来的工作流模板。
+> Matt Pocock（Total TypeScript 作者）的 [mattpocock/skills](https://github.com/mattpocock/skills) 是当前最完整的 Claude Code skills 集合，16 万 star。本文拆解它的组织架构、核心工作流和设计决策，但不是介绍文档——我想回答的是：这 26 条 skills 背后，Pocock 看到了什么工程师困境，又是怎么解决的。文末给了三个你能直接在自己的 agent session 里用起来的工作流模板。
 
 ---
 
 ## 1. 四个失效模式：问题先行
 
-AI coding agent 已经好到让人依赖，但没好到能独立交付。Pocock 把常见的 agent 砸锅场景归纳为四条：
+AI coding agent 已经好到让人依赖，但还没好到能独立交付。Pocock 把常见的失效场景归纳为四条：
 
-**#1 我没得到我想要的** — 你觉得 agent 懂了，看到产出才发现它理解偏了。根源是沟通鸿沟：人的模糊意图没有穿透到 agent 的执行层。
+**#1 我没得到我想要的** — 你以为 agent 懂了，看到产出才发现它理解偏了。根源是沟通损耗：人的模糊意图没有真的穿透到 agent 的执行层。
 
-**#2 Agent 极其啰嗦** — agent 被丢进一个陌生代码库，被迫自己摸索术语。结果是 20 个词能说清的它用 200 个——不是模型差，是没有共享语言。一个典型的对比：
+**#2 Agent 极其啰嗦** — agent 被丢进陌生代码库，被迫自己摸索术语。结果是 20 个词能说清的它用 200 个——不是模型差，是没有共享语言。一个真实的对比：
 
 ```
 # BEFORE（无共享语言）
 "There's a problem when a lesson inside a section of a course is made
 'real' (i.e. given a spot in the file system)"
 
-# AFTER（CONTEXT.md 定义术语后）
+# AFTER（CONTEXT.md 定义了术语后）
 "The materialization cascade is failing"
 ```
 
-每次对话都在重复前一次的长描述。50 次 session 后，累积浪费的 token 和注意力已经极其可观。
+每次对话都在重复前一次的长描述。50 次 session 下来，累积浪费的 token 和注意力已经相当大。
 
-**#3 代码跑不了** — 你对齐也做了，spec 也写了，产出还是残次品。根源是 agent 没有反馈闭环：它写代码，但不运行代码，也不知道自己的代码跑对了没有。
+**#3 代码跑不了** — 你对齐也做了，spec 也写了，产出还是残次品。根源是缺少反馈闭环：agent 写代码但不运行代码，不知道自己的代码跑对了没有。
 
 **#4 我们造了一个泥球** — 架构腐化是渐进式的。每次"先这样，下次再修"都在堆积，直到整个代码库让 agent 也无法有效操作——agent 需要清晰的模块边界来定位修改点，泥球让它的 token 消耗暴涨但理解深度暴跌。
 
-这四个问题驱动了整个 skills 体系的设计。每条 skill 本质上是一个应对特定失效模式的故障恢复程序。
+这四条驱动了整个 skills 体系的设计。每条 skill 本质上是一个针对特定失效模式的应对机制。
 
-Pocock 的直接对立面是 GSD、BMAD、Spec-Kit 这类"替你管理流程"的框架。他的论点很明确：框架抢走你的控制权，并在流程中隐藏 bug；skills 是小块的、可组合的、不占有过程的——你始终在线。
+Pocock 的对立面是 GSD、BMAD、Spec-Kit 这类"替你管理流程"的框架。他的论点很明确：框架抢走你的控制权，并在流程中隐藏 bug；skills 是小块的、可组合的、不占有过程的——你始终在线。
 
 ---
 
@@ -46,15 +46,15 @@ Pocock 的直接对立面是 GSD、BMAD、Spec-Kit 这类"替你管理流程"的
 
 ```
 skills/
-├── engineering/     ← 日常代码工作（17 条受推广）
-├── productivity/     ← 日常非代码工具（5 条受推广）
+├── engineering/     ← 日常代码工作（17 条）
+├── productivity/     ← 日常非代码工具（5 条）
 ├── misc/            ← 保留但不用，不推广
 ├── personal/        ← 绑定作者的本地设置，不推广
 ├── in-progress/     ← 草稿，未完工
 └── deprecated/      ← 已废弃
 ```
 
-两条规则锁住熵增：(a) 只有受推广桶中的 skill 才出现在 README、`plugin.json` 和人类可读的文档页中；(b) 每个受推广桶自带一个 `README.md`，按 `User-invoked` 和 `Model-invoked` 分组列出所有 skill。结果是：新 idea 可以先丢进 `in-progress/` 试水，成熟后再晋升——不会出现"每条 idea 都直接污染 README"的退化。
+两条规则防止退化：(a) 只有 `engineering` 和 `productivity` 两个受推广桶中的 skill 才出现在 README、plugin.json 和人可读的文档页中；(b) 每个受推广桶自带 README，按"User-invoked"和"Model-invoked"分组列出。结果是：新 idea 可以先丢进 `in-progress/` 试水，成熟后再晋升——不会出现每条 idea 都直接往 README 里塞的熵增。
 
 ### 2.2 SKILL.md：YAML 头 + Markdown 体
 
@@ -67,15 +67,15 @@ disable-model-invocation: true  # 仅用户触发
 # skill body (Markdown)
 ```
 
-没有 JSON schema、没有参数声明、没有 runtime 绑定。skill 的内容就是*自然语言指令*——它写给 agent 看，不是写给程序解析。隐含假设：**模型已经足够理解 Markdown 中的英文流程描述**。
+没有 JSON schema、没有参数声明、没有 runtime 绑定。skill 的内容就是自然语言指令——它写给 agent 看，不是写给程序解析。隐含假设是模型已经足够理解 Markdown 中的英文流程描述。
 
-`disable-model-invocation: true` 是关键开关。标记为 `true` 的技能只能通过 `/skill-name` 显式调用——你告诉模型什么时候该做什么。标记为 `false` 的技能模型按上下文自由调用——你信任模型的判断。
+`disable-model-invocation: true` 是关键开关。标记为 true 的 skill 只能通过 `/skill-name` 显式调用——你告诉模型该做什么。标记为 false 的 skill 模型可以按上下文自由调用——你信任模型的判断。
 
 ### 2.3 CONTEXT.md：共享语言
 
-体系里最巧妙的设计不在任何 skill 内部。`/grill-with-docs` 执行时，会把发现的领域术语写进一个 `CONTEXT.md`。这个文件的作用是**建立领域专家和开发者之间的共享语言**——来自 Eric Evans 的《Domain-Driven Design》。Pocock 的洞察是：**agent 本身就是那个需要学习领域语言的"新开发者"**。
+体系里最巧妙的设计不在任何 skill 内部。`/grill-with-docs` 执行时，会把发现的领域术语写进一个 `CONTEXT.md`。这个文件的作用是建立领域专家和开发者之间的共享语言——来自 Eric Evans 的《Domain-Driven Design》。Pocock 的洞察是：agent 就是那个需要学习领域语言的"新开发者"。
 
-下面是一个真实片段，来自 pocock 的 `course-video-manager` 仓库：
+下面是一个真实片段，来自 pocock 自己的 `course-video-manager` 仓库：
 
 ```markdown
 # Matt Pocock Skills
@@ -99,19 +99,19 @@ _Avoid_: backlog manager, backlog backend
   used as a domain term.
 ```
 
-注意这个文件不是 README——它是**词汇表**。词汇表解决的不是"这是什么项目"，而是"在这个项目里，每个词到底指什么"。它对 agent 的价值是：当 agent 看到 `materialization cascade` 时，它知道这是个已定义的术语，不需要花 500 tokens 重新描述。50 次 session 下来，这个单一段落节省的 token 和注意力累积起来相当可观。
+这个文件不是 README——它是词汇表。词汇表不回答"这是什么项目"，回答的是"在这个项目里，每个词到底指什么"。它对 agent 的实际价值是：当 agent 看到 `materialization cascade` 时，它知道这是个已定义的术语，不需要花 500 token 重新描述。50 次 session 下来，这个单一段落节省的 token 和注意力累积起来相当可观。
 
-`/domain-modeling` skill 是这条原则的执行面：接收一个模糊术语，挑战其歧义，找到精确替代，必要时通过 ADR 记录。
+`/domain-modeling` 是对这条原则的执行：接收模糊术语，挑战歧义，找到精确替代，必要时用 ADR（Architecture Decision Record）记录下来。
 
 ---
 
 ## 3. Main Flow：idea → ship
 
-这是 skills 体系最核心的编排。它不是"用框架管理流程"，而是把被验证过的工程实践——需求评审、spec、任务分解、TDD、code review——翻译成 agent 可执行的 natural language procedure。
+这是 skills 体系最核心的编排。它没有发明新方法——它做的是把需求评审、spec、任务分解、TDD、code review 这些被验证过的工程实践，翻译成 agent 可执行的流程指令。
 
 ### 3.1 Step 1: `/grill-with-docs`（需求评审的 agent 版本）
 
-有代码库时的入口。核心是 relentless interview：agent 向你提一连串尖锐问题，把你的模糊想法压缩成可执行的精确理解。一个 grilling 对话片段大致是这个形状：
+有代码库时的入口。核心是一轮 relentless interview：agent 向你提一连串尖锐问题，把你的模糊想法压缩成可执行的精确理解。一个真实的 grilling 对话大概长这样：
 
 ```
 用户: 我想加一个"课程副本"功能，让讲师可以复制已有课程。
@@ -125,17 +125,17 @@ Agent: 好的——我创建了一条 ADR 记录这个设计决策，并在 CONT
 "lesson duplicate"、"copied by" 两个新术语。
 ```
 
-这个过程同时干两件事：(a) 对齐意图；(b) 把新术语和决策写进 `CONTEXT.md`。每次 grilling 之后，共享语言库变大一点，agent 的长期操作能力变强一点。没有代码库时走 `/grill-me`——同样的 relentless interview，但不写文件。
+这个过程同时干两件事：(a) 对齐意图；(b) 把新术语和决策写进 CONTEXT.md。每次 grilling 之后，共享语言库大一点，agent 的长期操作能力强一点。没有代码库时走 `/grill-me`——同样的 relentless interview，但不写文件。
 
 ### 3.2 Step 2: 分叉判断（需要 prototype 吗？）
 
-Grill 结束后有一个关键判断：**所有的设计问题能靠对话解决吗？**
+Grill 结束后有一个关键判断：所有的设计问题能靠对话解决吗？
 
-不能 → 分叉到 `/prototype`：一个 purpose-built throwaway 程序，回答一个具体的设计问题（"这个 state model 感觉对吗？""这个 UI 应该长什么样？"）。prototype 只产生答案，不产生生产代码——答案通过 `/handoff` 传回主线，prototype 本身被删除。
+不能 → 分叉到 `/prototype`：一个一次性的原型程序，只用来回答一个具体的设计问题（"这个 state model 感觉对吗？""这个 UI 应该长什么样？"）。prototype 只产生答案，不产生生产代码——答案通过 `/handoff` 传回主线，prototype 本身被删除。
 
 ### 3.3 Step 3: 分叉判断 #2（单 session 还是多 session？）
 
-多 session → `/to-spec`（把对话线程变成 spec）→ `/to-tickets`（拆成 tracer-bullet tickets，每个声明 blocking edges）。依赖边由实际的 issue tracker 实现（GitHub Issues / Linear / local markdown），形成 DAG。任何未被阻塞的 ticket 可以在新 session 中用 `/implement` 执行。
+多 session → `/to-spec`（把对话线程变成 spec）→ `/to-tickets`（拆成 tracer-bullet tickets，每个标出阻塞依赖）。依赖边由实际的 issue tracker 实现（GitHub Issues / Linear / local markdown），形成有向无环图。任何未被阻塞的 ticket 可以在新 session 中用 `/implement` 执行。
 
 单 session → 直接 `/implement`，在当前窗口完成。
 
@@ -143,38 +143,38 @@ Grill 结束后有一个关键判断：**所有的设计问题能靠对话解决
 
 `/implement` 是执行引擎，内部驱动 `/tdd`。`/tdd` 不只是"先写测试"，而是三层约束：
 
-**Seam 确认**：写任何测试前，先写下测试将在哪些 seam 上进行，和用户确认。不允许对未经确认的 seam 写测试——避免 agent 自己决定"在哪测"。
+**seam 确认**：写任何测试前，先写下测试将在哪个 public boundary 上进行，和用户确认。不允许对未经确认的 seam 写测试——避免 agent 自己决定"在哪测"。
 
-**反模式表**：三类典型错误都被硬编码进了 skill body：
-- 实现耦合测试：mock 内部协作者，测试对重构敏感
-- 同义反复测试：assertion 重算了被测代码的逻辑
+**反模式表**：三类典型错误被直接写进了 skill body：
+- 实现耦合测试：mock 了内部协作者，测试对重构敏感
+- 同义反复测试：断言重算了被测代码自身的逻辑，永远不会 fail
 - 水平切片：批量写测试然后批量实现，丢失了每个循环的反馈信号
 
 **垂直切片**：一个 seam → 一个 test → 一个最小实现 → 重复。每次循环是 tracer bullet，响应上一循环的发现。
 
-### 3.5 Context 卫生规则
+### 3.5 上下文卫生
 
-被忽略但最关键的一条：**Steps 1-3 在同一个不打断的窗口中完成**——不要在 grilling、spec、tickets 之间 compact 或清空。到 `/implement` 时每个 ticket 起新的干净 session。
+被忽略但最关键的一条：Steps 1-3 在同一个不打断的上下文中完成——不要在 grilling、spec、tickets 之间 compact 或清空上下文。到 `/implement` 时每个 ticket 起新的干净 session。
 
-背后的约束是 pocock 提出的 "smart zone"：当前 SOTA 模型在约 120K token 内推理最锐利。超过这个窗口，即使模型仍能看到所有内容，推理质量已在不可见地退化。
+背后的约束是 Pocock 提出的 "smart zone"：当前最好的模型在约 120K token 内推理最锐利。超过这个窗口，即使模型仍能看到所有内容，推理质量已在不可见地退化。
 
 ---
 
-## 4. On-ramps：从非零状态进入主线
+## 4. 汇入流：从非零状态进入主线
 
 Main flow 假设你从一个明确的 idea 开始。现实通常不是。
 
-### 4.1 `/triage` — 从积压中杀出
+### 4.1 `/triage` — 从积压中杀出来
 
-只处理**不是你创建的** issues——外部的 bug 报告、功能请求。内部产生的 tickets 不需要 triage，因为出生时已是 agent-ready。Triage 把每个 issue 移过一组 canonical triage roles（`needs-triage` → `ready-for-implementation`），产生 `/implement` 可以直接消费的输出。
+只处理不是你创建的 issues——外部的 bug 报告、功能请求。内部产生的 tickets 不需要 triage，它们出生时已经是 agent-ready。Triage 把每个 issue 移过一组标准化的 triage role（`needs-triage` → `ready-for-implementation`），产出 `/implement` 可以直接消费的结果。
 
 ### 4.2 `/diagnosing-bugs` — 硬 bug
 
-对一瞥无法诊断的 bug，强制一条原则：**拒绝猜测，直到拥有一个紧反馈闭环**。反馈闭环是一条命令——用来验证 bug 存在但现在还没反馈的命令。找到它之后才进入 fix + regression test。Post-mortem 环节是关键：如果诊断中发现"这个 bug 这么难定位是因为没有好的测试接缝"，转交到 `/improve-codebase-architecture`——把单次 fix 变成测试基础设施修复。
+对一瞥无法诊断的 bug，强制一条原则：拒绝猜测，直到拥有一个紧反馈闭环。反馈闭环是一条命令——一条能重现 bug 但现在还没反馈的命令。找到它之后才进入 fix + regression test。复盘环节是关键：如果诊断中发现"这个 bug 这么难定位是因为没有好的测试接缝"，转交到 `/improve-codebase-architecture`——把单次修复升级为测试基础设施的改进。
 
 ### 4.3 `/wayfinder` — 大雾中的导航
 
-这是体系里最复杂的一条。面对太大的、看不清路的目标，wayfinder 不直接做，而是**绘制地图**。
+这是体系里最复杂的一条。面对太大的、看不清路的目标，wayfinder 不直接做，而是先绘制地图。
 
 地图是一个 issue，label `wayfinder:map`。它包含四个部分：
 
@@ -202,23 +202,23 @@ Main flow 假设你从一个明确的 idea 开始。现实通常不是。
 
 ## 5. 三条边界：这个体系不做什么
 
-拆解必须包括批判——没有批判的拆解是说明书。
+拆解必须包含判断——没有判断的拆解是说明书。
 
-### 5.1 Ship 的缺位
+### 5.1 ship 的缺位
 
-Main flow 叫 "idea → ship"，但 flow 在 `/implement` + `/code-review` 就停了。部署、灰度发布、监控告警、回滚——真实的生产交付链路完全没有。这可能是刻意的（这些领域太环境相关，每个团队的 CI/CD 差异巨大），但缺少一条指向它们的路径意味着 agent 在"写完代码"和"代码在生产环境运行"之间有一片它不知道该怎么穿过的无人区。
+Main flow 叫 "idea → ship"，但它在 `/implement` + `/code-review` 就停了。部署、灰度发布、监控告警、回滚——真实的生产交付链路完全没有覆盖。这可能是刻意的（每个团队的 CI/CD 环境差异太大），但缺少指向它们的路径意味着 agent 在"写完代码"和"代码在生产环境运行"之间没有任何指引。
 
 ### 5.2 CONTEXT.md 的腐化风险
 
-CONTEXT.md 依赖人的持续维护。人忘记更新、写错了、或者一个 PR 改了架构但没更新词汇表——这些都不在 skills 体系的检测范围内。Pocock 的设计假设是 `/grill-with-docs` 的使用频率足够高，自然会保持 CONTEXT.md 新鲜。但如果团队有多个开发者、多个 agent session 在并发运行，没有冲突检测、没有版本对比、没有过期标记——CONTEXT.md 的腐化是时间问题。
+CONTEXT.md 依赖人的持续维护。人忘记更新、写错了、或一个 PR 改了架构但没更新词汇表——这些都不在 skills 体系的检测范围内。Pocock 的设计假设是 `/grill-with-docs` 的使用频率足够高，自然会保持 CONTEXT.md 新鲜。但如果团队有多个开发者、多个 agent session 在并发运行，没有冲突检测、没有版本对比、没有过期标记，腐化只是时间问题。
 
 ### 5.3 跨模型兼容性
 
-这些 skills 的指令密度和推理要求，隐含地锁定了一个模型门槛。Pocock 提到的 120K token "smart zone" 是 Sonnet 4.6 / Opus 4.8 级别的假设。`/wayfinder` 需要在一次推理中理解地图、选择下一个 ticket、判断雾区的边界——这些任务在 Haiku 级别模型上的表现完全不可预测。
+这些 skills 的指令密度和推理要求，隐含锁定了模型门槛。Pocock 的 120K token "smart zone" 是 Sonnet 4.6 / Opus 4.8 级别的假设。`/wayfinder` 需要在一个推理周期里理解地图、选择下一个 ticket、判断雾区边界——这些任务在 Haiku 级别模型上的表现完全不可预测。
 
 ### 5.4 数量天花板
 
-26 条公开 skill 已经多到需要 `/ask-matt` 路由器来导航。随着 skills 继续增加——尤其是 `in-progress/` 桶有 6 条待晋升的 skill——路由器的可扩展性会面临压力。目前的设计是"把所有 skills 的关系硬写在 ask-matt 的 SKILL.md 里"，每加一条都要改路由器。没有自动发现机制，没有依赖图。
+26 条公开 skill 已经多到需要一个 `/ask-matt` 路由器来导航。目前的路由设计是把所有 skills 的关系硬写在 `ask-matt` 的 SKILL.md 里，每加一条要改路由器——没有自动发现机制，没有依赖图。`in-progress/` 桶里还有 6 条待晋升，天花板只是时间问题。
 
 ---
 
@@ -226,14 +226,14 @@ CONTEXT.md 依赖人的持续维护。人忘记更新、写错了、或者一个
 
 | | Pocock skills | GSD / Spec-Kit | BMAD |
 |---|---|---|---|
-| 粒度 | 单 skill = 单过程步骤 | 单框架 = 完整工作流 | 单工作流 = agentic methodology |
+| 粒度 | 单 skill = 单过程步骤 | 单框架 = 完整工作流 | 单工作流 = agent 方法论 |
 | 用户控制 | 全程在位（grill/prototype/ticket 都需要人确认） | 框架接管大量决策 | 框架接管 |
 | 可组合性 | 高（skills 之间通过 handoff 松耦合） | 低（框架预设路径） | 低 |
 | 学习曲线 | 中（需要理解 main flow 的编排） | 低（遵循预设脚本） | 中 |
 | bug 定位 | 容易（per-skill isolation） | 困难（框架内状态隐蔽） | 中等 |
 | 前置要求 | 需要人能做出高质量的设计判断 | 跟随脚本即可 | 跟随脚本即可 |
 
-核心张力很清楚：**你拿回控制权的代价是更多手工操作**——更多的确认点，更少的一键自动化。如果你接受这个交换，bug 可追踪性大幅提升。如果你不愿意，框架替你决策，代价是框架出错时你看不见。
+核心权衡很清楚：你拿回控制权的代价是更多的手工确认——更多的判断点，更少的一键自动化。如果你愿意接受这个交换，bug 的可追踪性大幅提升。如果不愿意，框架替你决策，代价是框架出错时你看不见。
 
 ---
 
@@ -243,7 +243,7 @@ CONTEXT.md 依赖人的持续维护。人忘记更新、写错了、或者一个
 
 ### 7.1 从模糊想法到拆好的 tickets（30-60 分钟）
 
-这是 main flow 前半段：适合任何代码库中的新功能开发。
+适合任何代码库中的新功能开发。
 
 ```
 Session 1: 对齐
@@ -256,9 +256,9 @@ Session 1: 对齐
 
 产出：(a) 一个 spec 文件；(b) N 个 tickets，每个声明了阻塞依赖；(c) 更新过的 CONTEXT.md。
 
-### 7.2 接一个 bug ticket 的完整闭环（20-40 分钟/ticket）
+### 7.2 接一个 ticket 的完整闭环（20-40 分钟/ticket）
 
-这是 main flow 后半段：适合处理自己拆出来的 tickets 或 triage 产出的 issues。
+适合处理自己拆出来的 tickets 或 triage 产出的 issues。
 
 ```
 Session 2-N: 实现（每个 ticket 新开 session）
@@ -270,7 +270,7 @@ Session 2-N: 实现（每个 ticket 新开 session）
                      ← 不要在同一个 session 里 implement 两个 tickets
 ```
 
-每个 session 只做一件事的纪律，来自一个非直觉的事实：即使上下文窗口大到能装下三个 tickets，每多做一个 ticket，第一个 ticket 的上下文残余会渗透进后面的推理中。
+每个 session 只做一件事的纪律，来自一个反直觉的事实：即使上下文窗口大到能装下三个 ticket，每多做一个，前一个 ticket 的上下文残余就会渗透进后面的推理中。
 
 ### 7.3 清积压：入库 → 分级 → 分发（单 session）
 
@@ -283,20 +283,20 @@ Session 2-N: 实现（每个 ticket 新开 session）
                   3. 超出能力范围的 issue 标 needs-spec 或 wont-fix
 ```
 
-Pocock 特别强调的一条规则：**不要 triage 你自己用 /to-tickets 产出的 tickets**——它们出生时已是 agent-ready，再跑一遍 triage 流程等于把熟饭回锅煮一遍。
+Pocock 特别强调的一条规则：不要 triage 你自己用 `/to-tickets` 产出的 tickets——它们出生时已经是 agent-ready，再跑一遍 triage 等于把成品重新分类。
 
 ---
 
 ## 8. 结语：带走什么
 
-Pocock 的 skills 体系本质上是把**"有经验的工程师怎么思考和协作"**翻译成了 agent 可执行的 natural language procedure。它不是 AI 时代的"新方法"，而是工程实践——grilling = 需求评审、spec = 技术规格、ticket = 任务分解、TDD = 反馈闭环、code review = 质量门、handoff = 交接文档——在 agent 媒介上的重写。
+Pocock 的这套体系，本质是把有经验的工程师怎么思考和协作，翻译成了 agent 可执行的流程指令。它不是 AI 时代的"新方法"——grilling 就是需求评审、spec 就是技术规格、ticket 就是任务分解、TDD 就是反馈闭环、code review 就是质量门、handoff 就是交接文档。只是从人与人之间的协作，换成了人与 agent 之间的协作。
 
 如果你只能从这里带走三件事：
 
-1. **每次 idea 都先用 `/grill-with-docs` 对齐**。没有对齐的执行只是浪费了一个 session。5 分钟的 relentless interview 能节省 50 分钟的错误方向。
+1. **每次 idea 都先用 `/grill-with-docs` 对齐**。没有对齐的执行只是浪费一个 session。5 分钟的 relentless interview 能节省 50 分钟的错误方向。
 2. **维护一个 CONTEXT.md**。不需要从零开始——下一次 grilling 中，把 agent 发现的歧义写进去就行。一个只有 10 个术语的词汇表，在 50 次 session 中的 token 节省远超你想象。
-3. **每个 implement 只做一个 ticket**。不要贪多——多个决策在一个窗口里相互污染，出来的代码比你一次做一个 ticket 更差，也更难追 bug。
+3. **每个 implement 只做一个 ticket**。不要贪多——多个决策在一个窗口里相互污染，出来的代码比一次做一个更差，bug 也更难追。
 
-这个体系有一个硬前提：**模型质量**。这套东西在 GPT-4 级别以下是跑不起来的——grilling 需要模型能提出有意义的问题，domain-modeling 需要模型能感知命名歧义，tdd 需要模型能从 seam 确认中提取测试边界。"120K token smart zone" 假设本身就锁定了 Sonnet 4.6 / Opus 4.8 这个级别的模型作为最低门槛。
+这套体系有一个硬前提：模型质量。在 GPT-4 级别以下是跑不起来的——grilling 需要模型能提有意义的问题，domain-modeling 需要模型能感知命名歧义，TDD 需要模型能从 seam 确认中提取测试边界。120K token 的 smart zone 假设本身就锁定了最低门槛。
 
-但即使你现在用的不是最顶级的模型，这个体系的**方法论**仍然可移植。一个差一点的模型执行 grilling 时可能问题提得不够锐利、tdd 时可能 seam 判断更粗放——但你仍然得到了一个"不做泥球"的流程骨架。方法论不绑定模型，只是在更好的模型上表现更精确。
+但即使你现在用的不是最顶级的模型，这套方法论仍然是可移植的。一个稍弱的模型执行 grilling 时可能问题提得不够锐利、TDD 时可能 seam 判断更粗放——但你仍然得到了一个"不做泥球"的流程骨架。方法论不绑定模型，只是在更好的模型上表现更精准。
