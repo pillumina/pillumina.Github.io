@@ -11,8 +11,57 @@
     </image>
     <generator>Hugo -- 0.148.2</generator>
     <language>en</language>
-    <lastBuildDate>Tue, 07 Jul 2026 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 09 Jul 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Agent</title>
+      <link>https://pillumina.github.io/tags/agent/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/agent/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Claude-Code</title>
+      <link>https://pillumina.github.io/tags/claude-code/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/claude-code/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Domain-Modeling</title>
+      <link>https://pillumina.github.io/tags/domain-modeling/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/domain-modeling/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Engineering</title>
+      <link>https://pillumina.github.io/tags/engineering/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/engineering/</guid>
+      <description>工程思考：设计原则、模式、最佳实践</description>
+    </item>
+    <item>
+      <title>Matt-Pocock</title>
+      <link>https://pillumina.github.io/tags/matt-pocock/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/matt-pocock/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Skills</title>
+      <link>https://pillumina.github.io/tags/skills/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/skills/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Tdd</title>
+      <link>https://pillumina.github.io/tags/tdd/</link>
+      <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
+      <guid>https://pillumina.github.io/tags/tdd/</guid>
+      <description></description>
+    </item>
     <item>
       <title>Attention</title>
       <link>https://pillumina.github.io/tags/attention/</link>
@@ -182,24 +231,10 @@
       <description></description>
     </item>
     <item>
-      <title>Agent</title>
-      <link>https://pillumina.github.io/tags/agent/</link>
-      <pubDate>Tue, 23 Jun 2026 10:00:00 +0800</pubDate>
-      <guid>https://pillumina.github.io/tags/agent/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Architecture</title>
       <link>https://pillumina.github.io/tags/architecture/</link>
       <pubDate>Tue, 23 Jun 2026 10:00:00 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/architecture/</guid>
-      <description></description>
-    </item>
-    <item>
-      <title>Claude-Code</title>
-      <link>https://pillumina.github.io/tags/claude-code/</link>
-      <pubDate>Tue, 23 Jun 2026 10:00:00 +0800</pubDate>
-      <guid>https://pillumina.github.io/tags/claude-code/</guid>
       <description></description>
     </item>
     <item>
@@ -616,13 +651,6 @@
       <description></description>
     </item>
     <item>
-      <title>Skills</title>
-      <link>https://pillumina.github.io/tags/skills/</link>
-      <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/skills/</guid>
-      <description></description>
-    </item>
-    <item>
       <title>Tree-Sitter</title>
       <link>https://pillumina.github.io/tags/tree-sitter/</link>
       <pubDate>Thu, 28 May 2026 00:00:00 +0000</pubDate>
@@ -691,13 +719,6 @@
       <pubDate>Fri, 01 Aug 2025 10:05:12 +0800</pubDate>
       <guid>https://pillumina.github.io/tags/aiinfra/</guid>
       <description></description>
-    </item>
-    <item>
-      <title>Engineering</title>
-      <link>https://pillumina.github.io/tags/engineering/</link>
-      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>https://pillumina.github.io/tags/engineering/</guid>
-      <description>工程思考：设计原则、模式、最佳实践</description>
     </item>
     <item>
       <title>Reflections</title>

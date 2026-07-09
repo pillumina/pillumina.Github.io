@@ -5,6 +5,48 @@
     <loc>https://pillumina.github.io/posts/aiagent/claude-code-skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
+    <loc>https://pillumina.github.io/tags/agent/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiagent/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/aiagent/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/categories/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/claude-code/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/domain-modeling/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/engineering/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/matt-pocock/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/skills/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/tags/tdd/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
+    <loc>https://pillumina.github.io/posts/aiagent/matt-pocock-skills/</loc>
+    <lastmod>2026-07-09T10:00:00+08:00</lastmod>
+  </url><url>
     <loc>https://pillumina.github.io/categories/architecture/</loc>
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
@@ -15,12 +57,6 @@
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/attention/</loc>
-    <lastmod>2026-07-07T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/</loc>
-    <lastmod>2026-07-07T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/</loc>
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/longcat/</loc>
@@ -56,9 +92,6 @@
     <loc>https://pillumina.github.io/tags/ngram-embedding/</loc>
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/posts/</loc>
-    <lastmod>2026-07-07T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/posts/qa/</loc>
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
@@ -69,9 +102,6 @@
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/series/</loc>
-    <lastmod>2026-07-07T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/</loc>
     <lastmod>2026-07-07T00:00:00+00:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/gqa/</loc>
@@ -131,19 +161,7 @@
     <loc>https://pillumina.github.io/posts/demo/slides-demo/</loc>
     <lastmod>2026-06-23T11:00:00+08:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/agent/</loc>
-    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/posts/aiagent/</loc>
-    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/categories/aiagent/</loc>
-    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/architecture/</loc>
-    <lastmod>2026-06-23T10:00:00+08:00</lastmod>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/claude-code/</loc>
     <lastmod>2026-06-23T10:00:00+08:00</lastmod>
   </url><url>
     <loc>https://pillumina.github.io/tags/claude-mem/</loc>
@@ -440,9 +458,6 @@
     <loc>https://pillumina.github.io/categories/skills/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>https://pillumina.github.io/tags/skills/</loc>
-    <lastmod>2026-05-28T00:00:00+00:00</lastmod>
-  </url><url>
     <loc>https://pillumina.github.io/tags/tree-sitter/</loc>
     <lastmod>2026-05-28T00:00:00+00:00</lastmod>
   </url><url>
@@ -674,8 +689,6 @@
     <loc>https://pillumina.github.io/categories/ai-infra/</loc>
   </url><url>
     <loc>https://pillumina.github.io/archives/</loc>
-  </url><url>
-    <loc>https://pillumina.github.io/tags/engineering/</loc>
   </url><url>
     <loc>https://pillumina.github.io/papers/</loc>
   </url><url>
