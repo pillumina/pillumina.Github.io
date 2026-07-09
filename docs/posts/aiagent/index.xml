@@ -14,11 +14,11 @@
     <lastBuildDate>Thu, 09 Jul 2026 10:00:00 +0800</lastBuildDate>
     <atom:link href="https://pillumina.github.io/posts/aiagent/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>拆解 Matt Pocock 的 Agent Skills：设计哲学、工程流与反模式</title>
+      <title>拆解 Matt Pocock 的 Agent Skills：设计哲学、工程流与失效模式</title>
       <link>https://pillumina.github.io/posts/aiagent/matt-pocock-skills/</link>
       <pubDate>Thu, 09 Jul 2026 10:00:00 +0800</pubDate>
       <guid>https://pillumina.github.io/posts/aiagent/matt-pocock-skills/</guid>
-      <description>深入拆解 mattpocock/skills（16 万 star）的体系：skill 组织架构、main flow 工作流、Wayfinder 多 session 编排、CONTEXT.md 共享语言、grill-with-docs 面试对齐、TDD 红线、及四个反模式解决方案。</description>
+      <description>深入拆解 mattpocock/skills（16 万 star）的体系：skill 组织架构、main flow 工作流、Wayfinder 多 session 编排、CONTEXT.md 共享语言、四个 agent 失效模式，以及你能直接用起来的三个工作流模板。</description>
     </item>
     <item>
       <title>从 claude-mem 看 Agent Memory 的设计哲学</title>
